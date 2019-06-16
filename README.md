@@ -15,13 +15,13 @@ For more information on `ungoogled-chromium`, please visit the original repo: [E
 *These are the differences between a Linux build of ungoogled-chromium and this Android build.*
 
 * Several binaries are not pruned due to build time error.
-* Default configuration build for `arm64` instead of `x64`.
+* Default configuration builds for `arm64` instead of `x64`.
 
 ## Supported Platforms and Distributions
 
 The current build has been tested on:
 * cpu_arch: `x86`, `arm64`
-* Android: API 28 (Android 8.1), API 27 (Android 8.0), LineageOS 15.1
+* OS: API 28 (Android 8.1), API 27 (Android 8.0), LineageOS 15.1
 
 *This build requires a minimum API 24 (Nougat).*
 
