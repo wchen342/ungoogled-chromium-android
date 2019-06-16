@@ -79,14 +79,14 @@ python src/build/util/lastchange.py -m SKIA_COMMIT_HASH -s src/third_party/skia 
 patch -p1 --ignore-whitespace -i patches/android-prune-domain-fix.patch --no-backup-if-mismatch
 # Remove the cache file if exists
 cache_file=domsubcache.tar.gz
-if [ -f ${cache_file} ] ; then
+if [ -f $cache_file ] ; then
     rm $cache_file
 fi
 
 # Ignore the pruning error
 python3 ungoogled-chromium/utils/prune_binaries.py src ungoogled-chromium/pruning.list || true
 python3 ungoogled-chromium/utils/patches.py apply src ungoogled-chromium/patches
-python3 ungoogled-chromium/utils/domain_substitution.py apply -r ungoogled-chromium/domain_regex.list -f ungoogled-chromium/domain_substitution.list -c cache_file src
+python3 ungoogled-chromium/utils/domain_substitution.py apply -r ungoogled-chromium/domain_regex.list -f ungoogled-chromium/domain_substitution.list -c $cache_file src
 
 
 ## Extra fixes for Chromium source
@@ -94,10 +94,10 @@ python3 ungoogled-chromium/utils/domain_substitution.py apply -r ungoogled-chrom
 patch -p1 --ignore-whitespace -i patches/android-rlz-fix-missing-variable.patch --no-backup-if-mismatch
 ## Workaround for a building failure caused by safe browsing. The file is pre-generated with safe_browsing_mode=2. See https://github.com/nikolowry/bromite-builder/issues/1
 # x86
-mkdir -p out/Default/gen/chrome/common/safe_browsing
-cp ../download_file_types.pb.h out/Default/gen/chrome/common/safe_browsing
+mkdir -p src/out/Default/gen/chrome/common/safe_browsing
+cp download_file_types.pb.h src/out/Default/gen/chrome/common/safe_browsing
 # arm/arm64
-cp ../download_file_types.pb.h chrome/common/safe_browsing/download_file_types.pb.h
+cp download_file_types.pb.h src/chrome/common/safe_browsing/download_file_types.pb.h
 
 
 ## Set compiler flags
@@ -151,3 +151,4 @@ tools/gn/out/gn gen out/Default --fail-on-unused-args
 
 ## Build
 ninja -C out/Default monochrome_public_apk
+
