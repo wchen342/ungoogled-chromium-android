@@ -1,0 +1,14 @@
+description: remove linker flag -landroid_support. We build MonoChrome targets API 24+, which won't need support library anyway
+author: Wengling Chen <feiyu2817@gmail.com>
+
+--- a/src/build/config/android/BUILD.gn
++++ b/src/build/config/android/BUILD.gn
+@@ -117,7 +117,7 @@
+   lib_dirs = [ android_libcpp_lib_dir ]
+ 
+   libs = []
+-  libs += [ "android_support" ]
++  # libs += [ "android_support" ]
+ 
+   # arm builds of libc++ starting in NDK r12 depend on unwind.
+   if (current_cpu == "arm") {

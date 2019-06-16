@@ -1,0 +1,14 @@
+description: remove reference to data_space.h due to a ENUM redefined error
+author: Wengling Chen <feiyu2817@gmail.com>
+
+--- a/android-ndk/android-ndk-r18b/sysroot/usr/include/android/native_window.h
++++ b/android-ndk/android-ndk-r18b/sysroot/usr/include/android/native_window.h
+@@ -29,7 +29,7 @@
+ 
+ #include <sys/cdefs.h>
+ 
+-#include <android/data_space.h>
++//#include <android/data_space.h>
+ #include <android/hardware_buffer.h>
+ #include <android/rect.h>
+ 

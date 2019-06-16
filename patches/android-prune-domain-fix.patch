@@ -1,0 +1,52 @@
+description: remove some prune and fix a domain regex expression
+author: Wengling Chen <feiyu2817@gmail.com>
+
+--- a/ungoogled-chromium/domain_regex.list
++++ b/ungoogled-chromium/domain_regex.list
+@@ -16,5 +16,5 @@
+ ggpht(\\*?)\.com#99pht\g<1>.qjz9zk
+ microsoft(\\*?)\.com#m1cr050ft\g<1>.qjz9zk
+ 1e100(\\*?)\.net#l3lOO\g<1>.qjz9zk
+-android(\\*?)\.com#8n6r01d\g<1>.qjz9zk
++(?<!http://schemas.)android(\\*?)\.com#8n6r01d\g<1>.qjz9zk
+ goo\.gl#goo.gl.qjz9zk
+
+--- a/ungoogled-chromium/pruning.list
++++ b/ungoogled-chromium/pruning.list
+@@ -12,11 +12,9 @@ base/test/data/file_version_info_unittest/FileVersionInfoTest2.dll
+ base/test/data/pe_image/pe_image_test_32.dll
+ base/test/data/pe_image/pe_image_test_64.dll
+ build/android/CheckInstallApk-debug.apk
+-build/android/chromium-debug.keystore
+ build/android/tests/symbolize/liba.so
+ build/android/tests/symbolize/libb.so
+ build/linux/sysroot_scripts/debian-archive-sid-stable.gpg
+-buildtools/third_party/eu-strip/bin/eu-strip
+ chrome/browser/chromeos/power/ml/smart_dim/example_preprocessor_config.pb
+ chrome/browser/chromeos/power/ml/smart_dim/lite_example_preprocessor_config.pb
+ chrome/browser/resources/chromeos/assistant_optin/voice_laptop_1x.webm
+@@ -3068,7 +3066,6 @@ third_party/angle/third_party/glmark2/src/data/models/cat.3ds
+ third_party/angle/third_party/glmark2/src/data/models/cube.3ds
+ third_party/angle/third_party/glmark2/src/data/models/horse.3ds
+ third_party/angle/third_party/vulkan-loader/src/loader/loader.aps
+-third_party/bazel/desugar/Desugar-runtime.jar
+ third_party/blink/manual_tests/WebKitSite.webarchive
+ third_party/blink/manual_tests/accessibility/resources/AppletTest.class
+ third_party/blink/manual_tests/plugins/test.swf
+@@ -7763,7 +7760,6 @@ third_party/chromite/lib/datafiles/arch.sparc.elf
+ third_party/chromite/lib/datafiles/arch.sparc64.elf
+ third_party/chromite/lib/datafiles/arch.x32.elf
+ third_party/chromite/lib/datafiles/arch.x86_64.elf
+-third_party/closure_compiler/compiler/compiler.jar
+ third_party/crashpad/crashpad/handler/win/z7_test.dll
+ third_party/crashpad/crashpad/snapshot/elf/elf_image_reader_fuzzer_corpus/crashpad_snapshot_test_both_dt_hash_styles.so
+ third_party/crashpad/crashpad/snapshot/elf/elf_image_reader_fuzzer_corpus/ret42
+@@ -12796,7 +12792,6 @@ third_party/hunspell/fuzz/bdict_corpus/en-US-7-1.bdic
+ third_party/hunspell/fuzz/bdict_corpus/en-US-8-0.bdic
+ third_party/hunspell/fuzz/bdict_corpus/f95048cdc0fc231dd712bad106578a9eeecd869b
+ third_party/hunspell/fuzz/bdict_corpus/fda69541054125551c41ab3e591e0482405ca2dc
+-third_party/icu/android/icudtl.dat
+ third_party/icu/cast/icudtl.dat
+ third_party/icu/common/icudtb.dat
+ third_party/icu/flutter/icudtl.dat
+
