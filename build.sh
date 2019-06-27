@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eux -o pipefail
 
-chromium_version=74.0.3729.169
+chromium_version=75.0.3770.80
 target=monochrome_public_apk
 
 # Required tools: python2, python3, ninja, git, clang, lld, llvm, curl
@@ -26,6 +26,7 @@ export PATH="$(pwd -P)/depot_tools:$PATH"
 
 
 ## Sync files
+# third_party/android_deps and some other overrides doesn't work
 gclient.py sync --nohooks --no-history --shallow --revision=${chromium_version}
 
 
@@ -65,7 +66,6 @@ git checkout ${gn_commit}
 popd
 cp -r src/tools/gn.bak/bootstrap src/tools/gn
 
-
 ## Hooks
 python src/build/util/lastchange.py -o src/build/util/LASTCHANGE
 python src/chrome/android/profiles/update_afdo_profile.py
@@ -100,11 +100,86 @@ cp download_file_types.pb.h src/out/Default/gen/chrome/common/safe_browsing
 cp download_file_types.pb.h src/chrome/common/safe_browsing/download_file_types.pb.h
 
 
-## Set compiler flags
-export AR=${AR:=llvm-ar}
-export NM=${NM:=llvm-nm}
-export CC=${CC:=clang}
-export CXX=${CXX:=clang++}
+## Prepare Android SDK/NDK
+# This is Sylvain Beucler's libre Android rebuild
+sdk_link="https://android-rebuilds.beuc.net/dl/android-sdk_user.9.0.0_r21_linux-x86.zip"
+sdk_tools_link="https://android-rebuilds.beuc.net/dl/sdk-repo-linux-tools-26.1.1.zip"
+ndk_link="https://android-rebuilds.beuc.net/dl/android-ndk-r18b-linux-x86_64.tar.bz2"
+mkdir android-rebuilds
+mkdir android-sdk
+mkdir android-ndk
+cd android-rebuilds && { curl -O ${sdk_link} ; curl -O ${sdk_tools_link} ; curl -O ${ndk_link} ; cd -; }
+unzip -qqo android-rebuilds/android-sdk_user.9.0.0_r21_linux-x86.zip -d android-sdk
+unzip -qqo android-rebuilds/sdk-repo-linux-tools-26.1.1.zip -d android-sdk/android-sdk_user.9.0.0_r21_linux-x86
+tar xjf android-rebuilds/android-ndk-r18b-linux-x86_64.tar.bz2 -C android-ndk
+# remove data_space.h, patch native_window.h
+mv android-ndk/android-ndk-r18b/sysroot/usr/include/android/data_space.h android-ndk/android-ndk-r18b/sysroot/usr/include/android/data_space.h.bak
+patch -p1 --ignore-whitespace -i patches/ndk-native-window.patch --no-backup-if-mismatch
+# Create symbol links to sdk folders
+# The rebuild sdk has a different folder structure from the checked out version, so it is easier to create symbol links
+# rm -rf src/third_party/android_sdk   # The folder is not used
+pushd src/third_party/android_build_tools
+rm -rf aapt2
+ln -s ../../../android-sdk/android-sdk_user.9.0.0_r21_linux-x86/build-tools/android-9 aapt2
+popd
+DIRECTORY="src/third_party/android_sdk/public"
+if [[ -d "$DIRECTORY" ]]; then
+  rm -rf "$DIRECTORY"
+fi
+mkdir "${DIRECTORY}" && pushd ${DIRECTORY}
+# rm -rf add-ons emulator licenses platforms sources tools-lint build-tools ndk-bundle platform-tools tools
+mkdir build-tools && ln -s ../../../../../android-sdk/android-sdk_user.9.0.0_r21_linux-x86/build-tools/android-9 build-tools/27.0.3
+mkdir platforms
+ln -s ../../../../../android-sdk/android-sdk_user.9.0.0_r21_linux-x86/platforms/android-9 platforms/android-28
+ln -s ../../../../android-sdk/android-sdk_user.9.0.0_r21_linux-x86/platform-tools platform-tools
+ln -s ../../../../android-sdk/android-sdk_user.9.0.0_r21_linux-x86/tools tools
+# build gcm-client
+gcm_client_dir="extras/google/gcm/gcm-client/"
+mkdir -p ${gcm_client_dir} && tar xzf ../../../../extras/gcm-client.tar.gz -C ${gcm_client_dir} && pushd ${gcm_client_dir}
+ant jar
+popd
+popd
+
+
+## Compile third-party binaries
+# error-prone, from Maven repo
+mkdir -p src/third_party/errorprone/lib
+pushd src/third_party/errorprone/lib
+version=2.3.1
+mvn_url="https://repo1.maven.org/maven2/com/google/errorprone/error_prone_ant/${version}"
+curl "${mvn_url}/error_prone_ant-${version}.jar" -O
+curl "${mvn_url}/error_prone_ant-${version}.jar.asc" -O
+echo -e "\033[0;33mThis will add a new key to your GPG keyring! \033[0m"
+gpg --recv-keys EE9E7DC9D92FC896
+gpg --verify "error_prone_ant-${version}.jar.asc" "error_prone_ant-${version}.jar"
+popd
+# closure-compiler
+DIRECTORY="src/third_party/closure_compiler"
+mkdir "${DIRECTORY}"/temp && pushd ${DIRECTORY}/temp
+git clone https://github.com/google/closure-compiler && cd closure-compiler
+mvn -DskipTests -pl externs/pom.xml,pom-main.xml,pom-main-shaded.xml
+cp -a target/closure-compiler-1.0-SNAPSHOT.jar ../../compiler/compiler.jar
+cd ../.. && rm -rf temp
+popd
+# eu-strip can be re-compiled with -Wno-error, but it is probably not a good idea
+patch -p1 --ignore-whitespace -i patches/eu-strip-build-script.patch --no-backup-if-mismatch
+pushd src/buildtools/third_party/eu-strip
+./build.sh
+popd
+# Some of the support libraries can be grabbed from maven https://android.googlesource.com/platform/prebuilts/maven_repo/android/+/master/com/android/support/
+
+
+## Second pruning list
+pruning_list_2="pruning_2.list"
+python3 ungoogled-chromium/utils/prune_binaries.py src ${pruning_list_2} || true
+## Second domain substitution list
+substitution_list_2="domain_sub_2.list"
+# Remove the cache file if exists
+cache_file="domsubcache.tar.gz"
+if [[ -f ${cache_file} ]] ; then
+    rm ${cache_file}
+fi
+python3 ungoogled-chromium/utils/domain_substitution.py apply -r ungoogled-chromium/domain_regex.list -f ${substitution_list_2} -c ${cache_file} src
 
 
 ## Genarate gn file
@@ -114,40 +189,21 @@ ninja -C out gn
 popd
 
 
-## Prepare Android SDK/NDK
-# This is Sylvain Beucler's libre Android rebuild
-sdk_link="https://android-rebuilds.beuc.net/dl/android-sdk_user.9.0.0_r21_linux-x86.zip"
-ndk_link="https://android-rebuilds.beuc.net/dl/android-ndk-r18b-linux-x86_64.tar.bz2"
-mkdir android-rebuilds
-mkdir android-sdk
-mkdir android-ndk
-cd android-rebuilds && { curl -O ${sdk_link} ; curl -O ${ndk_link} ; cd -; }
-unzip -qqo android-rebuilds/android-sdk_user.9.0.0_r21_linux-x86.zip -d android-sdk
-tar xjf android-rebuilds/android-ndk-r18b-linux-x86_64.tar.bz2 -C android-ndk
-# remove data_space.h, patch native_window.h
-mv android-ndk/android-ndk-r18b/sysroot/usr/include/android/data_space.h android-ndk/android-ndk-r18b/sysroot/usr/include/android/data_space.h.bak
-patch -p1 --ignore-whitespace -i patches/ndk-native-window.patch --no-backup-if-mismatch
-# Create symbol links to sdk folders
-# The rebuild sdk has a different folder structure from the checked out version, so it is easier to create symbol links
-# Currently extras and tools are not available from the rebuild
-pushd src/third_party/android_tools/sdk
-rm -rf add-ons emulator licenses platforms sources tools-lint build-tools ndk-bundle platform-tools
-mkdir build-tools
-ln -s ../../../../../android-sdk/android-sdk_user.9.0.0_r21_linux-x86/build-tools/android-9 build-tools/27.0.3
-mkdir platforms
-ln -s ../../../../../android-sdk/android-sdk_user.9.0.0_r21_linux-x86/platforms/android-9 platforms/android-28
-ln -s ../../../../android-sdk/android-sdk_user.9.0.0_r21_linux-x86/platform-tools platform-tools
-popd
-
-
 ## Configure output folder
-# patch build/config/android/BUILD.gn
+# patch build/config/android/BUILD.gn, build/android/gyp/compile_resources.py
 patch -p1 --ignore-whitespace -i patches/linker-android-support-remove.patch --no-backup-if-mismatch
+patch -p1 --ignore-whitespace -i patches/aapt2-param.patch --no-backup-if-mismatch
 cd src
 mkdir -p out/Default
 cat ../ungoogled-chromium/flags.gn ../android_flags.gn > out/Default/args.gn
 tools/gn/out/gn gen out/Default --fail-on-unused-args
 
+
+## Set compiler flags
+export AR=${AR:=llvm-ar}
+export NM=${NM:=llvm-nm}
+export CC=${CC:=clang}
+export CXX=${CXX:=clang++}
 
 ## Build
 ninja -C out/Default ${target}

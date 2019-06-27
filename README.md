@@ -28,15 +28,15 @@ The current build has been tested on:
 ## Building Instructions
 *This build is built from Sylvain Beucler's [libre Android rebuilds](http://android-rebuilds.beuc.net/) instead of SDK/NDK binaries from Google.*
 
-Clone this repository and run `build.sh`. Build time dependencies can be rougnly referred from [AUR](https://aur.archlinux.org/packages/ungoogled-chromium-archlinux/).
+Clone this repository and run `build.sh`. Build time dependencies can be roughly referred from [AUR](https://aur.archlinux.org/packages/ungoogled-chromium/).
 
 For a more customized building process, see building instructions from [the original repo](https://github.com/Eloston/ungoogled-chromium/blob/master/docs/building.md).
 
 ## TODO List
-- [ ] Prune the binaries
-- [ ] Remove dependencies on SDK tools and extras
-- [ ] Remove Play Services dependencies
-- [ ] Domain substitution in java files
+- [x] Remove dependencies on SDK tools and extras
+- [x] Domain substitution in java files
+- [ ] Prune binaries
+- [ ] Remove Play Services
 - [ ] Java patches (mostly UI-related)
 
 ## Credits

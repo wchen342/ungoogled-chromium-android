@@ -1,0 +1,16 @@
+Prevent error from paramter mismatch between different versions of aapt2
+author: Wengling Chen <feiyu2817@gmail.com>
+
+--- a/src/build/android/gyp/compile_resources.py
++++ b/src/build/android/gyp/compile_resources.py
+@@ -834,8 +834,8 @@
+       '--enable-resource-obfuscation',
+       '-o',
+       output,
+-      '--resources-config-path',
+-      gen_config_path,
++      #'--resources-config-path',
++      #gen_config_path,
+       unoptimized_apk_path,
+   ]
+   build_utils.CheckOutput(

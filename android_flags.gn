@@ -1,10 +1,13 @@
 android_channel="stable"
 android32_ndk_api_level=21
 android64_ndk_api_level=21
-clang_base_path="/usr"
 android_ndk_root = "//../android-ndk/android-ndk-r18b"
 android_ndk_version = "r18b"
 android_ndk_major_version = 18
+android_sdk_build_tools_version="27.0.3"
+android_sdk_tools_version_suffix="-26.2.0-dev"
+android_sdk_version=28
+clang_base_path="/usr"
 disable_android_lint=true
 enable_gvr_services=false
 enable_resource_whitelist_generation=false
