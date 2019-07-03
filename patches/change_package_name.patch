@@ -1,0 +1,29 @@
+description: change package name to allow co-existence with original Chromium
+author: Wengling Chen <feiyu2817@gmail.com>
+
+--- a/src/chrome/android/BUILD.gn
++++ b/src/chrome/android/BUILD.gn
+@@ -38,8 +38,8 @@
+   import("//chrome/android/features/vr/vr_module_tmpl.gni")
+ }
+ 
+-manifest_package = "org.chromium.chrome"
+-test_manifest_package = "org.chromium.chrome.tests"
++manifest_package = "org.ungoogled.chromium"
++test_manifest_package = "org.ungoogled.chromium.tests"
+ 
+ chrome_public_jinja_variables = default_chrome_public_jinja_variables +
+                                 [ "manifest_package=$manifest_package" ]
+
+
+--- a/src/chrome/android/java/res_chromium/values/channel_constants.xml
++++ b/src/chrome/android/java/res_chromium/values/channel_constants.xml
+@@ -5,7 +5,7 @@
+ 
+ <resources xmlns:android="http://schemas.android.com/apk/res/android">
+     <!-- The application name displayed to the user. -->
+-    <string name="app_name" translatable="false">Chromium</string>
++    <string name="app_name" translatable="false">Ungoogled Chromium</string>
+     <string name="bookmark_widget_title" translatable="false">Chromium bookmarks</string>
+     <string name="search_widget_title" translatable="false">Chromium search</string>
+ </resources>

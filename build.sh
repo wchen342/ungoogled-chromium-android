@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eux -o pipefail
 
-chromium_version=75.0.3770.80
+chromium_version=75.0.3770.100
 target=monochrome_public_apk
 
 # Required tools: python2, python3, ninja, git, clang, lld, llvm, curl
@@ -92,6 +92,9 @@ python3 ungoogled-chromium/utils/domain_substitution.py apply -r ungoogled-chrom
 ## Extra fixes for Chromium source
 # Fix an error in chrome/browser/android/rlz/rlz_ping_handler.cc: line 79, -rlz_lib::kFinancialServer +"about:blank"
 patch -p1 --ignore-whitespace -i patches/android-rlz-fix-missing-variable.patch --no-backup-if-mismatch
+# Change package/App name
+# patch src/chrome/android/BUILD.gn, src/chrome/android/java/res_chromium/values/channel_constants.xml
+patch -p1 --ignore-whitespace -i patches/change_package_name.patch --no-backup-if-mismatch
 # Workaround for a building failure caused by safe browsing. The file is pre-generated with safe_browsing_mode=2. See https://github.com/nikolowry/bromite-builder/issues/1
 # x86
 mkdir -p src/out/Default/gen/chrome/common/safe_browsing
