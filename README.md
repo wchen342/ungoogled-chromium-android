@@ -10,27 +10,59 @@
 
 For more information on `ungoogled-chromium`, please visit the original repo: [Eloston/ungoogled-chromium](https://github.com/Eloston/ungoogled-chromium).
 
+## Content Overview
+
+* [Differences from ungoogled-chromium](#differences-from-ungoogled-chromium)
+* [Supported Platforms](#supported-platforms)
+* [Building Instructions](#building-instructions)
+* [Reporting and Contributing](#reporting-and-contributing)
+* [F-droid Repository](#f-droid-repository)
+* [TODO List](#todo-list)
+* [Credits](#credits)
+* [Related Projects](#related-projects)
+* [License](#license)
+
 ## Differences from ungoogled-chromium
 
 *These are the differences between a Linux build of ungoogled-chromium and this Android build.*
 
-* Several binaries are not pruned due to build time error.
+* Current build still include proprietary libraries from Google. They are supposed to be removed in the future.
+* Android specific fixes are applied.
 * Default configuration builds for `arm64` instead of `x64`.
 
-## Supported Platforms and Distributions
+## Supported Platforms
 
 The current build has been tested on:
 * cpu_arch: `x86`, `arm64`
 * OS: API 28 (Android 8.1), API 27 (Android 8.0), LineageOS 15.1
 
-*This build requires a minimum API 24 (Nougat).*
+Theoretically it will run on any device with a minimum API of 24 (Nougat).
+
+* Note: because from `MonoChrome` upward Chromium is built bundled with WebView, it will be installed together with Chromium. However, it will be installed as an user app not system app.*
+
 
 ## Building Instructions
 *This build is built from Sylvain Beucler's [libre Android rebuilds](http://android-rebuilds.beuc.net/) instead of SDK/NDK binaries from Google.*
 
-Clone this repository and run `build.sh`. Build time dependencies can be roughly referred from [AUR](https://aur.archlinux.org/packages/ungoogled-chromium/).
+* Clone this repository
+* If you want to enable proprietary codecs (h264, mp3, mp4, etc.), add `proprietary_codecs=true` to the end of `android_flags.gn`
+* enter repo directory and run `./build.sh`.
+
+Build time dependencies can be roughly referred from [AUR](https://aur.archlinux.org/packages/ungoogled-chromium/).
 
 For a more customized building process, see building instructions from [the original repo](https://github.com/Eloston/ungoogled-chromium/blob/master/docs/building.md).
+
+## Reporting and Contributing
+
+* For reporting and contacting, see [SUPPORT.md](SUPPORT.md)
+* This project is still in its early stage, so contributions are welcomed. Currently, the major task is to remove proprietary Google dependencies.
+
+## F-droid Repository
+
+I have set up an experimental f-droid repository. Because of the limitation of its server tools, only arm64 version is hosted.
+
+You can use f-Droid client and add [this repository](https://www.droidware.info/fdroid/repo).
+
 
 ## TODO List
 - [x] Remove dependencies on SDK tools and extras
