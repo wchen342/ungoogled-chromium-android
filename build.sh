@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eux -o pipefail
 
-chromium_version=75.0.3770.100
+chromium_version=75.0.3770.142
 target=monochrome_public_apk
 
 # Required tools: python2, python3, ninja, git, clang, lld, llvm, curl
@@ -79,7 +79,7 @@ python src/build/util/lastchange.py -m SKIA_COMMIT_HASH -s src/third_party/skia 
 patch -p1 --ignore-whitespace -i patches/android-prune-domain-fix.patch --no-backup-if-mismatch
 # Remove the cache file if exists
 cache_file="domsubcache.tar.gz"
-if [ -f ${cache_file} ] ; then
+if [[ -f ${cache_file} ]] ; then
     rm ${cache_file}
 fi
 
@@ -172,6 +172,10 @@ popd
 # Some of the support libraries can be grabbed from maven https://android.googlesource.com/platform/prebuilts/maven_repo/android/+/master/com/android/support/
 
 
+# Additional Source Patches
+# TODO use patches.py instead
+patch -p1 --ignore-whitespace -i patches/Vanadium/0020-disable-media-router-media-remoting-by-default.patch --no-backup-if-mismatch
+patch -p1 --ignore-whitespace -i patches/Vanadium/0021-disable-media-router-by-default.patch --no-backup-if-mismatch
 ## Second pruning list
 pruning_list_2="pruning_2.list"
 python3 ungoogled-chromium/utils/prune_binaries.py src ${pruning_list_2} || true

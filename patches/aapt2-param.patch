@@ -3,8 +3,12 @@ author: Wengling Chen <feiyu2817@gmail.com>
 
 --- a/src/build/android/gyp/compile_resources.py
 +++ b/src/build/android/gyp/compile_resources.py
-@@ -834,8 +834,8 @@
-       '--enable-resource-obfuscation',
+@@ -831,11 +831,11 @@
+   optimize_command = [
+       options.aapt2_path,
+       'optimize',
+-      '--enable-resource-obfuscation',
++      #'--enable-resource-obfuscation',
        '-o',
        output,
 -      '--resources-config-path',
