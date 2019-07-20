@@ -33,12 +33,10 @@ For more information on `ungoogled-chromium`, please visit the original repo: [E
 ## Supported Platforms
 
 The current build has been tested on:
-* cpu_arch: `x86`, `arm64`
-* OS: API 28 (Android 8.1), API 27 (Android 8.0), LineageOS 15.1
+* cpu_arch: `x86`, `arm`, `arm64`
+* OS: API 28 (Android 8.1), API 27 (Android 8.0), LineageOS 16.0
 
 Theoretically it will run on any device with a minimum API of 24 (Nougat).
-
-* Note: because from `MonoChrome` upward Chromium is built bundled with WebView, it will be installed together with Chromium. However, it will be installed as an user app not system app.*
 
 
 ## Building Instructions
