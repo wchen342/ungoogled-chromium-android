@@ -14,7 +14,21 @@ pushd third_party
 ln -s ../../depot_tools
 popd
 
+# Need different GN flags than a release build
 mkdir -p out/Debug
-cat ../ungoogled-chromium/flags.gn ../android_flags.gn > out/Debug/args.gn
+cp -a ../android_flags.debug.gn out/Debug/args.gn
 
-python build/android/gradle/generate_gradle.py --target //chrome/android:${target} --output-directory out/Debug -j 40
+# Run gn first
+tools/gn/out/gn gen out/Debug --fail-on-unused-args
+
+## Set compiler flags
+export AR=${AR:=llvm-ar}
+export NM=${NM:=llvm-nm}
+export CC=${CC:=clang}
+export CXX=${CXX:=clang++}
+
+# Compile apk
+ninja -C out/Debug ${target}
+
+# Generate gradle files
+python build/android/gradle/generate_gradle.py --target //chrome/android:${target} --output-directory out/Debug
