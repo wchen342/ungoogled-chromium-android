@@ -136,11 +136,6 @@ mkdir platforms
 ln -s ../../../../../android-sdk/android-sdk_user.9.0.0_r21_linux-x86/platforms/android-9 platforms/android-28
 ln -s ../../../../android-sdk/android-sdk_user.9.0.0_r21_linux-x86/platform-tools platform-tools
 ln -s ../../../../android-sdk/android-sdk_user.9.0.0_r21_linux-x86/tools tools
-# build gcm-client
-gcm_client_dir="extras/google/gcm/gcm-client/"
-mkdir -p ${gcm_client_dir} && tar xzf ../../../../extras/gcm-client.tar.gz -C ${gcm_client_dir} && pushd ${gcm_client_dir}
-ant jar
-popd
 popd
 
 

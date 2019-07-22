@@ -1,0 +1,331 @@
+---
+ src/chrome/android/BUILD.gn                                                                                                     |    1 
+ src/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/InvalidationGcmUpstreamSender.java                         |   10 -
+ src/components/gcm_driver/android/BUILD.gn                                                                                      |    1 
+ src/components/sync/android/BUILD.gn                                                                                            |    1 
+ src/third_party/android_sdk/BUILD.gn                                                                                            |    3 
+ src/third_party/cacheinvalidation/BUILD.gn                                                                                      |    1 
+ src/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/android2/AndroidManifest.xml             |   35 ---
+ src/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/contrib/MultiplexingGcmListener.java     |   93 ----------
+ src/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidMessageReceiverService.java |   17 -
+ src/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidMessageSenderService.java   |    3 
+ 10 files changed, 5 insertions(+), 160 deletions(-)
+
+--- a/src/chrome/android/BUILD.gn
++++ b/src/chrome/android/BUILD.gn
+@@ -343,7 +343,6 @@
+     "//third_party/android_deps:com_google_protobuf_protobuf_lite_java",
+     "//third_party/android_deps:javax_inject_javax_inject_java",
+     "//third_party/android_media:android_media_java",
+-    "//third_party/android_sdk:android_gcm_java",
+     "//third_party/android_swipe_refresh:android_swipe_refresh_java",
+     "//third_party/blink/public:blink_headers_java",
+     "//third_party/blink/public/mojom:android_mojo_bindings_java",
+
+--- a/src/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/InvalidationGcmUpstreamSender.java
++++ b/src/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/InvalidationGcmUpstreamSender.java
+@@ -13,7 +13,6 @@
+ import android.support.annotation.Nullable;
+ import android.util.Log;
+ 
+-import com.google.android.gms.gcm.GoogleCloudMessaging;
+ import com.google.ipc.invalidation.ticl.android2.channel.GcmUpstreamSenderService;
+ 
+ import org.chromium.base.ContextUtils;
+@@ -94,13 +93,8 @@
+             return;
+         }
+         String msgId = UUID.randomUUID().toString();
+-        try {
+-            GoogleCloudMessaging.getInstance(ContextUtils.getApplicationContext())
+-                    .send(to, msgId, 1, data);
+-        } catch (IOException | IllegalArgumentException exception) {
+-            Log.w(TAG, "Send message failed");
+-            GcmUma.recordGcmUpstreamHistogram(context, GcmUma.UMA_UPSTREAM_SEND_FAILED);
+-        }
++        Log.w(TAG, "Send message failed");
++        GcmUma.recordGcmUpstreamHistogram(context, GcmUma.UMA_UPSTREAM_SEND_FAILED);
+     }
+ 
+     private boolean isMessageWithinLimit(Bundle data) {
+
+--- a/src/components/gcm_driver/android/BUILD.gn
++++ b/src/components/gcm_driver/android/BUILD.gn
+@@ -15,7 +15,6 @@
+   deps = [
+     "//base:base_java",
+     "//content/public/android:content_java",
+-    "//third_party/android_sdk:android_gcm_java",
+     "//third_party/jsr-305:jsr_305_javalib",
+   ]
+ 
+
+--- a/src/components/sync/android/BUILD.gn
++++ b/src/components/sync/android/BUILD.gn
+@@ -11,7 +11,6 @@
+     "//components/signin/core/browser/android:java",
+     "//net/android:net_java",
+     "//third_party/android_deps:com_android_support_support_annotations_java",
+-    "//third_party/android_sdk:android_gcm_java",
+     "//third_party/cacheinvalidation:cacheinvalidation_javalib",
+     "//third_party/cacheinvalidation:cacheinvalidation_proto_java",
+     "//third_party/jsr-305:jsr_305_javalib",
+
+--- a/src/third_party/android_sdk/BUILD.gn
++++ b/src/third_party/android_sdk/BUILD.gn
+@@ -87,9 +87,6 @@
+     testonly = true
+     java_files = [ "//third_party/android_sdk/public/extras/chromium/support/src/org/chromium/android/support/PackageManagerWrapper.java" ]
+   }
+-  android_java_prebuilt("android_gcm_java") {
+-    jar_path = "//third_party/android_sdk/public/extras/google/gcm/gcm-client/dist/gcm.jar"
+-  }
+   android_java_prebuilt("emma_device_java") {
+     jar_path = "//third_party/android_sdk/public/tools/lib/emma_device.jar"
+     include_java_resources = true
+
+--- a/src/third_party/cacheinvalidation/BUILD.gn
++++ b/src/third_party/cacheinvalidation/BUILD.gn
+@@ -141,7 +141,6 @@
+       "$google_play_services_package:google_play_services_iid_java",
+       "$google_play_services_package:google_play_services_tasks_java",
+       "//third_party/android_protobuf:protobuf_nano_javalib",
+-      "//third_party/android_sdk:android_gcm_java",
+     ]
+ 
+     java_files = [
+
+--- a/src/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/android2/AndroidManifest.xml
++++ b/src/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/android2/AndroidManifest.xml
+@@ -4,10 +4,6 @@
+ <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+     package="com.google.ipc.invalidation.client.android2">
+ 
+-  <!-- App receives GCM messages. -->
+-  <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+-  <!-- GCM connects to Google Services. -->
+-  <uses-permission android:name="android.permission.INTERNET" />
+   <!-- Keeps the processor from sleeping when a message is received. -->
+   <uses-permission android:name="android.permission.WAKE_LOCK" />
+ 
+@@ -16,40 +12,9 @@
+     <service android:exported="false"
+         android:name="com.google.ipc.invalidation.ticl.android2.TiclService"/>
+ 
+-    <!-- Ticl sender. -->
+-    <service android:exported="false"
+-        android:name="com.google.ipc.invalidation.ticl.android2.channel.AndroidMessageSenderService"/>
+-
+     <!-- Receiver for scheduler alarms. -->
+     <receiver android:exported="false"
+         android:name="com.google.ipc.invalidation.ticl.android2.AndroidInternalScheduler$AlarmReceiver"/>
+ 
+-    <!-- GCM Broadcast Receiver -->
+-    <receiver android:exported="true"
+-        android:name="com.google.ipc.invalidation.external.client.contrib.MultiplexingGcmListener$GCMReceiver"
+-        android:permission="com.google.android.c2dm.permission.SEND">
+-      <intent-filter>
+-        <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+-        <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+-        <category android:name="com.google.ipc.invalidation.ticl.android2" />
+-      </intent-filter>
+-    </receiver>
+-
+-    <!-- GCM multiplexer -->
+-    <service android:exported="false"
+-        android:name="com.google.ipc.invalidation.external.client.contrib.MultiplexingGcmListener">
+-      <meta-data android:name="sender_ids" android:value="ipc.invalidation@9ma1l.qjz9zk"/>
+-    </service>
+-
+-    <!-- Invalidation service multiplexed GCM receiver -->
+-    <service android:exported="false"
+-        android:name="com.google.ipc.invalidation.ticl.android2.channel.AndroidMessageReceiverService"
+-        android:enabled="true"/>
+-    <receiver android:exported="false"
+-        android:name="com.google.ipc.invalidation.ticl.android2.channel.AndroidMessageReceiverService$Receiver">
+-      <intent-filter>
+-        <action android:name="com.google.ipc.invalidation.gcmmplex.EVENT" />
+-      </intent-filter>
+-    </receiver>
+   </application>
+ </manifest>
+
+--- a/src/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/contrib/MultiplexingGcmListener.java
++++ b/src/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/contrib/MultiplexingGcmListener.java
+@@ -16,9 +16,6 @@
+ 
+ package com.google.ipc.invalidation.external.client.contrib;
+ 
+-import com.google.android.gcm.GCMBaseIntentService;
+-import com.google.android.gcm.GCMBroadcastReceiver;
+-import com.google.android.gcm.GCMRegistrar;
+ import com.google.ipc.invalidation.external.client.SystemResources.Logger;
+ import com.google.ipc.invalidation.external.client.android.service.AndroidLogger;
+ import com.google.ipc.invalidation.ticl.android2.WakeLockManager;
+@@ -69,7 +66,7 @@
+  * there is nothing to do except log an error (which this class does).
+  *
+  */
+-public class MultiplexingGcmListener extends GCMBaseIntentService {
++public class MultiplexingGcmListener {
+   /* This class is public so that it can be instantiated by the Android runtime. */
+ 
+   /** Constants used in broadcast Intents. */
+@@ -106,18 +103,6 @@
+   }
+ 
+   /**
+-   * {@link GCMBroadcastReceiver} that forwards GCM intents to the {@code MultiplexingGcmListener}
+-   * class.
+-   */
+-  public static class GCMReceiver extends GCMBroadcastReceiver {
+-    /* This class is public so that it can be instantiated by the Android runtime. */
+-    @Override
+-    protected String getGCMIntentServiceClassName(Context context) {
+-      return MultiplexingGcmListener.class.getName();
+-    }
+-  }
+-
+-  /**
+    * Convenience base class for client implementations. It provides base classes for a broadcast
+    * receiver and an intent service that work together to handle events from the
+    * {@code MultiplexingGcmListener} while holding a wake lock.
+@@ -260,85 +245,11 @@
+   /** Logger. */
+   private static final Logger logger = AndroidLogger.forTag("MplexGcmListener");
+ 
+-  // All onYYY methods work by constructing an appropriate Intent and broadcasting it.
+-
+-  @Override
+-  protected void onMessage(Context context, Intent intent) {
+-    Intent newIntent = new Intent();
+-    newIntent.putExtra(Intents.EXTRA_OP_MESSAGE, true);
+-    newIntent.putExtras(intent);
+-    rebroadcast(newIntent);
+-  }
+-
+-  @Override
+-  protected void onRegistered(Context context, String registrationId) {
+-    Intent intent = new Intent();
+-    intent.putExtra(Intents.EXTRA_OP_REGISTERED, true);
+-    intent.putExtra(Intents.EXTRA_DATA_REG_ID, registrationId);
+-    rebroadcast(intent);
+-  }
+-
+-  @Override
+-  protected void onUnregistered(Context context, String registrationId) {
+-    Intent intent = new Intent();
+-    intent.putExtra(Intents.EXTRA_OP_UNREGISTERED, true);
+-    intent.putExtra(Intents.EXTRA_DATA_REG_ID, registrationId);
+-    rebroadcast(intent);
+-  }
+-
+-  @Override
+-  protected void onDeletedMessages(Context context, int total) {
+-    Intent intent = new Intent();
+-    intent.putExtra(Intents.EXTRA_OP_DELETED_MESSAGES, true);
+-    intent.putExtra(Intents.EXTRA_DATA_NUM_DELETED_MSGS, total);
+-    rebroadcast(intent);
+-  }
+-
+-  @Override
+-  protected void onError(Context context, String errorId) {
+-    // This is called for unrecoverable errors, so just log a warning.
+-    logger.warning("GCM error: %s", errorId);
+-  }
+-
+-  @Override
+-  protected String[] getSenderIds(Context context) {
+-    return readSenderIdsFromManifestOrDie(this);
+-  }
+-
+-  /**
+-   * Broadcasts {@code intent} with the action set to {@link Intents#ACTION} and the package name
+-   * set to the package name of this service.
+-   */
+-  private void rebroadcast(Intent intent) {
+-    intent.setAction(Intents.ACTION);
+-    intent.setPackage(getPackageName());
+-    sendBroadcast(intent);
+-  }
+-
+-  /**
+-   * Registers with GCM if not already registered. Also verifies that the device supports GCM
+-   * and that the manifest is correctly configured. Returns the existing registration id, if one
+-   * exists, or the empty string if one does not.
+-   *
+-   * @throws UnsupportedOperationException if the device does not have all GCM dependencies
+-   * @throws IllegalStateException if the manifest is not correctly configured
+-   */
+-  public static String initializeGcm(Context context) {
+-    AndroidChannelPreferences.setGcmChannelType(context, GcmChannelType.DEFAULT);
+-    GCMRegistrar.checkDevice(context);
+-    GCMRegistrar.checkManifest(context);
+-    final String regId = GCMRegistrar.getRegistrationId(context);
+-    if (regId.isEmpty()) {
+-      GCMRegistrar.register(context, readSenderIdsFromManifestOrDie(context));
+-    }
+-    return regId;
+-  }
+-
+   /**
+    * Returns the GCM sender ids from {@link #GCM_SENDER_IDS_METADATA_KEY} or throws a
+    * {@code RuntimeException} if they are not defined.
+    */
+-  
++
+   static String[] readSenderIdsFromManifestOrDie(Context context) {
+     try {
+       ServiceInfo serviceInfo = context.getPackageManager().getServiceInfo(
+
+--- a/src/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidMessageReceiverService.java
++++ b/src/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidMessageReceiverService.java
+@@ -15,7 +15,6 @@
+  */
+ package com.google.ipc.invalidation.ticl.android2.channel;
+ 
+-import com.google.android.gcm.GCMRegistrar;
+ import com.google.ipc.invalidation.external.client.SystemResources.Logger;
+ import com.google.ipc.invalidation.external.client.android.service.AndroidLogger;
+ import com.google.ipc.invalidation.external.client.contrib.MultiplexingGcmListener;
+@@ -126,20 +125,4 @@
+     // now, there is nothing to do.
+   }
+ 
+-  /**
+-   * Initializes GCM as a convenience method for tests. In production, applications should handle
+-   * this.
+-   */
+-  public static void initializeGcmForTest(Context context, Logger logger, String senderId) {
+-    // Initialize GCM.
+-    GCMRegistrar.checkDevice(context);
+-    GCMRegistrar.checkManifest(context);
+-    String regId = GCMRegistrar.getRegistrationId(context);
+-    if (regId.isEmpty()) {
+-      logger.info("Not registered with GCM; registering");
+-      GCMRegistrar.register(context, senderId);
+-    } else {
+-      logger.fine("Already registered with GCM: %s", regId);
+-    }
+-  }
+ }
+
+--- a/src/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidMessageSenderService.java
++++ b/src/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidMessageSenderService.java
+@@ -15,7 +15,6 @@
+  */
+ package com.google.ipc.invalidation.ticl.android2.channel;
+ 
+-import com.google.android.gcm.GCMRegistrar;
+ import com.google.ipc.invalidation.common.GcmSharedConstants;
+ import com.google.ipc.invalidation.external.client.SystemResources.Logger;
+ import com.google.ipc.invalidation.external.client.android.service.AndroidLogger;
+@@ -396,7 +395,7 @@
+       // No client key when using old style registration id.
+       clientKey = "";
+       try {
+-        registrationId = GCMRegistrar.getRegistrationId(context);
++        registrationId = null;
+       } catch (RuntimeException exception) {
+         // GCMRegistrar#getRegistrationId occasionally throws a runtime exception. Catching the
+         // exception rather than crashing.

@@ -16,7 +16,7 @@ popd
 
 # Need different GN flags than a release build
 mkdir -p out/Debug
-cp -a ../android_flags.debug.gn out/Debug/args.gn
+cat ../android_flags.debug.gn ../android_flags.gn > out/Debug/args.gn
 
 # Run gn first
 tools/gn/out/gn gen out/Debug --fail-on-unused-args
