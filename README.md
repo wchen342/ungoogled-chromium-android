@@ -65,9 +65,10 @@ You can use f-Droid client and add [this repository](https://www.droidware.info/
 ## TODO List
 - [x] Remove dependencies on SDK tools and extras
 - [x] Domain substitution in java files
-- [ ] Prune binaries
-- [ ] Remove Play Services
-- [ ] Java patches (mostly UI-related)
+- [x] Prune binaries (*Note: haven't found a way to build desugar-runtime without bazel. Please let me know if you know how.*)
+- [ ] Remove Play Services [WIP]
+  * GCM removed
+- [ ] Java patches (low priority)
 
 ## Credits
 

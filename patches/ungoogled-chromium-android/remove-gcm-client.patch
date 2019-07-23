@@ -1,19 +1,23 @@
+Remove dependency on com.google.android.gcm (//third_party/android_sdk/public/extras/google/gcm/gcm-client/dist/gcm.jar).
+author: Wengling Chen <feiyu2817@gmail.com>
+
 ---
- src/chrome/android/BUILD.gn                                                                                                     |    1 
- src/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/InvalidationGcmUpstreamSender.java                         |   10 -
- src/components/gcm_driver/android/BUILD.gn                                                                                      |    1 
- src/components/sync/android/BUILD.gn                                                                                            |    1 
- src/third_party/android_sdk/BUILD.gn                                                                                            |    3 
- src/third_party/cacheinvalidation/BUILD.gn                                                                                      |    1 
- src/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/android2/AndroidManifest.xml             |   35 ---
- src/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/contrib/MultiplexingGcmListener.java     |   93 ----------
- src/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidMessageReceiverService.java |   17 -
- src/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidMessageSenderService.java   |    3 
+ chrome/android/BUILD.gn                            |  1 -
+ .../gcm/InvalidationGcmUpstreamSender.java         | 10 +--
+ components/gcm_driver/android/BUILD.gn             |  1 -
+ components/sync/android/BUILD.gn                   |  1 -
+ third_party/android_sdk/BUILD.gn                   |  3 -
+ third_party/cacheinvalidation/BUILD.gn             |  1 -
+ .../external/client/android2/AndroidManifest.xml   | 35 --------
+ .../client/contrib/MultiplexingGcmListener.java    | 93 +---------------------
+ .../channel/AndroidMessageReceiverService.java     | 17 ----
+ .../channel/AndroidMessageSenderService.java       |  3 +-
  10 files changed, 5 insertions(+), 160 deletions(-)
 
---- a/src/chrome/android/BUILD.gn
-+++ b/src/chrome/android/BUILD.gn
-@@ -343,7 +343,6 @@
+diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
+--- a/chrome/android/BUILD.gn
++++ b/chrome/android/BUILD.gn
+@@ -343,7 +343,6 @@ android_library("chrome_java") {
      "//third_party/android_deps:com_google_protobuf_protobuf_lite_java",
      "//third_party/android_deps:javax_inject_javax_inject_java",
      "//third_party/android_media:android_media_java",
@@ -21,10 +25,10 @@
      "//third_party/android_swipe_refresh:android_swipe_refresh_java",
      "//third_party/blink/public:blink_headers_java",
      "//third_party/blink/public/mojom:android_mojo_bindings_java",
-
---- a/src/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/InvalidationGcmUpstreamSender.java
-+++ b/src/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/InvalidationGcmUpstreamSender.java
-@@ -13,7 +13,6 @@
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/InvalidationGcmUpstreamSender.java b/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/InvalidationGcmUpstreamSender.java
+--- a/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/InvalidationGcmUpstreamSender.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/InvalidationGcmUpstreamSender.java
+@@ -13,7 +13,6 @@ import android.support.annotation.MainThread;
  import android.support.annotation.Nullable;
  import android.util.Log;
  
@@ -32,7 +36,7 @@
  import com.google.ipc.invalidation.ticl.android2.channel.GcmUpstreamSenderService;
  
  import org.chromium.base.ContextUtils;
-@@ -94,13 +93,8 @@
+@@ -94,13 +93,8 @@ public class InvalidationGcmUpstreamSender extends GcmUpstreamSenderService {
              return;
          }
          String msgId = UUID.randomUUID().toString();
@@ -48,10 +52,10 @@
      }
  
      private boolean isMessageWithinLimit(Bundle data) {
-
---- a/src/components/gcm_driver/android/BUILD.gn
-+++ b/src/components/gcm_driver/android/BUILD.gn
-@@ -15,7 +15,6 @@
+diff --git a/components/gcm_driver/android/BUILD.gn b/components/gcm_driver/android/BUILD.gn
+--- a/components/gcm_driver/android/BUILD.gn
++++ b/components/gcm_driver/android/BUILD.gn
+@@ -15,7 +15,6 @@ android_library("gcm_driver_java") {
    deps = [
      "//base:base_java",
      "//content/public/android:content_java",
@@ -59,10 +63,10 @@
      "//third_party/jsr-305:jsr_305_javalib",
    ]
  
-
---- a/src/components/sync/android/BUILD.gn
-+++ b/src/components/sync/android/BUILD.gn
-@@ -11,7 +11,6 @@
+diff --git a/components/sync/android/BUILD.gn b/components/sync/android/BUILD.gn
+--- a/components/sync/android/BUILD.gn
++++ b/components/sync/android/BUILD.gn
+@@ -11,7 +11,6 @@ android_library("sync_java") {
      "//components/signin/core/browser/android:java",
      "//net/android:net_java",
      "//third_party/android_deps:com_android_support_support_annotations_java",
@@ -70,10 +74,10 @@
      "//third_party/cacheinvalidation:cacheinvalidation_javalib",
      "//third_party/cacheinvalidation:cacheinvalidation_proto_java",
      "//third_party/jsr-305:jsr_305_javalib",
-
---- a/src/third_party/android_sdk/BUILD.gn
-+++ b/src/third_party/android_sdk/BUILD.gn
-@@ -87,9 +87,6 @@
+diff --git a/third_party/android_sdk/BUILD.gn b/third_party/android_sdk/BUILD.gn
+--- a/third_party/android_sdk/BUILD.gn
++++ b/third_party/android_sdk/BUILD.gn
+@@ -87,9 +87,6 @@ if (enable_java_templates) {
      testonly = true
      java_files = [ "//third_party/android_sdk/public/extras/chromium/support/src/org/chromium/android/support/PackageManagerWrapper.java" ]
    }
@@ -83,10 +87,10 @@
    android_java_prebuilt("emma_device_java") {
      jar_path = "//third_party/android_sdk/public/tools/lib/emma_device.jar"
      include_java_resources = true
-
---- a/src/third_party/cacheinvalidation/BUILD.gn
-+++ b/src/third_party/cacheinvalidation/BUILD.gn
-@@ -141,7 +141,6 @@
+diff --git a/third_party/cacheinvalidation/BUILD.gn b/third_party/cacheinvalidation/BUILD.gn
+--- a/third_party/cacheinvalidation/BUILD.gn
++++ b/third_party/cacheinvalidation/BUILD.gn
+@@ -141,7 +141,6 @@ if (is_android) {
        "$google_play_services_package:google_play_services_iid_java",
        "$google_play_services_package:google_play_services_tasks_java",
        "//third_party/android_protobuf:protobuf_nano_javalib",
@@ -94,9 +98,9 @@
      ]
  
      java_files = [
-
---- a/src/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/android2/AndroidManifest.xml
-+++ b/src/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/android2/AndroidManifest.xml
+diff --git a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/android2/AndroidManifest.xml b/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/android2/AndroidManifest.xml
+--- a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/android2/AndroidManifest.xml
++++ b/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/android2/AndroidManifest.xml
 @@ -4,10 +4,6 @@
  <manifest xmlns:android="http://schemas.android.com/apk/res/android"
      package="com.google.ipc.invalidation.client.android2">
@@ -149,9 +153,9 @@
 -    </receiver>
    </application>
  </manifest>
-
---- a/src/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/contrib/MultiplexingGcmListener.java
-+++ b/src/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/contrib/MultiplexingGcmListener.java
+diff --git a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/contrib/MultiplexingGcmListener.java b/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/contrib/MultiplexingGcmListener.java
+--- a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/contrib/MultiplexingGcmListener.java
++++ b/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/contrib/MultiplexingGcmListener.java
 @@ -16,9 +16,6 @@
  
  package com.google.ipc.invalidation.external.client.contrib;
@@ -162,7 +166,7 @@
  import com.google.ipc.invalidation.external.client.SystemResources.Logger;
  import com.google.ipc.invalidation.external.client.android.service.AndroidLogger;
  import com.google.ipc.invalidation.ticl.android2.WakeLockManager;
-@@ -69,7 +66,7 @@
+@@ -69,7 +66,7 @@ import android.content.pm.ServiceInfo;
   * there is nothing to do except log an error (which this class does).
   *
   */
@@ -171,10 +175,11 @@
    /* This class is public so that it can be instantiated by the Android runtime. */
  
    /** Constants used in broadcast Intents. */
-@@ -106,18 +103,6 @@
+@@ -105,18 +102,6 @@ public class MultiplexingGcmListener extends GCMBaseIntentService {
+     public static final String EXTRA_DATA_NUM_DELETED_MSGS = PREFIX + "NUM_DELETED_MSGS";
    }
  
-   /**
+-  /**
 -   * {@link GCMBroadcastReceiver} that forwards GCM intents to the {@code MultiplexingGcmListener}
 -   * class.
 -   */
@@ -186,11 +191,10 @@
 -    }
 -  }
 -
--  /**
+   /**
     * Convenience base class for client implementations. It provides base classes for a broadcast
     * receiver and an intent service that work together to handle events from the
-    * {@code MultiplexingGcmListener} while holding a wake lock.
-@@ -260,85 +245,11 @@
+@@ -260,85 +245,11 @@ public class MultiplexingGcmListener extends GCMBaseIntentService {
    /** Logger. */
    private static final Logger logger = AndroidLogger.forTag("MplexGcmListener");
  
@@ -277,9 +281,9 @@
    static String[] readSenderIdsFromManifestOrDie(Context context) {
      try {
        ServiceInfo serviceInfo = context.getPackageManager().getServiceInfo(
-
---- a/src/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidMessageReceiverService.java
-+++ b/src/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidMessageReceiverService.java
+diff --git a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidMessageReceiverService.java b/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidMessageReceiverService.java
+--- a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidMessageReceiverService.java
++++ b/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidMessageReceiverService.java
 @@ -15,7 +15,6 @@
   */
  package com.google.ipc.invalidation.ticl.android2.channel;
@@ -288,7 +292,7 @@
  import com.google.ipc.invalidation.external.client.SystemResources.Logger;
  import com.google.ipc.invalidation.external.client.android.service.AndroidLogger;
  import com.google.ipc.invalidation.external.client.contrib.MultiplexingGcmListener;
-@@ -126,20 +125,4 @@
+@@ -126,20 +125,4 @@ public class AndroidMessageReceiverService extends MultiplexingGcmListener.Abstr
      // now, there is nothing to do.
    }
  
@@ -309,9 +313,9 @@
 -    }
 -  }
  }
-
---- a/src/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidMessageSenderService.java
-+++ b/src/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidMessageSenderService.java
+diff --git a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidMessageSenderService.java b/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidMessageSenderService.java
+--- a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidMessageSenderService.java
++++ b/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidMessageSenderService.java
 @@ -15,7 +15,6 @@
   */
  package com.google.ipc.invalidation.ticl.android2.channel;
@@ -320,7 +324,7 @@
  import com.google.ipc.invalidation.common.GcmSharedConstants;
  import com.google.ipc.invalidation.external.client.SystemResources.Logger;
  import com.google.ipc.invalidation.external.client.android.service.AndroidLogger;
-@@ -396,7 +395,7 @@
+@@ -396,7 +395,7 @@ public class AndroidMessageSenderService extends IntentService {
        // No client key when using old style registration id.
        clientKey = "";
        try {
