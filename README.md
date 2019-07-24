@@ -40,7 +40,7 @@ Theoretically it will run on any device with a minimum API of 24 (Nougat).
 
 
 ## Building Instructions
-*This build is built from Sylvain Beucler's [libre Android rebuilds](http://android-rebuilds.beuc.net/) instead of SDK/NDK binaries from Google.*
+*This build is built from Sylvain Beucler's [libre Android rebuilds](https://android-rebuilds.beuc.net/) instead of SDK/NDK binaries from Google.*
 
 * Clone this repository
 * If you want to enable proprietary codecs (h264, mp3, mp4, etc.), add `proprietary_codecs=true` to the end of `android_flags.gn`
