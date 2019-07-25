@@ -2,3 +2,8 @@ remove-gcm-client.patch
 remove-gms-gcm.patch
 remove-gms-auth.patch
 remove-gms-cast.patch
+remove-gms-fido-iid-instantapps-location.patch
+remove-gms-vision-clearcut-phenotype.patch
+remove-gms-flags-places-stats.patch
+remove-gms-base-tasks.patch
+remove-play-core.patch
