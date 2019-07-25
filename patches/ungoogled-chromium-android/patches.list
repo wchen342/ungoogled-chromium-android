@@ -7,3 +7,4 @@ remove-gms-vision-clearcut-phenotype.patch
 remove-gms-flags-places-stats.patch
 remove-gms-base-tasks.patch
 remove-play-core.patch
+uncheck-fre-send-report.patch

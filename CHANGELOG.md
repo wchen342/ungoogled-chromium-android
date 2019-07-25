@@ -14,3 +14,7 @@
 * Fix [#3](https://github.com/wchen342/ungoogled-chromium-android/issues/3)
 * Disable resource obfuscation
 * Add arm build
+
+# 75.0.3770.142-2
+* Remove all Google Play related libraries
+* Uncheck "Send statistics" on first run
