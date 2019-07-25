@@ -1,0 +1,310 @@
+Remove dependency on com.google.android.gms.auth (play-services-auth-15.0.1.aar, play-services-auth-api-phone-15.0.1.aar, play-services-auth-base-15.0.1.aar).
+author: Wengling Chen <feiyu2817@gmail.com>
+
+---
+ chrome/android/BUILD.gn                            |  1 -
+ .../chrome/browser/signin/SigninHelper.java        | 21 --------
+ components/background_task_scheduler/BUILD.gn      |  1 -
+ components/signin/core/browser/android/BUILD.gn    |  1 -
+ .../components/signin/AccountIdProvider.java       | 19 +------
+ .../signin/SystemAccountManagerDelegate.java       | 52 ++-----------------
+ third_party/android_deps/BUILD.gn                  | 60 ----------------------
+ third_party/robolectric/BUILD.gn                   |  1 -
+ 8 files changed, 5 insertions(+), 151 deletions(-)
+
+diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
+--- a/chrome/android/BUILD.gn
++++ b/chrome/android/BUILD.gn
+@@ -249,7 +249,6 @@ android_library("chrome_java") {
+     ":partner_location_descriptor_proto_java",
+     ":thumbnail_cache_entry_proto_java",
+     ":usage_stats_proto_java",
+-    "$google_play_services_package:google_play_services_auth_base_java",
+     "$google_play_services_package:google_play_services_base_java",
+     "$google_play_services_package:google_play_services_basement_java",
+     "$google_play_services_package:google_play_services_cast_framework_java",
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninHelper.java b/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninHelper.java
+--- a/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninHelper.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninHelper.java
+@@ -10,10 +10,6 @@ import android.content.Context;
+ import android.content.SharedPreferences;
+ import android.support.annotation.Nullable;
+ 
+-import com.google.android.gms.auth.AccountChangeEvent;
+-import com.google.android.gms.auth.GoogleAuthException;
+-import com.google.android.gms.auth.GoogleAuthUtil;
+-
+ import org.chromium.base.ContextUtils;
+ import org.chromium.base.Log;
+ import org.chromium.base.VisibleForTesting;
+@@ -74,23 +70,6 @@ public class SigninHelper {
+         @Override
+         public List<String> getAccountChangeEvents(
+                 Context context, int index, String accountName) {
+-            try {
+-                List<AccountChangeEvent> list = GoogleAuthUtil.getAccountChangeEvents(
+-                        context, index, accountName);
+-                List<String> result = new ArrayList<>(list.size());
+-                for (AccountChangeEvent e : list) {
+-                    if (e.getChangeType() == GoogleAuthUtil.CHANGE_TYPE_ACCOUNT_RENAMED_TO) {
+-                        result.add(e.getChangeData());
+-                    } else {
+-                        result.add(null);
+-                    }
+-                }
+-                return result;
+-            } catch (IOException e) {
+-                Log.w(TAG, "Failed to get change events", e);
+-            } catch (GoogleAuthException e) {
+-                Log.w(TAG, "Failed to get change events", e);
+-            }
+             return new ArrayList<>(0);
+         }
+     }
+diff --git a/components/background_task_scheduler/BUILD.gn b/components/background_task_scheduler/BUILD.gn
+--- a/components/background_task_scheduler/BUILD.gn
++++ b/components/background_task_scheduler/BUILD.gn
+@@ -93,7 +93,6 @@ if (is_android) {
+ 
+     deps = [
+       ":background_task_scheduler_java",
+-      "$google_play_services_package:google_play_services_auth_base_java",
+       "$google_play_services_package:google_play_services_base_java",
+       "$google_play_services_package:google_play_services_basement_java",
+       "$google_play_services_package:google_play_services_tasks_java",
+diff --git a/components/signin/core/browser/android/BUILD.gn b/components/signin/core/browser/android/BUILD.gn
+--- a/components/signin/core/browser/android/BUILD.gn
++++ b/components/signin/core/browser/android/BUILD.gn
+@@ -16,7 +16,6 @@ generate_jni("jni_headers") {
+ 
+ android_library("java") {
+   deps = [
+-    "$google_play_services_package:google_play_services_auth_base_java",
+     "$google_play_services_package:google_play_services_base_java",
+     "$google_play_services_package:google_play_services_basement_java",
+     "//base:base_java",
+diff --git a/components/signin/core/browser/android/java/src/org/chromium/components/signin/AccountIdProvider.java b/components/signin/core/browser/android/java/src/org/chromium/components/signin/AccountIdProvider.java
+--- a/components/signin/core/browser/android/java/src/org/chromium/components/signin/AccountIdProvider.java
++++ b/components/signin/core/browser/android/java/src/org/chromium/components/signin/AccountIdProvider.java
+@@ -4,11 +4,6 @@
+ 
+ package org.chromium.components.signin;
+ 
+-import com.google.android.gms.auth.GoogleAuthException;
+-import com.google.android.gms.auth.GoogleAuthUtil;
+-import com.google.android.gms.common.ConnectionResult;
+-import com.google.android.gms.common.GoogleApiAvailability;
+-
+ import org.chromium.base.ContextUtils;
+ import org.chromium.base.Log;
+ import org.chromium.base.StrictModeContext;
+@@ -40,12 +35,7 @@ public class AccountIdProvider {
+      * @param accountName The email address of a Google account.
+      */
+     public String getAccountId(String accountName) {
+-        try {
+-            return GoogleAuthUtil.getAccountId(ContextUtils.getApplicationContext(), accountName);
+-        } catch (IOException | GoogleAuthException ex) {
+-            Log.e("cr.AccountIdProvider", "AccountIdProvider.getAccountId", ex);
+-            return null;
+-        }
++        return null;
+     }
+ 
+     /**
+@@ -54,12 +44,7 @@ public class AccountIdProvider {
+      * Google Play services is available.
+      */
+     public boolean canBeUsed() {
+-        // TODO(http://crbug.com/577190): Remove StrictMode override.
+-        try (StrictModeContext unused = StrictModeContext.allowDiskWrites()) {
+-            int resultCode = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(
+-                    ContextUtils.getApplicationContext());
+-            return resultCode == ConnectionResult.SUCCESS;
+-        }
++        return false;
+     }
+ 
+     /**
+diff --git a/components/signin/core/browser/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java b/components/signin/core/browser/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java
+--- a/components/signin/core/browser/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java
++++ b/components/signin/core/browser/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java
+@@ -24,12 +24,6 @@ import android.os.PatternMatcher;
+ import android.os.Process;
+ import android.os.SystemClock;
+ 
+-import com.google.android.gms.auth.GoogleAuthException;
+-import com.google.android.gms.auth.GoogleAuthUtil;
+-import com.google.android.gms.auth.GooglePlayServicesAvailabilityException;
+-import com.google.android.gms.common.ConnectionResult;
+-import com.google.android.gms.common.GoogleApiAvailability;
+-
+ import org.chromium.base.ApiCompatibilityUtils;
+ import org.chromium.base.Callback;
+ import org.chromium.base.ContextUtils;
+@@ -85,17 +79,7 @@ public class SystemAccountManagerDelegate implements AccountManagerDelegate {
+     }
+ 
+     protected void checkCanUseGooglePlayServices() throws AccountManagerDelegateException {
+-        Context context = ContextUtils.getApplicationContext();
+-        final int resultCode =
+-                GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context);
+-        if (resultCode == ConnectionResult.SUCCESS) {
+-            return;
+-        }
+-
+-        throw new GmsAvailabilityException(
+-                String.format("Can't use Google Play Services: %s",
+-                        GoogleApiAvailability.getInstance().getErrorString(resultCode)),
+-                resultCode);
++        throw new GmsAvailabilityException("Can't use Google Play Services", 1);  /*SERVICE_MISSING*/
+     }
+ 
+     @Override
+@@ -120,7 +104,7 @@ public class SystemAccountManagerDelegate implements AccountManagerDelegate {
+             return new Account[] {};
+         }
+         long now = SystemClock.elapsedRealtime();
+-        Account[] accounts = mAccountManager.getAccountsByType(GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE);
++        Account[] accounts = new Account[] {};
+         long elapsed = SystemClock.elapsedRealtime() - now;
+         recordElapsedTimeHistogram("Signin.AndroidGetAccountsTime_AccountManager", elapsed);
+         if (ThreadUtils.runningOnUiThread()) {
+@@ -134,30 +118,11 @@ public class SystemAccountManagerDelegate implements AccountManagerDelegate {
+     public String getAuthToken(Account account, String authTokenScope) throws AuthException {
+         assert !ThreadUtils.runningOnUiThread();
+         assert AccountManagerFacade.GOOGLE_ACCOUNT_TYPE.equals(account.type);
+-        try {
+-            return GoogleAuthUtil.getTokenWithNotification(
+-                    ContextUtils.getApplicationContext(), account, authTokenScope, null);
+-        } catch (GoogleAuthException ex) {
+-            // This case includes a UserRecoverableNotifiedException, but most clients will have
+-            // their own retry mechanism anyway.
+-            throw new AuthException(AuthException.NONTRANSIENT,
+-                    "Error while getting token for scope '" + authTokenScope + "'", ex);
+-        } catch (IOException ex) {
+-            throw new AuthException(AuthException.TRANSIENT, ex);
+-        }
++        return null;
+     }
+ 
+     @Override
+     public void invalidateAuthToken(String authToken) throws AuthException {
+-        try {
+-            GoogleAuthUtil.clearToken(ContextUtils.getApplicationContext(), authToken);
+-        } catch (GooglePlayServicesAvailabilityException ex) {
+-            throw new AuthException(AuthException.NONTRANSIENT, ex);
+-        } catch (GoogleAuthException ex) {
+-            throw new AuthException(AuthException.NONTRANSIENT, ex);
+-        } catch (IOException ex) {
+-            throw new AuthException(AuthException.TRANSIENT, ex);
+-        }
+     }
+ 
+     @Override
+@@ -197,17 +162,6 @@ public class SystemAccountManagerDelegate implements AccountManagerDelegate {
+     @SuppressLint("MissingPermission")
+     @Override
+     public void createAddAccountIntent(Callback<Intent> callback) {
+-        AccountManagerCallback<Bundle> accountManagerCallback = accountManagerFuture -> {
+-            try {
+-                Bundle bundle = accountManagerFuture.getResult();
+-                callback.onResult(bundle.getParcelable(AccountManager.KEY_INTENT));
+-            } catch (OperationCanceledException | IOException | AuthenticatorException e) {
+-                Log.e(TAG, "Error while creating an intent to add an account: ", e);
+-                callback.onResult(null);
+-            }
+-        };
+-        mAccountManager.addAccount(GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE, null, null, null, null,
+-                accountManagerCallback, null);
+     }
+ 
+     // No permission is needed on 23+ and Chrome always has MANAGE_ACCOUNTS permission on lower APIs
+diff --git a/third_party/android_deps/BUILD.gn b/third_party/android_deps/BUILD.gn
+--- a/third_party/android_deps/BUILD.gn
++++ b/third_party/android_deps/BUILD.gn
+@@ -40,21 +40,6 @@ java_group("google_play_services_base_java") {
+     ":com_google_android_gms_play_services_base_java",
+   ]
+ }
+-java_group("google_play_services_auth_base_java") {
+-  deps = [
+-    ":com_google_android_gms_play_services_auth_base_java",
+-  ]
+-}
+-java_group("google_play_services_auth_api_phone_java") {
+-  deps = [
+-    ":com_google_android_gms_play_services_auth_api_phone_java",
+-  ]
+-}
+-java_group("google_play_services_auth_java") {
+-  deps = [
+-    ":com_google_android_gms_play_services_auth_java",
+-  ]
+-}
+ java_group("google_play_services_cast_java") {
+   deps = [
+     ":com_google_android_gms_play_services_cast_java",
+@@ -373,51 +358,6 @@ android_aar_prebuilt("com_android_support_support_v4_java") {
+   ]
+ }
+ 
+-# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+-android_aar_prebuilt("com_google_android_gms_play_services_auth_java") {
+-  aar_path = "libs/com_google_android_gms_play_services_auth/play-services-auth-15.0.1.aar"
+-  info_path = "libs/com_google_android_gms_play_services_auth/com_google_android_gms_play_services_auth.info"
+-  deps = [
+-    ":com_google_android_gms_play_services_auth_api_phone_java",
+-    ":com_google_android_gms_play_services_auth_base_java",
+-    ":com_google_android_gms_play_services_base_java",
+-    ":com_google_android_gms_play_services_basement_java",
+-    ":com_google_android_gms_play_services_tasks_java",
+-  ]
+-
+-  # Removing drawables from GMS .aars as they are unused bloat.
+-  strip_drawables = true
+-}
+-
+-# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+-android_aar_prebuilt(
+-    "com_google_android_gms_play_services_auth_api_phone_java") {
+-  aar_path = "libs/com_google_android_gms_play_services_auth_api_phone/play-services-auth-api-phone-15.0.1.aar"
+-  info_path = "libs/com_google_android_gms_play_services_auth_api_phone/com_google_android_gms_play_services_auth_api_phone.info"
+-  deps = [
+-    ":com_google_android_gms_play_services_base_java",
+-    ":com_google_android_gms_play_services_basement_java",
+-    ":com_google_android_gms_play_services_tasks_java",
+-  ]
+-
+-  # Removing drawables from GMS .aars as they are unused bloat.
+-  strip_drawables = true
+-}
+-
+-# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+-android_aar_prebuilt("com_google_android_gms_play_services_auth_base_java") {
+-  aar_path = "libs/com_google_android_gms_play_services_auth_base/play-services-auth-base-15.0.1.aar"
+-  info_path = "libs/com_google_android_gms_play_services_auth_base/com_google_android_gms_play_services_auth_base.info"
+-  deps = [
+-    ":com_google_android_gms_play_services_base_java",
+-    ":com_google_android_gms_play_services_basement_java",
+-    ":com_google_android_gms_play_services_tasks_java",
+-  ]
+-
+-  # Removing drawables from GMS .aars as they are unused bloat.
+-  strip_drawables = true
+-}
+-
+ # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+ android_aar_prebuilt("com_google_android_gms_play_services_base_java") {
+   aar_path = "libs/com_google_android_gms_play_services_base/play-services-base-15.0.1.aar"
+diff --git a/third_party/robolectric/BUILD.gn b/third_party/robolectric/BUILD.gn
+--- a/third_party/robolectric/BUILD.gn
++++ b/third_party/robolectric/BUILD.gn
+@@ -944,7 +944,6 @@ java_library("shadows_play_services_java") {
+     ":robolectric_shadowapi_java",
+     ":robolectric_utils_java",
+     ":shadows_core_java",
+-    "$google_play_services_package:google_play_services_auth_base_java",
+     "$google_play_services_package:google_play_services_base_java",
+     "$google_play_services_package:google_play_services_basement_java",
+     "//third_party/android_deps:android_support_v4_java",

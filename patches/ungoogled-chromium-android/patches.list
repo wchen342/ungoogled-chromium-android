@@ -1,2 +1,4 @@
 remove-gcm-client.patch
-remove_gms_gcm.patch
+remove-gms-gcm.patch
+remove-gms-auth.patch
+remove-gms-cast.patch
