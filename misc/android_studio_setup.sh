@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eux -o pipefail
 
-chromium_version=75.0.3770.142
+chromium_version=76.0.3809.87
 target=monochrome_public_apk
 
 # Create symbol links to gn, depot-tools

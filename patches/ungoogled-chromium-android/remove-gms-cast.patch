@@ -4,11 +4,11 @@ author: Wengling Chen <feiyu2817@gmail.com>
 ---
  chrome/android/BUILD.gn                            |   6 --
  chrome/android/features/media_router/BUILD.gn      |   2 -
- .../browser/media/router/CastSessionUtil.java      |  35 ------
+ .../browser/media/router/CastSessionUtil.java      |  35 -------
  .../chrome/browser/media/router/MediaSink.java     |  44 +-------
  .../browser/media/router/MediaStatusBridge.java    |  40 ++-----
- .../router/caf/BaseNotificationController.java     |  46 --------
- .../media/router/caf/BaseSessionController.java    | 117 +--------------------
+ .../router/caf/BaseNotificationController.java     |  46 ---------
+ .../media/router/caf/BaseSessionController.java    | 115 +--------------------
  .../router/caf/CafBaseMediaRouteProvider.java      | 103 +-----------------
  .../media/router/caf/CafMediaRouteProvider.java    |  16 ---
  .../media/router/caf/CafMessageHandler.java        |  97 +----------------
@@ -22,13 +22,13 @@ author: Wengling Chen <feiyu2817@gmail.com>
  .../caf/remoting/RemotingSessionController.java    |  21 ----
  chrome/android/java/AndroidManifest.xml            |  28 -----
  chrome/test/android/cast_emulator/BUILD.gn         |   1 -
- third_party/android_deps/BUILD.gn                  |  43 --------
- 21 files changed, 27 insertions(+), 787 deletions(-)
+ third_party/android_deps/BUILD.gn                  |  32 ------
+ 21 files changed, 26 insertions(+), 775 deletions(-)
 
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -251,8 +251,6 @@ android_library("chrome_java") {
+@@ -265,8 +265,6 @@ android_library("chrome_java") {
      ":usage_stats_proto_java",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
@@ -37,7 +37,7 @@ diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
      "$google_play_services_package:google_play_services_fido_java",
      "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
-@@ -617,8 +615,6 @@ junit_binary("chrome_junit_tests") {
+@@ -638,8 +636,6 @@ junit_binary("chrome_junit_tests") {
      ":partner_location_descriptor_proto_java",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
@@ -46,7 +46,7 @@ diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
      "$google_play_services_package:google_play_services_fido_java",
      "//base:base_java",
      "//base:base_java_test_support",
-@@ -715,8 +711,6 @@ android_library("chrome_test_java") {
+@@ -737,8 +733,6 @@ android_library("chrome_test_java") {
      ":partner_location_descriptor_proto_java",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
@@ -1428,7 +1428,7 @@ diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/Andro
          <!-- Note: All activities directly or indirectly derived from ChromeActivity
               must specify android:hardwareAccelerated="false".
  
-@@ -848,16 +842,6 @@ by a child template that "extends" this file.
+@@ -827,16 +821,6 @@ by a child template that "extends" this file.
              </intent-filter>
          </activity>
  
@@ -1445,7 +1445,7 @@ diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/Andro
          <!-- This activity is used to restart the main Chrome process.  Should never be exported. -->
          <activity android:name="org.chromium.chrome.browser.BrowserRestartActivity"
              android:launchMode="singleInstance"
-@@ -1256,18 +1240,6 @@ android:value="true" />
+@@ -1229,18 +1213,6 @@ android:value="true" />
              android:value="org.chromium.content_public.browser.SmartClipProvider"/>
  
          {% block extra_application_definitions %}
@@ -1478,37 +1478,20 @@ diff --git a/chrome/test/android/cast_emulator/BUILD.gn b/chrome/test/android/ca
 diff --git a/third_party/android_deps/BUILD.gn b/third_party/android_deps/BUILD.gn
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -40,16 +40,6 @@ java_group("google_play_services_base_java") {
-     ":com_google_android_gms_play_services_base_java",
-   ]
- }
--java_group("google_play_services_cast_java") {
--  deps = [
--    ":com_google_android_gms_play_services_cast_java",
--  ]
--}
--java_group("google_play_services_cast_framework_java") {
--  deps = [
--    ":com_google_android_gms_play_services_cast_framework_java",
--  ]
--}
- java_group("google_play_services_iid_java") {
-   deps = [
-     ":com_google_android_gms_play_services_iid_java",
-@@ -384,39 +374,6 @@ android_aar_prebuilt("com_google_android_gms_play_services_basement_java") {
+@@ -327,38 +327,6 @@ android_aar_prebuilt("google_play_services_basement_java") {
    input_jars_paths = [ "$android_sdk/optional/org.apache.http.legacy.jar" ]
  }
  
 -# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
--android_aar_prebuilt("com_google_android_gms_play_services_cast_java") {
+-android_aar_prebuilt("google_play_services_cast_java") {
 -  aar_path = "libs/com_google_android_gms_play_services_cast/play-services-cast-16.0.1.aar"
 -  info_path = "libs/com_google_android_gms_play_services_cast/com_google_android_gms_play_services_cast.info"
 -  deps = [
 -    ":com_android_support_mediarouter_v7_java",
--    ":com_google_android_gms_play_services_base_java",
--    ":com_google_android_gms_play_services_basement_java",
--    ":com_google_android_gms_play_services_flags_java",
--    ":com_google_android_gms_play_services_tasks_java",
+-    ":google_play_services_base_java",
+-    ":google_play_services_basement_java",
+-    ":google_play_services_flags_java",
+-    ":google_play_services_tasks_java",
 -  ]
 -
 -  # Removing drawables from GMS .aars as they are unused bloat.
@@ -1516,16 +1499,15 @@ diff --git a/third_party/android_deps/BUILD.gn b/third_party/android_deps/BUILD.
 -}
 -
 -# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
--android_aar_prebuilt(
--    "com_google_android_gms_play_services_cast_framework_java") {
+-android_aar_prebuilt("google_play_services_cast_framework_java") {
 -  aar_path = "libs/com_google_android_gms_play_services_cast_framework/play-services-cast-framework-16.0.1.aar"
 -  info_path = "libs/com_google_android_gms_play_services_cast_framework/com_google_android_gms_play_services_cast_framework.info"
 -  deps = [
 -    ":com_android_support_mediarouter_v7_java",
 -    ":com_android_support_recyclerview_v7_java",
--    ":com_google_android_gms_play_services_base_java",
--    ":com_google_android_gms_play_services_basement_java",
--    ":com_google_android_gms_play_services_cast_java",
+-    ":google_play_services_base_java",
+-    ":google_play_services_basement_java",
+-    ":google_play_services_cast_java",
 -  ]
 -
 -  # Removing all resources from cast framework as they are unused bloat.
@@ -1533,5 +1515,5 @@ diff --git a/third_party/android_deps/BUILD.gn b/third_party/android_deps/BUILD.
 -}
 -
  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
- android_aar_prebuilt("com_google_android_gms_play_services_fido_java") {
+ android_aar_prebuilt("google_play_services_fido_java") {
    aar_path = "libs/com_google_android_gms_play_services_fido/play-services-fido-15.0.1.aar"

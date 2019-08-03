@@ -3,8 +3,8 @@ author: Wengling Chen <feiyu2817@gmail.com>
 
 --- a/src/chrome/android/BUILD.gn
 +++ b/src/chrome/android/BUILD.gn
-@@ -38,8 +38,8 @@
-   import("//chrome/android/features/vr/vr_module_tmpl.gni")
+@@ -42,8 +42,8 @@
+   import("//chrome/android/features/devtools/devtools_module_tmpl.gni")
  }
  
 -manifest_package = "org.chromium.chrome"

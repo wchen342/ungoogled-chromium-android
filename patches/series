@@ -1,0 +1,17 @@
+src/android-rlz-fix-missing-variable.patch
+src/fix-redefinition-error.patch
+src/fix-null-mInstanceID.patch
+ungoogled-chromium-android/change_package_name.patch
+Vanadium/0020-disable-media-router-media-remoting-by-default.patch
+Vanadium/0021-disable-media-router-by-default.patch
+ungoogled-chromium-android/linker-android-support-remove.patch
+ungoogled-chromium-android/remove-gcm-client.patch
+ungoogled-chromium-android/remove-gms-gcm.patch
+ungoogled-chromium-android/remove-gms-auth.patch
+ungoogled-chromium-android/remove-gms-cast.patch
+ungoogled-chromium-android/remove-gms-fido-iid-instantapps-location.patch
+ungoogled-chromium-android/remove-gms-vision-clearcut-phenotype.patch
+ungoogled-chromium-android/remove-gms-flags-places-stats.patch
+ungoogled-chromium-android/remove-gms-base-tasks.patch
+ungoogled-chromium-android/remove-play-core.patch
+ungoogled-chromium-android/uncheck-fre-send-report.patch
