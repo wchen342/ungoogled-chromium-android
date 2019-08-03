@@ -4,7 +4,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
 author: Wengling Chen <feiyu2817@gmail.com>
 
 ---
- chrome/android/BUILD.gn                            |   2 -
+ chrome/android/BUILD.gn                            |   3 -
  chrome/android/java/AndroidManifest.xml            |  60 --------
  .../chrome/browser/BackgroundSyncLauncher.java     |  64 +-------
  .../chrome/browser/ChromeBackgroundService.java    |  96 +-----------
@@ -15,18 +15,18 @@ author: Wengling Chen <feiyu2817@gmail.com>
  .../BackgroundTaskGcmTaskService.java              |  53 +------
  .../BackgroundTaskSchedulerFactory.java            |   6 +-
  .../BackgroundTaskSchedulerGcmNetworkManager.java  | 164 +--------------------
- third_party/android_deps/BUILD.gn                  |  20 ---
+ third_party/android_deps/BUILD.gn                  |  15 --
  third_party/cacheinvalidation/BUILD.gn             |   1 -
  .../client/android2/AndroidManifestUpdatedGcm.xml  |  20 ---
  .../android2/channel/AndroidGcmController.java     |  42 +-----
  .../channel/AndroidInstanceIDListenerService.java  |  13 +-
  .../channel/GcmRegistrationTaskService.java        |  89 +----------
- 17 files changed, 21 insertions(+), 737 deletions(-)
+ 17 files changed, 21 insertions(+), 733 deletions(-)
 
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -255,7 +255,6 @@ android_library("chrome_java") {
+@@ -269,7 +269,6 @@ android_library("chrome_java") {
      "$google_play_services_package:google_play_services_cast_framework_java",
      "$google_play_services_package:google_play_services_cast_java",
      "$google_play_services_package:google_play_services_fido_java",
@@ -34,7 +34,7 @@ diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
      "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
      "//base:base_java",
-@@ -720,7 +719,6 @@ android_library("chrome_test_java") {
+@@ -742,7 +741,6 @@ android_library("chrome_test_java") {
      "$google_play_services_package:google_play_services_cast_framework_java",
      "$google_play_services_package:google_play_services_cast_java",
      "$google_play_services_package:google_play_services_fido_java",
@@ -42,6 +42,14 @@ diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
      "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
      "//base:base_java",
+@@ -1582,7 +1580,6 @@ android_library("browser_java_test_support") {
+   ]
+   deps = [
+     ":chrome_java",
+-    "$google_play_services_package:google_play_services_gcm_java",
+     "//base:base_java",
+     "//base:base_java_test_support",
+     "//chrome/android/public/profiles:java",
 diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/AndroidManifest.xml
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
@@ -68,7 +76,7 @@ diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/Andro
      <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT"/>
  
      <uses-permission android:name="com.google.android.apps.now.CURRENT_ACCOUNT_ACCESS" />
-@@ -1079,43 +1074,6 @@ by a child template that "extends" this file.
+@@ -1058,43 +1053,6 @@ by a child template that "extends" this file.
              android:configChanges="orientation|keyboardHidden|keyboard|screenSize|mcc|mnc|screenLayout|smallestScreenSize"
              android:hardwareAccelerated="false" />
  
@@ -112,7 +120,7 @@ diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/Andro
          <!-- Notification service for sync. -->
          <meta-data android:name="ipc.invalidation.ticl.listener_service_class"
              android:value="org.chromium.chrome.browser.invalidation.ChromeInvalidationClientService"/>
-@@ -1155,24 +1113,6 @@ by a child template that "extends" this file.
+@@ -1134,24 +1092,6 @@ by a child template that "extends" this file.
              android:exported="false"
              android:permission="android.permission.BIND_JOB_SERVICE"/>
  
@@ -907,31 +915,19 @@ diff --git a/components/background_task_scheduler/android/java/src/org/chromium/
 diff --git a/third_party/android_deps/BUILD.gn b/third_party/android_deps/BUILD.gn
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -75,11 +75,6 @@ java_group("google_play_services_instantapps_java") {
-     ":com_google_android_gms_play_services_instantapps_java",
-   ]
- }
--java_group("google_play_services_gcm_java") {
--  deps = [
--    ":com_google_android_gms_play_services_gcm_java",
--  ]
--}
- java_group("google_play_services_location_java") {
-   deps = [
-     ":com_google_android_gms_play_services_location_java",
-@@ -496,21 +491,6 @@ android_aar_prebuilt("com_google_android_gms_play_services_fido_java") {
+@@ -417,21 +417,6 @@ android_aar_prebuilt("google_play_services_fido_java") {
    strip_drawables = true
  }
  
 -# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
--android_aar_prebuilt("com_google_android_gms_play_services_gcm_java") {
+-android_aar_prebuilt("google_play_services_gcm_java") {
 -  aar_path = "libs/com_google_android_gms_play_services_gcm/play-services-gcm-15.0.1.aar"
 -  info_path = "libs/com_google_android_gms_play_services_gcm/com_google_android_gms_play_services_gcm.info"
 -  deps = [
--    ":com_google_android_gms_play_services_base_java",
--    ":com_google_android_gms_play_services_basement_java",
--    ":com_google_android_gms_play_services_iid_java",
--    ":com_google_android_gms_play_services_stats_java",
+-    ":google_play_services_base_java",
+-    ":google_play_services_basement_java",
+-    ":google_play_services_iid_java",
+-    ":google_play_services_stats_java",
 -  ]
 -
 -  # Removing drawables from GMS .aars as they are unused bloat.
@@ -939,19 +935,19 @@ diff --git a/third_party/android_deps/BUILD.gn b/third_party/android_deps/BUILD.
 -}
 -
  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
- android_aar_prebuilt("com_google_android_gms_play_services_iid_java") {
+ android_aar_prebuilt("google_play_services_iid_java") {
    aar_path = "libs/com_google_android_gms_play_services_iid/play-services-iid-15.0.1.aar"
 diff --git a/third_party/cacheinvalidation/BUILD.gn b/third_party/cacheinvalidation/BUILD.gn
 --- a/third_party/cacheinvalidation/BUILD.gn
 +++ b/third_party/cacheinvalidation/BUILD.gn
 @@ -137,7 +137,6 @@ if (is_android) {
-     emma_never_instrument = true
+     jacoco_never_instrument = true
      deps = [
        ":cacheinvalidation_proto_java",
 -      "$google_play_services_package:google_play_services_gcm_java",
        "$google_play_services_package:google_play_services_iid_java",
        "$google_play_services_package:google_play_services_tasks_java",
-       "//third_party/android_protobuf:protobuf_nano_javalib",
+       "//base:base_java",
 diff --git a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/android2/AndroidManifestUpdatedGcm.xml b/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/android2/AndroidManifestUpdatedGcm.xml
 --- a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/android2/AndroidManifestUpdatedGcm.xml
 +++ b/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/android2/AndroidManifestUpdatedGcm.xml
@@ -1156,11 +1152,11 @@ diff --git a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/
 -
 -  /** Stores the registration token and the current application version in Shared Preferences. */
 -  private void storeToken(String token) {
--    AndroidChannelPreferences.setRegistrationToken(this, token);
--    AndroidChannelPreferences.setAppVersion(
--        this, CommonUtils.getPackageVersion(this, getPackageName()));
--    // Send the updated token to the server.
--    updateServer();
+-      AndroidChannelPreferences.setRegistrationToken(token);
+-      AndroidChannelPreferences.setAppVersion(
+-              CommonUtils.getPackageVersion(this, getPackageName()));
+-      // Send the updated token to the server.
+-      updateServer();
 -  }
 -
 -  /** Sends a message to the server to update the GCM registration token. */
@@ -1173,15 +1169,15 @@ diff --git a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/
 -    sendBuffered.putExtra(AndroidChannelConstants.MESSAGE_SENDER_SVC_GCM_REGID_CHANGE, ignoredData);
 -
 -    // Select the sender service to use for upstream message.
--    if (AndroidChannelPreferences.getGcmChannelType(this) == GcmChannelType.GCM_UPSTREAM) {
--      String upstreamServiceClass = new AndroidTiclManifest(this).getGcmUpstreamServiceClass();
--      if (upstreamServiceClass == null) {
--        logger.warning("GcmUpstreamSenderService class not found.");
--        return;
--      }
--      sendBuffered.setClassName(this, upstreamServiceClass);
+-    if (AndroidChannelPreferences.getGcmChannelType() == GcmChannelType.GCM_UPSTREAM) {
+-        String upstreamServiceClass = new AndroidTiclManifest(this).getGcmUpstreamServiceClass();
+-        if (upstreamServiceClass == null) {
+-            logger.warning("GcmUpstreamSenderService class not found.");
+-            return;
+-        }
+-        sendBuffered.setClassName(this, upstreamServiceClass);
 -    } else {
--      sendBuffered.setClass(this, AndroidMessageSenderService.class);
+-        sendBuffered.setClass(this, AndroidMessageSenderService.class);
 -    }
 -    try {
 -      startService(sendBuffered);

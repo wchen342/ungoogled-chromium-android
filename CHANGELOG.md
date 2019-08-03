@@ -18,3 +18,8 @@
 # 75.0.3770.142-2
 * Remove all Google Play related libraries
 * Uncheck "Send statistics" on first run
+
+# 76.0.3809.87-1
+* Add WebView builds
+* Since `aapt` no longer works, bundled `aapt2` will be used until a rebuild of SDK 29 exists
+* Minor bug fixes

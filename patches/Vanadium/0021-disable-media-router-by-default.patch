@@ -10,9 +10,9 @@ Subject: [PATCH 21/30] disable media router by default
 
 diff --git a/src/chrome/browser/media/router/media_router_feature.cc b/src/chrome/browser/media/router/media_router_feature.cc
 index 9c42d30ecd22..e773dd54ad9e 100644
---- a/src/chrome/browser/media/router/media_router_feature.cc
-+++ b/src/chrome/browser/media/router/media_router_feature.cc
-@@ -56,17 +56,16 @@ const PrefService::Preference* GetMediaRouterPref(
+--- a/chrome/browser/media/router/media_router_feature.cc
++++ b/chrome/browser/media/router/media_router_feature.cc
+@@ -58,17 +58,16 @@ const PrefService::Preference* GetMediaRouterPref(
  
  bool MediaRouterEnabled(content::BrowserContext* context) {
  #if defined(OS_ANDROID) || BUILDFLAG(ENABLE_EXTENSIONS)
@@ -40,9 +40,9 @@ index 9c42d30ecd22..e773dd54ad9e 100644
  #endif  // defined(OS_ANDROID) || BUILDFLAG(ENABLE_EXTENSIONS)
 diff --git a/src/chrome/browser/profiles/profile_impl.cc b/src/chrome/browser/profiles/profile_impl.cc
 index 86ffb0c6cfc3..e32f0e7b83fe 100644
---- a/src/chrome/browser/profiles/profile_impl.cc
-+++ b/src/chrome/browser/profiles/profile_impl.cc
-@@ -443,7 +443,7 @@ void ProfileImpl::RegisterProfilePrefs(
+--- a/chrome/browser/profiles/profile_impl.cc
++++ b/chrome/browser/profiles/profile_impl.cc
+@@ -435,7 +435,7 @@ void ProfileImpl::RegisterProfilePrefs(
    registry->RegisterStringPref(
        prefs::kPrintPreviewDefaultDestinationSelectionRules, std::string());
    registry->RegisterBooleanPref(prefs::kForceEphemeralProfiles, false);

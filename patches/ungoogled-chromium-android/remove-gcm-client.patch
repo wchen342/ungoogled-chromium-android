@@ -8,16 +8,16 @@ author: Wengling Chen <feiyu2817@gmail.com>
  components/sync/android/BUILD.gn                   |  1 -
  third_party/android_sdk/BUILD.gn                   |  3 -
  third_party/cacheinvalidation/BUILD.gn             |  1 -
- .../external/client/android2/AndroidManifest.xml   | 35 --------
- .../client/contrib/MultiplexingGcmListener.java    | 93 +---------------------
- .../channel/AndroidMessageReceiverService.java     | 17 ----
+ .../external/client/android2/AndroidManifest.xml   | 35 ----------
+ .../client/contrib/MultiplexingGcmListener.java    | 79 +---------------------
+ .../channel/AndroidMessageReceiverService.java     | 17 -----
  .../channel/AndroidMessageSenderService.java       |  3 +-
- 10 files changed, 5 insertions(+), 160 deletions(-)
+ 10 files changed, 5 insertions(+), 146 deletions(-)
 
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -343,7 +343,6 @@ android_library("chrome_java") {
+@@ -361,7 +361,6 @@ android_library("chrome_java") {
      "//third_party/android_deps:com_google_protobuf_protobuf_lite_java",
      "//third_party/android_deps:javax_inject_javax_inject_java",
      "//third_party/android_media:android_media_java",
@@ -84,15 +84,15 @@ diff --git a/third_party/android_sdk/BUILD.gn b/third_party/android_sdk/BUILD.gn
 -  android_java_prebuilt("android_gcm_java") {
 -    jar_path = "//third_party/android_sdk/public/extras/google/gcm/gcm-client/dist/gcm.jar"
 -  }
-   android_java_prebuilt("emma_device_java") {
+   java_prebuilt("emma_device_java") {
      jar_path = "//third_party/android_sdk/public/tools/lib/emma_device.jar"
      include_java_resources = true
 diff --git a/third_party/cacheinvalidation/BUILD.gn b/third_party/cacheinvalidation/BUILD.gn
 --- a/third_party/cacheinvalidation/BUILD.gn
 +++ b/third_party/cacheinvalidation/BUILD.gn
-@@ -141,7 +141,6 @@ if (is_android) {
-       "$google_play_services_package:google_play_services_iid_java",
+@@ -142,7 +142,6 @@ if (is_android) {
        "$google_play_services_package:google_play_services_tasks_java",
+       "//base:base_java",
        "//third_party/android_protobuf:protobuf_nano_javalib",
 -      "//third_party/android_sdk:android_gcm_java",
      ]
@@ -194,12 +194,10 @@ diff --git a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/
    /**
     * Convenience base class for client implementations. It provides base classes for a broadcast
     * receiver and an intent service that work together to handle events from the
-@@ -260,85 +245,11 @@ public class MultiplexingGcmListener extends GCMBaseIntentService {
-   /** Logger. */
-   private static final Logger logger = AndroidLogger.forTag("MplexGcmListener");
+@@ -262,59 +247,6 @@ public class MultiplexingGcmListener extends GCMBaseIntentService {
  
--  // All onYYY methods work by constructing an appropriate Intent and broadcasting it.
--
+   // All onYYY methods work by constructing an appropriate Intent and broadcasting it.
+ 
 -  @Override
 -  protected void onMessage(Context context, Intent intent) {
 -    Intent newIntent = new Intent();
@@ -253,34 +251,25 @@ diff --git a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/
 -    sendBroadcast(intent);
 -  }
 -
--  /**
--   * Registers with GCM if not already registered. Also verifies that the device supports GCM
--   * and that the manifest is correctly configured. Returns the existing registration id, if one
--   * exists, or the empty string if one does not.
--   *
--   * @throws UnsupportedOperationException if the device does not have all GCM dependencies
--   * @throws IllegalStateException if the manifest is not correctly configured
--   */
--  public static String initializeGcm(Context context) {
--    AndroidChannelPreferences.setGcmChannelType(context, GcmChannelType.DEFAULT);
--    GCMRegistrar.checkDevice(context);
--    GCMRegistrar.checkManifest(context);
--    final String regId = GCMRegistrar.getRegistrationId(context);
--    if (regId.isEmpty()) {
--      GCMRegistrar.register(context, readSenderIdsFromManifestOrDie(context));
--    }
--    return regId;
--  }
--
    /**
-    * Returns the GCM sender ids from {@link #GCM_SENDER_IDS_METADATA_KEY} or throws a
-    * {@code RuntimeException} if they are not defined.
+    * Registers with GCM if not already registered. Also verifies that the device supports GCM
+    * and that the manifest is correctly configured. Returns the existing registration id, if one
+@@ -324,14 +256,7 @@ public class MultiplexingGcmListener extends GCMBaseIntentService {
+    * @throws IllegalStateException if the manifest is not correctly configured
     */
--  
-+
-   static String[] readSenderIdsFromManifestOrDie(Context context) {
-     try {
-       ServiceInfo serviceInfo = context.getPackageManager().getServiceInfo(
+   public static String initializeGcm(Context context) {
+-      AndroidChannelPreferences.setGcmChannelType(GcmChannelType.DEFAULT);
+-      GCMRegistrar.checkDevice(context);
+-      GCMRegistrar.checkManifest(context);
+-      final String regId = GCMRegistrar.getRegistrationId(context);
+-      if (regId.isEmpty()) {
+-          GCMRegistrar.register(context, readSenderIdsFromManifestOrDie(context));
+-      }
+-    return regId;
++    return "";
+   }
+ 
+   /**
 diff --git a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidMessageReceiverService.java b/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidMessageReceiverService.java
 --- a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidMessageReceiverService.java
 +++ b/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidMessageReceiverService.java
@@ -324,12 +313,12 @@ diff --git a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/
  import com.google.ipc.invalidation.common.GcmSharedConstants;
  import com.google.ipc.invalidation.external.client.SystemResources.Logger;
  import com.google.ipc.invalidation.external.client.android.service.AndroidLogger;
-@@ -396,7 +395,7 @@ public class AndroidMessageSenderService extends IntentService {
-       // No client key when using old style registration id.
-       clientKey = "";
-       try {
--        registrationId = GCMRegistrar.getRegistrationId(context);
+@@ -395,7 +394,7 @@ public class AndroidMessageSenderService extends IntentService {
+         // No client key when using old style registration id.
+         clientKey = "";
+         try {
+-            registrationId = GCMRegistrar.getRegistrationId(context);
 +        registrationId = null;
-       } catch (RuntimeException exception) {
-         // GCMRegistrar#getRegistrationId occasionally throws a runtime exception. Catching the
-         // exception rather than crashing.
+         } catch (RuntimeException exception) {
+             // GCMRegistrar#getRegistrationId occasionally throws a runtime exception. Catching the
+             // exception rather than crashing.

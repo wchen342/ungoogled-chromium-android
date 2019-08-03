@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 set -eux -o pipefail
 
-chromium_version=75.0.3770.142
+chromium_version=76.0.3809.87
 target=monochrome_public_apk
+#target=system_webview_apk
 
 # Required tools: python2, python3, ninja, git, clang, lld, llvm, curl
 # Assuming default python to be python2. This is true on most Linux distributions.
@@ -89,16 +90,7 @@ python3 ungoogled-chromium/utils/patches.py apply src ungoogled-chromium/patches
 python3 ungoogled-chromium/utils/domain_substitution.py apply -r ungoogled-chromium/domain_regex.list -f ungoogled-chromium/domain_substitution.list -c ${cache_file} src
 
 
-## Extra fixes for Chromium source
-# Fix an error in chrome/browser/android/rlz/rlz_ping_handler.cc: line 79, -rlz_lib::kFinancialServer +"about:blank"
-patch -p1 --ignore-whitespace -i patches/android-rlz-fix-missing-variable.patch --no-backup-if-mismatch
-# Change package/App name
-# patch src/chrome/android/BUILD.gn, src/chrome/android/java/res_chromium/values/channel_constants.xml
-patch -p1 --ignore-whitespace -i patches/change_package_name.patch --no-backup-if-mismatch
 # Workaround for a building failure caused by safe browsing. The file is pre-generated with safe_browsing_mode=2. See https://github.com/nikolowry/bromite-builder/issues/1
-# x86
-mkdir -p src/out/Default/gen/chrome/common/safe_browsing
-cp download_file_types.pb.h src/out/Default/gen/chrome/common/safe_browsing
 # arm/arm64
 cp download_file_types.pb.h src/chrome/common/safe_browsing/download_file_types.pb.h
 
@@ -120,11 +112,11 @@ mv android-ndk/android-ndk-r18b/sysroot/usr/include/android/data_space.h android
 patch -p1 --ignore-whitespace -i patches/ndk-native-window.patch --no-backup-if-mismatch
 # Create symbol links to sdk folders
 # The rebuild sdk has a different folder structure from the checked out version, so it is easier to create symbol links
-# rm -rf src/third_party/android_sdk   # The folder is not used
-pushd src/third_party/android_build_tools
-rm -rf aapt2
-ln -s ../../../android-sdk/android-sdk_user.9.0.0_r21_linux-x86/build-tools/android-9 aapt2
-popd
+# Old aapt no longer works. Need to use Maven version until a rebuild of SDK 29 exists.
+#pushd src/third_party/android_build_tools
+#rm -rf aapt2
+#ln -s ../../../android-sdk/android-sdk_user.9.0.0_r21_linux-x86/build-tools/android-9 aapt2
+#popd
 DIRECTORY="src/third_party/android_sdk/public"
 if [[ -d "$DIRECTORY" ]]; then
   rm -rf "$DIRECTORY"
@@ -168,9 +160,9 @@ popd
 
 
 # Additional Source Patches
-# TODO use patches.py instead
-patch -p1 --ignore-whitespace -i patches/Vanadium/0020-disable-media-router-media-remoting-by-default.patch --no-backup-if-mismatch
-patch -p1 --ignore-whitespace -i patches/Vanadium/0021-disable-media-router-by-default.patch --no-backup-if-mismatch
+## Extra fixes for Chromium source
+python3 ungoogled-chromium/utils/patches.py apply src patches
+#patch -p1 --ignore-whitespace -i patches/aapt2-param.patch --no-backup-if-mismatch
 ## Second pruning list
 pruning_list_2="pruning_2.list"
 python3 ungoogled-chromium/utils/prune_binaries.py src ${pruning_list_2} || true
@@ -192,9 +184,6 @@ popd
 
 
 ## Configure output folder
-# patch build/config/android/BUILD.gn, build/android/gyp/compile_resources.py
-patch -p1 --ignore-whitespace -i patches/linker-android-support-remove.patch --no-backup-if-mismatch
-patch -p1 --ignore-whitespace -i patches/aapt2-param.patch --no-backup-if-mismatch
 cd src
 mkdir -p out/Default
 cat ../ungoogled-chromium/flags.gn ../android_flags.gn > out/Default/args.gn

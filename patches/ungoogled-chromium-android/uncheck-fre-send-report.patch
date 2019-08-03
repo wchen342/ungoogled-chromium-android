@@ -6,7 +6,6 @@ author: Wengling Chen <feiyu2817@gmail.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivityBase.java b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivityBase.java
-index 9c69e1071c..70ef53e012 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivityBase.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivityBase.java
 @@ -38,7 +38,7 @@ public abstract class FirstRunActivityBase extends AsyncInitializationActivity {

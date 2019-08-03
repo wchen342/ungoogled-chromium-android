@@ -13,7 +13,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -344,7 +344,6 @@ android_library("chrome_java") {
+@@ -362,7 +362,6 @@ android_library("chrome_java") {
      "//third_party/custom_tabs_client:custom_tabs_support_java",
      "//third_party/feed:feed_lib_proto_java",
      "//third_party/gif_player:gif_player_java",
@@ -470,7 +470,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/Pl
 diff --git a/components/module_installer/android/BUILD.gn b/components/module_installer/android/BUILD.gn
 --- a/components/module_installer/android/BUILD.gn
 +++ b/components/module_installer/android/BUILD.gn
-@@ -43,7 +43,6 @@ android_library("module_installer_impl_java") {
+@@ -45,7 +45,6 @@ android_library("module_installer_impl_java") {
      ":module_installer_java",
      "//base:base_java",
      "//components/crash/android:java",
