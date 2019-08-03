@@ -3,6 +3,7 @@ set -eux -o pipefail
 
 chromium_version=76.0.3809.87
 target=monochrome_public_apk
+#target=system_webview_apk
 
 # Required tools: python2, python3, ninja, git, clang, lld, llvm, curl
 # Assuming default python to be python2. This is true on most Linux distributions.
@@ -159,14 +160,8 @@ popd
 
 
 # Additional Source Patches
-# TODO use patches.py instead
 ## Extra fixes for Chromium source
-#patch -p1 --ignore-whitespace -i patches/android-rlz-fix-missing-variable.patch --no-backup-if-mismatch    # Fix an error in chrome/browser/android/rlz/rlz_ping_handler.cc
-#patch -p1 --ignore-whitespace -i patches/fix-redefinition-error.patch --no-backup-if-mismatch    # Fix a redefinition error
-#patch -p1 --ignore-whitespace -i patches/change_package_name.patch --no-backup-if-mismatch    # Change package/App name
-#patch -p1 --ignore-whitespace -i patches/Vanadium/0020-disable-media-router-media-remoting-by-default.patch --no-backup-if-mismatch
-#patch -p1 --ignore-whitespace -i patches/Vanadium/0021-disable-media-router-by-default.patch --no-backup-if-mismatch
-#patch -p1 --ignore-whitespace -i patches/linker-android-support-remove.patch --no-backup-if-mismatch
+python3 ungoogled-chromium/utils/patches.py apply src patches
 #patch -p1 --ignore-whitespace -i patches/aapt2-param.patch --no-backup-if-mismatch
 ## Second pruning list
 pruning_list_2="pruning_2.list"

@@ -2,8 +2,8 @@ Fix a redefinition error in unnamed namespace.
 author: Wengling Chen <feiyu2817@gmail.com>
 
 diff --git a/chrome/browser/android/favicon_helper.cc b/chrome/browser/android/favicon_helper.cc
---- a/src/chrome/browser/android/favicon_helper.cc
-+++ b/src/chrome/browser/android/favicon_helper.cc
+--- a/chrome/browser/android/favicon_helper.cc
++++ b/chrome/browser/android/favicon_helper.cc
 @@ -80,17 +80,13 @@ void OnEnsureIconIsAvailableFinished(
        env, j_availability_callback, newly_available);
  }

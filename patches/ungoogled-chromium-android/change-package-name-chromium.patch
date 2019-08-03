@@ -1,9 +1,15 @@
 description: change package name to allow co-existence with original Chromium
 author: Wengling Chen <feiyu2817@gmail.com>
 
---- a/src/chrome/android/BUILD.gn
-+++ b/src/chrome/android/BUILD.gn
-@@ -42,8 +42,8 @@
+---
+ chrome/android/BUILD.gn                                       | 4 ++--
+ chrome/android/java/res_chromium/values/channel_constants.xml | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
+--- a/chrome/android/BUILD.gn
++++ b/chrome/android/BUILD.gn
+@@ -42,8 +42,8 @@ if (dfmify_devtools) {
    import("//chrome/android/features/devtools/devtools_module_tmpl.gni")
  }
  
@@ -14,10 +20,9 @@ author: Wengling Chen <feiyu2817@gmail.com>
  
  chrome_public_jinja_variables = default_chrome_public_jinja_variables +
                                  [ "manifest_package=$manifest_package" ]
-
-
---- a/src/chrome/android/java/res_chromium/values/channel_constants.xml
-+++ b/src/chrome/android/java/res_chromium/values/channel_constants.xml
+diff --git a/chrome/android/java/res_chromium/values/channel_constants.xml b/chrome/android/java/res_chromium/values/channel_constants.xml
+--- a/chrome/android/java/res_chromium/values/channel_constants.xml
++++ b/chrome/android/java/res_chromium/values/channel_constants.xml
 @@ -5,7 +5,7 @@
  
  <resources xmlns:android="http://schemas.android.com/apk/res/android">

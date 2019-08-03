@@ -1,9 +1,9 @@
-src/android-rlz-fix-missing-variable.patch
-src/fix-redefinition-error.patch
-src/fix-null-mInstanceID.patch
-ungoogled-chromium-android/change_package_name.patch
+src-fix/android-rlz-fix-missing-variable.patch
+src-fix/fix-redefinition-error.patch
+src-fix/fix-null-mInstanceID.patch
 Vanadium/0020-disable-media-router-media-remoting-by-default.patch
 Vanadium/0021-disable-media-router-by-default.patch
+ungoogled-chromium-android/change-package-name-chromium.patch
 ungoogled-chromium-android/linker-android-support-remove.patch
 ungoogled-chromium-android/remove-gcm-client.patch
 ungoogled-chromium-android/remove-gms-gcm.patch

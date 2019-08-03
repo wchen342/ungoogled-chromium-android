@@ -326,7 +326,7 @@ diff --git a/services/device/geolocation/android/java/src/org/chromium/device/ge
  import org.chromium.components.location.LocationUtils;
 @@ -27,126 +17,39 @@ import org.chromium.components.location.LocationUtils;
   *
-  * https://developers.9oo91e.qjz9zk/android/reference/com/google/android/gms/location/package-summary
+  * https://developers.google.com/android/reference/com/google/android/gms/location/package-summary
   */
 -public class LocationProviderGmsCore implements ConnectionCallbacks, OnConnectionFailedListener,
 -                                                LocationListener, LocationProvider {

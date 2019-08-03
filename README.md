@@ -26,8 +26,7 @@ For more information on `ungoogled-chromium`, please visit the original repo: [E
 
 *These are the differences between a Linux build of ungoogled-chromium and this Android build.*
 
-* Current build still include proprietary libraries from Google. They are supposed to be removed in the future.
-* Android specific fixes are applied.
+* Android specific patches and fixes are applied.
 * Default configuration builds for `arm64` instead of `x64`.
 
 ## Supported Platforms

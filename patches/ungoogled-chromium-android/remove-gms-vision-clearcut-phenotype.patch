@@ -78,7 +78,7 @@ diff --git a/services/shape_detection/android/java/src/org/chromium/shape_detect
 -        // The vision library will be downloaded the first time the API is used
 -        // on the device; this happens "fast", but it might have not completed,
 -        // bail in this case. Also, the API was disabled between and v.9.0 and
--        // v.9.2, see https://developers.9oo91e.qjz9zk/android/guides/releases.
+-        // v.9.2, see https://developers.google.com/android/guides/releases.
 -        if (!mBarcodeDetector.isOperational()) {
 -            Log.e(TAG, "BarcodeDetector is not operational");
 -            callback.call(new BarcodeDetectionResult[0]);
@@ -409,7 +409,7 @@ diff --git a/services/shape_detection/android/java/src/org/chromium/shape_detect
 -        // The vision library will be downloaded the first time the API is used
 -        // on the device; this happens "fast", but it might have not completed,
 -        // bail in this case. Also, the API was disabled between and v.9.0 and
--        // v.9.2, see https://developers.9oo91e.qjz9zk/android/guides/releases.
+-        // v.9.2, see https://developers.google.com/android/guides/releases.
 -        if (!mTextRecognizer.isOperational()) {
 -            Log.e(TAG, "TextDetector is not operational");
 -            callback.call(new TextDetectionResult[0]);
