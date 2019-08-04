@@ -97,9 +97,9 @@ cp download_file_types.pb.h src/chrome/common/safe_browsing/download_file_types.
 
 ## Prepare Android SDK/NDK
 # This is Sylvain Beucler's libre Android rebuild
-sdk_link="https://android-rebuilds.beuc.net/dl/android-sdk_user.9.0.0_r21_linux-x86.zip"
-sdk_tools_link="https://android-rebuilds.beuc.net/dl/sdk-repo-linux-tools-26.1.1.zip"
-ndk_link="https://android-rebuilds.beuc.net/dl/android-ndk-r18b-linux-x86_64.tar.bz2"
+sdk_link="https://android-rebuilds.beuc.net/dl/bundles/android-sdk_user.9.0.0_r21_linux-x86.zip"
+sdk_tools_link="https://android-rebuilds.beuc.net/dl/repository/sdk-repo-linux-tools-26.1.1.zip"
+ndk_link="https://android-rebuilds.beuc.net/dl/bundles/android-ndk-r18b-linux-x86_64.tar.bz2"
 mkdir android-rebuilds
 mkdir android-sdk
 mkdir android-ndk
