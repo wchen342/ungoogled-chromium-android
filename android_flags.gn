@@ -14,6 +14,7 @@ enable_resource_whitelist_generation=false
 ffmpeg_branding="Chrome"
 is_clang=true
 is_component_build=false
+rtc_build_examples=false
 target_os="android"
 target_cpu="arm64"
 use_jumbo_build=true

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -eux -o pipefail
 
-chromium_version=76.0.3809.87
+chromium_version=76.0.3809.100
 target=monochrome_public_apk
-#target=system_webview_apk
+webview_target=system_webview_apk
 
 # Required tools: python2, python3, ninja, git, clang, lld, llvm, curl
 # Assuming default python to be python2. This is true on most Linux distributions.
@@ -20,7 +20,7 @@ mkdir -p depot_tools
 pushd depot_tools
 git init
 git remote add origin https://chromium.googlesource.com/chromium/tools/depot_tools.git
-git fetch --depth 1 --no-tags origin ${depot_tools_commit}
+git fetch --depth 1 --no-tags origin "${depot_tools_commit}"
 git reset --hard FETCH_HEAD
 popd
 export PATH="$(pwd -P)/depot_tools:$PATH"
@@ -37,7 +37,7 @@ mkdir src/third_party/feed/src
 pushd src/third_party/feed/src
 git init
 git remote add origin https://chromium.googlesource.com/feed
-git fetch --depth 1 --no-tags origin ${feed_commit}
+git fetch --depth 1 --no-tags origin "${feed_commit}"
 git reset --hard FETCH_HEAD
 popd
 
@@ -46,7 +46,7 @@ mkdir src/third_party/webrtc
 pushd src/third_party/webrtc
 git init
 git remote add origin https://webrtc.googlesource.com/src.git
-git fetch --depth 1 --no-tags origin ${webrtc_commit}
+git fetch --depth 1 --no-tags origin "${webrtc_commit}"
 git reset --hard FETCH_HEAD
 popd
 
@@ -55,7 +55,7 @@ mkdir src/third_party/libsync/src
 pushd src/third_party/libsync/src
 git init
 git remote add origin https://chromium.googlesource.com/aosp/platform/system/core/libsync.git
-git fetch --depth 1 --no-tags origin ${libsync_commit}
+git fetch --depth 1 --no-tags origin "${libsync_commit}"
 git reset --hard FETCH_HEAD
 popd
 
@@ -97,9 +97,9 @@ cp download_file_types.pb.h src/chrome/common/safe_browsing/download_file_types.
 
 ## Prepare Android SDK/NDK
 # This is Sylvain Beucler's libre Android rebuild
-sdk_link="https://android-rebuilds.beuc.net/dl/android-sdk_user.9.0.0_r21_linux-x86.zip"
-sdk_tools_link="https://android-rebuilds.beuc.net/dl/sdk-repo-linux-tools-26.1.1.zip"
-ndk_link="https://android-rebuilds.beuc.net/dl/android-ndk-r18b-linux-x86_64.tar.bz2"
+sdk_link="https://android-rebuilds.beuc.net/dl/bundles/android-sdk_user.9.0.0_r21_linux-x86.zip"
+sdk_tools_link="https://android-rebuilds.beuc.net/dl/repository/sdk-repo-linux-tools-26.1.1.zip"
+ndk_link="https://android-rebuilds.beuc.net/dl/bundles/android-ndk-r18b-linux-x86_64.tar.bz2"
 mkdir android-rebuilds
 mkdir android-sdk
 mkdir android-ndk
@@ -186,7 +186,7 @@ popd
 ## Configure output folder
 cd src
 mkdir -p out/Default
-cat ../ungoogled-chromium/flags.gn ../android_flags.gn > out/Default/args.gn
+cat ../ungoogled-chromium/flags.gn ../android_flags.gn ../android_flags.release.gn > out/Default/args.gn
 tools/gn/out/gn gen out/Default --fail-on-unused-args
 
 
@@ -198,3 +198,4 @@ export CXX=${CXX:=clang++}
 
 ## Build
 ninja -C out/Default ${target}
+ninja -C out/Default ${webview_target}

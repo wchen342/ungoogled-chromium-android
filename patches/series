@@ -15,3 +15,4 @@ ungoogled-chromium-android/remove-gms-flags-places-stats.patch
 ungoogled-chromium-android/remove-gms-base-tasks.patch
 ungoogled-chromium-android/remove-play-core.patch
 ungoogled-chromium-android/uncheck-fre-send-report.patch
+ungoogled-chromium-android/disable-context-search-by-default.patch
