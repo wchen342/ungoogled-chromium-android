@@ -23,3 +23,6 @@
 * Add WebView builds
 * Since `aapt` no longer works, bundled `aapt2` will be used until a rebuild of SDK 29 exists
 * Minor bug fixes
+
+# 76.0.3809.100-1
+* Change default setting of contextual search to false
