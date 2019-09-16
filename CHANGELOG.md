@@ -26,3 +26,6 @@
 
 # 76.0.3809.100-1
 * Change default setting of contextual search to false
+
+# 76.0.3809.132-1
+* No change
