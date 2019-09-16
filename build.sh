@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eux -o pipefail
 
-chromium_version=76.0.3809.100
+chromium_version=76.0.3809.132
 target=monochrome_public_apk
 webview_target=system_webview_apk
 
