@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eux -o pipefail
 
-chromium_version=76.0.3809.132
+chromium_version=77.0.3865.90
 target=monochrome_public_apk
 webview_target=system_webview_apk
 
@@ -59,7 +59,7 @@ git fetch --depth 1 --no-tags origin "${libsync_commit}"
 git reset --hard FETCH_HEAD
 popd
 
-gn_commit=9bd94208ec741659d5126b990fdccd35a5c30b1f
+gn_commit=bbc9dd04ea881b4bc0c36a1ff4ccc65111bab250
 mv src/tools/gn src/tools/gn.bak
 git clone https://gn.googlesource.com/gn src/tools/gn
 pushd src/tools/gn
@@ -110,6 +110,7 @@ tar xjf android-rebuilds/android-ndk-r18b-linux-x86_64.tar.bz2 -C android-ndk
 # remove data_space.h, patch native_window.h
 mv android-ndk/android-ndk-r18b/sysroot/usr/include/android/data_space.h android-ndk/android-ndk-r18b/sysroot/usr/include/android/data_space.h.bak
 patch -p1 --ignore-whitespace -i patches/ndk-native-window.patch --no-backup-if-mismatch
+
 # Create symbol links to sdk folders
 # The rebuild sdk has a different folder structure from the checked out version, so it is easier to create symbol links
 # Old aapt no longer works. Need to use Maven version until a rebuild of SDK 29 exists.

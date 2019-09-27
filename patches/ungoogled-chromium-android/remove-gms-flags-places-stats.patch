@@ -8,7 +8,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
 diff --git a/third_party/android_deps/BUILD.gn b/third_party/android_deps/BUILD.gn
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -574,55 +574,6 @@ android_aar_prebuilt("com_android_support_transition_java") {
+@@ -565,55 +565,6 @@ android_aar_prebuilt("com_android_support_transition_java") {
    deps += [ ":com_android_support_support_fragment_java" ]
  }
  

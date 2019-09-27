@@ -29,3 +29,8 @@
 
 # 76.0.3809.132-1
 * No change
+
+# 77.0.3865.90-1
+* Update patches to new version
+* Update GN to latest commit
+* Minor fixes

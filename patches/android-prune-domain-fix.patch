@@ -28,7 +28,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
  build/android/tests/symbolize/liba.so
  build/android/tests/symbolize/libb.so
  build/linux/sysroot_scripts/debian-archive-sid-stable.gpg
-@@ -3553,7 +3552,6 @@ third_party/angle/third_party/glmark2/src/data/models/cat.3ds
+@@ -3582,7 +3581,6 @@ third_party/angle/third_party/glmark2/src/data/models/cat.3ds
  third_party/angle/third_party/glmark2/src/data/models/cube.3ds
  third_party/angle/third_party/glmark2/src/data/models/horse.3ds
  third_party/angle/third_party/vulkan-loader/src/loader/loader.aps
@@ -36,7 +36,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
  third_party/blink/manual_tests/WebKitSite.webarchive
  third_party/blink/manual_tests/accessibility/resources/AppletTest.class
  third_party/blink/manual_tests/plugins/test.swf
-@@ -13288,11 +13286,8 @@ third_party/hunspell/fuzz/bdict_corpus/en-US-7-1.bdic
+@@ -13326,11 +13324,8 @@ third_party/hunspell/fuzz/bdict_corpus/en-US-7-1.bdic
  third_party/hunspell/fuzz/bdict_corpus/en-US-8-0.bdic
  third_party/hunspell/fuzz/bdict_corpus/f95048cdc0fc231dd712bad106578a9eeecd869b
  third_party/hunspell/fuzz/bdict_corpus/fda69541054125551c41ab3e591e0482405ca2dc

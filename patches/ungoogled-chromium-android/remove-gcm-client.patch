@@ -17,7 +17,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -361,7 +361,6 @@ android_library("chrome_java") {
+@@ -368,7 +368,6 @@ android_library("chrome_java") {
      "//third_party/android_deps:com_google_protobuf_protobuf_lite_java",
      "//third_party/android_deps:javax_inject_javax_inject_java",
      "//third_party/android_media:android_media_java",
@@ -55,7 +55,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/In
 diff --git a/components/gcm_driver/android/BUILD.gn b/components/gcm_driver/android/BUILD.gn
 --- a/components/gcm_driver/android/BUILD.gn
 +++ b/components/gcm_driver/android/BUILD.gn
-@@ -15,7 +15,6 @@ android_library("gcm_driver_java") {
+@@ -14,7 +14,6 @@ android_library("gcm_driver_java") {
    deps = [
      "//base:base_java",
      "//content/public/android:content_java",
@@ -84,9 +84,9 @@ diff --git a/third_party/android_sdk/BUILD.gn b/third_party/android_sdk/BUILD.gn
 -  android_java_prebuilt("android_gcm_java") {
 -    jar_path = "//third_party/android_sdk/public/extras/google/gcm/gcm-client/dist/gcm.jar"
 -  }
-   java_prebuilt("emma_device_java") {
-     jar_path = "//third_party/android_sdk/public/tools/lib/emma_device.jar"
-     include_java_resources = true
+ 
+   # The current version of //third_party/byte_buddy relies on an older
+   # version of dx.
 diff --git a/third_party/cacheinvalidation/BUILD.gn b/third_party/cacheinvalidation/BUILD.gn
 --- a/third_party/cacheinvalidation/BUILD.gn
 +++ b/third_party/cacheinvalidation/BUILD.gn

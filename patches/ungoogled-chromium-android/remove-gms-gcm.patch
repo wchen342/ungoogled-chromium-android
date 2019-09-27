@@ -5,28 +5,28 @@ author: Wengling Chen <feiyu2817@gmail.com>
 
 ---
  chrome/android/BUILD.gn                            |   3 -
- chrome/android/java/AndroidManifest.xml            |  60 --------
- .../chrome/browser/BackgroundSyncLauncher.java     |  64 +-------
- .../chrome/browser/ChromeBackgroundService.java    |  96 +-----------
+ chrome/android/java/AndroidManifest.xml            |  62 -------
+ .../chrome/browser/BackgroundSyncLauncher.java     |  64 +------
+ .../chrome/browser/ChromeBackgroundService.java    |  96 +----------
  .../invalidation/InvalidationController.java       |   8 +-
- .../browser/ntp/snippets/SnippetsLauncher.java     |  59 +-------
- .../services/gcm/ChromeGcmListenerService.java     |  58 +-------
+ .../browser/ntp/snippets/SnippetsLauncher.java     |  59 +------
+ .../services/gcm/ChromeGcmListenerService.java     |  58 +------
  components/background_task_scheduler/BUILD.gn      |   3 -
- .../BackgroundTaskGcmTaskService.java              |  53 +------
+ .../BackgroundTaskGcmTaskService.java              |  59 +------
  .../BackgroundTaskSchedulerFactory.java            |   6 +-
- .../BackgroundTaskSchedulerGcmNetworkManager.java  | 164 +--------------------
+ .../BackgroundTaskSchedulerGcmNetworkManager.java  | 184 +--------------------
  third_party/android_deps/BUILD.gn                  |  15 --
  third_party/cacheinvalidation/BUILD.gn             |   1 -
  .../client/android2/AndroidManifestUpdatedGcm.xml  |  20 ---
- .../android2/channel/AndroidGcmController.java     |  42 +-----
+ .../android2/channel/AndroidGcmController.java     |  42 +----
  .../channel/AndroidInstanceIDListenerService.java  |  13 +-
- .../channel/GcmRegistrationTaskService.java        |  89 +----------
- 17 files changed, 21 insertions(+), 733 deletions(-)
+ .../channel/GcmRegistrationTaskService.java        |  89 +---------
+ 17 files changed, 21 insertions(+), 761 deletions(-)
 
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -269,7 +269,6 @@ android_library("chrome_java") {
+@@ -271,7 +271,6 @@ android_library("chrome_java") {
      "$google_play_services_package:google_play_services_cast_framework_java",
      "$google_play_services_package:google_play_services_cast_java",
      "$google_play_services_package:google_play_services_fido_java",
@@ -34,7 +34,7 @@ diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
      "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
      "//base:base_java",
-@@ -742,7 +741,6 @@ android_library("chrome_test_java") {
+@@ -775,7 +774,6 @@ android_library("chrome_test_java") {
      "$google_play_services_package:google_play_services_cast_framework_java",
      "$google_play_services_package:google_play_services_cast_java",
      "$google_play_services_package:google_play_services_fido_java",
@@ -42,7 +42,7 @@ diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
      "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
      "//base:base_java",
-@@ -1582,7 +1580,6 @@ android_library("browser_java_test_support") {
+@@ -1523,7 +1521,6 @@ android_library("browser_java_test_support") {
    ]
    deps = [
      ":chrome_java",
@@ -53,7 +53,7 @@ diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
 diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/AndroidManifest.xml
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
-@@ -83,22 +83,17 @@ by a child template that "extends" this file.
+@@ -85,22 +85,17 @@ by a child template that "extends" this file.
      <permission android:name="{{ manifest_package }}.permission.CHILD_SERVICE" android:protectionLevel="signature" />
      <permission android:name="{{ manifest_package }}.permission.READ_WRITE_BOOKMARK_FOLDERS" android:protectionLevel="signatureOrSystem" />
      <permission android:name="{{ manifest_package }}.TOS_ACKED" android:protectionLevel="signatureOrSystem" />
@@ -76,7 +76,7 @@ diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/Andro
      <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT"/>
  
      <uses-permission android:name="com.google.android.apps.now.CURRENT_ACCOUNT_ACCESS" />
-@@ -1058,43 +1053,6 @@ by a child template that "extends" this file.
+@@ -1059,45 +1054,6 @@ by a child template that "extends" this file.
              android:configChanges="orientation|keyboardHidden|keyboard|screenSize|mcc|mnc|screenLayout|smallestScreenSize"
              android:hardwareAccelerated="false" />
  
@@ -112,6 +112,8 @@ diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/Andro
 -              <action android:name="com.google.android.c2dm.intent.RECEIVE" />
 -            </intent-filter>
 -        </service>
+-        <service android:name="org.chromium.chrome.browser.services.gcm.GCMBackgroundService"
+-            android:exported="false"/>
 -        <meta-data android:name="ipc.invalidation.ticl.gcm_upstream_service_class"
 -            android:value="org.chromium.chrome.browser.services.gcm.InvalidationGcmUpstreamSender" />
 -        <service android:name="org.chromium.chrome.browser.services.gcm.InvalidationGcmUpstreamSender"
@@ -120,7 +122,7 @@ diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/Andro
          <!-- Notification service for sync. -->
          <meta-data android:name="ipc.invalidation.ticl.listener_service_class"
              android:value="org.chromium.chrome.browser.invalidation.ChromeInvalidationClientService"/>
-@@ -1134,24 +1092,6 @@ by a child template that "extends" this file.
+@@ -1137,24 +1093,6 @@ by a child template that "extends" this file.
              android:exported="false"
              android:permission="android.permission.BIND_JOB_SERVICE"/>
  
@@ -523,7 +525,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ntp/snippets/Sn
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/ChromeGcmListenerService.java b/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/ChromeGcmListenerService.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/ChromeGcmListenerService.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/ChromeGcmListenerService.java
-@@ -10,7 +10,6 @@ import android.os.Bundle;
+@@ -11,7 +11,6 @@ import android.os.Bundle;
  import android.os.SystemClock;
  import android.text.TextUtils;
  
@@ -531,13 +533,14 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/Ch
  import com.google.ipc.invalidation.ticl.android2.channel.AndroidGcmController;
  
  import org.chromium.base.ApplicationStatus;
-@@ -33,62 +32,9 @@ import org.chromium.content_public.browser.UiThreadTaskTraits;
+@@ -34,63 +33,10 @@ import org.chromium.content_public.browser.UiThreadTaskTraits;
  /**
   * Receives Downstream messages and status of upstream messages from GCM.
   */
 -public class ChromeGcmListenerService extends GcmListenerService {
 +public class ChromeGcmListenerService {
      private static final String TAG = "ChromeGcmListener";
+     private static final String SHARING_APP_ID = "com.google.chrome.sharing.fcm";
  
 -    @Override
 -    public void onCreate() {
@@ -593,9 +596,9 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/Ch
 -    }
 -
      /**
-      * If Chrome is backgrounded, messages coming from lazy subscriptions are
-      * persisted on disk and replayed next time Chrome is forgrounded. If Chrome is forgrounded or
-@@ -149,8 +95,6 @@ public class ChromeGcmListenerService extends GcmListenerService {
+      * Returns if we deliver the GCMMessage with a background service by calling
+      * Context#startService. This will only work if Android has put us in a whitelist to allow
+@@ -185,8 +131,6 @@ public class ChromeGcmListenerService extends GcmListenerService {
  
          try {
              ChromeBrowserInitializer.getInstance(applicationContext).handleSynchronousStartup();
@@ -615,7 +618,7 @@ diff --git a/components/background_task_scheduler/BUILD.gn b/components/backgrou
        "$google_play_services_package:google_play_services_tasks_java",
        "//base:base_java",
        "//third_party/android_deps:com_android_support_support_annotations_java",
-@@ -73,7 +72,6 @@ if (is_android) {
+@@ -75,7 +74,6 @@ if (is_android) {
        ":background_task_scheduler_task_ids_java",
        "$google_play_services_package:google_play_services_base_java",
        "$google_play_services_package:google_play_services_basement_java",
@@ -623,7 +626,7 @@ diff --git a/components/background_task_scheduler/BUILD.gn b/components/backgrou
        "$google_play_services_package:google_play_services_tasks_java",
        "//base:base_java",
        "//base:base_java_test_support",
-@@ -98,7 +96,6 @@ if (is_android) {
+@@ -103,7 +101,6 @@ if (is_android) {
        "$google_play_services_package:google_play_services_auth_base_java",
        "$google_play_services_package:google_play_services_base_java",
        "$google_play_services_package:google_play_services_basement_java",
@@ -645,7 +648,7 @@ diff --git a/components/background_task_scheduler/android/java/src/org/chromium/
  import org.chromium.base.ContextUtils;
  import org.chromium.base.Log;
  import org.chromium.base.ThreadUtils;
-@@ -19,7 +15,7 @@ import java.util.concurrent.TimeUnit;
+@@ -20,7 +16,7 @@ import java.util.concurrent.TimeUnit;
  import java.util.concurrent.atomic.AtomicBoolean;
  
  /** Delegates calls out to various tasks that need to run in the background. */
@@ -653,8 +656,8 @@ diff --git a/components/background_task_scheduler/android/java/src/org/chromium/
 +public class BackgroundTaskGcmTaskService {
      private static final String TAG = "BkgrdTaskGcmTS";
  
-     /** Class that waits for the processing to be done. */
-@@ -81,53 +77,6 @@ public class BackgroundTaskGcmTaskService extends GcmTaskService {
+     private BackgroundTaskSchedulerGcmNetworkManager.Clock mClock = System::currentTimeMillis;
+@@ -89,59 +85,6 @@ public class BackgroundTaskGcmTaskService extends GcmTaskService {
          }
      }
  
@@ -664,6 +667,12 @@ diff --git a/components/background_task_scheduler/android/java/src/org/chromium/
 -                BackgroundTaskSchedulerGcmNetworkManager.getBackgroundTaskFromTaskParams(params);
 -        if (backgroundTask == null) {
 -            Log.w(TAG, "Failed to start task. Could not instantiate class.");
+-            return GcmNetworkManager.RESULT_FAILURE;
+-        }
+-
+-        Long deadlineTime =
+-                BackgroundTaskSchedulerGcmNetworkManager.getDeadlineTimeFromTaskParams(params);
+-        if (deadlineTime != null && mClock.currentTimeMillis() >= deadlineTime) {
 -            return GcmNetworkManager.RESULT_FAILURE;
 -        }
 -
@@ -750,10 +759,10 @@ diff --git a/components/background_task_scheduler/android/java/src/org/chromium/
 +class BackgroundTaskSchedulerGcmNetworkManager {
      private static final String TAG = "BkgrdTaskSchedGcmNM";
  
-     @VisibleForTesting
-@@ -34,160 +26,6 @@ class BackgroundTaskSchedulerGcmNetworkManager implements BackgroundTaskSchedule
-     @VisibleForTesting
-     static final String BACKGROUND_TASK_EXTRAS_KEY = "_background_task_extras";
+     /** Delta time for expiration checks, after the end time. */
+@@ -42,180 +34,6 @@ class BackgroundTaskSchedulerGcmNetworkManager implements BackgroundTaskSchedule
+         sClock = clock;
+     }
  
 -    static BackgroundTask getBackgroundTaskFromTaskParams(@NonNull TaskParams taskParams) {
 -        String backgroundTaskClassName = getBackgroundTaskClassFromTaskParams(taskParams);
@@ -764,6 +773,19 @@ diff --git a/components/background_task_scheduler/android/java/src/org/chromium/
 -        Bundle extras = taskParams.getExtras();
 -        if (extras == null) return null;
 -        return extras.getString(BACKGROUND_TASK_CLASS_KEY);
+-    }
+-
+-    static Long getDeadlineTimeFromTaskParams(@NonNull TaskParams taskParams) {
+-        Bundle extras = taskParams.getExtras();
+-        if (extras == null || !extras.containsKey(BACKGROUND_TASK_DEADLINE_KEY)) {
+-            return null;
+-        }
+-        return extras.getLong(BACKGROUND_TASK_DEADLINE_KEY);
+-    }
+-
+-    private static long getDeadlineTime(TaskInfo taskInfo) {
+-        long windowEndTimeMs = taskInfo.getOneOffInfo().getWindowEndTimeMs();
+-        return sClock.currentTimeMillis() + windowEndTimeMs;
 -    }
 -
 -    /**
@@ -797,6 +819,9 @@ diff --git a/components/background_task_scheduler/android/java/src/org/chromium/
 -        Bundle taskExtras = new Bundle();
 -        taskExtras.putString(
 -                BACKGROUND_TASK_CLASS_KEY, taskInfo.getBackgroundTaskClass().getName());
+-        if (!taskInfo.isPeriodic() && taskInfo.getOneOffInfo().expiresAfterWindowEndTime()) {
+-            taskExtras.putLong(BACKGROUND_TASK_DEADLINE_KEY, getDeadlineTime(taskInfo));
+-        }
 -        taskExtras.putBundle(BACKGROUND_TASK_EXTRAS_KEY, taskInfo.getExtras());
 -
 -        Task.Builder builder;
@@ -832,8 +857,12 @@ diff --git a/components/background_task_scheduler/android/java/src/org/chromium/
 -        long windowStartSeconds = oneOffInfo.hasWindowStartTimeConstraint()
 -                ? TimeUnit.MILLISECONDS.toSeconds(oneOffInfo.getWindowStartTimeMs())
 -                : 0;
--        builder.setExecutionWindow(windowStartSeconds,
--                TimeUnit.MILLISECONDS.toSeconds(oneOffInfo.getWindowEndTimeMs()));
+-        long windowEndTimeMs = oneOffInfo.getWindowEndTimeMs();
+-        if (oneOffInfo.expiresAfterWindowEndTime()) {
+-            windowEndTimeMs += DEADLINE_DELTA_MS;
+-        }
+-        builder.setExecutionWindow(
+-                windowStartSeconds, TimeUnit.MILLISECONDS.toSeconds(windowEndTimeMs));
 -        return builder;
 -    }
 -
@@ -915,7 +944,7 @@ diff --git a/components/background_task_scheduler/android/java/src/org/chromium/
 diff --git a/third_party/android_deps/BUILD.gn b/third_party/android_deps/BUILD.gn
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -417,21 +417,6 @@ android_aar_prebuilt("google_play_services_fido_java") {
+@@ -431,21 +431,6 @@ android_aar_prebuilt("google_play_services_fido_java") {
    strip_drawables = true
  }
  
