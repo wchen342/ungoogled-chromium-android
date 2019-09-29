@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eux -o pipefail
 
-chromium_version=76.0.3809.132
+chromium_version=77.0.3865.90
 target=monochrome_public_apk
 #target=system_webview_apk
 
@@ -42,4 +42,5 @@ cat ../android_flags.debug.gn ../android_flags.gn > ${output_folder}/args.gn
 tools/gn/out/gn gen ${output_folder} --fail-on-unused-args
 
 # Generate gradle files
+# autoninja needs a patch to remove the usage of vpython; also need psutil package
 python build/android/gradle/generate_gradle.py --target //chrome/android:${target} --output-directory ${output_folder}

@@ -18,7 +18,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -265,8 +265,6 @@ android_library("chrome_java") {
+@@ -267,8 +267,6 @@ android_library("chrome_java") {
      ":usage_stats_proto_java",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
@@ -27,7 +27,7 @@ diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
      "$google_play_services_package:google_play_services_tasks_java",
      "//base:base_java",
      "//base:jni_java",
-@@ -636,7 +634,6 @@ junit_binary("chrome_junit_tests") {
+@@ -669,7 +667,6 @@ junit_binary("chrome_junit_tests") {
      ":partner_location_descriptor_proto_java",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
@@ -35,7 +35,7 @@ diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
      "//base:base_java",
      "//base:base_java_test_support",
      "//base:base_junit_test_support",
-@@ -733,8 +730,6 @@ android_library("chrome_test_java") {
+@@ -766,8 +763,6 @@ android_library("chrome_test_java") {
      ":partner_location_descriptor_proto_java",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
@@ -181,7 +181,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/instantapps/Ins
 diff --git a/components/gcm_driver/instance_id/android/BUILD.gn b/components/gcm_driver/instance_id/android/BUILD.gn
 --- a/components/gcm_driver/instance_id/android/BUILD.gn
 +++ b/components/gcm_driver/instance_id/android/BUILD.gn
-@@ -20,7 +20,6 @@ generate_jni("test_support_jni_headers") {
+@@ -18,7 +18,6 @@ generate_jni("test_support_jni_headers") {
  
  android_library("instance_id_driver_java") {
    deps = [
@@ -189,7 +189,7 @@ diff --git a/components/gcm_driver/instance_id/android/BUILD.gn b/components/gcm
      "//base:base_java",
      "//components/gcm_driver/android:gcm_driver_java",
    ]
-@@ -34,7 +33,6 @@ android_library("instance_id_driver_java") {
+@@ -32,7 +31,6 @@ android_library("instance_id_driver_java") {
  android_library("instance_id_driver_test_support_java") {
    deps = [
      ":instance_id_driver_java",
@@ -285,7 +285,7 @@ diff --git a/components/gcm_driver/instance_id/android/java/src/org/chromium/com
 diff --git a/device/BUILD.gn b/device/BUILD.gn
 --- a/device/BUILD.gn
 +++ b/device/BUILD.gn
-@@ -383,7 +383,6 @@ if (is_android) {
+@@ -382,7 +382,6 @@ if (is_android) {
      deps = [
        "$google_play_services_package:google_play_services_base_java",
        "$google_play_services_package:google_play_services_basement_java",
@@ -296,7 +296,7 @@ diff --git a/device/BUILD.gn b/device/BUILD.gn
 diff --git a/services/device/geolocation/BUILD.gn b/services/device/geolocation/BUILD.gn
 --- a/services/device/geolocation/BUILD.gn
 +++ b/services/device/geolocation/BUILD.gn
-@@ -145,7 +145,6 @@ if (is_android) {
+@@ -144,7 +144,6 @@ if (is_android) {
        ":geolocation_jni_headers",
        "$google_play_services_package:google_play_services_base_java",
        "$google_play_services_package:google_play_services_basement_java",
@@ -457,7 +457,7 @@ diff --git a/services/device/geolocation/android/java/src/org/chromium/device/ge
 diff --git a/third_party/android_deps/BUILD.gn b/third_party/android_deps/BUILD.gn
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -327,64 +327,6 @@ android_aar_prebuilt("google_play_services_basement_java") {
+@@ -341,64 +341,6 @@ android_aar_prebuilt("google_play_services_basement_java") {
    input_jars_paths = [ "$android_sdk/optional/org.apache.http.legacy.jar" ]
  }
  

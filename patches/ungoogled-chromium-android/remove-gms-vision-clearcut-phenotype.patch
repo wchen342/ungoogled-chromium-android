@@ -4,18 +4,20 @@ author: Wengling Chen <feiyu2817@gmail.com>
 ---
  services/BUILD.gn                                  |   4 -
  services/shape_detection/BUILD.gn                  |   2 -
- .../shape_detection/BarcodeDetectionImpl.java      |  82 +-------------
- .../BarcodeDetectionProviderImpl.java              |  16 +--
+ .../shape_detection/BarcodeDetectionImpl.java      | 114 +------------------
+ .../BarcodeDetectionProviderImpl.java              |  18 +--
  .../org/chromium/shape_detection/BitmapUtils.java  |  12 --
  .../shape_detection/FaceDetectionImplGmsCore.java  | 122 +--------------------
+ .../shape_detection/FaceDetectionProviderImpl.java |  16 +--
+ .../shape_detection/InterfaceRegistrar.java        |   5 -
  .../shape_detection/TextDetectionImpl.java         |  59 +---------
  third_party/android_deps/BUILD.gn                  |  66 -----------
- 8 files changed, 8 insertions(+), 355 deletions(-)
+ 10 files changed, 11 insertions(+), 407 deletions(-)
 
 diff --git a/services/BUILD.gn b/services/BUILD.gn
 --- a/services/BUILD.gn
 +++ b/services/BUILD.gn
-@@ -99,8 +99,6 @@ if (is_android) {
+@@ -108,8 +108,6 @@ if (is_android) {
      deps = [
        "$google_play_services_package:google_play_services_base_java",
        "$google_play_services_package:google_play_services_basement_java",
@@ -24,7 +26,7 @@ diff --git a/services/BUILD.gn b/services/BUILD.gn
        "//base:base_java",
        "//base:base_java_test_support",
        "//base:base_junit_test_support",
-@@ -130,8 +128,6 @@ if (is_android) {
+@@ -139,8 +137,6 @@ if (is_android) {
      deps = [
        "$google_play_services_package:google_play_services_base_java",
        "$google_play_services_package:google_play_services_basement_java",
@@ -36,7 +38,7 @@ diff --git a/services/BUILD.gn b/services/BUILD.gn
 diff --git a/services/shape_detection/BUILD.gn b/services/shape_detection/BUILD.gn
 --- a/services/shape_detection/BUILD.gn
 +++ b/services/shape_detection/BUILD.gn
-@@ -99,8 +99,6 @@ if (is_android) {
+@@ -98,8 +98,6 @@ if (is_android) {
      deps = [
        "$google_play_services_package:google_play_services_base_java",
        "$google_play_services_package:google_play_services_basement_java",
@@ -59,26 +61,61 @@ diff --git a/services/shape_detection/android/java/src/org/chromium/shape_detect
  import org.chromium.base.ContextUtils;
  import org.chromium.base.Log;
  import org.chromium.gfx.mojom.PointF;
-@@ -28,63 +24,17 @@ import org.chromium.shape_detection.mojom.BarcodeFormat;
+@@ -28,50 +24,7 @@ import org.chromium.shape_detection.mojom.BarcodeFormat;
  public class BarcodeDetectionImpl implements BarcodeDetection {
      private static final String TAG = "BarcodeDetectionImpl";
  
 -    private BarcodeDetector mBarcodeDetector;
 -
      public BarcodeDetectionImpl(BarcodeDetectorOptions options) {
--        // TODO(mcasas): extract the barcode formats to hunt for out of
--        // |options| and use them for building |mBarcodeDetector|.
--        // https://crbug.com/582266.
--        mBarcodeDetector =
--                new BarcodeDetector.Builder(ContextUtils.getApplicationContext()).build();
+-        int formats = Barcode.ALL_FORMATS;
+-        if (options.formats != null && options.formats.length > 0) {
+-            formats = 0;
+-            // Keep this list in sync with the constants defined in
+-            // com.google.android.gms.vision.barcode.Barcode and the list of
+-            // supported formats in BarcodeDetectionProviderImpl.
+-            for (int i = 0; i < options.formats.length; ++i) {
+-                if (options.formats[i] == BarcodeFormat.AZTEC) {
+-                    formats |= Barcode.AZTEC;
+-                } else if (options.formats[i] == BarcodeFormat.CODE_128) {
+-                    formats |= Barcode.CODE_128;
+-                } else if (options.formats[i] == BarcodeFormat.CODE_39) {
+-                    formats |= Barcode.CODE_39;
+-                } else if (options.formats[i] == BarcodeFormat.CODE_93) {
+-                    formats |= Barcode.CODE_93;
+-                } else if (options.formats[i] == BarcodeFormat.CODABAR) {
+-                    formats |= Barcode.CODABAR;
+-                } else if (options.formats[i] == BarcodeFormat.DATA_MATRIX) {
+-                    formats |= Barcode.DATA_MATRIX;
+-                } else if (options.formats[i] == BarcodeFormat.EAN_13) {
+-                    formats |= Barcode.EAN_13;
+-                } else if (options.formats[i] == BarcodeFormat.EAN_8) {
+-                    formats |= Barcode.EAN_8;
+-                } else if (options.formats[i] == BarcodeFormat.ITF) {
+-                    formats |= Barcode.ITF;
+-                } else if (options.formats[i] == BarcodeFormat.PDF417) {
+-                    formats |= Barcode.PDF417;
+-                } else if (options.formats[i] == BarcodeFormat.QR_CODE) {
+-                    formats |= Barcode.QR_CODE;
+-                } else if (options.formats[i] == BarcodeFormat.UPC_A) {
+-                    formats |= Barcode.UPC_A;
+-                } else if (options.formats[i] == BarcodeFormat.UPC_E) {
+-                    formats |= Barcode.UPC_E;
+-                } else {
+-                    Log.e(TAG, "Unsupported barcode format hint: " + options.formats[i]);
+-                }
+-            }
+-        }
+-        mBarcodeDetector = new BarcodeDetector.Builder(ContextUtils.getApplicationContext())
+-                                   .setBarcodeFormats(formats)
+-                                   .build();
      }
  
      @Override
-     public void detect(org.chromium.skia.mojom.Bitmap bitmapData, DetectResponse callback) {
--        // The vision library will be downloaded the first time the API is used
--        // on the device; this happens "fast", but it might have not completed,
--        // bail in this case. Also, the API was disabled between and v.9.0 and
--        // v.9.2, see https://developers.google.com/android/guides/releases.
+@@ -80,47 +33,12 @@ public class BarcodeDetectionImpl implements BarcodeDetection {
+         // on the device; this happens "fast", but it might have not completed,
+         // bail in this case. Also, the API was disabled between and v.9.0 and
+         // v.9.2, see https://developers.google.com/android/guides/releases.
 -        if (!mBarcodeDetector.isOperational()) {
 -            Log.e(TAG, "BarcodeDetector is not operational");
 -            callback.call(new BarcodeDetectionResult[0]);
@@ -125,7 +162,7 @@ diff --git a/services/shape_detection/android/java/src/org/chromium/shape_detect
      }
  
      @Override
-@@ -93,34 +43,6 @@ public class BarcodeDetectionImpl implements BarcodeDetection {
+@@ -129,34 +47,6 @@ public class BarcodeDetectionImpl implements BarcodeDetection {
      }
  
      private int toBarcodeFormat(int format) {
@@ -143,9 +180,9 @@ diff --git a/services/shape_detection/android/java/src/org/chromium/shape_detect
 -            case Barcode.EAN_13:
 -                return BarcodeFormat.EAN_13;
 -            case Barcode.EAN_8:
--                return BarcodeFormat.CODE_128;
--            case Barcode.ITF:
 -                return BarcodeFormat.EAN_8;
+-            case Barcode.ITF:
+-                return BarcodeFormat.ITF;
 -            case Barcode.QR_CODE:
 -                return BarcodeFormat.QR_CODE;
 -            case Barcode.UPC_A:
@@ -163,29 +200,30 @@ diff --git a/services/shape_detection/android/java/src/org/chromium/shape_detect
 diff --git a/services/shape_detection/android/java/src/org/chromium/shape_detection/BarcodeDetectionProviderImpl.java b/services/shape_detection/android/java/src/org/chromium/shape_detection/BarcodeDetectionProviderImpl.java
 --- a/services/shape_detection/android/java/src/org/chromium/shape_detection/BarcodeDetectionProviderImpl.java
 +++ b/services/shape_detection/android/java/src/org/chromium/shape_detection/BarcodeDetectionProviderImpl.java
-@@ -4,10 +4,6 @@
+@@ -4,9 +4,6 @@
  
  package org.chromium.shape_detection;
  
 -import com.google.android.gms.common.ConnectionResult;
 -import com.google.android.gms.common.GoogleApiAvailability;
--import com.google.android.gms.vision.barcode.Barcode;
 -
  import org.chromium.base.ContextUtils;
  import org.chromium.base.Log;
  import org.chromium.mojo.bindings.InterfaceRequest;
-@@ -33,10 +29,6 @@ public class BarcodeDetectionProviderImpl implements BarcodeDetectionProvider {
- 
-     @Override
-     public void enumerateSupportedFormats(EnumerateSupportedFormatsResponse callback) {
--        int[] supportedFormats = {Barcode.AZTEC, Barcode.CODE_128, Barcode.CODE_39, Barcode.CODE_93,
--                Barcode.CODABAR, Barcode.DATA_MATRIX, Barcode.EAN_13, Barcode.EAN_8, Barcode.ITF,
--                Barcode.PDF417, Barcode.QR_CODE, Barcode.UPC_A, Barcode.UPC_E};
+@@ -36,12 +33,6 @@ public class BarcodeDetectionProviderImpl implements BarcodeDetectionProvider {
+         // Keep this list in sync with the constants defined in
+         // com.google.android.gms.vision.barcode.Barcode and the format hints
+         // supported by BarcodeDetectionImpl.
+-        int[] supportedFormats = {BarcodeFormat.AZTEC, BarcodeFormat.CODE_128,
+-                BarcodeFormat.CODE_39, BarcodeFormat.CODE_93, BarcodeFormat.CODABAR,
+-                BarcodeFormat.DATA_MATRIX, BarcodeFormat.EAN_13, BarcodeFormat.EAN_8,
+-                BarcodeFormat.ITF, BarcodeFormat.PDF417, BarcodeFormat.QR_CODE, BarcodeFormat.UPC_A,
+-                BarcodeFormat.UPC_E};
 -        callback.call(supportedFormats);
      }
  
      @Override
-@@ -53,13 +45,7 @@ public class BarcodeDetectionProviderImpl implements BarcodeDetectionProvider {
+@@ -58,13 +49,8 @@ public class BarcodeDetectionProviderImpl implements BarcodeDetectionProvider {
  
          @Override
          public BarcodeDetectionProvider createImpl() {
@@ -196,6 +234,7 @@ diff --git a/services/shape_detection/android/java/src/org/chromium/shape_detect
 -                return null;
 -            }
 -            return new BarcodeDetectionProviderImpl();
++            Log.e(TAG, "Google Play Services not available");
 +            return null;
          }
      }
@@ -378,6 +417,60 @@ diff --git a/services/shape_detection/android/java/src/org/chromium/shape_detect
      }
  
      @Override
+diff --git a/services/shape_detection/android/java/src/org/chromium/shape_detection/FaceDetectionProviderImpl.java b/services/shape_detection/android/java/src/org/chromium/shape_detection/FaceDetectionProviderImpl.java
+--- a/services/shape_detection/android/java/src/org/chromium/shape_detection/FaceDetectionProviderImpl.java
++++ b/services/shape_detection/android/java/src/org/chromium/shape_detection/FaceDetectionProviderImpl.java
+@@ -4,9 +4,6 @@
+ 
+ package org.chromium.shape_detection;
+ 
+-import com.google.android.gms.common.ConnectionResult;
+-import com.google.android.gms.common.GoogleApiAvailability;
+-
+ import org.chromium.base.ContextUtils;
+ import org.chromium.mojo.bindings.InterfaceRequest;
+ import org.chromium.mojo.system.MojoException;
+@@ -24,16 +21,7 @@ public class FaceDetectionProviderImpl implements FaceDetectionProvider {
+     @Override
+     public void createFaceDetection(
+             InterfaceRequest<FaceDetection> request, FaceDetectorOptions options) {
+-        final boolean isGmsCoreSupported =
+-                GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(
+-                        ContextUtils.getApplicationContext())
+-                == ConnectionResult.SUCCESS;
+-
+-        if (isGmsCoreSupported) {
+-            FaceDetection.MANAGER.bind(new FaceDetectionImplGmsCore(options), request);
+-        } else {
+-            FaceDetection.MANAGER.bind(new FaceDetectionImpl(options), request);
+-        }
++        FaceDetection.MANAGER.bind(new FaceDetectionImpl(options), request);
+     }
+ 
+     @Override
+@@ -50,7 +38,7 @@ public class FaceDetectionProviderImpl implements FaceDetectionProvider {
+ 
+         @Override
+         public FaceDetectionProvider createImpl() {
+-            return new FaceDetectionProviderImpl();
++            return null;
+         }
+     }
+ }
+diff --git a/services/shape_detection/android/java/src/org/chromium/shape_detection/InterfaceRegistrar.java b/services/shape_detection/android/java/src/org/chromium/shape_detection/InterfaceRegistrar.java
+--- a/services/shape_detection/android/java/src/org/chromium/shape_detection/InterfaceRegistrar.java
++++ b/services/shape_detection/android/java/src/org/chromium/shape_detection/InterfaceRegistrar.java
+@@ -20,10 +20,5 @@ class InterfaceRegistrar {
+         // is not necessary to hold on to a reference to it explicitly.
+         InterfaceRegistry registry = InterfaceRegistry.create(
+                 CoreImpl.getInstance().acquireNativeHandle(nativeHandle).toMessagePipeHandle());
+-        registry.addInterface(
+-                BarcodeDetectionProvider.MANAGER, new BarcodeDetectionProviderImpl.Factory());
+-        registry.addInterface(
+-                FaceDetectionProvider.MANAGER, new FaceDetectionProviderImpl.Factory());
+-        registry.addInterface(TextDetection.MANAGER, new TextDetectionImpl.Factory());
+     }
+ }
 diff --git a/services/shape_detection/android/java/src/org/chromium/shape_detection/TextDetectionImpl.java b/services/shape_detection/android/java/src/org/chromium/shape_detection/TextDetectionImpl.java
 --- a/services/shape_detection/android/java/src/org/chromium/shape_detection/TextDetectionImpl.java
 +++ b/services/shape_detection/android/java/src/org/chromium/shape_detection/TextDetectionImpl.java
@@ -473,7 +566,7 @@ diff --git a/services/shape_detection/android/java/src/org/chromium/shape_detect
 diff --git a/third_party/android_deps/BUILD.gn b/third_party/android_deps/BUILD.gn
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -339,35 +339,6 @@ android_aar_prebuilt("google_play_services_tasks_java") {
+@@ -353,35 +353,6 @@ android_aar_prebuilt("google_play_services_tasks_java") {
    strip_drawables = true
  }
  
@@ -507,9 +600,9 @@ diff --git a/third_party/android_deps/BUILD.gn b/third_party/android_deps/BUILD.
 -}
 -
  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
- android_aar_prebuilt("com_google_ar_core_java") {
-   aar_path = "libs/com_google_ar_core/core-1.8.0.aar"
-@@ -603,25 +574,6 @@ android_aar_prebuilt("com_android_support_transition_java") {
+ java_prebuilt("com_google_dagger_dagger_java") {
+   jar_path = "libs/com_google_dagger_dagger/dagger-2.17.jar"
+@@ -594,25 +565,6 @@ android_aar_prebuilt("com_android_support_transition_java") {
    deps += [ ":com_android_support_support_fragment_java" ]
  }
  
@@ -535,7 +628,7 @@ diff --git a/third_party/android_deps/BUILD.gn b/third_party/android_deps/BUILD.
  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
  android_aar_prebuilt("google_play_services_flags_java") {
    aar_path = "libs/com_google_android_gms_play_services_flags/play-services-flags-15.0.1.aar"
-@@ -639,24 +591,6 @@ android_aar_prebuilt("google_play_services_flags_java") {
+@@ -630,24 +582,6 @@ android_aar_prebuilt("google_play_services_flags_java") {
    strip_drawables = true
  }
  
