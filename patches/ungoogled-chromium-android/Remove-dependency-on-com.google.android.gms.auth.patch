@@ -1,0 +1,223 @@
+From: Wengling Chen <feiyu2817@gmail.com>
+Date: Sat, 2 Nov 2019 09:22:31 +0100
+Subject: Remove dependency on com.google.android.gms.auth
+
+---
+ chrome/android/BUILD.gn                            |  1 -
+ components/signin/core/browser/android/BUILD.gn    |  1 -
+ .../components/signin/AccountIdProvider.java       |  7 +---
+ .../signin/SystemAccountManagerDelegate.java       | 12 +-----
+ content/public/android/BUILD.gn                    |  1 -
+ .../chromium/content/browser/sms/SmsReceiver.java  | 36 +-----------------
+ third_party/android_deps/BUILD.gn                  | 44 ----------------------
+ third_party/robolectric/BUILD.gn                   |  1 -
+ 8 files changed, 3 insertions(+), 100 deletions(-)
+
+diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
+--- a/chrome/android/BUILD.gn
++++ b/chrome/android/BUILD.gn
+@@ -267,7 +267,6 @@ android_library("chrome_java") {
+     ":thumbnail_cache_entry_proto_java",
+     ":update_proto_java",
+     ":usage_stats_proto_java",
+-    "$google_play_services_package:google_play_services_auth_base_java",
+     "$google_play_services_package:google_play_services_base_java",
+     "$google_play_services_package:google_play_services_basement_java",
+     "$google_play_services_package:google_play_services_cast_framework_java",
+diff --git a/components/signin/core/browser/android/BUILD.gn b/components/signin/core/browser/android/BUILD.gn
+--- a/components/signin/core/browser/android/BUILD.gn
++++ b/components/signin/core/browser/android/BUILD.gn
+@@ -15,7 +15,6 @@ generate_jni("jni_headers") {
+ 
+ android_library("java") {
+   deps = [
+-    "$google_play_services_package:google_play_services_auth_base_java",
+     "$google_play_services_package:google_play_services_base_java",
+     "$google_play_services_package:google_play_services_basement_java",
+     "//base:base_java",
+diff --git a/components/signin/core/browser/android/java/src/org/chromium/components/signin/AccountIdProvider.java b/components/signin/core/browser/android/java/src/org/chromium/components/signin/AccountIdProvider.java
+--- a/components/signin/core/browser/android/java/src/org/chromium/components/signin/AccountIdProvider.java
++++ b/components/signin/core/browser/android/java/src/org/chromium/components/signin/AccountIdProvider.java
+@@ -47,12 +47,7 @@ public class AccountIdProvider {
+      * Google Play services is available.
+      */
+     public boolean canBeUsed() {
+-        // TODO(http://crbug.com/577190): Remove StrictMode override.
+-        try (StrictModeContext ignored = StrictModeContext.allowDiskWrites()) {
+-            int resultCode = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(
+-                    ContextUtils.getApplicationContext());
+-            return resultCode == ConnectionResult.SUCCESS;
+-        }
++        return false;
+     }
+ 
+     /**
+diff --git a/components/signin/core/browser/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java b/components/signin/core/browser/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java
+--- a/components/signin/core/browser/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java
++++ b/components/signin/core/browser/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java
+@@ -82,17 +82,7 @@ public class SystemAccountManagerDelegate implements AccountManagerDelegate {
+     }
+ 
+     protected void checkCanUseGooglePlayServices() throws AccountManagerDelegateException {
+-        Context context = ContextUtils.getApplicationContext();
+-        final int resultCode =
+-                GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context);
+-        if (resultCode == ConnectionResult.SUCCESS) {
+-            return;
+-        }
+-
+-        throw new GmsAvailabilityException(
+-                String.format("Can't use Google Play Services: %s",
+-                        GoogleApiAvailability.getInstance().getErrorString(resultCode)),
+-                resultCode);
++        throw new GmsAvailabilityException("Can't use Google Play Services", 1);
+     }
+ 
+     @Override
+diff --git a/content/public/android/BUILD.gn b/content/public/android/BUILD.gn
+--- a/content/public/android/BUILD.gn
++++ b/content/public/android/BUILD.gn
+@@ -52,7 +52,6 @@ action("generate_sandboxed_service_srcjar") {
+ android_library("content_java") {
+   deps = [
+     ":content_java_resources",
+-    "$google_play_services_package:google_play_services_auth_api_phone_java",
+     "$google_play_services_package:google_play_services_base_java",
+     "$google_play_services_package:google_play_services_basement_java",
+     "$google_play_services_package:google_play_services_tasks_java",
+diff --git a/content/public/android/java/src/org/chromium/content/browser/sms/SmsReceiver.java b/content/public/android/java/src/org/chromium/content/browser/sms/SmsReceiver.java
+--- a/content/public/android/java/src/org/chromium/content/browser/sms/SmsReceiver.java
++++ b/content/public/android/java/src/org/chromium/content/browser/sms/SmsReceiver.java
+@@ -9,11 +9,6 @@ import android.content.Context;
+ import android.content.Intent;
+ import android.content.IntentFilter;
+ 
+-import com.google.android.gms.auth.api.phone.SmsRetriever;
+-import com.google.android.gms.common.api.CommonStatusCodes;
+-import com.google.android.gms.common.api.Status;
+-import com.google.android.gms.tasks.Task;
+-
+ import org.chromium.base.ContextUtils;
+ import org.chromium.base.Log;
+ import org.chromium.base.VisibleForTesting;
+@@ -50,9 +45,6 @@ public class SmsReceiver extends BroadcastReceiver {
+         // If this broadcast receiver becomes more heavyweight, we should make
+         // this registration expire after the SMS message is received.
+         if (DEBUG) Log.d(TAG, "Registering intent filters.");
+-        IntentFilter filter = new IntentFilter();
+-        filter.addAction(SmsRetriever.SMS_RETRIEVED_ACTION);
+-        mContext.registerReceiver(this, filter);
+     }
+ 
+     @CalledByNative
+@@ -76,41 +68,15 @@ public class SmsReceiver extends BroadcastReceiver {
+             return;
+         }
+ 
+-        if (!SmsRetriever.SMS_RETRIEVED_ACTION.equals(intent.getAction())) {
+-            return;
+-        }
+-
+         if (intent.getExtras() == null) {
+             return;
+         }
+ 
+-        final Status status;
+-
+-        try {
+-            status = (Status) intent.getParcelableExtra(SmsRetriever.EXTRA_STATUS);
+-        } catch (Throwable e) {
+-            if (DEBUG) Log.d(TAG, "Error getting parceable");
+-            return;
+-        }
+-
+-        switch (status.getStatusCode()) {
+-            case CommonStatusCodes.SUCCESS:
+-                String message = intent.getExtras().getString(SmsRetriever.EXTRA_SMS_MESSAGE);
+-                if (DEBUG) Log.d(TAG, "Got message: %s!", message);
+-                SmsReceiverJni.get().onReceive(mSmsProviderAndroid, message);
+-                break;
+-            case CommonStatusCodes.TIMEOUT:
+-                if (DEBUG) Log.d(TAG, "Timeout");
+-                SmsReceiverJni.get().onTimeout(mSmsProviderAndroid);
+-                break;
+-        }
++        if (DEBUG) Log.d(TAG, "Error getting parceable");
+     }
+ 
+     @CalledByNative
+     private void listen() {
+-        Wrappers.SmsRetrieverClientWrapper client = getClient();
+-        Task<Void> task = client.startSmsRetriever();
+-
+         if (DEBUG) Log.d(TAG, "Installed task");
+     }
+ 
+diff --git a/third_party/android_deps/BUILD.gn b/third_party/android_deps/BUILD.gn
+--- a/third_party/android_deps/BUILD.gn
++++ b/third_party/android_deps/BUILD.gn
+@@ -772,50 +772,6 @@ android_aar_prebuilt("com_android_support_viewpager_java") {
+ }
+ 
+ # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+-android_aar_prebuilt("google_play_services_auth_java") {
+-  aar_path = "libs/com_google_android_gms_play_services_auth/play-services-auth-15.0.1.aar"
+-  info_path = "libs/com_google_android_gms_play_services_auth/com_google_android_gms_play_services_auth.info"
+-  deps = [
+-    ":google_play_services_auth_api_phone_java",
+-    ":google_play_services_auth_base_java",
+-    ":google_play_services_base_java",
+-    ":google_play_services_basement_java",
+-    ":google_play_services_tasks_java",
+-  ]
+-
+-  # Removing drawables from GMS .aars as they are unused bloat.
+-  strip_drawables = true
+-}
+-
+-# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+-android_aar_prebuilt("google_play_services_auth_api_phone_java") {
+-  aar_path = "libs/com_google_android_gms_play_services_auth_api_phone/play-services-auth-api-phone-15.0.1.aar"
+-  info_path = "libs/com_google_android_gms_play_services_auth_api_phone/com_google_android_gms_play_services_auth_api_phone.info"
+-  deps = [
+-    ":google_play_services_base_java",
+-    ":google_play_services_basement_java",
+-    ":google_play_services_tasks_java",
+-  ]
+-
+-  # Removing drawables from GMS .aars as they are unused bloat.
+-  strip_drawables = true
+-}
+-
+-# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+-android_aar_prebuilt("google_play_services_auth_base_java") {
+-  aar_path = "libs/com_google_android_gms_play_services_auth_base/play-services-auth-base-15.0.1.aar"
+-  info_path = "libs/com_google_android_gms_play_services_auth_base/com_google_android_gms_play_services_auth_base.info"
+-  deps = [
+-    ":google_play_services_base_java",
+-    ":google_play_services_basement_java",
+-    ":google_play_services_tasks_java",
+-  ]
+-
+-  # Removing drawables from GMS .aars as they are unused bloat.
+-  strip_drawables = true
+-}
+-
+-# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+ android_aar_prebuilt("google_play_services_base_java") {
+   aar_path = "libs/com_google_android_gms_play_services_base/play-services-base-15.0.1.aar"
+   info_path = "libs/com_google_android_gms_play_services_base/com_google_android_gms_play_services_base.info"
+diff --git a/third_party/robolectric/BUILD.gn b/third_party/robolectric/BUILD.gn
+--- a/third_party/robolectric/BUILD.gn
++++ b/third_party/robolectric/BUILD.gn
+@@ -938,7 +938,6 @@ java_library("shadows_play_services_java") {
+     ":robolectric_shadowapi_java",
+     ":robolectric_utils_java",
+     ":shadows_core_java",
+-    "$google_play_services_package:google_play_services_auth_base_java",
+     "$google_play_services_package:google_play_services_base_java",
+     "$google_play_services_package:google_play_services_basement_java",
+     "//third_party/android_deps:android_support_v4_java",
+-- 
+2.11.0
+

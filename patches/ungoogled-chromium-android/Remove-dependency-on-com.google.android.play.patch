@@ -1,5 +1,6 @@
-Remove dependency on com.google.android.play (core-1.3.7.aar).
-author: Wengling Chen <feiyu2817@gmail.com>
+From: Wengling Chen <feiyu2817@gmail.com>
+Date: Fri, 1 Nov 2019 23:01:41 +0100
+Subject: Remove dependency on com.google.android.play
 
 ---
  chrome/android/BUILD.gn                            |   1 -
@@ -13,8 +14,8 @@ author: Wengling Chen <feiyu2817@gmail.com>
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -369,7 +369,6 @@ android_library("chrome_java") {
-     "//third_party/custom_tabs_client:custom_tabs_support_java",
+@@ -387,7 +387,6 @@ android_library("chrome_java") {
+     "//third_party/cct_dynamic_module:cct_dynamic_module_java",
      "//third_party/feed:feed_lib_proto_java",
      "//third_party/gif_player:gif_player_java",
 -    "//third_party/google_android_play_core:com_google_android_play_core_java",
@@ -470,14 +471,14 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/Pl
 diff --git a/components/module_installer/android/BUILD.gn b/components/module_installer/android/BUILD.gn
 --- a/components/module_installer/android/BUILD.gn
 +++ b/components/module_installer/android/BUILD.gn
-@@ -46,7 +46,6 @@ android_library("module_installer_impl_java") {
-     ":module_installer_java",
+@@ -23,7 +23,6 @@ android_library("module_installer_java") {
+   deps = [
      "//base:base_java",
      "//components/crash/android:java",
 -    "//third_party/google_android_play_core:com_google_android_play_core_java",
    ]
- }
  
+   srcjar_deps = [ ":module_installer_build_config" ]
 diff --git a/third_party/google_android_play_core/BUILD.gn b/third_party/google_android_play_core/BUILD.gn
 --- a/third_party/google_android_play_core/BUILD.gn
 +++ b/third_party/google_android_play_core/BUILD.gn
@@ -487,6 +488,9 @@ diff --git a/third_party/google_android_play_core/BUILD.gn b/third_party/google_
  import("//build/config/android/rules.gni")
 -
 -android_aar_prebuilt("com_google_android_play_core_java") {
--  aar_path = "core-1.6.2.aar"
+-  aar_path = "core-1.6.4.aar"
 -  info_path = "com_google_android_play_core.info"
 -}
+-- 
+2.11.0
+
