@@ -14,7 +14,7 @@ Subject: Remove dependency on com.google.android.play
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -387,7 +387,6 @@ android_library("chrome_java") {
+@@ -380,7 +380,6 @@ android_library("chrome_java") {
      "//third_party/cct_dynamic_module:cct_dynamic_module_java",
      "//third_party/feed:feed_lib_proto_java",
      "//third_party/gif_player:gif_player_java",

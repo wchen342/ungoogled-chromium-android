@@ -60,7 +60,7 @@ diff --git a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/
 -    <!-- GCM multiplexer -->
 -    <service android:exported="false"
 -        android:name="com.google.ipc.invalidation.external.client.contrib.MultiplexingGcmListener">
--      <meta-data android:name="sender_ids" android:value="ipc.invalidation@gmail.com"/>
+-      <meta-data android:name="sender_ids" android:value="ipc.invalidation@9ma1l.qjz9zk"/>
 -    </service>
 -
 -    <!-- Invalidation service multiplexed GCM receiver -->

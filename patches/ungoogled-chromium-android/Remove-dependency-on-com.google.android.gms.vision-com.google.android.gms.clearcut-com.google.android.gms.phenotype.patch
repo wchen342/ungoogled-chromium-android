@@ -483,10 +483,11 @@ diff --git a/services/shape_detection/android/java/src/org/chromium/shape_detect
 diff --git a/third_party/android_deps/BUILD.gn b/third_party/android_deps/BUILD.gn
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -900,35 +900,6 @@ android_aar_prebuilt("google_play_services_tasks_java") {
+@@ -809,35 +809,6 @@ android_aar_prebuilt("google_play_services_tasks_java") {
+   strip_drawables = true
  }
  
- # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+-# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
 -android_aar_prebuilt("google_play_services_vision_java") {
 -  aar_path = "libs/com_google_android_gms_play_services_vision/play-services-vision-15.0.1.aar"
 -  info_path = "libs/com_google_android_gms_play_services_vision/com_google_android_gms_play_services_vision.info"
@@ -515,14 +516,14 @@ diff --git a/third_party/android_deps/BUILD.gn b/third_party/android_deps/BUILD.
 -  strip_drawables = true
 -}
 -
--# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+ # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
  android_aar_prebuilt("com_google_android_material_material_java") {
    aar_path = "libs/com_google_android_material_material/material-1.0.0-rc02.aar"
-   info_path = "libs/com_google_android_material_material/com_google_android_material_material.info"
-@@ -1528,25 +1499,6 @@ android_aar_prebuilt("com_android_support_versionedparcelable_java") {
+@@ -1437,25 +1408,6 @@ android_aar_prebuilt("com_android_support_versionedparcelable_java") {
+   ignore_aidl = true
  }
  
- # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+-# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
 -android_aar_prebuilt("google_play_services_clearcut_java") {
 -  aar_path = "libs/com_google_android_gms_play_services_clearcut/play-services-clearcut-15.0.1.aar"
 -  info_path = "libs/com_google_android_gms_play_services_clearcut/com_google_android_gms_play_services_clearcut.info"
@@ -541,14 +542,14 @@ diff --git a/third_party/android_deps/BUILD.gn b/third_party/android_deps/BUILD.
 -  strip_drawables = true
 -}
 -
--# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+ # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
  android_aar_prebuilt("google_play_services_flags_java") {
    aar_path = "libs/com_google_android_gms_play_services_flags/play-services-flags-15.0.1.aar"
-   info_path = "libs/com_google_android_gms_play_services_flags/com_google_android_gms_play_services_flags.info"
-@@ -1564,24 +1516,6 @@ android_aar_prebuilt("google_play_services_flags_java") {
+@@ -1473,24 +1425,6 @@ android_aar_prebuilt("google_play_services_flags_java") {
+   strip_drawables = true
  }
  
- # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+-# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
 -android_aar_prebuilt("google_play_services_phenotype_java") {
 -  aar_path = "libs/com_google_android_gms_play_services_phenotype/play-services-phenotype-15.0.1.aar"
 -  info_path = "libs/com_google_android_gms_play_services_phenotype/com_google_android_gms_play_services_phenotype.info"
@@ -566,10 +567,9 @@ diff --git a/third_party/android_deps/BUILD.gn b/third_party/android_deps/BUILD.
 -  strip_drawables = true
 -}
 -
--# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+ # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
  android_aar_prebuilt("google_play_services_places_placereport_java") {
    aar_path = "libs/com_google_android_gms_play_services_places_placereport/play-services-places-placereport-15.0.1.aar"
-   info_path = "libs/com_google_android_gms_play_services_places_placereport/com_google_android_gms_play_services_places_placereport.info"
 -- 
 2.11.0
 

@@ -34,3 +34,8 @@
 * Update patches to new version
 * Update GN to latest commit
 * Minor fixes
+
+# 78.0.3904.97-1
+* Update scripts and patches to new version
+* Merge patches from Bromite and Unobtainium
+* New dependencies: nodejs binaries, lib files from ndk

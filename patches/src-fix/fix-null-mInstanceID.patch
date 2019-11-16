@@ -1,10 +1,10 @@
 diff --git a/components/gcm_driver/instance_id/android/java/src/org/chromium/components/gcm_driver/instance_id/InstanceIDBridge.java b/components/gcm_driver/instance_id/android/java/src/org/chromium/components/gcm_driver/instance_id/InstanceIDBridge.java
 --- a/components/gcm_driver/instance_id/android/java/src/org/chromium/components/gcm_driver/instance_id/InstanceIDBridge.java
 +++ b/components/gcm_driver/instance_id/android/java/src/org/chromium/components/gcm_driver/instance_id/InstanceIDBridge.java
-@@ -116,7 +116,10 @@ public class InstanceIDBridge {
-                             LazySubscriptionsManager.buildSubscriptionUniqueId(
+@@ -124,7 +124,10 @@ public class InstanceIDBridge {
+                             SubscriptionFlagManager.buildSubscriptionUniqueId(
                                      mSubtype, authorizedEntity),
-                             isLazy);
+                             flags);
 -                    return mInstanceID.getToken(authorizedEntity, scope, extras);
 +                    if (mInstanceID != null)
 +                        return mInstanceID.getToken(authorizedEntity, scope, extras);

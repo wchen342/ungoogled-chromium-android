@@ -21,9 +21,11 @@ Subject: Remove dependency on
  chrome/test/android/BUILD.gn                       |  2 -
  components/background_task_scheduler/BUILD.gn      | 10 ---
  components/signin/core/browser/android/BUILD.gn    |  2 -
+ .../components/signin/AccountIdProvider.java       |  3 -
  .../signin/GmsAvailabilityException.java           |  4 +-
+ .../signin/SystemAccountManagerDelegate.java       |  3 -
  content/public/android/BUILD.gn                    |  3 -
- content/test/BUILD.gn                              |  3 -
+ content/test/BUILD.gn                              |  4 --
  device/BUILD.gn                                    |  2 -
  remoting/android/client_java_tmpl.gni              |  3 -
  services/BUILD.gn                                  |  4 --
@@ -32,8 +34,7 @@ Subject: Remove dependency on
  third_party/android_deps/BUILD.gn                  | 38 ----------
  third_party/cacheinvalidation/BUILD.gn             |  1 -
  third_party/robolectric/BUILD.gn                   |  2 -
- 27 files changed, 16 insertions(+), 260 deletions(-)
-
+ 29 files changed, 16 insertions(+), 267 deletions(-)
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
@@ -47,7 +48,7 @@ diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
      "//base:base_java",
      "//base:jni_java",
      "//chrome/android/features/keyboard_accessory:public_java",
-@@ -685,8 +682,6 @@ junit_binary("chrome_junit_tests") {
+@@ -686,8 +683,6 @@ junit_binary("chrome_junit_tests") {
      ":chrome_java",
      ":chrome_junit_test_support",
      ":partner_location_descriptor_proto_java",
@@ -56,7 +57,7 @@ diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
      "//base:base_java",
      "//base:base_java_test_support",
      "//base:base_junit_test_support",
-@@ -784,9 +779,6 @@ android_library("chrome_test_java") {
+@@ -785,9 +780,6 @@ android_library("chrome_test_java") {
      ":browser_java_test_support",
      ":chrome_test_util_java",
      ":partner_location_descriptor_proto_java",
@@ -105,7 +106,7 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
 diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/AndroidManifest.xml
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
-@@ -889,15 +889,6 @@ by a child template that "extends" this file.
+@@ -898,15 +898,6 @@ by a child template that "extends" this file.
              </intent-filter>
            </activity>
  
@@ -200,6 +201,18 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/component_updat
  import org.chromium.base.ContextUtils;
  import org.chromium.base.annotations.CalledByNative;
  import org.chromium.base.annotations.JNINamespace;
+@@ -36,10 +33,7 @@
+ 
+     @CalledByNative
+     /* package */ static boolean isAvailable() {
+-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+-                || GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(
+-                           ContextUtils.getApplicationContext())
+-                == ConnectionResult.SUCCESS;
++        return false;
+     }
+ 
+     /* package */ void onStartTaskBeforeNativeLoaded(TaskFinishedCallback callback) {
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/externalauth/ExternalAuthUtils.java b/chrome/android/java/src/org/chromium/chrome/browser/externalauth/ExternalAuthUtils.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/externalauth/ExternalAuthUtils.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/externalauth/ExternalAuthUtils.java
@@ -373,7 +386,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/gcore/GoogleApi
  import org.chromium.base.ApplicationStatus;
  import org.chromium.base.ApplicationStatus.ApplicationStateListener;
  import org.chromium.base.Log;
-@@ -67,30 +62,16 @@ import org.chromium.base.ThreadUtils;
+@@ -67,29 +62,15 @@ import org.chromium.base.ThreadUtils;
   * }
   * </pre>
   */
@@ -389,7 +402,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/gcore/GoogleApi
      private long mDisconnectionDelayMs;
      private Runnable mPendingDisconnect;
  
-     /**
+-    /**
 -     * Creates a helper and enrolls it in the various connection management features.
 -     * See the class documentation for {@link GoogleApiClientHelper} for more information.
 -     *
@@ -401,10 +414,9 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/gcore/GoogleApi
 -        enableLifecycleManagement(true);
 -    }
 -
--    /**
+     /**
       * Opts in or out of lifecycle management. The client's connection will be closed and reopened
       * when Chrome goes in and out of background.
-      *
 @@ -116,13 +97,6 @@ public class GoogleApiClientHelper
       * Enabling or disabling it while it is already enabled or disabled has no effect.
       */
@@ -606,6 +618,19 @@ diff --git a/components/signin/core/browser/android/BUILD.gn b/components/signin
      "//base:base_java",
      "//base:jni_java",
      "//net/android:net_java",
+diff --git a/components/signin/core/browser/android/java/src/org/chromium/components/signin/AccountIdProvider.java b/components/signin/core/browser/android/java/src/org/chromium/components/signin/AccountIdProvider.java
+--- a/components/signin/core/browser/android/java/src/org/chromium/components/signin/AccountIdProvider.java
++++ b/components/signin/core/browser/android/java/src/org/chromium/components/signin/AccountIdProvider.java
+@@ -4,9 +4,6 @@
+
+ package org.chromium.components.signin;
+
+-import com.google.android.gms.common.ConnectionResult;
+-import com.google.android.gms.common.GoogleApiAvailability;
+-
+ import org.chromium.base.ContextUtils;
+ import org.chromium.base.Log;
+ import org.chromium.base.StrictModeContext;
 diff --git a/components/signin/core/browser/android/java/src/org/chromium/components/signin/GmsAvailabilityException.java b/components/signin/core/browser/android/java/src/org/chromium/components/signin/GmsAvailabilityException.java
 --- a/components/signin/core/browser/android/java/src/org/chromium/components/signin/GmsAvailabilityException.java
 +++ b/components/signin/core/browser/android/java/src/org/chromium/components/signin/GmsAvailabilityException.java
@@ -626,6 +651,19 @@ diff --git a/components/signin/core/browser/android/java/src/org/chromium/compon
 +        return false;
      }
  }
+diff --git a/components/signin/core/browser/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java b/components/signin/core/browser/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java
+--- a/components/signin/core/browser/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java
++++ b/components/signin/core/browser/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java
+@@ -24,9 +24,6 @@ import android.os.PatternMatcher;
+ import android.os.Process;
+ import android.os.SystemClock;
+
+-import com.google.android.gms.common.ConnectionResult;
+-import com.google.android.gms.common.GoogleApiAvailability;
+-
+ import org.chromium.base.ApiCompatibilityUtils;
+ import org.chromium.base.Callback;
+ import org.chromium.base.ContextUtils;
 diff --git a/content/public/android/BUILD.gn b/content/public/android/BUILD.gn
 --- a/content/public/android/BUILD.gn
 +++ b/content/public/android/BUILD.gn
@@ -642,10 +680,11 @@ diff --git a/content/public/android/BUILD.gn b/content/public/android/BUILD.gn
 diff --git a/content/test/BUILD.gn b/content/test/BUILD.gn
 --- a/content/test/BUILD.gn
 +++ b/content/test/BUILD.gn
-@@ -2442,9 +2442,6 @@ if (is_android) {
+@@ -2436,10 +2436,6 @@ if (is_android) {
      testonly = true
      java_files = content_java_sources_needing_jni
      deps = [
+-      "$google_play_services_package:google_play_services_auth_api_phone_java",
 -      "$google_play_services_package:google_play_services_base_java",
 -      "$google_play_services_package:google_play_services_basement_java",
 -      "$google_play_services_package:google_play_services_tasks_java",
@@ -725,10 +764,11 @@ diff --git a/services/shape_detection/BUILD.gn b/services/shape_detection/BUILD.
 diff --git a/third_party/android_deps/BUILD.gn b/third_party/android_deps/BUILD.gn
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -772,44 +772,6 @@ android_aar_prebuilt("com_android_support_viewpager_java") {
+@@ -771,44 +771,6 @@ android_aar_prebuilt("com_android_support_viewpager_java") {
+   ]
  }
  
- # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+-# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
 -android_aar_prebuilt("google_play_services_base_java") {
 -  aar_path = "libs/com_google_android_gms_play_services_base/play-services-base-15.0.1.aar"
 -  info_path = "libs/com_google_android_gms_play_services_base/com_google_android_gms_play_services_base.info"
@@ -766,10 +806,9 @@ diff --git a/third_party/android_deps/BUILD.gn b/third_party/android_deps/BUILD.
 -  strip_drawables = true
 -}
 -
--# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+ # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
  android_aar_prebuilt("com_google_android_material_material_java") {
    aar_path = "libs/com_google_android_material_material/material-1.0.0-rc02.aar"
-   info_path = "libs/com_google_android_material_material/com_google_android_material_material.info"
 diff --git a/third_party/cacheinvalidation/BUILD.gn b/third_party/cacheinvalidation/BUILD.gn
 --- a/third_party/cacheinvalidation/BUILD.gn
 +++ b/third_party/cacheinvalidation/BUILD.gn

@@ -8,7 +8,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/preferences/PrefServiceBridge.java b/chrome/android/java/src/org/chromium/chrome/browser/preferences/PrefServiceBridge.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/preferences/PrefServiceBridge.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/preferences/PrefServiceBridge.java
-@@ -412,7 +412,7 @@ public class PrefServiceBridge {
+@@ -423,7 +423,7 @@ public class PrefServiceBridge {
       * @return Whether the Contextual Search feature was disabled by the user explicitly.
       */
      public boolean isContextualSearchDisabled() {

@@ -1,0 +1,20 @@
+description: prevent clang 9 from printing unknown-warning warning
+author: Wengling Chen <feiyu2817@gmail.com>
+
+---
+ build/config/compiler/BUILD.gn           | 3 +++
+ 1 files changed, 3 insertions(+)
+
+diff --git a/build/config/compiler/BUILD.gn b/build/config/compiler/BUILD.gn
+--- a/build/config/compiler/BUILD.gn
++++ b/build/config/compiler/BUILD.gn
+@@ -1497,6 +1497,9 @@ config("default_warnings") {
+         # Flags NaCl (Clang 3.7) and Xcode 9.2 (Clang clang-900.0.39.2) do not
+         # recognize.
+         cflags += [
++          # Ignore unknown warning warnings from clang 9
++          "-Wno-unknown-warning-option",
++
+           # Ignore warnings about MSVC optimization pragmas.
+           # TODO(thakis): Only for no_chromium_code? http://crbug.com/912662
+           "-Wno-ignored-pragma-optimize",

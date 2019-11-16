@@ -21,27 +21,27 @@ Subject: Remove dependency on com.google.android.gms.fido,
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -271,8 +271,6 @@ android_library("chrome_java") {
+@@ -269,8 +269,6 @@ android_library("chrome_java") {
+     ":usage_stats_proto_java",
+     "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
-     "$google_play_services_package:google_play_services_cast_framework_java",
-     "$google_play_services_package:google_play_services_cast_java",
 -    "$google_play_services_package:google_play_services_fido_java",
 -    "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
      "//base:base_java",
      "//base:jni_java",
-@@ -693,7 +691,6 @@ junit_binary("chrome_junit_tests") {
+@@ -690,7 +688,6 @@ junit_binary("chrome_junit_tests") {
+     ":partner_location_descriptor_proto_java",
+     "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
-     "$google_play_services_package:google_play_services_cast_framework_java",
-     "$google_play_services_package:google_play_services_cast_java",
 -    "$google_play_services_package:google_play_services_fido_java",
      "//base:base_java",
      "//base:base_java_test_support",
      "//base:base_junit_test_support",
-@@ -795,8 +792,6 @@ android_library("chrome_test_java") {
+@@ -790,8 +787,6 @@ android_library("chrome_test_java") {
+     ":partner_location_descriptor_proto_java",
+     "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
-     "$google_play_services_package:google_play_services_cast_framework_java",
-     "$google_play_services_package:google_play_services_cast_java",
 -    "$google_play_services_package:google_play_services_fido_java",
 -    "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
@@ -50,7 +50,7 @@ diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/externalnav/ExternalNavigationHandler.java b/chrome/android/java/src/org/chromium/chrome/browser/externalnav/ExternalNavigationHandler.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/externalnav/ExternalNavigationHandler.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/externalnav/ExternalNavigationHandler.java
-@@ -581,7 +581,6 @@ public class ExternalNavigationHandler {
+@@ -574,7 +574,6 @@ public class ExternalNavigationHandler {
          if (shouldProxyForInstantApps) {
              RecordHistogram.recordEnumeratedHistogram("Android.InstantApps.DirectInstantAppsIntent",
                      AiaIntent.SERP, AiaIntent.NUM_ENTRIES);
@@ -58,7 +58,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/externalnav/Ext
          } else if (isDirectInstantAppsIntent) {
              // For security reasons, we disable all intent:// URLs to Instant Apps that are
              // not coming from SERP.
-@@ -590,8 +589,6 @@ public class ExternalNavigationHandler {
+@@ -583,8 +582,6 @@ public class ExternalNavigationHandler {
                      AiaIntent.OTHER, AiaIntent.NUM_ENTRIES);
              return OverrideUrlLoadingResult.NO_OVERRIDE;
          } else {
@@ -460,10 +460,11 @@ diff --git a/services/device/geolocation/android/java/src/org/chromium/device/ge
 diff --git a/third_party/android_deps/BUILD.gn b/third_party/android_deps/BUILD.gn
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -830,64 +830,6 @@ android_aar_prebuilt("google_play_services_cast_framework_java") {
+@@ -797,64 +797,6 @@ android_aar_prebuilt("google_play_services_basement_java") {
+   input_jars_paths = [ "$android_sdk/optional/org.apache.http.legacy.jar" ]
  }
  
- # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+-# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
 -android_aar_prebuilt("google_play_services_fido_java") {
 -  aar_path = "libs/com_google_android_gms_play_services_fido/play-services-fido-15.0.1.aar"
 -  info_path = "libs/com_google_android_gms_play_services_fido/com_google_android_gms_play_services_fido.info"
@@ -521,10 +522,9 @@ diff --git a/third_party/android_deps/BUILD.gn b/third_party/android_deps/BUILD.
 -  strip_drawables = true
 -}
 -
--# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+ # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
  android_aar_prebuilt("google_play_services_tasks_java") {
    aar_path = "libs/com_google_android_gms_play_services_tasks/play-services-tasks-15.0.1.aar"
-   info_path = "libs/com_google_android_gms_play_services_tasks/com_google_android_gms_play_services_tasks.info"
 diff --git a/third_party/cacheinvalidation/BUILD.gn b/third_party/cacheinvalidation/BUILD.gn
 --- a/third_party/cacheinvalidation/BUILD.gn
 +++ b/third_party/cacheinvalidation/BUILD.gn

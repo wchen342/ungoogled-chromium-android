@@ -20,17 +20,6 @@ diff --git a/chrome/android/java/res/layout/fre_tosanduma.xml b/chrome/android/j
  
                      <CheckBox
                          android:id="@+id/send_report_checkbox"
-diff --git a/chrome/android/java/res/values/dimens.xml b/chrome/android/java/res/values/dimens.xml
---- a/chrome/android/java/res/values/dimens.xml
-+++ b/chrome/android/java/res/values/dimens.xml
-@@ -197,7 +197,6 @@
-     <dimen name="fre_button_padding">12dp</dimen>
-     <dimen name="fre_margin">24dp</dimen>
-     <dimen name="fre_image_height">120dp</dimen>
--    <dimen name="fre_tos_checkbox_padding">12dp</dimen>
- 
-     <!-- Account Signin dimensions -->
-     <!-- The Account Signin page appears in the First Run Experience (amongst other places), so uses
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivityBase.java b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivityBase.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivityBase.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivityBase.java

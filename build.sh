@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
 set -eux -o pipefail
 
-chromium_version=77.0.3865.90
+chromium_version=78.0.3904.97
+ungoogled_chromium_revision=2
 target=monochrome_public_apk
 webview_target=system_webview_apk
 
-# Required tools: python2, python3, ninja, git, clang, lld, llvm, curl
+# Required tools: python2, python3, ninja, git, clang, lld, llvm, curl, wget, npm
 # Assuming default python to be python2. This is true on most Linux distributions.
 
 ## Clone ungoogled-chromium repo
-git clone https://github.com/Eloston/ungoogled-chromium.git -b ${chromium_version}-1
+git clone https://github.com/Eloston/ungoogled-chromium.git -b ${chromium_version}-${ungoogled_chromium_revision}
 
 ## Clone chromium repo
 git clone --depth 1 --no-tags https://chromium.googlesource.com/chromium/src.git -b ${chromium_version}
@@ -24,6 +25,9 @@ git fetch --depth 1 --no-tags origin "${depot_tools_commit}"
 git reset --hard FETCH_HEAD
 popd
 export PATH="$(pwd -P)/depot_tools:$PATH"
+pushd src/third_party
+ln -s ../../depot_tools
+popd
 
 
 ## Sync files
@@ -59,7 +63,7 @@ git fetch --depth 1 --no-tags origin "${libsync_commit}"
 git reset --hard FETCH_HEAD
 popd
 
-gn_commit=bbc9dd04ea881b4bc0c36a1ff4ccc65111bab250
+gn_commit=a0a58ab261297009f1181222ac82ee6247e398ad
 mv src/tools/gn src/tools/gn.bak
 git clone https://gn.googlesource.com/gn src/tools/gn
 pushd src/tools/gn
@@ -69,9 +73,12 @@ cp -r src/tools/gn.bak/bootstrap src/tools/gn
 
 ## Hooks
 python src/build/util/lastchange.py -o src/build/util/LASTCHANGE
-python src/chrome/android/profiles/update_afdo_profile.py
+python src/tools/download_cros_provided_profile.py --newest_state=src/chrome/android/profiles/newest.txt --local_state=src/chrome/android/profiles/local.txt --output_name=src/chrome/android/profiles/afdo.prof --gs_url_base=chromeos-prebuilt/afdo-job/llvm
 python src/build/util/lastchange.py -m GPU_LISTS_VERSION --revision-id-only --header src/gpu/config/gpu_lists_version.h
 python src/build/util/lastchange.py -m SKIA_COMMIT_HASH -s src/third_party/skia --header src/skia/ext/skia_commit_hash.h
+# New binary dependency: node, caused by webui
+src/third_party/node/update_node_binaries
+src/third_party/node/update_npm_deps
 
 
 ## Run ungoogled-chromium scripts
@@ -91,8 +98,8 @@ python3 ungoogled-chromium/utils/domain_substitution.py apply -r ungoogled-chrom
 
 
 # Workaround for a building failure caused by safe browsing. The file is pre-generated with safe_browsing_mode=2. See https://github.com/nikolowry/bromite-builder/issues/1
-# arm/arm64
-cp download_file_types.pb.h src/chrome/common/safe_browsing/download_file_types.pb.h
+cp safe_browsing_proto_files/download_file_types.pb.h src/chrome/common/safe_browsing/download_file_types.pb.h
+cp safe_browsing_proto_files/webprotect.pb.h src/components/safe_browsing/proto/webprotect.pb.h
 
 
 ## Prepare Android SDK/NDK
@@ -129,6 +136,17 @@ mkdir platforms
 ln -s ../../../../../android-sdk/android-sdk_user.9.0.0_r21_linux-x86/platforms/android-9 platforms/android-28
 ln -s ../../../../android-sdk/android-sdk_user.9.0.0_r21_linux-x86/platform-tools platform-tools
 ln -s ../../../../android-sdk/android-sdk_user.9.0.0_r21_linux-x86/tools tools
+popd
+
+# remove ndk folders
+DIRECTORY="src/third_party/android_ndk"
+gn_file="BUILD.gn"
+cp -a "${DIRECTORY}/${gn_file}" android-ndk/android-ndk-r18b
+cp -ar "${DIRECTORY}/toolchains/llvm/prebuilt/linux-x86_64" android-ndk/android-ndk-r18b/toolchains/llvm/prebuilt    # Need libgcc.a otherwise compilation will fail
+pushd "${DIRECTORY}"
+cd ..
+rm -rf android_ndk
+ln -s ../../android-ndk/android-ndk-r18b android_ndk
 popd
 
 
@@ -180,7 +198,7 @@ python3 ungoogled-chromium/utils/domain_substitution.py apply -r ungoogled-chrom
 ## Genarate gn file
 pushd src/tools/gn
 build/gen.py
-ninja -C out gn
+/usr/bin/ninja -C out gn
 popd
 
 
@@ -198,5 +216,5 @@ export CC=${CC:=clang}
 export CXX=${CXX:=clang++}
 
 ## Build
-ninja -C out/Default ${target}
-ninja -C out/Default ${webview_target}
+/usr/bin/ninja -C out/Default ${target}
+/usr/bin/ninja -C out/Default ${webview_target}

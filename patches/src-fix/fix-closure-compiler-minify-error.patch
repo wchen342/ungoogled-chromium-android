@@ -5,35 +5,34 @@ author: Wengling Chen <feiyu2817@gmail.com>
  ui/webui/resources/js/assert.js                    |  6 +--
  .../resources/js/cr/ui/focus_outline_manager.js    |  2 +-
  ui/webui/resources/js/i18n_behavior.js             |  5 +--
- ui/webui/resources/js/load_time_data.js            |  7 +--
+ ui/webui/resources/js/load_time_data.js            |  7 +---
  ui/webui/resources/js/parse_html_subset.js         |  2 +-
  ui/webui/resources/js/promise_resolver.js          |  4 +-
- ui/webui/resources/js/util.js                      | 52 ++++++++++------------
+ ui/webui/resources/js/util.js                      | 48 ++++++++++------------
  ui/webui/resources/js/web_ui_listener_behavior.js  |  4 +-
- 8 files changed, 34 insertions(+), 48 deletions(-)
-
+ 8 files changed, 32 insertions(+), 46 deletions(-)
 diff --git a/ui/webui/resources/js/assert.js b/ui/webui/resources/js/assert.js
 --- a/ui/webui/resources/js/assert.js
 +++ b/ui/webui/resources/js/assert.js
-@@ -15,7 +15,7 @@
-  * @param {string=} opt_message A message to show on failure.
+@@ -16,7 +16,7 @@
   * @return {T} A non-null |condition|.
+  * @closurePrimitive {asserts.truthy}
   */
 -/* #export */ function assert(condition, opt_message) {
 +function assert(condition, opt_message) {
    if (!condition) {
      let message = 'Assertion failed';
      if (opt_message) {
-@@ -57,7 +57,7 @@
-  *
+@@ -59,7 +59,7 @@
   * @param {string=} opt_message A message to show when this is hit.
+  * @closurePrimitive {asserts.fail}
   */
 -/* #export */ function assertNotReached(opt_message) {
 +function assertNotReached(opt_message) {
    assert(false, opt_message || 'Unreachable code hit');
  }
  
-@@ -68,7 +68,7 @@
+@@ -70,7 +70,7 @@
   * @return {T}
   * @template T
   */
@@ -45,7 +44,7 @@ diff --git a/ui/webui/resources/js/assert.js b/ui/webui/resources/js/assert.js
 diff --git a/ui/webui/resources/js/cr/ui/focus_outline_manager.js b/ui/webui/resources/js/cr/ui/focus_outline_manager.js
 --- a/ui/webui/resources/js/cr/ui/focus_outline_manager.js
 +++ b/ui/webui/resources/js/cr/ui/focus_outline_manager.js
-@@ -27,7 +27,7 @@ cr.define('cr.ui', function() {
+@@ -26,7 +26,7 @@ cr.define('cr.ui', function() {
     * it.
     *
     */
@@ -178,24 +177,6 @@ diff --git a/ui/webui/resources/js/util.js b/ui/webui/resources/js/util.js
    element.setAttribute('aria-live', 'polite');
    element.style.position = 'fixed';
 @@ -74,7 +70,7 @@
-  * @param {Location} location The URL to generate the CSS url for.
-  * @return {Object} Dictionary containing name value pairs for URL
-  */
--/* #export */ function parseQueryParams(location) {
-+function parseQueryParams(location) {
-   const params = {};
-   const query = unescape(location.search.substring(1));
-   const vars = query.split('&');
-@@ -93,7 +89,7 @@
-  * @param {string} value The query parameter value.
-  * @return {string} The constructed new URL.
-  */
--/* #export */ function setQueryParam(location, key, value) {
-+function setQueryParam(location, key, value) {
-   const query = parseQueryParams(location);
-   query[encodeURIComponent(key)] = encodeURIComponent(value);
- 
-@@ -110,7 +106,7 @@
   * @param {string} className A class to search for.
   * @return {Element} A node with class of |className| or null if none is found.
   */
@@ -204,7 +185,7 @@ diff --git a/ui/webui/resources/js/util.js b/ui/webui/resources/js/util.js
    return /** @type {Element} */ (findAncestor(el, function(el) {
      return el.classList && el.classList.contains(className);
    }));
-@@ -123,7 +119,7 @@
+@@ -87,7 +83,7 @@
   *     nodes.
   * @return {Node} The found ancestor or null if not found.
   */
@@ -213,7 +194,7 @@ diff --git a/ui/webui/resources/js/util.js b/ui/webui/resources/js/util.js
    let last = false;
    while (node != null && !(last = predicate(node))) {
      node = node.parentNode;
-@@ -139,7 +135,7 @@
+@@ -103,7 +99,7 @@
   * @param {function(Event):boolean=} opt_allowDragStart Unless this function
   *    is defined and returns true, the ondragstart event will be surpressed.
   */
@@ -222,7 +203,7 @@ diff --git a/ui/webui/resources/js/util.js b/ui/webui/resources/js/util.js
      opt_allowSelectStart, opt_allowDragStart) {
    // Disable text selection.
    document.onselectstart = function(e) {
-@@ -160,7 +156,7 @@
+@@ -124,7 +120,7 @@
   * Check the directionality of the page.
   * @return {boolean} True if Chrome is running an RTL UI.
   */
@@ -231,7 +212,7 @@ diff --git a/ui/webui/resources/js/util.js b/ui/webui/resources/js/util.js
    return document.documentElement.dir == 'rtl';
  }
  
-@@ -171,7 +167,7 @@
+@@ -135,7 +131,7 @@
   * @param {string} id The identifier name.
   * @return {!HTMLElement} the Element.
   */
@@ -240,7 +221,7 @@ diff --git a/ui/webui/resources/js/util.js b/ui/webui/resources/js/util.js
    return assertInstanceof(
        $(id), HTMLElement, 'Missing required element: ' + id);
  }
-@@ -185,7 +181,7 @@
+@@ -149,7 +145,7 @@
   *     context object for querySelector.
   * @return {!HTMLElement} the Element.
   */
@@ -249,7 +230,7 @@ diff --git a/ui/webui/resources/js/util.js b/ui/webui/resources/js/util.js
    const element = (opt_context || document).querySelector(selectors);
    return assertInstanceof(
        element, HTMLElement, 'Missing required element: ' + selectors);
-@@ -248,7 +244,7 @@
+@@ -212,7 +208,7 @@
   * @param {string} value The value of the param.
   * @return {string} The new URL.
   */
@@ -258,7 +239,7 @@ diff --git a/ui/webui/resources/js/util.js b/ui/webui/resources/js/util.js
    const param = encodeURIComponent(key) + '=' + encodeURIComponent(value);
  
    if (url.indexOf('?') == -1) {
-@@ -263,7 +259,7 @@
+@@ -227,7 +223,7 @@
   * @param {string} className The class name to use.
   * @return {Element} The created element.
   */
@@ -267,7 +248,7 @@ diff --git a/ui/webui/resources/js/util.js b/ui/webui/resources/js/util.js
    const elm = document.createElement(type);
    elm.className = className;
    return elm;
-@@ -278,7 +274,7 @@
+@@ -242,7 +238,7 @@
   *     transitionend to happen. If not specified, it is fetched from |el|
   *     using the transitionDuration style value.
   */
@@ -276,7 +257,7 @@ diff --git a/ui/webui/resources/js/util.js b/ui/webui/resources/js/util.js
    if (opt_timeOut === undefined) {
      const style = getComputedStyle(el);
      opt_timeOut = parseFloat(style.transitionDuration) * 1000;
-@@ -305,7 +301,7 @@
+@@ -269,7 +265,7 @@
   *     queried from.
   * @return {number} The Y document scroll offset.
   */
@@ -285,7 +266,7 @@ diff --git a/ui/webui/resources/js/util.js b/ui/webui/resources/js/util.js
    return doc.documentElement.scrollTop || doc.body.scrollTop;
  }
  
-@@ -315,7 +311,7 @@
+@@ -279,7 +275,7 @@
   *     queried from.
   * @param {number} value The target Y scroll offset.
   */
@@ -294,7 +275,7 @@ diff --git a/ui/webui/resources/js/util.js b/ui/webui/resources/js/util.js
    doc.documentElement.scrollTop = doc.body.scrollTop = value;
  }
  
-@@ -325,7 +321,7 @@
+@@ -289,7 +285,7 @@
   *     queried from.
   * @return {number} The X document scroll offset.
   */
@@ -303,7 +284,7 @@ diff --git a/ui/webui/resources/js/util.js b/ui/webui/resources/js/util.js
    return doc.documentElement.scrollLeft || doc.body.scrollLeft;
  }
  
-@@ -335,7 +331,7 @@
+@@ -299,7 +295,7 @@
   *     queried from.
   * @param {number} value The target X scroll offset.
   */
@@ -312,7 +293,7 @@ diff --git a/ui/webui/resources/js/util.js b/ui/webui/resources/js/util.js
    doc.documentElement.scrollLeft = doc.body.scrollLeft = value;
  }
  
-@@ -344,7 +340,7 @@
+@@ -308,7 +304,7 @@
   * @param {string} original The original string.
   * @return {string} The string with all the characters mentioned above replaced.
   */
@@ -321,7 +302,7 @@ diff --git a/ui/webui/resources/js/util.js b/ui/webui/resources/js/util.js
    return original.replace(/&/g, '&amp;')
        .replace(/</g, '&lt;')
        .replace(/>/g, '&gt;')
-@@ -361,7 +357,7 @@
+@@ -325,7 +321,7 @@
   *     |maxLength|. Otherwise the first |maxLength| - 1 characters with '...'
   *     appended.
   */
@@ -330,7 +311,7 @@ diff --git a/ui/webui/resources/js/util.js b/ui/webui/resources/js/util.js
    if (original.length <= maxLength) {
      return original;
    }
-@@ -373,7 +369,7 @@
+@@ -337,7 +333,7 @@
   * @param {string} str The source string.
   * @return {string} The escaped string.
   */
@@ -339,7 +320,7 @@ diff --git a/ui/webui/resources/js/util.js b/ui/webui/resources/js/util.js
    return str.replace(/([\\\.\+\*\?\[\^\]\$\(\)\{\}\=\!\<\>\|\:])/g, '\\$1');
  }
  
-@@ -386,7 +382,7 @@
+@@ -350,7 +346,7 @@
   * @param {function(!Event)} callback Called at most once. The
   *     optional return value is passed on by the listener.
   */
@@ -348,7 +329,7 @@ diff --git a/ui/webui/resources/js/util.js b/ui/webui/resources/js/util.js
    if (!Array.isArray(eventNames)) {
      eventNames = eventNames.split(/ +/);
    }
-@@ -511,7 +507,7 @@ if (!('key' in KeyboardEvent.prototype)) {
+@@ -475,7 +471,7 @@ if (!('key' in KeyboardEvent.prototype)) {
   * @param {!Event} e
   * @return {boolean} Whether a modifier key was down when processing |e|.
   */
@@ -364,7 +345,7 @@ diff --git a/ui/webui/resources/js/web_ui_listener_behavior.js b/ui/webui/resour
   * automatically remove WebUI listeners when detached.
   */
  
--// #import {addWebUIListener, removeWebUIListener} from './cr.m.js';
+-// #import {WebUIListener, addWebUIListener, removeWebUIListener} from './cr.m.js';
 -
  /** @polymerBehavior */
  // eslint-disable-next-line no-var

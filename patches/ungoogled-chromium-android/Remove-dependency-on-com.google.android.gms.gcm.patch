@@ -26,7 +26,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -272,7 +272,6 @@ android_library("chrome_java") {
+@@ -273,7 +273,6 @@ android_library("chrome_java") {
      "$google_play_services_package:google_play_services_cast_framework_java",
      "$google_play_services_package:google_play_services_cast_java",
      "$google_play_services_package:google_play_services_fido_java",
@@ -34,7 +34,7 @@ diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
      "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
      "//base:base_java",
-@@ -798,7 +797,6 @@ android_library("chrome_test_java") {
+@@ -799,7 +798,6 @@ android_library("chrome_test_java") {
      "$google_play_services_package:google_play_services_cast_framework_java",
      "$google_play_services_package:google_play_services_cast_java",
      "$google_play_services_package:google_play_services_fido_java",
@@ -42,7 +42,7 @@ diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
      "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
      "//base:base_java",
-@@ -1543,7 +1541,6 @@ android_library("browser_java_test_support") {
+@@ -1546,7 +1544,6 @@ android_library("browser_java_test_support") {
    ]
    deps = [
      ":chrome_java",
@@ -214,14 +214,6 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ntp/snippets/Sn
  
      /**
       * Create a SnippetsLauncher object, which is owned by C++.
-@@ -43,6 +43,7 @@ public class SnippetsLauncher {
-     @VisibleForTesting
-     @CalledByNative
-     public static SnippetsLauncher create() {
-+        mGCMEnabled = false;
-         if (sInstance != null) {
-             throw new IllegalStateException("Already instantiated");
-         }
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/ChromeGcmListenerService.java b/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/ChromeGcmListenerService.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/ChromeGcmListenerService.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/ChromeGcmListenerService.java
@@ -356,10 +348,11 @@ diff --git a/components/background_task_scheduler/android/java/src/org/chromium/
      private static final String TAG = "BkgrdTaskGcmTS";
  
      private BackgroundTaskSchedulerGcmNetworkManager.Clock mClock = System::currentTimeMillis;
-@@ -90,63 +86,6 @@ public class BackgroundTaskGcmTaskService extends GcmTaskService {
+@@ -89,63 +85,6 @@ public class BackgroundTaskGcmTaskService extends GcmTaskService {
+         }
      }
  
-     @Override
+-    @Override
 -    public int onRunTask(TaskParams params) {
 -        final TaskParameters taskParams =
 -                BackgroundTaskSchedulerGcmNetworkManager.getTaskParametersFromTaskParams(params);
@@ -416,10 +409,9 @@ diff --git a/components/background_task_scheduler/android/java/src/org/chromium/
 -        return GcmNetworkManager.RESULT_SUCCESS;
 -    }
 -
--    @Override
+     @Override
      public void onInitializeTasks() {
          // Ignore the event on OSs supporting JobScheduler.
-         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) return;
 diff --git a/components/background_task_scheduler/android/java/src/org/chromium/components/background_task_scheduler/BackgroundTaskSchedulerFactory.java b/components/background_task_scheduler/android/java/src/org/chromium/components/background_task_scheduler/BackgroundTaskSchedulerFactory.java
 --- a/components/background_task_scheduler/android/java/src/org/chromium/components/background_task_scheduler/BackgroundTaskSchedulerFactory.java
 +++ b/components/background_task_scheduler/android/java/src/org/chromium/components/background_task_scheduler/BackgroundTaskSchedulerFactory.java
@@ -451,10 +443,11 @@ diff --git a/components/background_task_scheduler/android/java/src/org/chromium/
 diff --git a/third_party/android_deps/BUILD.gn b/third_party/android_deps/BUILD.gn
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -844,21 +844,6 @@ android_aar_prebuilt("google_play_services_fido_java") {
+@@ -887,21 +887,6 @@ android_aar_prebuilt("google_play_services_fido_java") {
+   strip_drawables = true
  }
  
- # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+-# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
 -android_aar_prebuilt("google_play_services_gcm_java") {
 -  aar_path = "libs/com_google_android_gms_play_services_gcm/play-services-gcm-15.0.1.aar"
 -  info_path = "libs/com_google_android_gms_play_services_gcm/com_google_android_gms_play_services_gcm.info"
@@ -469,10 +462,9 @@ diff --git a/third_party/android_deps/BUILD.gn b/third_party/android_deps/BUILD.
 -  strip_drawables = true
 -}
 -
--# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+ # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
  android_aar_prebuilt("google_play_services_iid_java") {
    aar_path = "libs/com_google_android_gms_play_services_iid/play-services-iid-15.0.1.aar"
-   info_path = "libs/com_google_android_gms_play_services_iid/com_google_android_gms_play_services_iid.info"
 diff --git a/third_party/cacheinvalidation/BUILD.gn b/third_party/cacheinvalidation/BUILD.gn
 --- a/third_party/cacheinvalidation/BUILD.gn
 +++ b/third_party/cacheinvalidation/BUILD.gn
@@ -541,7 +533,7 @@ diff --git a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/
  
    private Context context;
  
-@@ -64,33 +62,13 @@ public class AndroidGcmController {
+@@ -64,32 +62,12 @@ public class AndroidGcmController {
    public static AndroidGcmController get(Context context) {
      synchronized (lock) {
        if (androidGcmController == null) {
@@ -553,7 +545,7 @@ diff --git a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/
      return androidGcmController;
    }
  
-   /**
+-  /**
 -   * Override AndroidGcmController with a custom GcmNetworkManager in tests. This overrides the
 -   * existing instance of AndroidGcmController if any.
 -   *
@@ -572,10 +564,9 @@ diff --git a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/
 -    this.gcmNetworkManager = gcmNetworkManager;
 -  }
 -
--  /**
+   /**
     * Returns true if no registration token is stored or the current application version is higher
     * than the version for the token stored.
-    */
 @@ -142,21 +120,7 @@ public class AndroidGcmController {
        return;
      }

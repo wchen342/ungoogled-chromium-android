@@ -1,9 +1,10 @@
-description: remove some prune causing build to fail
+description: remove some prune causing build to fail, avoid matching Android namespace declaration/com.google.common package in .java
 author: Wengling Chen <feiyu2817@gmail.com>
+
 
 --- a/ungoogled-chromium/pruning.list
 +++ b/ungoogled-chromium/pruning.list
-@@ -14,7 +14,6 @@ base/test/data/pe_image/pe_image_test_32.dll
+@@ -13,7 +13,6 @@ base/test/data/pe_image/pe_image_test_32.dll
  base/test/data/pe_image/pe_image_test_64.dll
  base/test/data/pe_image/pe_image_test_arm64.dll
  build/android/CheckInstallApk-debug.apk
@@ -11,7 +12,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
  build/android/tests/symbolize/liba.so
  build/android/tests/symbolize/libb.so
  build/linux/sysroot_scripts/debian-archive-sid-stable.gpg
-@@ -3582,7 +3581,6 @@ third_party/angle/third_party/glmark2/src/data/models/cat.3ds
+@@ -3584,7 +3583,6 @@ third_party/angle/third_party/glmark2/src/data/models/cat.3ds
  third_party/angle/third_party/glmark2/src/data/models/cube.3ds
  third_party/angle/third_party/glmark2/src/data/models/horse.3ds
  third_party/angle/third_party/vulkan-loader/src/loader/loader.aps
@@ -19,12 +20,13 @@ author: Wengling Chen <feiyu2817@gmail.com>
  third_party/blink/manual_tests/WebKitSite.webarchive
  third_party/blink/manual_tests/accessibility/resources/AppletTest.class
  third_party/blink/manual_tests/plugins/test.swf
-@@ -13326,11 +13324,8 @@ third_party/hunspell/fuzz/bdict_corpus/en-US-7-1.bdic
+@@ -13335,12 +13333,9 @@ third_party/hunspell/fuzz/bdict_corpus/en-US-7-1.bdic
  third_party/hunspell/fuzz/bdict_corpus/en-US-8-0.bdic
  third_party/hunspell/fuzz/bdict_corpus/f95048cdc0fc231dd712bad106578a9eeecd869b
  third_party/hunspell/fuzz/bdict_corpus/fda69541054125551c41ab3e591e0482405ca2dc
 -third_party/icu/android/icudtl.dat
 -third_party/icu/android_small/icudtl.dat
+ third_party/icu/android_small/icudtl_extra.dat
  third_party/icu/cast/icudtl.dat
  third_party/icu/chromeos/icudtl.dat
 -third_party/icu/common/icudtb.dat

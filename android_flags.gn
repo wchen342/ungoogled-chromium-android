@@ -1,7 +1,7 @@
 android_channel="stable"
 android32_ndk_api_level=21
 android64_ndk_api_level=21
-android_ndk_root = "//../android-ndk/android-ndk-r18b"
+android_ndk_root = "//third_party/android_ndk"
 android_ndk_version = "r18b"
 android_ndk_major_version = 18
 android_sdk_build_tools_version="27.0.3"

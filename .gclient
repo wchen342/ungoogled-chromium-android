@@ -71,7 +71,6 @@ solutions = [
         "src/third_party/webrtc": None,
         "src/tools/page_cycler/acid3": None,
         "src/tools/swarming_client": None,
-        "src/third_party/android_ndk": None,
         "src/third_party/elfutils/src": None,
         "src/third_party/android_tools": None,
         "src/third_party/android_sdk/public": None,
