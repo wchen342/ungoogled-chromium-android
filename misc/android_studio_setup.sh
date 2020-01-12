@@ -38,7 +38,7 @@ cat ../android_flags.debug.gn ../android_flags.gn > ${output_folder}/args.gn
 tools/gn/out/gn gen ${output_folder} --fail-on-unused-args
 
 # Compile apk
-ninja -C ${output_folder} ${target}
+/usr/bin/ninja -C ${output_folder} ${target}
 popd
 
 ###

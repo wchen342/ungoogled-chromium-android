@@ -17,7 +17,6 @@ enable_reporting=false
 enable_service_discovery=false
 enable_swiftshader=false
 enable_widevine=true
-exclude_unwind_tables=false
 fatal_linker_warnings=false
 fieldtrial_testing_like_official_build=true
 google_api_key=""

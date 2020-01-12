@@ -44,4 +44,4 @@
 * Update NDK to r20b
 * Remove split installer dependencies (Google Play), disable DFM
 * Other source fixes
-* Known issue: some pages, including `chrome://flags`, `chrome://gpu` are not working
+* Known issue: ~~some pages, including `chrome://flags`, `chrome://gpu` are not working~~ (Fixed)

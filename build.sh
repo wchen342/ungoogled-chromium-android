@@ -128,7 +128,7 @@ if [[ -d "$DIRECTORY" ]]; then
 fi
 mkdir "${DIRECTORY}" && pushd ${DIRECTORY}
 # rm -rf add-ons emulator licenses platforms sources tools-lint build-tools ndk-bundle platform-tools tools
-mkdir build-tools && ln -s ../../../../../android-sdk/android-sdk_user.9.0.0_r21_linux-x86/build-tools/android-9 build-tools/27.0.3
+mkdir build-tools && ln -s ../../../../../android-sdk/android-sdk_user.9.0.0_r21_linux-x86/build-tools/android-9 build-tools/29.0.2
 mkdir platforms
 ln -s ../../../../../android-sdk/android-sdk_user.9.0.0_r21_linux-x86/platforms/android-9 platforms/android-28
 ln -s ../../../../android-sdk/android-sdk_user.9.0.0_r21_linux-x86/platform-tools platform-tools
