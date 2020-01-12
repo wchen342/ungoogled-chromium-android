@@ -6,7 +6,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
 
 ---
  chrome/android/BUILD.gn                            |   5 -
- .../externalnav/ExternalNavigationHandler.java     |   3 -
+ .../externalnav/ExternalNavigationHandler.java     |   4 -
  .../browser/instantapps/InstantAppsHandler.java    |  59 +-----------
  components/gcm_driver/instance_id/android/BUILD.gn |   2 -
  .../instance_id/InstanceIDWithSubtype.java         |  28 +-----
@@ -16,12 +16,12 @@ Subject: Remove dependency on com.google.android.gms.fido,
  third_party/android_deps/BUILD.gn                  |  58 ------------
  third_party/cacheinvalidation/BUILD.gn             |   1 -
  .../client/android2/AndroidManifestUpdatedGcm.xml  |   3 -
- 11 files changed, 9 insertions(+), 255 deletions(-)
+ 11 files changed, 9 insertions(+), 256 deletions(-)
 
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -269,8 +269,6 @@ android_library("chrome_java") {
+@@ -260,8 +260,6 @@ android_library("chrome_java") {
      ":usage_stats_proto_java",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
@@ -30,7 +30,7 @@ diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
      "$google_play_services_package:google_play_services_tasks_java",
      "//base:base_java",
      "//base:jni_java",
-@@ -690,7 +688,6 @@ junit_binary("chrome_junit_tests") {
+@@ -655,7 +653,6 @@ junit_binary("chrome_junit_tests") {
      ":partner_location_descriptor_proto_java",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
@@ -38,7 +38,7 @@ diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
      "//base:base_java",
      "//base:base_java_test_support",
      "//base:base_junit_test_support",
-@@ -790,8 +787,6 @@ android_library("chrome_test_java") {
+@@ -759,8 +756,6 @@ android_library("chrome_test_java") {
      ":partner_location_descriptor_proto_java",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
@@ -50,23 +50,17 @@ diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/externalnav/ExternalNavigationHandler.java b/chrome/android/java/src/org/chromium/chrome/browser/externalnav/ExternalNavigationHandler.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/externalnav/ExternalNavigationHandler.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/externalnav/ExternalNavigationHandler.java
-@@ -574,7 +574,6 @@ public class ExternalNavigationHandler {
+@@ -640,10 +640,6 @@ public class ExternalNavigationHandler {
          if (shouldProxyForInstantApps) {
              RecordHistogram.recordEnumeratedHistogram("Android.InstantApps.DirectInstantAppsIntent",
                      AiaIntent.SERP, AiaIntent.NUM_ENTRIES);
--            intent.putExtra(InstantAppsHandler.IS_GOOGLE_SEARCH_REFERRER, true);
-         } else if (isDirectInstantAppsIntent) {
-             // For security reasons, we disable all intent:// URLs to Instant Apps that are
-             // not coming from SERP.
-@@ -583,8 +582,6 @@ public class ExternalNavigationHandler {
-                     AiaIntent.OTHER, AiaIntent.NUM_ENTRIES);
-             return OverrideUrlLoadingResult.NO_OVERRIDE;
-         } else {
+-            targetIntent.putExtra(InstantAppsHandler.IS_GOOGLE_SEARCH_REFERRER, true);
+-        } else {
 -            // Make sure this extra is not sent unless we've done the verification.
--            intent.removeExtra(InstantAppsHandler.IS_GOOGLE_SEARCH_REFERRER);
+-            targetIntent.removeExtra(InstantAppsHandler.IS_GOOGLE_SEARCH_REFERRER);
          }
  
-         boolean deviceCanHandleIntent = deviceCanHandleIntent(intent);
+         // The intent can be used to launch Chrome itself, record the user
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/instantapps/InstantAppsHandler.java b/chrome/android/java/src/org/chromium/chrome/browser/instantapps/InstantAppsHandler.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/instantapps/InstantAppsHandler.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/instantapps/InstantAppsHandler.java
@@ -184,15 +178,15 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/instantapps/Ins
 diff --git a/components/gcm_driver/instance_id/android/BUILD.gn b/components/gcm_driver/instance_id/android/BUILD.gn
 --- a/components/gcm_driver/instance_id/android/BUILD.gn
 +++ b/components/gcm_driver/instance_id/android/BUILD.gn
-@@ -18,7 +18,6 @@ generate_jni("test_support_jni_headers") {
+@@ -19,7 +19,6 @@ generate_jni("test_support_jni_headers") {
  
  android_library("instance_id_driver_java") {
    deps = [
 -    "$google_play_services_package:google_play_services_iid_java",
      "//base:base_java",
+     "//base:jni_java",
      "//components/gcm_driver/android:gcm_driver_java",
-   ]
-@@ -34,7 +33,6 @@ android_library("instance_id_driver_java") {
+@@ -37,7 +36,6 @@ android_library("instance_id_driver_java") {
  android_library("instance_id_driver_test_support_java") {
    deps = [
      ":instance_id_driver_java",
@@ -288,7 +282,7 @@ diff --git a/components/gcm_driver/instance_id/android/java/src/org/chromium/com
 diff --git a/device/BUILD.gn b/device/BUILD.gn
 --- a/device/BUILD.gn
 +++ b/device/BUILD.gn
-@@ -388,7 +388,6 @@ if (is_android) {
+@@ -389,7 +389,6 @@ if (is_android) {
      deps = [
        "$google_play_services_package:google_play_services_base_java",
        "$google_play_services_package:google_play_services_basement_java",
@@ -299,14 +293,14 @@ diff --git a/device/BUILD.gn b/device/BUILD.gn
 diff --git a/services/device/geolocation/BUILD.gn b/services/device/geolocation/BUILD.gn
 --- a/services/device/geolocation/BUILD.gn
 +++ b/services/device/geolocation/BUILD.gn
-@@ -143,7 +143,6 @@ if (is_android) {
+@@ -152,7 +152,6 @@ if (is_android) {
        ":geolocation_jni_headers",
        "$google_play_services_package:google_play_services_base_java",
        "$google_play_services_package:google_play_services_basement_java",
 -      "$google_play_services_package:google_play_services_location_java",
        "//base:base_java",
+       "//base:jni_java",
        "//components/location/android:location_java",
-       "//services/device/public/java:geolocation_java",
 diff --git a/services/device/geolocation/android/java/src/org/chromium/device/geolocation/LocationProviderGmsCore.java b/services/device/geolocation/android/java/src/org/chromium/device/geolocation/LocationProviderGmsCore.java
 --- a/services/device/geolocation/android/java/src/org/chromium/device/geolocation/LocationProviderGmsCore.java
 +++ b/services/device/geolocation/android/java/src/org/chromium/device/geolocation/LocationProviderGmsCore.java
@@ -460,7 +454,7 @@ diff --git a/services/device/geolocation/android/java/src/org/chromium/device/ge
 diff --git a/third_party/android_deps/BUILD.gn b/third_party/android_deps/BUILD.gn
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -797,64 +797,6 @@ android_aar_prebuilt("google_play_services_basement_java") {
+@@ -828,64 +828,6 @@ android_aar_prebuilt("google_play_services_basement_java") {
    input_jars_paths = [ "$android_sdk/optional/org.apache.http.legacy.jar" ]
  }
  

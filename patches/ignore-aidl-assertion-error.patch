@@ -1,0 +1,20 @@
+From: Wengling Chen <feiyu2817@gmail.com>
+Date: Fri, 10 Jan 2020 22:24:48 -0500
+Subject: Ignore assertion error on aidl.srcjar
+
+---
+ src/build/android/gyp/javac.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/build/android/gyp/javac.py b/src/build/android/gyp/javac.py
+--- a/src/build/android/gyp/javac.py
++++ b/src/build/android/gyp/javac.py
+@@ -236,7 +236,7 @@ def _ProcessInfo(java_file, package_name, class_names, source, chromium_code):
+   for class_name in class_names:
+     yield '{}.{}'.format(package_name, class_name)
+     # Skip aidl srcjars since they don't indent code correctly.
+-    if '_aidl.srcjar' in source:
++    if 'aidl.srcjar' in source:
+       continue
+     assert not chromium_code or len(class_names) == 1, (
+         'Chromium java files must only have one class: {}'.format(source))

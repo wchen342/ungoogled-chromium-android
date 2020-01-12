@@ -9,7 +9,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -32,8 +32,8 @@ import("java_sources.gni")
+@@ -34,8 +34,8 @@ import("java_sources.gni")
  import("static_initializers.gni")
  import("trichrome.gni")
  

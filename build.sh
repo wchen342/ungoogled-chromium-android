@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -eux -o pipefail
 
-chromium_version=78.0.3904.97
-ungoogled_chromium_revision=2
-target=monochrome_public_apk
-webview_target=system_webview_apk
+chromium_version=79.0.3945.117
+ungoogled_chromium_revision=1
+monochrome_target=monochrome_public_apk
+monochrome_webview_target=system_webview_apk
 
 # Required tools: python2, python3, ninja, git, clang, lld, llvm, curl, wget, npm
 # Assuming default python to be python2. This is true on most Linux distributions.
@@ -63,7 +63,7 @@ git fetch --depth 1 --no-tags origin "${libsync_commit}"
 git reset --hard FETCH_HEAD
 popd
 
-gn_commit=a0a58ab261297009f1181222ac82ee6247e398ad
+gn_commit=2426c173819e74a9dad7a2ab647cfa1506f6007f
 mv src/tools/gn src/tools/gn.bak
 git clone https://gn.googlesource.com/gn src/tools/gn
 pushd src/tools/gn
@@ -84,7 +84,7 @@ src/third_party/node/update_npm_deps
 ## Run ungoogled-chromium scripts
 # Patch prune list and domain substitution
 # TODO some pruned binaries are excluded since they will cause android build to fail
-patch -p1 --ignore-whitespace -i patches/android-prune-domain-fix.patch --no-backup-if-mismatch
+patch -p1 --ignore-whitespace -i patches/android-prune-fix.patch --no-backup-if-mismatch
 # Remove the cache file if exists
 cache_file="domsubcache.tar.gz"
 if [[ -f ${cache_file} ]] ; then
@@ -106,17 +106,14 @@ cp safe_browsing_proto_files/webprotect.pb.h src/components/safe_browsing/proto/
 # This is Sylvain Beucler's libre Android rebuild
 sdk_link="https://android-rebuilds.beuc.net/dl/bundles/android-sdk_user.9.0.0_r21_linux-x86.zip"
 sdk_tools_link="https://android-rebuilds.beuc.net/dl/repository/sdk-repo-linux-tools-26.1.1.zip"
-ndk_link="https://android-rebuilds.beuc.net/dl/bundles/android-ndk-r18b-linux-x86_64.tar.bz2"
+ndk_link="https://android-rebuilds.beuc.net/dl/repository/android-ndk-r20b-linux-x86_64.tar.bz2"
 mkdir android-rebuilds
 mkdir android-sdk
 mkdir android-ndk
 cd android-rebuilds && { curl -O ${sdk_link} ; curl -O ${sdk_tools_link} ; curl -O ${ndk_link} ; cd -; }
 unzip -qqo android-rebuilds/android-sdk_user.9.0.0_r21_linux-x86.zip -d android-sdk
 unzip -qqo android-rebuilds/sdk-repo-linux-tools-26.1.1.zip -d android-sdk/android-sdk_user.9.0.0_r21_linux-x86
-tar xjf android-rebuilds/android-ndk-r18b-linux-x86_64.tar.bz2 -C android-ndk
-# remove data_space.h, patch native_window.h
-mv android-ndk/android-ndk-r18b/sysroot/usr/include/android/data_space.h android-ndk/android-ndk-r18b/sysroot/usr/include/android/data_space.h.bak
-patch -p1 --ignore-whitespace -i patches/ndk-native-window.patch --no-backup-if-mismatch
+tar xjf android-rebuilds/android-ndk-r20b-linux-x86_64.tar.bz2 -C android-ndk
 
 # Create symbol links to sdk folders
 # The rebuild sdk has a different folder structure from the checked out version, so it is easier to create symbol links
@@ -141,12 +138,12 @@ popd
 # remove ndk folders
 DIRECTORY="src/third_party/android_ndk"
 gn_file="BUILD.gn"
-cp -a "${DIRECTORY}/${gn_file}" android-ndk/android-ndk-r18b
-cp -ar "${DIRECTORY}/toolchains/llvm/prebuilt/linux-x86_64" android-ndk/android-ndk-r18b/toolchains/llvm/prebuilt    # Need libgcc.a otherwise compilation will fail
+cp -a "${DIRECTORY}/${gn_file}" android-ndk/android-ndk-r20b
+cp -ar "${DIRECTORY}/toolchains/llvm/prebuilt/linux-x86_64" android-ndk/android-ndk-r20b/toolchains/llvm/prebuilt    # Need libgcc.a otherwise compilation will fail
 pushd "${DIRECTORY}"
 cd ..
 rm -rf android_ndk
-ln -s ../../android-ndk/android-ndk-r18b android_ndk
+ln -s ../../android-ndk/android-ndk-r20b android_ndk
 popd
 
 
@@ -203,10 +200,11 @@ popd
 
 
 ## Configure output folder
-cd src
+pushd src
 mkdir -p out/Default
 cat ../ungoogled-chromium/flags.gn ../android_flags.gn ../android_flags.release.gn > out/Default/args.gn
 tools/gn/out/gn gen out/Default --fail-on-unused-args
+popd
 
 
 ## Set compiler flags
@@ -215,6 +213,11 @@ export NM=${NM:=llvm-nm}
 export CC=${CC:=clang}
 export CXX=${CXX:=clang++}
 
+# Patch build/android/gyp/javac.py
+patch -p1 --ignore-whitespace -i patches/ignore-aidl-assertion-error.patch --no-backup-if-mismatch
+
 ## Build
-/usr/bin/ninja -C out/Default ${target}
-/usr/bin/ninja -C out/Default ${webview_target}
+pushd src
+/usr/bin/ninja -C out/Default ${monochrome_target}
+/usr/bin/ninja -C out/Default ${monochrome_webview_target}
+popd

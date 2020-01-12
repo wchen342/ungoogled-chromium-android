@@ -483,7 +483,7 @@ diff --git a/services/shape_detection/android/java/src/org/chromium/shape_detect
 diff --git a/third_party/android_deps/BUILD.gn b/third_party/android_deps/BUILD.gn
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -809,35 +809,6 @@ android_aar_prebuilt("google_play_services_tasks_java") {
+@@ -840,35 +840,6 @@ android_aar_prebuilt("google_play_services_tasks_java") {
    strip_drawables = true
  }
  
@@ -519,7 +519,7 @@ diff --git a/third_party/android_deps/BUILD.gn b/third_party/android_deps/BUILD.
  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
  android_aar_prebuilt("com_google_android_material_material_java") {
    aar_path = "libs/com_google_android_material_material/material-1.0.0-rc02.aar"
-@@ -1437,25 +1408,6 @@ android_aar_prebuilt("com_android_support_versionedparcelable_java") {
+@@ -1450,25 +1421,6 @@ android_aar_prebuilt("com_android_support_versionedparcelable_java") {
    ignore_aidl = true
  }
  
@@ -545,7 +545,7 @@ diff --git a/third_party/android_deps/BUILD.gn b/third_party/android_deps/BUILD.
  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
  android_aar_prebuilt("google_play_services_flags_java") {
    aar_path = "libs/com_google_android_gms_play_services_flags/play-services-flags-15.0.1.aar"
-@@ -1473,24 +1425,6 @@ android_aar_prebuilt("google_play_services_flags_java") {
+@@ -1486,24 +1438,6 @@ android_aar_prebuilt("google_play_services_flags_java") {
    strip_drawables = true
  }
  

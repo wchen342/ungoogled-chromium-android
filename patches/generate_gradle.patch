@@ -1,0 +1,20 @@
+From: Wengling Chen <feiyu2817@gmail.com>
+Date: Thu, 09 Jan 2020 23:27:56 -0500
+Subject: Use system ninja
+
+---
+ src/build/android/gradle/generate_gradle.py  | 2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/build/android/gradle/generate_gradle.py b/src/build/android/gradle/generate_gradle.py
+--- a/src/build/android/gradle/generate_gradle.py
++++ b/src/build/android/gradle/generate_gradle.py
+@@ -126,7 +126,7 @@ def _RunGnGen(output_dir, args=None):
+ 
+ def _RunNinja(output_dir, args):
+   cmd = [
+-      os.path.join(_DEPOT_TOOLS_PATH, 'autoninja'),
++      'ninja',
+       '-C',
+       output_dir,
+   ]

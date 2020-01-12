@@ -6,11 +6,9 @@ It also disalbes Snippets, auto-update of offline pages and launching browser fr
 The snippets are already disabled in native codes, this will disable it on Java level.
 ---
  chrome/android/BUILD.gn                            |  3 -
- .../chrome/browser/BackgroundSyncLauncher.java     | 17 +----
- .../chrome/browser/ChromeBackgroundService.java    | 79 +------------------
- .../invalidation/InvalidationController.java       |  1 +
- .../browser/ntp/snippets/SnippetsLauncher.java     |  3 +-
- .../services/gcm/ChromeGcmListenerService.java     | 58 +-------------
+ .../chrome/browser/ChromeBackgroundService.java    | 62 +--------------
+ .../browser/ntp/snippets/SnippetsLauncher.java     |  2 +-
+ .../services/gcm/ChromeGcmListenerService.java     | 57 +-------------
  components/background_task_scheduler/BUILD.gn      |  3 -
  .../BackgroundTaskGcmTaskService.java              | 63 +--------------
  .../BackgroundTaskSchedulerFactory.java            |  6 +-
@@ -21,12 +19,12 @@ The snippets are already disabled in native codes, this will disable it on Java 
  .../android2/channel/AndroidGcmController.java     | 42 +---------
  .../channel/AndroidInstanceIDListenerService.java  | 13 +---
  .../channel/GcmRegistrationTaskService.java        | 89 +---------------------
- 16 files changed, 15 insertions(+), 400 deletions(-)
+ 14 files changed, 12 insertions(+), 366 deletions(-)
 
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -273,7 +273,6 @@ android_library("chrome_java") {
+@@ -264,7 +264,6 @@ android_library("chrome_java") {
      "$google_play_services_package:google_play_services_cast_framework_java",
      "$google_play_services_package:google_play_services_cast_java",
      "$google_play_services_package:google_play_services_fido_java",
@@ -34,7 +32,7 @@ diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
      "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
      "//base:base_java",
-@@ -799,7 +798,6 @@ android_library("chrome_test_java") {
+@@ -768,7 +767,6 @@ android_library("chrome_test_java") {
      "$google_play_services_package:google_play_services_cast_framework_java",
      "$google_play_services_package:google_play_services_cast_java",
      "$google_play_services_package:google_play_services_fido_java",
@@ -42,7 +40,7 @@ diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
      "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
      "//base:base_java",
-@@ -1546,7 +1544,6 @@ android_library("browser_java_test_support") {
+@@ -1545,7 +1543,6 @@ android_library("browser_java_test_support") {
    ]
    deps = [
      ":chrome_java",
@@ -50,40 +48,6 @@ diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
      "//base:base_java",
      "//base:base_java_test_support",
      "//chrome/android/public/profiles:java",
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/BackgroundSyncLauncher.java b/chrome/android/java/src/org/chromium/chrome/browser/BackgroundSyncLauncher.java
---- a/chrome/android/java/src/org/chromium/chrome/browser/BackgroundSyncLauncher.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/BackgroundSyncLauncher.java
-@@ -41,7 +41,7 @@ public class BackgroundSyncLauncher {
-      * Automatic GCM use is disabled by tests, and also by this class if it is determined on
-      * creation that the installed Play Services library is out of date.
-      */
--    private static boolean sGCMEnabled = true;
-+    private static boolean sGCMEnabled;
- 
-     @VisibleForTesting
-     protected AsyncTask<Void> mLaunchBrowserIfStoppedTask;
-@@ -140,20 +140,7 @@ public class BackgroundSyncLauncher {
-      */
-     @CalledByNative
-     private static boolean shouldDisableBackgroundSync() {
--        // Check to see if Play Services is up to date, and disable GCM if not.
--        // This will not automatically set {@link sGCMEnabled} to true, in case it has been
--        // disabled in tests.
--        if (sGCMEnabled) {
--            boolean isAvailable = true;
--            if (!ExternalAuthUtils.canUseGooglePlayServices()) {
--                setGCMEnabled(false);
--                Log.i(TAG, "Disabling Background Sync because Play Services is not up to date.");
--                isAvailable = false;
--            }
--            RecordHistogram.recordBooleanHistogram(
--                    "BackgroundSync.LaunchTask.PlayServicesAvailable", isAvailable);
--        }
--        return !sGCMEnabled;
-+        return true;
-     }
- 
-     @VisibleForTesting
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeBackgroundService.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeBackgroundService.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeBackgroundService.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeBackgroundService.java
@@ -97,8 +61,8 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeBackgroun
 -
  import org.chromium.base.Log;
  import org.chromium.base.VisibleForTesting;
- import org.chromium.base.library_loader.ProcessInitException;
-@@ -27,67 +23,9 @@ import org.chromium.content_public.browser.UiThreadTaskTraits;
+ import org.chromium.base.task.PostTask;
+@@ -27,48 +23,9 @@ import org.chromium.content_public.browser.UiThreadTaskTraits;
   * browser needs to be launched for scheduled tasks, or in response to changing network or power
   * conditions.
   */
@@ -113,8 +77,10 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeBackgroun
 -        final Context context = this;
 -        PostTask.runOrPostTask(UiThreadTaskTraits.DEFAULT, () -> {
 -            switch (taskTag) {
--                case BackgroundSyncLauncher.TASK_TAG:
--                    handleBackgroundSyncEvent(context, taskTag);
+-                case BackgroundSyncBackgroundTaskScheduler.TASK_TAG:
+-                    // Background Sync tasks are now scheduled using BackgroundTaskScheduler.
+-                    // This should be rare, and we simply reschedule using BackgroundTaskScheduler.
+-                    rescheduleOneShotBackgroundSyncTasks();
 -                    break;
 -
 -                case OfflinePageUtils.TASK_TAG:
@@ -143,32 +109,20 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeBackgroun
 -        return GcmNetworkManager.RESULT_SUCCESS;
 -    }
 -
--    private void handleBackgroundSyncEvent(Context context, String tag) {
--        if (!BackgroundSyncLauncher.hasInstance()) {
--            // Start the browser. The browser's BackgroundSyncManager (for the active profile) will
--            // start, check the network, and run any necessary sync events. This task runs with a
--            // wake lock, but has a three minute timeout, so we need to start the browser in its
--            // own task.
--            // TODO(jkarlin): Protect the browser sync event with a wake lock.
--            // See crbug.com/486020.
--            launchBrowser(context, tag);
--        }
--    }
--
--    private void handleSnippetsOnPersistentSchedulerWakeUp(Context context, String tag) {
--        if (!SnippetsLauncher.hasInstance()) launchBrowser(context, tag);
--        snippetsOnPersistentSchedulerWakeUp();
--    }
--
--    private void handleServicificationStartupTask(Context context, String tag) {
--        launchBrowser(context, tag);
--    }
--
+     private void handleSnippetsOnPersistentSchedulerWakeUp(Context context, String tag) {
+         if (!SnippetsLauncher.hasInstance()) launchBrowser(context, tag);
+         snippetsOnPersistentSchedulerWakeUp();
+@@ -91,7 +48,7 @@ public class ChromeBackgroundService extends GcmTaskService {
      @VisibleForTesting
-     protected void snippetsOnPersistentSchedulerWakeUp() {
-         SnippetsBridge.onPersistentSchedulerWakeUp();
-@@ -115,23 +53,8 @@ public class ChromeBackgroundService extends GcmTaskService {
-     protected void rescheduleBackgroundSyncTasksOnUpgrade() {
+     protected void launchBrowser(Context context, String tag) {
+         Log.i(TAG, "Launching browser");
+-        ChromeBrowserInitializer.getInstance(this).handleSynchronousStartup();
++        ChromeBrowserInitializer.getInstance(context).handleSynchronousStartup();
+     }
+
+     @VisibleForTesting
+@@ -99,15 +56,6 @@ public class ChromeBackgroundService extends GcmTaskService {
+         rescheduleOneShotBackgroundSyncTasks();
      }
  
 -    private void handleSnippetsOnBrowserUpgraded() {
@@ -181,8 +135,11 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeBackgroun
 -    }
 -
      /** Reschedules offline pages (using appropriate version of Background Task Scheduler). */
-     protected void rescheduleOfflinePages() {
+     private void rescheduleOfflinePages() {
          BackgroundScheduler.getInstance().reschedule();
+@@ -118,10 +66,4 @@ public class ChromeBackgroundService extends GcmTaskService {
+                 BackgroundSyncBackgroundTaskScheduler.BackgroundSyncTask
+                         .ONE_SHOT_SYNC_CHROME_WAKE_UP);
      }
 -
 -    @Override
@@ -191,17 +148,6 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeBackgroun
 -        handleSnippetsOnBrowserUpgraded();
 -    }
  }
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/invalidation/InvalidationController.java b/chrome/android/java/src/org/chromium/chrome/browser/invalidation/InvalidationController.java
---- a/chrome/android/java/src/org/chromium/chrome/browser/invalidation/InvalidationController.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/invalidation/InvalidationController.java
-@@ -167,6 +167,7 @@ public class InvalidationController implements ApplicationStatus.ApplicationStat
- 
-         // Ensure GCM has been initialized.
-         ensureGcmIsInitialized();
-+        if (!mGcmInitialized) return;
- 
-         // Do not apply changes to {@link #mSessionInvalidationsEnabled} yet because the timer task
-         // may be scheduled far into the future.
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ntp/snippets/SnippetsLauncher.java b/chrome/android/java/src/org/chromium/chrome/browser/ntp/snippets/SnippetsLauncher.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ntp/snippets/SnippetsLauncher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ntp/snippets/SnippetsLauncher.java
@@ -225,7 +171,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/Ch
  import com.google.ipc.invalidation.ticl.android2.channel.AndroidGcmController;
  
  import org.chromium.base.ContextUtils;
-@@ -35,62 +34,9 @@ import org.chromium.content_public.browser.UiThreadTaskTraits;
+@@ -34,62 +33,9 @@ import org.chromium.content_public.browser.UiThreadTaskTraits;
  /**
   * Receives Downstream messages and status of upstream messages from GCM.
   */
@@ -289,15 +235,14 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/Ch
      /**
       * Returns if we deliver the GCMMessage with a background service by calling
       * Context#startService. This will only work if Android has put us in a whitelist to allow
-@@ -225,8 +171,6 @@ public class ChromeGcmListenerService extends GcmListenerService {
+@@ -222,7 +168,6 @@ public class ChromeGcmListenerService extends GcmListenerService {
+     static void dispatchMessageToDriver(Context applicationContext, GCMMessage message) {
+         ThreadUtils.assertOnUiThread();
+         ChromeBrowserInitializer.getInstance(applicationContext).handleSynchronousStartup();
+-        GCMDriver.dispatchMessage(message);
+     }
  
-         try {
-             ChromeBrowserInitializer.getInstance(applicationContext).handleSynchronousStartup();
--            GCMDriver.dispatchMessage(message);
--
-         } catch (ProcessInitException e) {
-             Log.e(TAG, "ProcessInitException while starting the browser process");
- 
+     private static boolean isNativeLoaded() {
 diff --git a/components/background_task_scheduler/BUILD.gn b/components/background_task_scheduler/BUILD.gn
 --- a/components/background_task_scheduler/BUILD.gn
 +++ b/components/background_task_scheduler/BUILD.gn
@@ -431,7 +376,7 @@ diff --git a/components/background_task_scheduler/android/java/src/org/chromium/
 diff --git a/components/background_task_scheduler/android/java/src/org/chromium/components/background_task_scheduler/BackgroundTaskSchedulerGcmNetworkManager.java b/components/background_task_scheduler/android/java/src/org/chromium/components/background_task_scheduler/BackgroundTaskSchedulerGcmNetworkManager.java
 --- a/components/background_task_scheduler/android/java/src/org/chromium/components/background_task_scheduler/BackgroundTaskSchedulerGcmNetworkManager.java
 +++ b/components/background_task_scheduler/android/java/src/org/chromium/components/background_task_scheduler/BackgroundTaskSchedulerGcmNetworkManager.java
-@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
+@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
   * An implementation of {@link BackgroundTaskSchedulerDelegate} that uses the Play Services
   * {@link GcmNetworkManager} to schedule jobs.
   */
@@ -443,7 +388,7 @@ diff --git a/components/background_task_scheduler/android/java/src/org/chromium/
 diff --git a/third_party/android_deps/BUILD.gn b/third_party/android_deps/BUILD.gn
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -887,21 +887,6 @@ android_aar_prebuilt("google_play_services_fido_java") {
+@@ -919,21 +919,6 @@ android_aar_prebuilt("google_play_services_fido_java") {
    strip_drawables = true
  }
  

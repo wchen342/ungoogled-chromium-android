@@ -16,7 +16,7 @@ Subject: Remove dependency on com.google.android.gms.auth
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -267,7 +267,6 @@ android_library("chrome_java") {
+@@ -258,7 +258,6 @@ android_library("chrome_java") {
      ":thumbnail_cache_entry_proto_java",
      ":update_proto_java",
      ":usage_stats_proto_java",
@@ -27,7 +27,7 @@ diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
 diff --git a/components/signin/core/browser/android/BUILD.gn b/components/signin/core/browser/android/BUILD.gn
 --- a/components/signin/core/browser/android/BUILD.gn
 +++ b/components/signin/core/browser/android/BUILD.gn
-@@ -15,7 +15,6 @@ generate_jni("jni_headers") {
+@@ -16,7 +16,6 @@ generate_jni("jni_headers") {
  
  android_library("java") {
    deps = [
@@ -156,10 +156,11 @@ diff --git a/content/public/android/java/src/org/chromium/content/browser/sms/Sm
 diff --git a/third_party/android_deps/BUILD.gn b/third_party/android_deps/BUILD.gn
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -772,50 +772,6 @@ android_aar_prebuilt("com_android_support_viewpager_java") {
+@@ -802,50 +802,6 @@ android_aar_prebuilt("com_android_support_viewpager_java") {
+   ]
  }
  
- # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+-# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
 -android_aar_prebuilt("google_play_services_auth_java") {
 -  aar_path = "libs/com_google_android_gms_play_services_auth/play-services-auth-15.0.1.aar"
 -  info_path = "libs/com_google_android_gms_play_services_auth/com_google_android_gms_play_services_auth.info"
@@ -203,10 +204,9 @@ diff --git a/third_party/android_deps/BUILD.gn b/third_party/android_deps/BUILD.
 -  strip_drawables = true
 -}
 -
--# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+ # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
  android_aar_prebuilt("google_play_services_base_java") {
    aar_path = "libs/com_google_android_gms_play_services_base/play-services-base-15.0.1.aar"
-   info_path = "libs/com_google_android_gms_play_services_base/com_google_android_gms_play_services_base.info"
 diff --git a/third_party/robolectric/BUILD.gn b/third_party/robolectric/BUILD.gn
 --- a/third_party/robolectric/BUILD.gn
 +++ b/third_party/robolectric/BUILD.gn

@@ -10,7 +10,7 @@ Subject: Remove dependency on com.google.android.gms.flags,
 diff --git a/third_party/android_deps/BUILD.gn b/third_party/android_deps/BUILD.gn
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -1408,55 +1408,6 @@ android_aar_prebuilt("com_android_support_versionedparcelable_java") {
+@@ -1421,55 +1421,6 @@ android_aar_prebuilt("com_android_support_versionedparcelable_java") {
    ignore_aidl = true
  }
  

@@ -1,0 +1,54 @@
+From: Wengling Chen <feiyu2817@gmail.com>
+Date: Fri, 10 Jan 2020 23:04:00 -0500
+Subject: Fix wrong macro definition related to kSigninAllowedOnNextStartup
+
+---
+ chrome/browser/policy/browser_signin_policy_handler.cc       | 12 ------------
+ .../policy/configuration_policy_handler_list_factory.cc      |  6 ------
+ 2 files changed, 18 deletions(-)
+
+diff --git a/chrome/browser/policy/browser_signin_policy_handler.cc b/chrome/browser/policy/browser_signin_policy_handler.cc
+--- a/chrome/browser/policy/browser_signin_policy_handler.cc
++++ b/chrome/browser/policy/browser_signin_policy_handler.cc
+@@ -44,24 +44,12 @@ void BrowserSigninPolicyHandler::ApplyPolicySettings(const PolicyMap& policies,
+         FALLTHROUGH;
+       case BrowserSigninMode::kEnabled:
+         prefs->SetValue(
+-#if defined(OS_ANDROID)
+-            // The new kSigninAllowedOnNextStartup pref is only used on Desktop.
+-            // Keep the old kSigninAllowed pref for Android until the policy is
+-            // fully deprecated in M71 and can be removed.
+-#else
+             prefs::kSigninAllowedOnNextStartup,
+-#endif
+             base::Value(true));
+         break;
+       case BrowserSigninMode::kDisabled:
+         prefs->SetValue(
+-#if defined(OS_ANDROID)
+-            // The new kSigninAllowedOnNextStartup pref is only used on Desktop.
+-            // Keep the old kSigninAllowed pref for Android until the policy is
+-            // fully deprecated in M71 and can be removed.
+-#else
+             prefs::kSigninAllowedOnNextStartup,
+-#endif
+             base::Value(false));
+         break;
+     }
+diff --git a/chrome/browser/policy/configuration_policy_handler_list_factory.cc b/chrome/browser/policy/configuration_policy_handler_list_factory.cc
+--- a/chrome/browser/policy/configuration_policy_handler_list_factory.cc
++++ b/chrome/browser/policy/configuration_policy_handler_list_factory.cc
+@@ -1398,13 +1398,7 @@ std::unique_ptr<ConfigurationPolicyHandlerList> BuildHandlerList(
+       base::Value::Type::BOOLEAN));
+   signin_legacy_policies.push_back(std::make_unique<SimplePolicyHandler>(
+       key::kSigninAllowed,
+-#if defined(OS_ANDROID)
+-      // The new kSigninAllowedOnNextStartup pref is only used on Desktop.
+-      // Keep the old kSigninAllowed pref for Android until the policy is
+-      // fully deprecated in M71 and can be removed.
+-#else
+       prefs::kSigninAllowedOnNextStartup,
+-#endif
+       base::Value::Type::BOOLEAN));
+   handlers->AddHandler(std::make_unique<LegacyPoliciesDeprecatingPolicyHandler>(
+       std::move(signin_legacy_policies),
