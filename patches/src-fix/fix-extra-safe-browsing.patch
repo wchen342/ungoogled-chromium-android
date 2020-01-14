@@ -1,0 +1,52 @@
+From: Wengling Chen <feiyu2817@gmail.com>
+Date: Mon, 13 Jan 2020 23:03:53 -0500
+Subject: Extra fix for build without safe browsing
+
+---
+ chrome/android/BUILD.gn                                                | 1 -
+ chrome/android/chrome_java_sources.gni                                 | 1 -
+ .../src/org/chromium/chrome/browser/webshare/ShareServiceImpl.java     | 3 +--
+ 3 files changed, 1 insertion(+), 4 deletions(-)
+
+diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
+--- a/chrome/android/BUILD.gn
++++ b/chrome/android/BUILD.gn
+@@ -2659,7 +2659,6 @@ generate_jni("chrome_jni_headers") {
+     "java/src/org/chromium/chrome/browser/rappor/RapporServiceBridge.java",
+     "java/src/org/chromium/chrome/browser/rlz/RevenueStats.java",
+     "java/src/org/chromium/chrome/browser/rlz/RlzPingHandler.java",
+-    "java/src/org/chromium/chrome/browser/safe_browsing/FileTypePolicies.java",
+     "java/src/org/chromium/chrome/browser/search_engines/TemplateUrlServiceFactory.java",
+     "java/src/org/chromium/chrome/browser/send_tab_to_self/NotificationManager.java",
+     "java/src/org/chromium/chrome/browser/send_tab_to_self/SendTabToSelfAndroidBridge.java",
+diff --git a/chrome/android/chrome_java_sources.gni b/chrome/android/chrome_java_sources.gni
+--- a/chrome/android/chrome_java_sources.gni
++++ b/chrome/android/chrome_java_sources.gni
+@@ -1413,7 +1413,6 @@ chrome_java_sources = [
+   "java/src/org/chromium/chrome/browser/rappor/RapporServiceBridge.java",
+   "java/src/org/chromium/chrome/browser/rlz/RevenueStats.java",
+   "java/src/org/chromium/chrome/browser/rlz/RlzPingHandler.java",
+-  "java/src/org/chromium/chrome/browser/safe_browsing/FileTypePolicies.java",
+   "java/src/org/chromium/chrome/browser/search_engines/SearchEngineChoiceMetrics.java",
+   "java/src/org/chromium/chrome/browser/search_engines/SearchEngineChoiceNotification.java",
+   "java/src/org/chromium/chrome/browser/search_engines/TemplateUrlServiceFactory.java",
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/webshare/ShareServiceImpl.java b/chrome/android/java/src/org/chromium/chrome/browser/webshare/ShareServiceImpl.java
+--- a/chrome/android/java/src/org/chromium/chrome/browser/webshare/ShareServiceImpl.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/webshare/ShareServiceImpl.java
+@@ -19,7 +19,6 @@ import org.chromium.base.task.AsyncTask;
+ import org.chromium.base.task.PostTask;
+ import org.chromium.base.task.TaskRunner;
+ import org.chromium.base.task.TaskTraits;
+-import org.chromium.chrome.browser.safe_browsing.FileTypePolicies;
+ import org.chromium.chrome.browser.share.ShareHelper;
+ import org.chromium.chrome.browser.share.ShareParams;
+ import org.chromium.content_public.browser.WebContents;
+@@ -196,7 +195,7 @@ public class ShareServiceImpl implements ShareService {
+ 
+         for (SharedFile file : files) {
+             RecordHistogram.recordSparseHistogram(
+-                    "WebShare.Unverified", FileTypePolicies.umaValueForFile(file.name));
++                    "WebShare.Unverified", 1);
+         }
+ 
+         for (SharedFile file : files) {

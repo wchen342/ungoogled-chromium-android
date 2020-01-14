@@ -13,7 +13,7 @@ For more information on `ungoogled-chromium`, please visit the original repo: [E
 ## Content Overview
 
 * [Differences from ungoogled-chromium](#differences-from-ungoogled-chromium)
-* [Supported Platforms](#supported-platforms)
+* [Platforms and Versions](#platforms-and-versions)
 * [Building Instructions](#building-instructions)
 * [Reporting and Contributing](#reporting-and-contributing)
 * [F-droid Repository](#f-droid-repository)
@@ -29,20 +29,23 @@ For more information on `ungoogled-chromium`, please visit the original repo: [E
 * Android specific patches and fixes are applied.
 * Default configuration builds for `arm64` instead of `x64`.
 
-## Supported Platforms
+## Platforms and Versions
 
-The current build has been tested on:
-* cpu_arch: `x86`, `arm`, `arm64`
-* OS: API 28 (Android 9.0), API 27 (Android 8.1), LineageOS 16.0
-
-Theoretically it will run on any device with a minimum API of 24 (Nougat).
+Pre-built apks are named as `{BUILD_TARGET}_{CPU_ARCH}.apk`, where:
+* `{BUILD_TARGET}` is one of `ChromePublic`, `MonoChromePublic`, `SystemWebview`.
+  * `ChromePublic` is for API > 19 (Android 4.4) and only contains the browser.
+  * `MonoChromePublic` is for API > 24 (Android 7.0) and contains both the browser and the webview.
+  * `SystemWebview` is for API 21 - 23 (Android 5.0 - 6.0) and only contains the webview.
+* `{CPU_ARCH}` is one of `x86`, `arm` (armeabi-v7a), `arm64` (arm64-v8a).
+* Please also read this [important note](https://chromium.googlesource.com/chromium/src/+/HEAD/android_webview/docs/build-instructions.md#Important-notes-for-N_P) about Webview on Android N-P.
+* The [Bromite Wiki](https://github.com/bromite/bromite/wiki/Installing-SystemWebView) can also be helpful.
 
 
 ## Building Instructions
 *This build is built from Sylvain Beucler's [libre Android rebuilds](https://android-rebuilds.beuc.net/) instead of SDK/NDK binaries from Google.*
 
 * Clone this repository
-* If you want to enable proprietary codecs (h264, mp3, mp4, etc.), add `proprietary_codecs=true` to the end of `android_flags.gn`
+* ~~If you want to enable proprietary codecs (h264, mp3, mp4, etc.), add `proprietary_codecs=true` to the end of `android_flags.gn`.~~ It is now the default, since `proprietary_codecs` does not add the actual codecs, only codes to handle those file types.
 * enter repo directory and run `./build.sh`.
 
 Build time dependencies can be roughly referred from [AUR](https://aur.archlinux.org/packages/ungoogled-chromium/).

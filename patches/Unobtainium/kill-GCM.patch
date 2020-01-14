@@ -11,7 +11,7 @@ Subject: kill GCM
  .../browser/services/gcm/GCMBackgroundTask.java    |   2 +-
  .../gcm/InvalidationGcmUpstreamSender.java         |  18 --
  components/background_task_scheduler/BUILD.gn      |   1 -
- .../BackgroundTaskSchedulerGcmNetworkManager.java  | 208 +--------------------
+ .../BackgroundTaskSchedulerGcmNetworkManager.java  | 206 +--------------------
  components/gcm_driver/android/BUILD.gn             |   1 -
  components/gcm_driver/instance_id/android/BUILD.gn |   1 -
  .../gcm_driver/instance_id/InstanceIDBridge.java   |  52 +-----
@@ -19,7 +19,7 @@ Subject: kill GCM
  third_party/cacheinvalidation/BUILD.gn             |   6 -
  .../client/contrib/MultiplexingGcmListener.java    |  91 +--------
  .../android2/channel/AndroidNetworkChannel.java    |   6 +-
- 16 files changed, 10 insertions(+), 496 deletions(-)
+ 16 files changed, 10 insertions(+), 494 deletions(-)
 
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
 --- a/chrome/android/BUILD.gn
@@ -43,7 +43,7 @@ diff --git a/chrome/android/chrome_java_sources.gni b/chrome/android/chrome_java
    "java/src/org/chromium/chrome/browser/ChromeBackupAgent.java",
    "java/src/org/chromium/chrome/browser/ChromeBackupWatcher.java",
    "java/src/org/chromium/chrome/browser/ChromeBaseAppCompatActivity.java",
-@@ -1438,11 +1437,6 @@ chrome_java_sources = [
+@@ -1437,11 +1436,6 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/services/AndroidEduAndChildAccountHelper.java",
    "java/src/org/chromium/chrome/browser/services/AndroidEduOwnerCheckCallback.java",
    "java/src/org/chromium/chrome/browser/services/GoogleServicesManager.java",
@@ -354,7 +354,7 @@ diff --git a/components/background_task_scheduler/android/java/src/org/chromium/
  import org.chromium.base.Log;
  import org.chromium.base.ThreadUtils;
  import org.chromium.base.VisibleForTesting;
-@@ -43,212 +35,14 @@ class BackgroundTaskSchedulerGcmNetworkManager implements BackgroundTaskSchedule
+@@ -43,212 +35,16 @@ class BackgroundTaskSchedulerGcmNetworkManager implements BackgroundTaskSchedule
          sClock = clock;
      }
  
@@ -517,7 +517,7 @@ diff --git a/components/background_task_scheduler/android/java/src/org/chromium/
 -        return Task.NETWORK_STATE_ANY;
 -    }
 -
--    @Override
+     @Override
      public boolean schedule(Context context, @NonNull TaskInfo taskInfo) {
          ThreadUtils.assertOnUiThread();
  
@@ -541,7 +541,7 @@ diff --git a/components/background_task_scheduler/android/java/src/org/chromium/
 +        return false;
      }
  
--    @Override
+     @Override
      public void cancel(Context context, int taskId) {
          ThreadUtils.assertOnUiThread();
 -

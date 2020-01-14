@@ -3,8 +3,9 @@ set -eux -o pipefail
 
 chromium_version=79.0.3945.117
 ungoogled_chromium_revision=1
+chrome_target=chrome_public_apk
 monochrome_target=monochrome_public_apk
-monochrome_webview_target=system_webview_apk
+webview_target=system_webview_apk
 
 # Required tools: python2, python3, ninja, git, clang, lld, llvm, curl, wget, npm
 # Assuming default python to be python2. This is true on most Linux distributions.
@@ -218,6 +219,7 @@ patch -p1 --ignore-whitespace -i patches/ignore-aidl-assertion-error.patch --no-
 
 ## Build
 pushd src
+/usr/bin/ninja -C out/Default ${chrome_target}
 /usr/bin/ninja -C out/Default ${monochrome_target}
-/usr/bin/ninja -C out/Default ${monochrome_webview_target}
+/usr/bin/ninja -C out/Default ${webview_target}
 popd

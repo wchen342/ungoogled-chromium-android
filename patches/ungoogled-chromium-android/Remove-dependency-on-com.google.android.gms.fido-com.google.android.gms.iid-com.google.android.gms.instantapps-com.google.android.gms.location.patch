@@ -7,7 +7,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
 ---
  chrome/android/BUILD.gn                            |   5 -
  .../externalnav/ExternalNavigationHandler.java     |   4 -
- .../browser/instantapps/InstantAppsHandler.java    |  59 +-----------
+ .../browser/instantapps/InstantAppsHandler.java    |  57 +-----------
  components/gcm_driver/instance_id/android/BUILD.gn |   2 -
  .../instance_id/InstanceIDWithSubtype.java         |  28 +-----
  device/BUILD.gn                                    |   1 -
@@ -16,7 +16,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
  third_party/android_deps/BUILD.gn                  |  58 ------------
  third_party/cacheinvalidation/BUILD.gn             |   1 -
  .../client/android2/AndroidManifestUpdatedGcm.xml  |   3 -
- 11 files changed, 9 insertions(+), 256 deletions(-)
+ 11 files changed, 12 insertions(+), 251 deletions(-)
 
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
 --- a/chrome/android/BUILD.gn
@@ -131,22 +131,19 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/instantapps/Ins
      }
  
      /**
-@@ -208,14 +164,6 @@ public class InstantAppsHandler {
+@@ -208,9 +164,8 @@ public class InstantAppsHandler {
              return false;
          }
  
 -        if (IntentUtils.safeGetBooleanExtra(intent, DO_NOT_LAUNCH_EXTRA, false)
 -                || (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
 -                           && (intent.getFlags() & FLAG_DO_NOT_LAUNCH) != 0)) {
--            maybeRecordFallbackStats(intent);
--            Log.i(TAG, "Not handling with Instant Apps (DO_NOT_LAUNCH_EXTRA)");
--            return false;
--        }
--
-         if (IntentUtils.safeGetBooleanExtra(
-                 intent, IntentHandler.EXTRA_OPEN_NEW_INCOGNITO_TAB, false)
-                 || IntentUtils.safeHasExtra(intent, ShortcutHelper.EXTRA_SOURCE)
-@@ -240,7 +188,6 @@ public class InstantAppsHandler {
++        if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
++                && (intent.getFlags() & FLAG_DO_NOT_LAUNCH) != 0)) {
+             maybeRecordFallbackStats(intent);
+             Log.i(TAG, "Not handling with Instant Apps (DO_NOT_LAUNCH_EXTRA)");
+             return false;
+@@ -240,7 +195,6 @@ public class InstantAppsHandler {
          }
  
          Intent callbackIntent = new Intent(intent);
@@ -154,7 +151,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/instantapps/Ins
          callbackIntent.putExtra(INSTANT_APP_START_TIME_EXTRA, startTime);
  
          return tryLaunchingInstantApp(context, intent, isCustomTabsIntent, callbackIntent);
-@@ -343,12 +290,9 @@ public class InstantAppsHandler {
+@@ -343,12 +297,9 @@ public class InstantAppsHandler {
          Intent iaIntent = data.getIntent();
          if (data.getReferrer() != null) {
              iaIntent.putExtra(Intent.EXTRA_REFERRER, data.getReferrer());
@@ -167,11 +164,12 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/instantapps/Ins
  
          try {
              appContext.startActivity(iaIntent);
-@@ -394,7 +338,6 @@ public class InstantAppsHandler {
+@@ -394,7 +345,7 @@ public class InstantAppsHandler {
          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
              return info.isInstantAppAvailable;
          } else if (info.activityInfo != null) {
 -            return EPHEMERAL_INSTALLER_CLASS.equals(info.activityInfo.name);
++            return false;
          }
  
          return false;
@@ -543,6 +541,6 @@ diff --git a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/
      </service>
    </application>
  </manifest>
--- 
+--
 2.11.0
 

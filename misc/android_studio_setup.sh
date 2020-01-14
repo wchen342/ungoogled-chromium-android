@@ -2,8 +2,9 @@
 set -eux -o pipefail
 
 chromium_version=79.0.3945.117
-target=monochrome_public_apk
-#target=system_webview_apk
+chrome_target=chrome_public_apk
+monochrome_target=monochrome_public_apk
+webview_target=system_webview_apk
 
 # Create symbol links to gn, depot-tools
 pushd src
@@ -38,7 +39,7 @@ cat ../android_flags.debug.gn ../android_flags.gn > ${output_folder}/args.gn
 tools/gn/out/gn gen ${output_folder} --fail-on-unused-args
 
 # Compile apk
-/usr/bin/ninja -C ${output_folder} ${target}
+/usr/bin/ninja -C ${output_folder} ${monochrome_target}
 popd
 
 ###
@@ -56,5 +57,5 @@ tools/gn/out/gn gen ${output_folder} --fail-on-unused-args
 pushd ..
 patch -p1 --ignore-whitespace -i patches/generate_gradle.patch --no-backup-if-mismatch
 popd
-python build/android/gradle/generate_gradle.py --target //chrome/android:${target} --output-directory ${output_folder}
+python build/android/gradle/generate_gradle.py --target //chrome/android:${monochrome_target} --output-directory ${output_folder}
 popd

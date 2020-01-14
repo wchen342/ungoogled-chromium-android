@@ -11,15 +11,13 @@ The snippets are already disabled in native codes, this will disable it on Java 
  .../services/gcm/ChromeGcmListenerService.java     | 57 +-------------
  components/background_task_scheduler/BUILD.gn      |  3 -
  .../BackgroundTaskGcmTaskService.java              | 63 +--------------
- .../BackgroundTaskSchedulerFactory.java            |  6 +-
- .../BackgroundTaskSchedulerGcmNetworkManager.java  |  2 +-
  third_party/android_deps/BUILD.gn                  | 15 ----
  third_party/cacheinvalidation/BUILD.gn             |  1 -
  .../client/android2/AndroidManifestUpdatedGcm.xml  | 20 -----
  .../android2/channel/AndroidGcmController.java     | 42 +---------
  .../channel/AndroidInstanceIDListenerService.java  | 13 +---
  .../channel/GcmRegistrationTaskService.java        | 89 +---------------------
- 14 files changed, 12 insertions(+), 366 deletions(-)
+ 12 files changed, 10 insertions(+), 360 deletions(-)
 
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
 --- a/chrome/android/BUILD.gn
@@ -357,34 +355,6 @@ diff --git a/components/background_task_scheduler/android/java/src/org/chromium/
      @Override
      public void onInitializeTasks() {
          // Ignore the event on OSs supporting JobScheduler.
-diff --git a/components/background_task_scheduler/android/java/src/org/chromium/components/background_task_scheduler/BackgroundTaskSchedulerFactory.java b/components/background_task_scheduler/android/java/src/org/chromium/components/background_task_scheduler/BackgroundTaskSchedulerFactory.java
---- a/components/background_task_scheduler/android/java/src/org/chromium/components/background_task_scheduler/BackgroundTaskSchedulerFactory.java
-+++ b/components/background_task_scheduler/android/java/src/org/chromium/components/background_task_scheduler/BackgroundTaskSchedulerFactory.java
-@@ -17,11 +17,7 @@ public final class BackgroundTaskSchedulerFactory {
-     private static BackgroundTaskFactory sBackgroundTaskFactory;
- 
-     static BackgroundTaskSchedulerDelegate getSchedulerDelegateForSdk(int sdkInt) {
--        if (sdkInt >= Build.VERSION_CODES.M) {
--            return new BackgroundTaskSchedulerJobService();
--        } else {
--            return new BackgroundTaskSchedulerGcmNetworkManager();
--        }
-+        return new BackgroundTaskSchedulerJobService(); /* minSDK is 24 */
-     }
- 
-     /**
-diff --git a/components/background_task_scheduler/android/java/src/org/chromium/components/background_task_scheduler/BackgroundTaskSchedulerGcmNetworkManager.java b/components/background_task_scheduler/android/java/src/org/chromium/components/background_task_scheduler/BackgroundTaskSchedulerGcmNetworkManager.java
---- a/components/background_task_scheduler/android/java/src/org/chromium/components/background_task_scheduler/BackgroundTaskSchedulerGcmNetworkManager.java
-+++ b/components/background_task_scheduler/android/java/src/org/chromium/components/background_task_scheduler/BackgroundTaskSchedulerGcmNetworkManager.java
-@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
-  * An implementation of {@link BackgroundTaskSchedulerDelegate} that uses the Play Services
-  * {@link GcmNetworkManager} to schedule jobs.
-  */
--class BackgroundTaskSchedulerGcmNetworkManager implements BackgroundTaskSchedulerDelegate {
-+class BackgroundTaskSchedulerGcmNetworkManager {
-     private static final String TAG = "BkgrdTaskSchedGcmNM";
- 
-     /** Delta time for expiration checks, after the end time. */
 diff --git a/third_party/android_deps/BUILD.gn b/third_party/android_deps/BUILD.gn
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
@@ -669,6 +639,6 @@ diff --git a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/
 -    }
 -  }
  }
--- 
+--
 2.11.0
 

@@ -123,7 +123,7 @@ diff --git a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/
          clientKey = "";
          try {
 -            registrationId = GCMRegistrar.getRegistrationId(context);
-+        registrationId = null;
++            registrationId = null;
          } catch (RuntimeException exception) {
              // GCMRegistrar#getRegistrationId occasionally throws a runtime exception. Catching the
              // exception rather than crashing.
