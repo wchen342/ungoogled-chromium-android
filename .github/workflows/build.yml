@@ -14,9 +14,18 @@ jobs:
           submodules: true
       - name: Install dependencies
         run: |
-          pacman -S base base-devel nss alsa-lib xdg-utils libxss libcups libgcrypt ttf-font systemd dbus libpulse pciutils json-glib libva jsoncpp python python2 pyenv gperf yasm mesa ninja git clang lld gn llvm quilt
-          pyenv install 2.7.13
-          echo -e 'if command -v pyenv 1>/dev/null 2>&1; then\n  eval "$(pyenv init -)"\nfi' >> ~/.bash_profile
+          pacman -Sy --noconfirm
+          pacman -S --noconfirm gnu-free-fonts wget
+          pacman -S --noconfirm --needed base base-devel nss alsa-lib xdg-utils libxss libcups libgcrypt libpulse pciutils json-glib libva jsoncpp python python2 pyenv gperf wget yasm mesa ninja git clang lld gn llvm quilt
+      - name: Install python environment
+        run: |
+          wget "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
+          echo "bfe34e1fa28d6d75a7ad05fd02fa5472275673d5f5621b77380898dee1be15d2 Miniconda3-latest-Linux-x86_64.sh" | sha256sum --check --status
+          chmod +x Miniconda3-latest-Linux-x86_64.sh && ./Miniconda3-latest-Linux-x86_64.sh -b -p ~/anaconda
+          source ~/anaconda/bin/activate
+          conda init
+          conda create -y --name py2 python=2
+          conda activate py2
       - name: Build
         run: |
           ./build.sh
