@@ -3,33 +3,106 @@ on: [push, pull_request, repository_dispatch]
 
 jobs:
   build:
+    env:
+        container_name: archlinuxlatest_47dabf
+        XHYVE_CPU_COUNT: 4
+        XHYVE_MEMORY_SIZE: 10240
+        XHYVE_DISK_SIZE: 40000
     name: Build Chromium
-    runs-on: ubuntu-18.04
-    container: archlinux:latest
+    runs-on: macos-latest
 
     steps:
-      - uses: actions/checkout@v1
-        name: Clone repository
-        with:
-          submodules: true
+      - name: Check Environment
+        run: |
+            pwd
+            mkdir -p /Users/runner/work/_actions
+            mkdir -p /Users/runner/work/_temp/_github_home
+            mkdir -p /Users/runner/work/_temp/_github_workflow
+            uname -r
+      - name: Install Docker
+        run: |
+            brew install docker docker-compose docker-machine xhyve docker-machine-driver-xhyve
+            # brew cask install virtualbox
+            sudo chown root:wheel $(brew --prefix)/opt/docker-machine-driver-xhyve/bin/docker-machine-driver-xhyve
+            sudo chmod u+s $(brew --prefix)/opt/docker-machine-driver-xhyve/bin/docker-machine-driver-xhyve
+            cd $(brew --prefix)/opt/hostedtoolcache && ls -la
+            brew services start docker-machine
+            brew cleanup -s && rm -rf $(brew --cache)
+      - name: Create Docker Machine
+        run: |
+            mkdir -p ~/.docker/machine/cache
+            curl -Lo ~/.docker/machine/cache/boot2docker.iso https://github.com/boot2docker/boot2docker/releases/download/v19.03.5/boot2docker.iso
+            docker-machine create --driver xhyve default
+      - name: Start Docker
+        run: |
+            docker-machine env default
+            eval "$(docker-machine env default)"
+            docker version --format '{{.Server.APIVersion}}'
+            docker version --format '{{.Client.APIVersion}}'
+            docker ps --all --quiet --no-trunc --filter "label=488dfb"
+            docker network prune --force --filter "label=488dfb"
+            docker network create --label 488dfb github_network_28ec84219b9a42c98a67ea807a1d376e
+            docker pull archlinux:latest
+            docker volume create --name ${container_name}_local_volume
+            docker create --name ${container_name} --cap-add SYS_MODULE --cap-add SYS_ADMIN --device /dev/fuse --label 488dfb --workdir /__w/ungoogled-chromium-android/ungoogled-chromium-android --network github_network_28ec84219b9a42c98a67ea807a1d376e  -e "HOME=/github/home" -e GITHUB_ACTIONS=true -v "/var/run/docker.sock":"/var/run/docker.sock" -v "/lib/modules":"/lib/modules" -v "${container_name}_local_volume":"/__w" -v "/Users/runner/work/_temp":"/__w/_temp" -v "/Users/runner/work/_actions":"/__w/_actions" -v "/Users/runner/work/_temp/_github_home":"/github/home" -v "/Users/runner/work/_temp/_github_workflow":"/github/workflow" --entrypoint "tail" archlinux:latest "-f" "/dev/null"
+            docker ps --all
+            docker inspect --format "{{range .Config.Env}}{{println .}}{{end}}" ${container_name}
+            docker start ${container_name}
+            docker exec ${container_name} df -h
       - name: Install dependencies
         run: |
-          pacman -Sy --noconfirm
-          pacman -S --noconfirm gnu-free-fonts wget
-          pacman -S --noconfirm --needed base base-devel nss alsa-lib xdg-utils libxss libcups libgcrypt libpulse pciutils json-glib libva jsoncpp python python2 pyenv gperf wget yasm mesa ninja git clang lld gn llvm quilt
+            docker-machine env default
+            eval "$(docker-machine env default)"
+            docker exec ${container_name} bash -c 'sed -i "$(($(grep -n "\[multilib\]" /etc/pacman.conf | cut -f1 -d:) + 1))s/^#//g" /etc/pacman.conf'
+            docker exec ${container_name} pacman -Sy --noconfirm
+            docker exec ${container_name} pacman -S --noconfirm lib32-glibc multilib-devel
+            docker exec ${container_name} pacman -S --noconfirm gnu-free-fonts jdk8-openjdk
+            docker exec ${container_name} pacman -S --noconfirm --needed base base-devel fuse2 fuse3 json-glib libva protobuf jsoncpp python python2 gperf wget rsync tar unzip curl gnupg maven yasm mesa npm ninja git clang lld gn llvm quilt
+            docker exec ${container_name} bash -c 'yes | pacman -Scc'
+      - name: Create AUR build user
+        run: |
+            docker-machine env default
+            eval "$(docker-machine env default)"
+            docker exec ${container_name} useradd builduser -m
+            docker exec ${container_name} passwd -d builduser
+            docker exec ${container_name} bash -c "printf 'builduser ALL=(ALL) ALL\n' | tee -a /etc/sudoers"
+      - name: Build MergerFS
+        run: |
+            docker-machine env default
+            eval "$(docker-machine env default)"
+            docker exec ${container_name} git clone "https://aur.archlinux.org/mergerfs.git"
+            docker exec ${container_name} chown builduser -R mergerfs
+            docker exec ${container_name} sudo -u builduser bash -c 'cd mergerfs && makepkg -sirc --noconfirm' # Clone and build a package
+      - name: Set up MergerFS
+        run: |
+            docker-machine env default
+            eval "$(docker-machine env default)"
+            docker exec ${container_name} bash -c 'mkdir /__w/_mp1 && mkdir /__w/_temp/_mp2 && mkdir /__w/workdir'
+            docker exec ${container_name} modprobe fuse
+            docker exec ${container_name} mergerfs -o allow_other,use_ino,category.create=epff /__w/_mp1:/__w/_temp/_mp2 /__w/workdir
+            docker exec ${container_name} df -h /__w/workdir
+      - name: Clone repository
+        run: |
+            docker-machine env default
+            eval "$(docker-machine env default)"
+            docker exec -w /__w/workdir ${container_name} git clone "https://github.com/wchen342/ungoogled-chromium-android" --recurse-submodules --single-branch --branch workflow
       - name: Install python environment
         run: |
-          wget "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
-          echo "bfe34e1fa28d6d75a7ad05fd02fa5472275673d5f5621b77380898dee1be15d2 Miniconda3-latest-Linux-x86_64.sh" | sha256sum --check --status
-          chmod +x Miniconda3-latest-Linux-x86_64.sh && ./Miniconda3-latest-Linux-x86_64.sh -b -p ~/anaconda
-          source ~/anaconda/bin/activate
-          conda init
-          conda create -y --name py2 python=2
-          conda activate py2
+            docker-machine env default
+            eval "$(docker-machine env default)"
+            docker exec ${container_name} wget "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
+            docker exec ${container_name} bash -c 'echo "bfe34e1fa28d6d75a7ad05fd02fa5472275673d5f5621b77380898dee1be15d2 Miniconda3-latest-Linux-x86_64.sh" | sha256sum --check --status'
+            docker exec ${container_name} chmod +x Miniconda3-latest-Linux-x86_64.sh
+            docker exec ${container_name} bash -c './Miniconda3-latest-Linux-x86_64.sh -b -p ~/anaconda && rm -rf Miniconda3-latest-Linux-x86_64.sh'
+            docker exec ${container_name} bash -c 'source ~/anaconda/bin/activate && conda init && conda create -y --name py2 python=2 && conda activate py2 && pip install six'
       - name: Build
         run: |
-          ./build.sh
+            docker-machine env default
+            eval "$(docker-machine env default)"
+            docker exec -w /__w/workdir ${container_name} bash -c 'source ~/.bashrc && conda activate py2 && cd ungoogled-chromium-android && df -h && df -h . && pwd && ./build.sh'
       - name: Move artifact
         run: |
-          pwd
-          ls -la
+            docker-machine env default
+            eval "$(docker-machine env default)"
+            docker exec ${container_name} pwd
+            docker exec ${container_name} ls -la

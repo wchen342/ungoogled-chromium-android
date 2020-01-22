@@ -104,17 +104,6 @@ cp safe_browsing_proto_files/webprotect.pb.h src/components/safe_browsing/proto/
 
 
 ## Prepare Android SDK/NDK
-# This is Sylvain Beucler's libre Android rebuild
-sdk_link="https://android-rebuilds.beuc.net/dl/bundles/android-sdk_user.9.0.0_r21_linux-x86.zip"
-sdk_tools_link="https://android-rebuilds.beuc.net/dl/repository/sdk-repo-linux-tools-26.1.1.zip"
-ndk_link="https://android-rebuilds.beuc.net/dl/repository/android-ndk-r20b-linux-x86_64.tar.bz2"
-mkdir android-rebuilds
-mkdir android-sdk
-mkdir android-ndk
-cd android-rebuilds && { curl -O ${sdk_link} ; curl -O ${sdk_tools_link} ; curl -O ${ndk_link} ; cd -; }
-unzip -qqo android-rebuilds/android-sdk_user.9.0.0_r21_linux-x86.zip -d android-sdk
-unzip -qqo android-rebuilds/sdk-repo-linux-tools-26.1.1.zip -d android-sdk/android-sdk_user.9.0.0_r21_linux-x86
-tar xjf android-rebuilds/android-ndk-r20b-linux-x86_64.tar.bz2 -C android-ndk
 
 # Create symbol links to sdk folders
 # The rebuild sdk has a different folder structure from the checked out version, so it is easier to create symbol links
@@ -139,13 +128,33 @@ popd
 # remove ndk folders
 DIRECTORY="src/third_party/android_ndk"
 gn_file="BUILD.gn"
-cp -a "${DIRECTORY}/${gn_file}" android-ndk/android-ndk-r20b
-cp -ar "${DIRECTORY}/toolchains/llvm/prebuilt/linux-x86_64" android-ndk/android-ndk-r20b/toolchains/llvm/prebuilt    # Need libgcc.a otherwise compilation will fail
+mkdir "temp"
+#cp -a "${DIRECTORY}/${gn_file}" android-ndk/android-ndk-r20b
+#cp -ar "${DIRECTORY}/toolchains/llvm/prebuilt/linux-x86_64" android-ndk/android-ndk-r20b/toolchains/llvm/prebuilt    # Need libgcc.a otherwise compilation will fail
+cp -a "${DIRECTORY}/${gn_file}" temp
+cp -ar "${DIRECTORY}/toolchains/llvm/prebuilt/linux-x86_64" temp    # Need libgcc.a otherwise compilation will fail
 pushd "${DIRECTORY}"
 cd ..
 rm -rf android_ndk
 ln -s ../../android-ndk/android-ndk-r20b android_ndk
 popd
+
+# This is Sylvain Beucler's libre Android rebuild
+sdk_link="https://android-rebuilds.beuc.net/dl/bundles/android-sdk_user.9.0.0_r21_linux-x86.zip"
+sdk_tools_link="https://android-rebuilds.beuc.net/dl/repository/sdk-repo-linux-tools-26.1.1.zip"
+ndk_link="https://android-rebuilds.beuc.net/dl/repository/android-ndk-r20b-linux-x86_64.tar.bz2"
+mkdir android-rebuilds
+mkdir android-sdk
+mkdir android-ndk
+pushd android-rebuilds
+curl -O ${sdk_link} && unzip -qqo android-sdk_user.9.0.0_r21_linux-x86.zip -d ../android-sdk && rm -f android-sdk_user.9.0.0_r21_linux-x86.zip
+curl -O ${sdk_tools_link} && unzip -qqo sdk-repo-linux-tools-26.1.1.zip -d ../android-sdk/android-sdk_user.9.0.0_r21_linux-x86 && rm -f sdk-repo-linux-tools-26.1.1.zip
+curl -O ${ndk_link} && tar xjf android-ndk-r20b-linux-x86_64.tar.bz2 -C ../android-ndk && rm -f android-ndk-r20b-linux-x86_64.tar.bz2
+popd
+# Move ndk files into place
+cp -a "temp/${gn_file}" android-ndk/android-ndk-r20b
+cp -ar "temp/linux-x86_64" android-ndk/android-ndk-r20b/toolchains/llvm/prebuilt
+rm -rf "temp"
 
 
 ## Compile third-party binaries
