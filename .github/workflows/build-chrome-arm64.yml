@@ -1,4 +1,4 @@
-name: Ungoogled-chromium-android build test
+name: Ungoogled-chromium-android ChromePublic arm64 build
 on: [push, pull_request, repository_dispatch]
 
 jobs:
@@ -6,17 +6,24 @@ jobs:
     env:
         container_name: archlinuxlatest_47dabf
         XHYVE_CPU_COUNT: 4
-        XHYVE_MEMORY_SIZE: 10240
-        XHYVE_DISK_SIZE: 40000
-    name: Build Chromium
+        XHYVE_MEMORY_SIZE: 11264
+        XHYVE_DISK_SIZE: 30000
+    name: Build Chromium Android
     runs-on: macos-latest
 
     steps:
       - name: Check Environment
         run: |
             pwd
-            mkdir -p /Users/runner/work/_actions /Users/runner/work/_temp/_github_home
             uname -r
+            system_profiler SPHardwareDataType
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Checkout submodules
+        run: |
+            auth_header="$(git config --local --get http.https://github.com/.extraheader)"
+            git submodule sync --recursive
+            git -c "http.extraheader=$auth_header" -c protocol.version=2 submodule update --init --force --recursive --depth=1
       - name: Install Docker
         run: |
             brew install docker docker-compose docker-machine xhyve docker-machine-driver-xhyve
@@ -30,6 +37,9 @@ jobs:
             mkdir -p ~/.docker/machine/cache
             curl -Lo ~/.docker/machine/cache/boot2docker.iso https://github.com/boot2docker/boot2docker/releases/download/v19.03.5/boot2docker.iso
             docker-machine create --driver xhyve default
+            docker-machine ssh default pwd
+            docker-machine ssh default id -un
+            docker-machine ssh default mkdir -p /home/docker/work/_temp /home/docker/work/_actions /home/docker/work/_temp/_github_home /home/docker/work/_temp/_github_workflow
       - name: Start Docker
         run: |
             docker-machine env default
@@ -41,7 +51,7 @@ jobs:
             docker network create --label 488dfb github_network_28ec84219b9a42c98a67ea807a1d376e
             docker pull archlinux:latest
             docker volume create --name ${container_name}_local_volume
-            docker create --name ${container_name} --cap-add SYS_MODULE --cap-add SYS_ADMIN --device /dev/fuse --label 488dfb --workdir /__w/ungoogled-chromium-android/ungoogled-chromium-android --network github_network_28ec84219b9a42c98a67ea807a1d376e  -e "HOME=/github/home" -e GITHUB_ACTIONS=true -v "/var/run/docker.sock":"/var/run/docker.sock" -v "/lib/modules":"/lib/modules" -v "${container_name}_local_volume":"/__w" -v "/Users/runner/work/_temp":"/__w/_temp" -v "/Users/runner/work/_actions":"/__w/_actions" -v "/Users/runner/work/_temp/_github_home":"/github/home" -v "/Users/runner/work/_temp/_github_workflow":"/github/workflow" --entrypoint "tail" archlinux:latest "-f" "/dev/null"
+            docker create --name ${container_name} --cap-add SYS_MODULE --cap-add SYS_ADMIN --device /dev/fuse --label 488dfb --workdir /__w/ungoogled-chromium-android/ungoogled-chromium-android --network github_network_28ec84219b9a42c98a67ea807a1d376e  -e "HOME=/github/home" -e GITHUB_ACTIONS=true -v "/var/run/docker.sock":"/var/run/docker.sock" -v "/lib/modules":"/lib/modules" -v "${container_name}_local_volume":"/__w" -v "/home/docker/work/_temp":"/__w/_temp" -v "/home/docker/work/_actions":"/__w/_actions" -v "/home/docker/work/_temp/_github_home":"/github/home" -v "/home/docker/work/_temp/_github_workflow":"/github/workflow" --entrypoint "tail" archlinux:latest "-f" "/dev/null"
             docker ps --all
             docker inspect --format "{{range .Config.Env}}{{println .}}{{end}}" ${container_name}
             docker start ${container_name}
@@ -49,17 +59,18 @@ jobs:
         run: |
             docker-machine env default
             eval "$(docker-machine env default)"
-            docker exec ${container_name} bash -c 'sed -i "$(($(grep -n "\[multilib\]" /etc/pacman.conf | cut -f1 -d:) + 1))s/^#//g" /etc/pacman.conf'
+            docker exec ${container_name} bash -c 'sed -i "$(($(grep -n "\[multilib\]" /etc/pacman.conf | cut -f1 -d:) + 1))s/^#//g" /etc/pacman.conf'    # Seems to be enabled by deafult in arch docker image?
             docker exec ${container_name} pacman -Sy --noconfirm
             docker exec ${container_name} pacman -S --noconfirm lib32-glibc multilib-devel
             docker exec ${container_name} pacman -S --noconfirm gnu-free-fonts jdk8-openjdk
             docker exec ${container_name} pacman -S --noconfirm --needed base base-devel json-glib libva protobuf jsoncpp python python2 gperf wget rsync tar unzip curl gnupg maven yasm mesa npm ninja git clang lld gn llvm quilt
             docker exec ${container_name} bash -c 'yes | pacman -Scc'
-      - name: Clone repository
+      - name: Move repository
         run: |
             docker-machine env default
             eval "$(docker-machine env default)"
-            docker exec ${container_name} git clone "https://github.com/wchen342/ungoogled-chromium-android" --recurse-submodules --single-branch --branch workflow
+            docker-machine scp -r ../ungoogled-chromium-android docker@default:/home/docker/work/_temp/_github_home
+            docker exec ${container_name} bash -c 'cp -r ${HOME}/ungoogled-chromium-android .'
       - name: Install python environment
         run: |
             docker-machine env default
@@ -73,5 +84,22 @@ jobs:
         run: |
             docker-machine env default
             eval "$(docker-machine env default)"
-            docker exec ${container_name} bash -c 'source ~/.bashrc && conda activate py2 && cd ungoogled-chromium-android && ./build.sh'
-            docker exec ${container_name} bash -c 'cd ungoogled-chromium-android && ls src/out/Default/apks'
+            docker exec ${container_name} bash -c 'source ~/.bashrc && conda activate py2 && cd ungoogled-chromium-android && ./build.sh -a arm64 -t chrome_public_apk'
+            docker exec ${container_name} bash -c 'ls ungoogled-chromium-android/src/out/Default/apks'
+      - name: Move artifact
+        env:
+            SUMS: checksums.txt
+        run: |
+            docker-machine env default
+            eval "$(docker-machine env default)"
+            docker exec ${container_name} bash -c 'mkdir ${HOME}/artifact && cp ungoogled-chromium-android/src/out/Default/apks/*.apk ${HOME}/artifact'
+            docker-machine scp -r docker@default:/home/docker/work/_temp/_github_home/artifact ..
+            ls -la ..
+            cd ../artifact
+            openssl sha256 *.apk > $SUMS
+            cat $SUMS
+      - uses: actions/upload-artifact@master
+        name: Upload artifact
+        with:
+          name: Ungoogled-chromium-android
+          path: ../artifact/

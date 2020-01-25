@@ -1,14 +1,76 @@
 #!/usr/bin/env bash
 set -eux -o pipefail
 
-chromium_version=79.0.3945.117
-ungoogled_chromium_revision=1
 chrome_target=chrome_public_apk
-monochrome_target=monochrome_public_apk
+mono_target=monochrome_public_apk
 webview_target=system_webview_apk
 
-# Required tools: python2, python3, ninja, git, clang, lld, llvm, curl, wget, npm
-# Assuming default python to be python2. This is true on most Linux distributions.
+chromium_version=79.0.3945.117
+ungoogled_chromium_revision=1
+
+# Argument parser from https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash/29754866#29754866
+# -allow a command to fail with !’s side effect on errexit
+# -use return value from ${PIPESTATUS[0]}, because ! hosed $?
+! getopt --test > /dev/null 
+if [[ ${PIPESTATUS[0]} -ne 4 ]]; then
+    echo 'I’m sorry, `getopt --test` failed in this environment.'
+    exit 1
+fi
+
+OPTIONS=a:t:
+LONGOPTS=arch:,target:
+
+# -regarding ! and PIPESTATUS see above
+# -temporarily store output to be able to check for errors
+# -activate quoting/enhanced mode (e.g. by writing out “--options”)
+# -pass arguments only via   -- "$@"   to separate them correctly
+! PARSED=$(getopt --options=$OPTIONS --longoptions=$LONGOPTS --name "$0" -- "$@")
+if [[ ${PIPESTATUS[0]} -ne 0 ]]; then
+    # e.g. return value is 1
+    #  then getopt has complained about wrong arguments to stdout
+    exit 2
+fi
+# read getopt’s output this way to handle the quoting right:
+eval set -- "$PARSED"
+
+ARCH=- TARGET=-
+
+# now enjoy the options in order and nicely split until we see --
+while true; do
+    case "$1" in
+        -a|--arch)
+            ARCH="$2"
+            shift 2
+            ;;
+        -t|--target)
+            TARGET="$2"
+            shift 2
+            ;;
+        --)
+            shift
+            break
+            ;;
+        *)
+            echo "Programming error"
+            exit 3
+            ;;
+    esac
+done
+
+if [[ "$ARCH" != "arm64" ]] && [[ "$ARCH" != "arm" ]] && [[ "$ARCH" != "x86" ]]; then
+    echo "Wrong architecture"
+    exit 4
+fi
+
+if [[ "$TARGET" != "$chrome_target" ]] && [[ "$TARGET" != "$mono_target" ]] && [[ "$TARGET" != "$webview_target" ]]; then
+    echo "Wrong target"
+    exit 5
+fi
+
+echo "arch: $ARCH, target: $TARGET"
+
+# Required tools: protobuf python python2 gperf wget rsync tar unzip curl gnupg maven yasm npm ninja git clang lld gn llvm openjdk lib32-glibc multilib-devel
+# Assuming default python to be python2.
 
 ## Clone ungoogled-chromium repo
 git clone https://github.com/Eloston/ungoogled-chromium.git -b ${chromium_version}-${ungoogled_chromium_revision}
@@ -213,6 +275,7 @@ popd
 pushd src
 mkdir -p out/Default
 cat ../ungoogled-chromium/flags.gn ../android_flags.gn ../android_flags.release.gn > out/Default/args.gn
+printf '\ntarget_cpu="'"$ARCH"'"' >> out/Default/args.gn
 tools/gn/out/gn gen out/Default --fail-on-unused-args
 popd
 
@@ -228,7 +291,5 @@ patch -p1 --ignore-whitespace -i patches/ignore-aidl-assertion-error.patch --no-
 
 ## Build
 pushd src
-/usr/bin/ninja -C out/Default ${chrome_target}
-#/usr/bin/ninja -C out/Default ${monochrome_target}
-/usr/bin/ninja -C out/Default ${webview_target}
+/usr/bin/ninja -C out/Default $TARGET
 popd
