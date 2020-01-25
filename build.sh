@@ -229,6 +229,6 @@ patch -p1 --ignore-whitespace -i patches/ignore-aidl-assertion-error.patch --no-
 ## Build
 pushd src
 /usr/bin/ninja -C out/Default ${chrome_target}
-/usr/bin/ninja -C out/Default ${monochrome_target}
+#/usr/bin/ninja -C out/Default ${monochrome_target}
 /usr/bin/ninja -C out/Default ${webview_target}
 popd

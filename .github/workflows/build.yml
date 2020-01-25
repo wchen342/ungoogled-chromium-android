@@ -15,9 +15,7 @@ jobs:
       - name: Check Environment
         run: |
             pwd
-            mkdir -p /Users/runner/work/_actions
-            mkdir -p /Users/runner/work/_temp/_github_home
-            mkdir -p /Users/runner/work/_temp/_github_workflow
+            mkdir -p /Users/runner/work/_actions /Users/runner/work/_temp/_github_home
             uname -r
       - name: Install Docker
         run: |
@@ -25,7 +23,6 @@ jobs:
             # brew cask install virtualbox
             sudo chown root:wheel $(brew --prefix)/opt/docker-machine-driver-xhyve/bin/docker-machine-driver-xhyve
             sudo chmod u+s $(brew --prefix)/opt/docker-machine-driver-xhyve/bin/docker-machine-driver-xhyve
-            cd $(brew --prefix)/opt/hostedtoolcache && ls -la
             brew services start docker-machine
             brew cleanup -s && rm -rf $(brew --cache)
       - name: Create Docker Machine
@@ -48,7 +45,6 @@ jobs:
             docker ps --all
             docker inspect --format "{{range .Config.Env}}{{println .}}{{end}}" ${container_name}
             docker start ${container_name}
-            docker exec ${container_name} df -h
       - name: Install dependencies
         run: |
             docker-machine env default
@@ -57,35 +53,13 @@ jobs:
             docker exec ${container_name} pacman -Sy --noconfirm
             docker exec ${container_name} pacman -S --noconfirm lib32-glibc multilib-devel
             docker exec ${container_name} pacman -S --noconfirm gnu-free-fonts jdk8-openjdk
-            docker exec ${container_name} pacman -S --noconfirm --needed base base-devel fuse2 fuse3 json-glib libva protobuf jsoncpp python python2 gperf wget rsync tar unzip curl gnupg maven yasm mesa npm ninja git clang lld gn llvm quilt
+            docker exec ${container_name} pacman -S --noconfirm --needed base base-devel json-glib libva protobuf jsoncpp python python2 gperf wget rsync tar unzip curl gnupg maven yasm mesa npm ninja git clang lld gn llvm quilt
             docker exec ${container_name} bash -c 'yes | pacman -Scc'
-      - name: Create AUR build user
-        run: |
-            docker-machine env default
-            eval "$(docker-machine env default)"
-            docker exec ${container_name} useradd builduser -m
-            docker exec ${container_name} passwd -d builduser
-            docker exec ${container_name} bash -c "printf 'builduser ALL=(ALL) ALL\n' | tee -a /etc/sudoers"
-      - name: Build MergerFS
-        run: |
-            docker-machine env default
-            eval "$(docker-machine env default)"
-            docker exec ${container_name} git clone "https://aur.archlinux.org/mergerfs.git"
-            docker exec ${container_name} chown builduser -R mergerfs
-            docker exec ${container_name} sudo -u builduser bash -c 'cd mergerfs && makepkg -sirc --noconfirm' # Clone and build a package
-      - name: Set up MergerFS
-        run: |
-            docker-machine env default
-            eval "$(docker-machine env default)"
-            docker exec ${container_name} bash -c 'mkdir /__w/_mp1 && mkdir /__w/_temp/_mp2 && mkdir /__w/workdir'
-            docker exec ${container_name} modprobe fuse
-            docker exec ${container_name} mergerfs -o allow_other,use_ino,category.create=epff /__w/_mp1:/__w/_temp/_mp2 /__w/workdir
-            docker exec ${container_name} df -h /__w/workdir
       - name: Clone repository
         run: |
             docker-machine env default
             eval "$(docker-machine env default)"
-            docker exec -w /__w/workdir ${container_name} git clone "https://github.com/wchen342/ungoogled-chromium-android" --recurse-submodules --single-branch --branch workflow
+            docker exec ${container_name} git clone "https://github.com/wchen342/ungoogled-chromium-android" --recurse-submodules --single-branch --branch workflow
       - name: Install python environment
         run: |
             docker-machine env default
@@ -99,10 +73,5 @@ jobs:
         run: |
             docker-machine env default
             eval "$(docker-machine env default)"
-            docker exec -w /__w/workdir ${container_name} bash -c 'source ~/.bashrc && conda activate py2 && cd ungoogled-chromium-android && df -h && df -h . && pwd && ./build.sh'
-      - name: Move artifact
-        run: |
-            docker-machine env default
-            eval "$(docker-machine env default)"
-            docker exec ${container_name} pwd
-            docker exec ${container_name} ls -la
+            docker exec ${container_name} bash -c 'source ~/.bashrc && conda activate py2 && cd ungoogled-chromium-android && ./build.sh'
+            docker exec ${container_name} bash -c 'cd ungoogled-chromium-android && ls src/out/Default/apks'
