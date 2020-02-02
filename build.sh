@@ -205,13 +205,17 @@ popd
 sdk_link="https://android-rebuilds.beuc.net/dl/bundles/android-sdk_user.9.0.0_r21_linux-x86.zip"
 sdk_tools_link="https://android-rebuilds.beuc.net/dl/repository/sdk-repo-linux-tools-26.1.1.zip"
 ndk_link="https://android-rebuilds.beuc.net/dl/repository/android-ndk-r20b-linux-x86_64.tar.bz2"
+
+sdk_tools_link="https://android-rebuilds.beuc.net/dl/repository/sdk-repo-linux-tools-26.1.1.zip"
+ndk_link="https://android-rebuilds.beuc.net/dl/repository/android-ndk-r20b-linux-x86_64.tar.bz2"
+
 mkdir android-rebuilds
 mkdir android-sdk
 mkdir android-ndk
 pushd android-rebuilds
-curl -O ${sdk_link} && unzip -qqo android-sdk_user.9.0.0_r21_linux-x86.zip -d ../android-sdk && rm -f android-sdk_user.9.0.0_r21_linux-x86.zip
-curl -O ${sdk_tools_link} && unzip -qqo sdk-repo-linux-tools-26.1.1.zip -d ../android-sdk/android-sdk_user.9.0.0_r21_linux-x86 && rm -f sdk-repo-linux-tools-26.1.1.zip
-curl -O ${ndk_link} && tar xjf android-ndk-r20b-linux-x86_64.tar.bz2 -C ../android-ndk && rm -f android-ndk-r20b-linux-x86_64.tar.bz2
+for i in $(seq 1 5); do curl -O ${sdk_link} && unzip -qqo android-sdk_user.9.0.0_r21_linux-x86.zip -d ../android-sdk && rm -f android-sdk_user.9.0.0_r21_linux-x86.zip && s=0 && break || s=$? && sleep 15; done; (exit $s)
+for i in $(seq 1 5); do curl -O ${sdk_tools_link} && unzip -qqo sdk-repo-linux-tools-26.1.1.zip -d ../android-sdk/android-sdk_user.9.0.0_r21_linux-x86 && rm -f sdk-repo-linux-tools-26.1.1.zip && s=0 && break || s=$? && sleep 15; done; (exit $s)
+for i in $(seq 1 5); do curl -O ${ndk_link} && tar xjf android-ndk-r20b-linux-x86_64.tar.bz2 -C ../android-ndk && rm -f android-ndk-r20b-linux-x86_64.tar.bz2 && s=0 && break || s=$? && sleep 15; done; (exit $s)
 popd
 # Move ndk files into place
 cp -a "temp/${gn_file}" android-ndk/android-ndk-r20b
