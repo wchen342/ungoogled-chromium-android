@@ -10,13 +10,22 @@ jobs:
         XHYVE_DISK_SIZE: 30000
     name: Build Chromium Android
     runs-on: macos-latest
+    strategy:
+        fail-fast: false
+        matrix:
+            arch: [arm, arm64]
+            target: [chrome_public_apk, monochrome_public_apk]
 
     steps:
+      - name: Stop if Monochrome+arm64
+        if: matrix.arch == 'arm64' && matrix.target == 'monochrome_public_apk'
+        run: exit 1  # Is there a better way to stop?
       - name: Check Environment
         run: |
             pwd
             uname -r
             system_profiler SPHardwareDataType
+            sleep $((10 + RANDOM % 20))
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Checkout submodules
@@ -36,7 +45,7 @@ jobs:
         run: |
             mkdir -p ~/.docker/machine/cache
             curl -Lo ~/.docker/machine/cache/boot2docker.iso https://github.com/boot2docker/boot2docker/releases/download/v19.03.5/boot2docker.iso
-            docker-machine create --driver xhyve default
+            for i in $(seq 1 5); do docker-machine create --driver xhyve default && s=0 && break || s=$? && docker-machine rm -f default && sleep 15; done; (exit $s)    # Retry 5 times in case of failure
             docker-machine ssh default pwd
             docker-machine ssh default id -un
             docker-machine ssh default mkdir -p /home/docker/work/_temp /home/docker/work/_actions /home/docker/work/_temp/_github_home /home/docker/work/_temp/_github_workflow
@@ -84,7 +93,7 @@ jobs:
         run: |
             docker-machine env default
             eval "$(docker-machine env default)"
-            docker exec ${container_name} bash -c 'source ~/.bashrc && conda activate py2 && cd ungoogled-chromium-android && ./build.sh -a arm64 -t chrome_public_apk'
+            docker exec ${container_name} bash -c 'source ~/.bashrc && conda activate py2 && cd ungoogled-chromium-android && ./build.sh -a ${{ matrix.arch }} -t ${{ matrix.target }}'
             docker exec ${container_name} bash -c 'ls ungoogled-chromium-android/src/out/Default/apks'
       - name: Move artifact
         env:
