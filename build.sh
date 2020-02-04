@@ -17,8 +17,8 @@ if [[ ${PIPESTATUS[0]} -ne 4 ]]; then
     exit 1
 fi
 
-OPTIONS=a:t:
-LONGOPTS=arch:,target:
+OPTIONS=da:t:
+LONGOPTS=debug,arch:,target:
 
 # -regarding ! and PIPESTATUS see above
 # -temporarily store output to be able to check for errors
@@ -33,11 +33,15 @@ fi
 # read getopt’s output this way to handle the quoting right:
 eval set -- "$PARSED"
 
-ARCH=- TARGET=-
+ARCH=- TARGET=- DEBUG=n
 
 # now enjoy the options in order and nicely split until we see --
 while true; do
     case "$1" in
+        -d|--debug)
+            DEBUG=y
+            shift
+            ;;
         -a|--arch)
             ARCH="$2"
             shift 2
@@ -67,7 +71,7 @@ if [[ "$TARGET" != "$chrome_target" ]] && [[ "$TARGET" != "$mono_target" ]] && [
     exit 5
 fi
 
-echo "arch: $ARCH, target: $TARGET"
+echo "arch: $ARCH, target: $TARGET, debug: $DEBUG"
 
 # Required tools: protobuf python python2 gperf wget rsync tar unzip curl gnupg maven yasm npm ninja git clang lld gn llvm openjdk lib32-glibc multilib-devel
 # Assuming default python to be python2.
@@ -278,7 +282,11 @@ popd
 ## Configure output folder
 pushd src
 mkdir -p out/Default
-cat ../ungoogled-chromium/flags.gn ../android_flags.gn ../android_flags.release.gn > out/Default/args.gn
+if [ "$DEBUG" = n ] ; then
+    cat ../ungoogled-chromium/flags.gn ../android_flags.gn ../android_flags.release.gn > out/Default/args.gn
+else
+    cat ../android_flags.gn ../android_flags.debug.gn > out/Default/args.gn
+fi
 printf '\ntarget_cpu="'"$ARCH"'"' >> out/Default/args.gn
 tools/gn/out/gn gen out/Default --fail-on-unused-args
 popd

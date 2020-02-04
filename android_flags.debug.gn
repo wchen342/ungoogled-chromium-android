@@ -25,6 +25,7 @@ google_default_client_secret=""
 is_debug=true
 is_official_build=false
 optimize_webui=false
+proprietary_codecs=true
 safe_browsing_mode=0
 symbol_level=1
 treat_warnings_as_errors=false
