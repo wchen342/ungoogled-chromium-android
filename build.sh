@@ -5,8 +5,8 @@ chrome_target=chrome_public_apk
 mono_target=monochrome_public_apk
 webview_target=system_webview_apk
 
-chromium_version=79.0.3945.117
-ungoogled_chromium_revision=1
+chromium_version=79.0.3945.130
+ungoogled_chromium_revision=2
 
 # Argument parser from https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash/29754866#29754866
 # -allow a command to fail with !’s side effect on errexit
