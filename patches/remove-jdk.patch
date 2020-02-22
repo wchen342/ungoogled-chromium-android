@@ -1,0 +1,21 @@
+From: Wengling Chen <feiyu2817@gmail.com>
+Date: Wed, 19 Feb 2020 16:44:20 -0500
+Subject: Remove dependency on bundled jdk
+
+---
+ testing/BUILD.gn | 5 -----
+ 1 file changed, 5 deletions(-)
+
+ diff --git a/testing/BUILD.gn b/testing/BUILD.gn
+--- a/testing/BUILD.gn
++++ b/testing/BUILD.gn
+@@ -28,9 +28,4 @@ group("run_perf_test") {
+   data_deps = [
+     ":test_scripts_shared",
+   ]
+-
+-  if (is_android) {
+-    # Required when running with bundles (to run "bundletool").
+-    data_deps += [ "//third_party/jdk:java_data" ]
+-  }
+ }

@@ -3,30 +3,28 @@ Date: Fri, 1 Nov 2019 23:01:41 +0100
 Subject: Remove dependency on com.google.android.play
 
 ---
- chrome/android/BUILD.gn                            |   1 -
- .../omaha/inline/FakeAppUpdateManagerWrapper.java  |  60 +-----
- .../inline/InlineUpdateControllerFactory.java      |  16 --
- .../omaha/inline/PlayInlineUpdateController.java   | 226 +--------------------
- components/module_installer/android/BUILD.gn       |   1 -
- third_party/google_android_play_core/BUILD.gn      |   5 -
+ chrome/android/BUILD.gn                                                                             |    1 
+ chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/FakeAppUpdateManagerWrapper.java   |   60 --
+ chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateControllerFactory.java |   16 
+ chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/PlayInlineUpdateController.java    |  226 ----------
+ components/module_installer/android/BUILD.gn                                                        |    1 
+ third_party/google_android_play_core/BUILD.gn                                                       |    5 
  6 files changed, 3 insertions(+), 306 deletions(-)
 
-diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -371,7 +371,6 @@ android_library("chrome_java") {
+@@ -337,7 +337,6 @@ android_library("chrome_java") {
+     "//third_party/cacheinvalidation:cacheinvalidation_proto_java",
      "//third_party/cct_dynamic_module:cct_dynamic_module_java",
-     "//third_party/feed:feed_lib_proto_java",
      "//third_party/gif_player:gif_player_java",
 -    "//third_party/google_android_play_core:com_google_android_play_core_java",
      "//third_party/jsr-305:jsr_305_javalib",
      "//ui/android:ui_java",
      "//ui/base/mojom:mojom_java",
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/FakeAppUpdateManagerWrapper.java b/chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/FakeAppUpdateManagerWrapper.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/FakeAppUpdateManagerWrapper.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/FakeAppUpdateManagerWrapper.java
 @@ -11,11 +11,6 @@ import android.os.Message;
-
+ 
  import androidx.annotation.IntDef;
  
 -import com.google.android.play.core.appupdate.AppUpdateInfo;
@@ -46,7 +44,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/Fa
      private static final int RESULT_IN_APP_UPDATE_FAILED = 1;
      private static final int STEP_DELAY_MS = 5000;
      private static final int TOAST_DURATION_MS = 2000;
-@@ -108,15 +103,12 @@ public class FakeAppUpdateManagerWrapper extends FakeAppUpdateManager {
+@@ -108,15 +103,12 @@ public class FakeAppUpdateManagerWrapper
              switch (event) {
                  case Event.UPDATE_AVAILABLE:
                      w.toast("Making app update available.");
@@ -62,7 +60,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/Fa
                      return;
                  case Event.TRIGGER_DOWNLOAD:
                      w.toast("Triggering download.");
-@@ -124,27 +116,21 @@ public class FakeAppUpdateManagerWrapper extends FakeAppUpdateManager {
+@@ -124,27 +116,21 @@ public class FakeAppUpdateManagerWrapper
                      return;
                  case Event.DOWNLOAD_STARTS:
                      w.toast("Download has started.");
@@ -90,7 +88,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/Fa
                      return;
                  default:
                      w.toast("Unknown event.");
-@@ -159,56 +145,12 @@ public class FakeAppUpdateManagerWrapper extends FakeAppUpdateManager {
+@@ -159,56 +145,12 @@ public class FakeAppUpdateManagerWrapper
       * @param endState at which point should the inline update flow end.
       */
      FakeAppUpdateManagerWrapper(@Type int endState) {
@@ -147,7 +145,6 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/Fa
      private void triggerDialogResponse(ChromeActivity activity, int requestCode, int resultCode) {
          if (resultCode == Activity.RESULT_OK) {
              execute(Event.USER_ACCEPTS_UPDATE);
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateControllerFactory.java b/chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateControllerFactory.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateControllerFactory.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateControllerFactory.java
 @@ -4,8 +4,6 @@
@@ -159,7 +156,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/In
  import org.chromium.base.ContextUtils;
  import org.chromium.chrome.browser.ChromeFeatureList;
  import org.chromium.chrome.browser.omaha.UpdateConfigs;
-@@ -20,20 +18,6 @@ public class InlineUpdateControllerFactory {
+@@ -20,20 +18,6 @@ public class InlineUpdateControllerFacto
      public static InlineUpdateController create(Runnable callback) {
          @FakeAppUpdateManagerWrapper.Type
          int mockInlineEndState = UpdateConfigs.getMockInlineScenarioEndState();
@@ -180,10 +177,9 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/In
  
          // No test scenario was in place, and the inline flow has not been enabled, so use a
          // controller with no functionality.
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/PlayInlineUpdateController.java b/chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/PlayInlineUpdateController.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/PlayInlineUpdateController.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/PlayInlineUpdateController.java
-@@ -10,15 +10,6 @@ import android.content.IntentSender.SendIntentException;
+@@ -10,15 +10,6 @@ import android.content.IntentSender.Send
  import androidx.annotation.IntDef;
  import androidx.annotation.Nullable;
  
@@ -199,7 +195,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/Pl
  import org.chromium.base.Log;
  import org.chromium.base.metrics.RecordHistogram;
  import org.chromium.chrome.browser.omaha.UpdateStatusProvider.UpdateState;
-@@ -32,7 +23,7 @@ import java.lang.annotation.RetentionPolicy;
+@@ -32,7 +23,7 @@ import java.lang.annotation.RetentionPol
   * in the foreground.
   */
  public class PlayInlineUpdateController
@@ -468,10 +464,9 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/Pl
      private static void recordCallFailure(@CallFailure int failure) {
          RecordHistogram.recordEnumeratedHistogram(
                  "GoogleUpdate.Inline.CallFailure", failure, CallFailure.NUM_ENTRIES);
-diff --git a/components/module_installer/android/BUILD.gn b/components/module_installer/android/BUILD.gn
 --- a/components/module_installer/android/BUILD.gn
 +++ b/components/module_installer/android/BUILD.gn
-@@ -34,7 +34,6 @@ android_library("module_installer_java") {
+@@ -35,7 +35,6 @@ android_library("module_installer_java")
      "//base:base_java",
      "//base:jni_java",
      "//components/crash/android:java",
@@ -479,7 +474,6 @@ diff --git a/components/module_installer/android/BUILD.gn b/components/module_in
    ]
  
    annotation_processor_deps = [ "//base/android/jni_generator:jni_processor" ]
-diff --git a/third_party/google_android_play_core/BUILD.gn b/third_party/google_android_play_core/BUILD.gn
 --- a/third_party/google_android_play_core/BUILD.gn
 +++ b/third_party/google_android_play_core/BUILD.gn
 @@ -3,8 +3,3 @@
@@ -491,6 +485,3 @@ diff --git a/third_party/google_android_play_core/BUILD.gn b/third_party/google_
 -  aar_path = "core-1.6.4.aar"
 -  info_path = "com_google_android_play_core.info"
 -}
--- 
-2.11.0
-

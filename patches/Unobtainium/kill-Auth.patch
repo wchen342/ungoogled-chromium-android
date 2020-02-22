@@ -8,12 +8,11 @@ Subject: kill Auth
  .../signin/SystemAccountManagerDelegate.java       | 50 ++--------------------
  3 files changed, 5 insertions(+), 76 deletions(-)
 
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninHelper.java b/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninHelper.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninHelper.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninHelper.java
-@@ -11,10 +11,6 @@ import android.content.Context;
- import android.content.SharedPreferences;
- import android.support.annotation.Nullable;
+@@ -12,10 +12,6 @@ import android.content.SharedPreferences
+ import androidx.annotation.Nullable;
+ import androidx.annotation.VisibleForTesting;
  
 -import com.google.android.gms.auth.AccountChangeEvent;
 -import com.google.android.gms.auth.GoogleAuthException;
@@ -21,7 +20,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninHe
 -
  import org.chromium.base.ContextUtils;
  import org.chromium.base.Log;
- import org.chromium.base.VisibleForTesting;
+ import org.chromium.base.task.AsyncTask;
 @@ -73,23 +69,7 @@ public class SigninHelper {
          @Override
          public List<String> getAccountChangeEvents(
@@ -47,19 +46,18 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninHe
              return new ArrayList<>(0);
          }
      }
-diff --git a/components/signin/core/browser/android/java/src/org/chromium/components/signin/AccountIdProvider.java b/components/signin/core/browser/android/java/src/org/chromium/components/signin/AccountIdProvider.java
 --- a/components/signin/core/browser/android/java/src/org/chromium/components/signin/AccountIdProvider.java
 +++ b/components/signin/core/browser/android/java/src/org/chromium/components/signin/AccountIdProvider.java
-@@ -4,8 +4,6 @@
+@@ -6,8 +6,6 @@ package org.chromium.components.signin;
  
- package org.chromium.components.signin;
+ import androidx.annotation.VisibleForTesting;
  
 -import com.google.android.gms.auth.GoogleAuthException;
 -import com.google.android.gms.auth.GoogleAuthUtil;
  import com.google.android.gms.common.ConnectionResult;
  import com.google.android.gms.common.GoogleApiAvailability;
  
-@@ -40,12 +38,7 @@ public class AccountIdProvider {
+@@ -41,12 +39,7 @@ public class AccountIdProvider {
       * @param accountName The email address of a Google account.
       */
      public String getAccountId(String accountName) {
@@ -73,7 +71,6 @@ diff --git a/components/signin/core/browser/android/java/src/org/chromium/compon
      }
  
      /**
-diff --git a/components/signin/core/browser/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java b/components/signin/core/browser/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java
 --- a/components/signin/core/browser/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java
 +++ b/components/signin/core/browser/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java
 @@ -24,9 +24,6 @@ import android.os.PatternMatcher;
@@ -86,7 +83,7 @@ diff --git a/components/signin/core/browser/android/java/src/org/chromium/compon
  import com.google.android.gms.common.ConnectionResult;
  import com.google.android.gms.common.GoogleApiAvailability;
  
-@@ -116,48 +113,18 @@ public class SystemAccountManagerDelegate implements AccountManagerDelegate {
+@@ -116,48 +113,18 @@ public class SystemAccountManagerDelegat
          // so don't report any accounts if Google Play Services are out of date.
          checkCanUseGooglePlayServices();
  
@@ -138,7 +135,7 @@ diff --git a/components/signin/core/browser/android/java/src/org/chromium/compon
      }
  
      @Override
-@@ -197,17 +164,6 @@ public class SystemAccountManagerDelegate implements AccountManagerDelegate {
+@@ -197,17 +164,6 @@ public class SystemAccountManagerDelegat
      @SuppressLint("MissingPermission")
      @Override
      public void createAddAccountIntent(Callback<Intent> callback) {
@@ -156,6 +153,3 @@ diff --git a/components/signin/core/browser/android/java/src/org/chromium/compon
      }
  
      // No permission is needed on 23+ and Chrome always has MANAGE_ACCOUNTS permission on lower APIs
--- 
-2.11.0
-

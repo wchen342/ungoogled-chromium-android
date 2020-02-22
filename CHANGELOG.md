@@ -1,3 +1,18 @@
+# 80.0.3987.106-1
+* Port some privacy related functionality from `Bromite`, including:
+  * flag to disable WebGL
+  * flag to disable motion sensors
+  * exit button and do not persist option
+  * use blank page as homepage
+  * setting for DNS-over-HTTPS (DoH)
+  * flag to disable pull-to-refresh
+* Set contextual search to `false` in native code instead of Java
+* Disable lite mode prompt
+* Build time change (not affecting users):
+  * Exclude unit tests from domain substitution
+  * Using system JDK instead of bundled one. Requires both Java-8 and Java-10 on Arch Linux.
+  * Now build with SDK 29
+
 # 79.0.3945.117-2
 * Add ChromePublic target (API 19)
 * Fix build failure for safe browsing

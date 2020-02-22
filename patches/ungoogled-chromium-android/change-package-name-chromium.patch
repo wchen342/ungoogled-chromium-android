@@ -2,14 +2,13 @@ description: change package name to allow co-existence with original Chromium
 author: Wengling Chen <feiyu2817@gmail.com>
 
 ---
- chrome/android/BUILD.gn                                       | 4 ++--
- chrome/android/java/res_chromium/values/channel_constants.xml | 2 +-
+ chrome/android/BUILD.gn                                       |    4 ++--
+ chrome/android/java/res_chromium/values/channel_constants.xml |    2 +-
  2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -34,8 +34,8 @@ import("java_sources.gni")
+@@ -35,8 +35,8 @@ import("java_sources.gni")
  import("static_initializers.gni")
  import("trichrome.gni")
  
@@ -20,7 +19,6 @@ diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
  
  chrome_public_jinja_variables =
      default_chrome_public_jinja_variables +
-diff --git a/chrome/android/java/res_chromium/values/channel_constants.xml b/chrome/android/java/res_chromium/values/channel_constants.xml
 --- a/chrome/android/java/res_chromium/values/channel_constants.xml
 +++ b/chrome/android/java/res_chromium/values/channel_constants.xml
 @@ -5,7 +5,7 @@

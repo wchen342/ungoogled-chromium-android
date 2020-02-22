@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
 set -eux -o pipefail
 
+# Required tools: protobuf python python2 gperf wget rsync tar unzip curl gnupg maven yasm npm ninja gn nodejs git clang lld gn llvm jdk8-openjdk jre8-openjdk-headless jdk10-openjdk lib32-glibc multilib-devel
+# Assuming default python to be python2.
+
 chrome_target=chrome_public_apk
 mono_target=monochrome_public_apk
 webview_target=system_webview_apk
 
-chromium_version=79.0.3945.130
-ungoogled_chromium_revision=2
+chromium_version=80.0.3987.106
+ungoogled_chromium_revision=1
 
 # Argument parser from https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash/29754866#29754866
 # -allow a command to fail with !’s side effect on errexit
@@ -73,9 +76,6 @@ fi
 
 echo "arch: $ARCH, target: $TARGET, debug: $DEBUG"
 
-# Required tools: protobuf python python2 gperf wget rsync tar unzip curl gnupg maven yasm npm ninja git clang lld gn llvm openjdk lib32-glibc multilib-devel
-# Assuming default python to be python2.
-
 ## Clone ungoogled-chromium repo
 git clone https://github.com/Eloston/ungoogled-chromium.git -b ${chromium_version}-${ungoogled_chromium_revision}
 
@@ -91,6 +91,7 @@ git remote add origin https://chromium.googlesource.com/chromium/tools/depot_too
 git fetch --depth 1 --no-tags origin "${depot_tools_commit}"
 git reset --hard FETCH_HEAD
 popd
+OLD_PATH=$PATH
 export PATH="$(pwd -P)/depot_tools:$PATH"
 pushd src/third_party
 ln -s ../../depot_tools
@@ -103,15 +104,6 @@ gclient.py sync --nohooks --no-history --shallow --revision=${chromium_version}
 
 
 ## Fix repos
-feed_commit=$(grep "'feed_revision':" src/DEPS | cut -d\' -f4)
-mkdir src/third_party/feed/src
-pushd src/third_party/feed/src
-git init
-git remote add origin https://chromium.googlesource.com/feed
-git fetch --depth 1 --no-tags origin "${feed_commit}"
-git reset --hard FETCH_HEAD
-popd
-
 webrtc_commit=$(grep 'webrtc_git.*/src\.git' src/DEPS | cut -d\' -f8)
 mkdir src/third_party/webrtc
 pushd src/third_party/webrtc
@@ -130,22 +122,25 @@ git fetch --depth 1 --no-tags origin "${libsync_commit}"
 git reset --hard FETCH_HEAD
 popd
 
-gn_commit=2426c173819e74a9dad7a2ab647cfa1506f6007f
-mv src/tools/gn src/tools/gn.bak
-git clone https://gn.googlesource.com/gn src/tools/gn
-pushd src/tools/gn
-git checkout ${gn_commit}
-popd
-cp -r src/tools/gn.bak/bootstrap src/tools/gn
-
 ## Hooks
 python src/build/util/lastchange.py -o src/build/util/LASTCHANGE
 python src/tools/download_cros_provided_profile.py --newest_state=src/chrome/android/profiles/newest.txt --local_state=src/chrome/android/profiles/local.txt --output_name=src/chrome/android/profiles/afdo.prof --gs_url_base=chromeos-prebuilt/afdo-job/llvm
 python src/build/util/lastchange.py -m GPU_LISTS_VERSION --revision-id-only --header src/gpu/config/gpu_lists_version.h
 python src/build/util/lastchange.py -m SKIA_COMMIT_HASH -s src/third_party/skia --header src/skia/ext/skia_commit_hash.h
 # New binary dependency: node, caused by webui
-src/third_party/node/update_node_binaries
+mkdir -p src/third_party/node/linux/node-linux-x64/bin
+ln -s /usr/bin/node src/third_party/node/linux/node-linux-x64/bin/
 src/third_party/node/update_npm_deps
+# Remove bundled jdk
+# java8 bundled with Arch seems to be a little outdated, so actually need to use java and javac from java10
+pushd src && patch -p1 --ignore-whitespace -i ../patches/remove-jdk.patch --no-backup-if-mismatch && popd
+rm -rf src/third_party/jdk
+mkdir -p src/third_party/jdk/current/bin
+ln -s /usr/bin/java src/third_party/jdk/current/bin/
+ln -s /usr/bin/javac src/third_party/jdk/current/bin/
+# jre
+mkdir -p src/third_party/jdk/extras/java_8
+ln -s /usr/lib/jvm/java-8-openjdk/jre src/third_party/jdk/extras/java_8
 
 
 ## Run ungoogled-chromium scripts
@@ -170,10 +165,10 @@ cp safe_browsing_proto_files/webprotect.pb.h src/components/safe_browsing/proto/
 
 
 ## Prepare Android SDK/NDK
+SDK_DIR="android-sdk_eng.10.0.0_r14_linux-x86"
 
 # Create symbol links to sdk folders
 # The rebuild sdk has a different folder structure from the checked out version, so it is easier to create symbol links
-# Old aapt no longer works. Need to use Maven version until a rebuild of SDK 29 exists.
 #pushd src/third_party/android_build_tools
 #rm -rf aapt2
 #ln -s ../../../android-sdk/android-sdk_user.9.0.0_r21_linux-x86/build-tools/android-9 aapt2
@@ -184,21 +179,19 @@ if [[ -d "$DIRECTORY" ]]; then
 fi
 mkdir "${DIRECTORY}" && pushd ${DIRECTORY}
 # rm -rf add-ons emulator licenses platforms sources tools-lint build-tools ndk-bundle platform-tools tools
-mkdir build-tools && ln -s ../../../../../android-sdk/android-sdk_user.9.0.0_r21_linux-x86/build-tools/android-9 build-tools/29.0.2
+mkdir build-tools && ln -s ../../../../../android-sdk/${SDK_DIR}/build-tools/android-10 build-tools/29.0.2
 mkdir platforms
-ln -s ../../../../../android-sdk/android-sdk_user.9.0.0_r21_linux-x86/platforms/android-9 platforms/android-28
-ln -s ../../../../android-sdk/android-sdk_user.9.0.0_r21_linux-x86/platform-tools platform-tools
-ln -s ../../../../android-sdk/android-sdk_user.9.0.0_r21_linux-x86/tools tools
+ln -s ../../../../../android-sdk/${SDK_DIR}/platforms/android-10 platforms/android-29
+ln -s ../../../../android-sdk/${SDK_DIR}/platform-tools platform-tools
+ln -s ../../../../android-sdk/${SDK_DIR}/tools tools
 popd
 
 # remove ndk folders
 DIRECTORY="src/third_party/android_ndk"
 gn_file="BUILD.gn"
-mkdir "temp"
-#cp -a "${DIRECTORY}/${gn_file}" android-ndk/android-ndk-r20b
-#cp -ar "${DIRECTORY}/toolchains/llvm/prebuilt/linux-x86_64" android-ndk/android-ndk-r20b/toolchains/llvm/prebuilt    # Need libgcc.a otherwise compilation will fail
-cp -a "${DIRECTORY}/${gn_file}" temp
-cp -ar "${DIRECTORY}/toolchains/llvm/prebuilt/linux-x86_64" temp    # Need libgcc.a otherwise compilation will fail
+mkdir "ndk_temp"
+cp -a "${DIRECTORY}/${gn_file}" ndk_temp
+cp -ar "${DIRECTORY}/toolchains/llvm/prebuilt/linux-x86_64" ndk_temp    # Need libgcc.a otherwise compilation will fail
 pushd "${DIRECTORY}"
 cd ..
 rm -rf android_ndk
@@ -206,10 +199,7 @@ ln -s ../../android-ndk/android-ndk-r20b android_ndk
 popd
 
 # This is Sylvain Beucler's libre Android rebuild
-sdk_link="https://android-rebuilds.beuc.net/dl/bundles/android-sdk_user.9.0.0_r21_linux-x86.zip"
-sdk_tools_link="https://android-rebuilds.beuc.net/dl/repository/sdk-repo-linux-tools-26.1.1.zip"
-ndk_link="https://android-rebuilds.beuc.net/dl/repository/android-ndk-r20b-linux-x86_64.tar.bz2"
-
+sdk_link="https://android-rebuilds.beuc.net/dl/bundles/android-sdk_eng.10.0.0_r14_linux-x86.zip"
 sdk_tools_link="https://android-rebuilds.beuc.net/dl/repository/sdk-repo-linux-tools-26.1.1.zip"
 ndk_link="https://android-rebuilds.beuc.net/dl/repository/android-ndk-r20b-linux-x86_64.tar.bz2"
 
@@ -217,37 +207,19 @@ mkdir android-rebuilds
 mkdir android-sdk
 mkdir android-ndk
 pushd android-rebuilds
-for i in $(seq 1 5); do curl -O ${sdk_link} && unzip -qqo android-sdk_user.9.0.0_r21_linux-x86.zip -d ../android-sdk && rm -f android-sdk_user.9.0.0_r21_linux-x86.zip && s=0 && break || s=$? && sleep 15; done; (exit $s)
-for i in $(seq 1 5); do curl -O ${sdk_tools_link} && unzip -qqo sdk-repo-linux-tools-26.1.1.zip -d ../android-sdk/android-sdk_user.9.0.0_r21_linux-x86 && rm -f sdk-repo-linux-tools-26.1.1.zip && s=0 && break || s=$? && sleep 15; done; (exit $s)
+for i in $(seq 1 5); do curl -O ${sdk_link} && unzip -qqo android-sdk_eng.10.0.0_r14_linux-x86.zip -d ../android-sdk && rm -f android-sdk_eng.10.0.0_r14_linux-x86.zip && s=0 && break || s=$? && sleep 15; done; (exit $s)
+for i in $(seq 1 5); do curl -O ${sdk_tools_link} && unzip -qqo sdk-repo-linux-tools-26.1.1.zip -d ../android-sdk/android-sdk_eng.10.0.0_r14_linux-x86 && rm -f sdk-repo-linux-tools-26.1.1.zip && s=0 && break || s=$? && sleep 15; done; (exit $s)
 for i in $(seq 1 5); do curl -O ${ndk_link} && tar xjf android-ndk-r20b-linux-x86_64.tar.bz2 -C ../android-ndk && rm -f android-ndk-r20b-linux-x86_64.tar.bz2 && s=0 && break || s=$? && sleep 15; done; (exit $s)
 popd
+
 # Move ndk files into place
-cp -a "temp/${gn_file}" android-ndk/android-ndk-r20b
-cp -ar "temp/linux-x86_64" android-ndk/android-ndk-r20b/toolchains/llvm/prebuilt
-rm -rf "temp"
+cp -a "ndk_temp/${gn_file}" android-ndk/android-ndk-r20b
+cp -ar "ndk_temp/linux-x86_64" android-ndk/android-ndk-r20b/toolchains/llvm/prebuilt
+rm -rf "ndk_temp"
 
 
 ## Compile third-party binaries
-# error-prone, from Maven repo
-mkdir -p src/third_party/errorprone/lib
-pushd src/third_party/errorprone/lib
-version=2.3.1
-mvn_url="https://repo1.maven.org/maven2/com/google/errorprone/error_prone_ant/${version}"
-curl "${mvn_url}/error_prone_ant-${version}.jar" -O
-curl "${mvn_url}/error_prone_ant-${version}.jar.asc" -O
-echo -e "\033[0;33mThis will add a new key to your GPG keyring! \033[0m"
-gpg --recv-keys EE9E7DC9D92FC896
-gpg --verify "error_prone_ant-${version}.jar.asc" "error_prone_ant-${version}.jar"
-popd
-# closure-compiler
-DIRECTORY="src/third_party/closure_compiler"
-mkdir "${DIRECTORY}"/temp && pushd ${DIRECTORY}/temp
-git clone https://github.com/google/closure-compiler && cd closure-compiler
-mvn -DskipTests -pl externs/pom.xml,pom-main.xml,pom-main-shaded.xml
-cp -a target/closure-compiler-1.0-SNAPSHOT.jar ../../compiler/compiler.jar
-cd ../.. && rm -rf temp
-popd
-# eu-strip can be re-compiled with -Wno-error, but it is probably not a good idea
+# eu-strip is re-compiled with -Wno-error
 patch -p1 --ignore-whitespace -i patches/eu-strip-build-script.patch --no-backup-if-mismatch
 pushd src/buildtools/third_party/eu-strip
 ./build.sh
@@ -272,14 +244,8 @@ fi
 python3 ungoogled-chromium/utils/domain_substitution.py apply -r ungoogled-chromium/domain_regex.list -f ${substitution_list_2} -c ${cache_file} src
 
 
-## Genarate gn file
-pushd src/tools/gn
-build/gen.py
-/usr/bin/ninja -C out gn
-popd
-
-
 ## Configure output folder
+export PATH=$OLD_PATH  # remove depot_tools from PATH
 pushd src
 mkdir -p out/Default
 if [ "$DEBUG" = n ] ; then
@@ -287,8 +253,8 @@ if [ "$DEBUG" = n ] ; then
 else
     cat ../android_flags.gn ../android_flags.debug.gn > out/Default/args.gn
 fi
-printf '\ntarget_cpu="'"$ARCH"'"' >> out/Default/args.gn
-tools/gn/out/gn gen out/Default --fail-on-unused-args
+printf '\ntarget_cpu="'"$ARCH"'"\n' >> out/Default/args.gn
+gn gen out/Default --fail-on-unused-args
 popd
 
 
@@ -303,5 +269,5 @@ patch -p1 --ignore-whitespace -i patches/ignore-aidl-assertion-error.patch --no-
 
 ## Build
 pushd src
-/usr/bin/ninja -C out/Default $TARGET
+ninja -C out/Default $TARGET
 popd

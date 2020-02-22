@@ -1,0 +1,61 @@
+From: Serg <serg.zhukovsky@gmail.com>
+Date: Tue, 31 Jan 2017 22:12:27 -0500
+Subject: Add exit menu item
+
+Corrected Exit functionality
+---
+ chrome/android/java/res/menu/main_menu.xml                                             |    2 ++
+ chrome/android/java/src/org/chromium/chrome/browser/ChromeActivity.java                |    2 ++
+ chrome/android/java/src/org/chromium/chrome/browser/init/ChromeLifetimeController.java |    6 +++++-
+ chrome/browser/ui/android/strings/android_chrome_strings.grd                           |    3 +++
+ 4 files changed, 12 insertions(+), 1 deletion(-)
+
+--- a/chrome/android/java/res/menu/main_menu.xml
++++ b/chrome/android/java/res/menu/main_menu.xml
+@@ -85,6 +85,8 @@
+             android:title="@string/menu_help" />
+         <item android:id="@+id/enter_vr_id"
+             android:title="@string/enter_vr" />
++        <item android:id="@+id/exit_id"
++            android:title="@string/menu_exit" />
+     </group>
+ 
+     <!-- Items shown only in the tab switcher -->
+--- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeActivity.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeActivity.java
+@@ -2211,6 +2211,8 @@ public abstract class ChromeActivity<C e
+             AddToHomescreenCoordinator.showForAppMenu(
+                     this, getWindowAndroid(), getModalDialogManager(), currentTab.getWebContents());
+             RecordUserAction.record("MobileMenuAddToHomescreen");
++        } else if (id == R.id.exit_id) {
++            ApplicationLifetime.terminate(false);
+         } else if (id == R.id.open_webapk_id) {
+             Context context = ContextUtils.getApplicationContext();
+             String packageName =
+--- a/chrome/android/java/src/org/chromium/chrome/browser/init/ChromeLifetimeController.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/init/ChromeLifetimeController.java
+@@ -82,7 +82,11 @@ class ChromeLifetimeController implement
+ 
+         // Kick off a timer to kill the process after a delay, which fires only if the Activities
+         // take too long to be finished.
+-        mHandler.postDelayed(mRestartRunnable, WATCHDOG_DELAY_MS);
++        if (restart) {
++            mHandler.postDelayed(mRestartRunnable, WATCHDOG_DELAY_MS);
++        } else {
++            fireBrowserRestartActivityIntent();
++        }
+     }
+ 
+     @Override
+--- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
++++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
+@@ -2939,6 +2939,9 @@ To change this setting, <ph name="BEGIN_
+       <message name="IDS_MENU_PREFERENCES" desc="Menu item for opening browser preferences. [CHAR-LIMIT=27]">
+         Settings
+       </message>
++      <message name="IDS_MENU_EXIT" desc="Menu item for exit browser. [CHAR-LIMIT=27]">
++        Exit
++      </message>
+       <message name="IDS_MENU_CLOSE_ALL_TABS" desc="Menu item for closing all open tabs. [CHAR-LIMIT=27]">
+         Close all tabs
+       </message>

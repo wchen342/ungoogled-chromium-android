@@ -3,33 +3,32 @@ Date: Sat, 2 Nov 2019 08:00:04 +0100
 Subject: Remove dependency on com.google.android.gms.cast
 
 ---
- chrome/android/BUILD.gn                            |   6 --
- chrome/android/features/media_router/BUILD.gn      |   2 -
- .../browser/media/router/CastSessionUtil.java      |  35 -------
- .../chrome/browser/media/router/MediaSink.java     |  44 +-------
- .../browser/media/router/MediaStatusBridge.java    |  40 ++-----
- .../router/caf/BaseNotificationController.java     |  46 ---------
- .../media/router/caf/BaseSessionController.java    | 115 +--------------------
- .../router/caf/CafBaseMediaRouteProvider.java      | 103 +-----------------
- .../media/router/caf/CafMediaRouteProvider.java    |  16 ---
- .../media/router/caf/CafMessageHandler.java        |  97 +----------------
- .../browser/media/router/caf/CastMediaSource.java  |  10 +-
- .../media/router/caf/CastOptionsProvider.java      |  22 +---
- .../media/router/caf/CastSessionController.java    |  84 ---------------
- .../chrome/browser/media/router/caf/CastUtils.java |   6 --
- .../remoting/CafExpandedControllerActivity.java    |  24 +----
- .../caf/remoting/FlingingControllerAdapter.java    |  61 -----------
- .../router/caf/remoting/RemotingMediaSource.java   |   8 +-
- .../caf/remoting/RemotingSessionController.java    |  21 ----
- chrome/android/java/AndroidManifest.xml            |  28 -----
- chrome/test/android/cast_emulator/BUILD.gn         |   1 -
- third_party/android_deps/BUILD.gn                  |  33 ------
+ chrome/android/BUILD.gn                                                                                                                |    6 
+ chrome/android/features/media_router/BUILD.gn                                                                                          |    2 
+ chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/CastSessionUtil.java                            |   35 ---
+ chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/MediaSink.java                                  |   44 ---
+ chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/MediaStatusBridge.java                          |   40 ---
+ chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/BaseNotificationController.java             |   46 ----
+ chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/BaseSessionController.java                  |  115 ----------
+ chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CafBaseMediaRouteProvider.java              |  103 --------
+ chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CafMediaRouteProvider.java                  |   16 -
+ chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CafMessageHandler.java                      |   97 --------
+ chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CastMediaSource.java                        |   10 
+ chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CastOptionsProvider.java                    |   22 -
+ chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CastSessionController.java                  |   84 -------
+ chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CastUtils.java                              |    6 
+ chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/remoting/CafExpandedControllerActivity.java |   24 --
+ chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/remoting/FlingingControllerAdapter.java     |   61 -----
+ chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/remoting/RemotingMediaSource.java           |    8 
+ chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/remoting/RemotingSessionController.java     |   21 -
+ chrome/android/java/AndroidManifest.xml                                                                                                |   28 --
+ chrome/test/android/cast_emulator/BUILD.gn                                                                                             |    1 
+ third_party/android_deps/BUILD.gn                                                                                                      |   33 --
  21 files changed, 26 insertions(+), 776 deletions(-)
 
-diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -260,8 +260,6 @@ android_library("chrome_java") {
+@@ -218,8 +218,6 @@ android_library("chrome_java") {
      ":usage_stats_proto_java",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
@@ -38,7 +37,7 @@ diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
      "$google_play_services_package:google_play_services_fido_java",
      "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
-@@ -657,8 +655,6 @@ junit_binary("chrome_junit_tests") {
+@@ -621,8 +619,6 @@ junit_binary("chrome_junit_tests") {
      ":partner_location_descriptor_proto_java",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
@@ -47,7 +46,7 @@ diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
      "$google_play_services_package:google_play_services_fido_java",
      "//base:base_java",
      "//base:base_java_test_support",
-@@ -763,8 +759,6 @@ android_library("chrome_test_java") {
+@@ -734,8 +730,6 @@ android_library("chrome_test_java") {
      ":partner_location_descriptor_proto_java",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
@@ -56,10 +55,9 @@ diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
      "$google_play_services_package:google_play_services_fido_java",
      "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
-diff --git a/chrome/android/features/media_router/BUILD.gn b/chrome/android/features/media_router/BUILD.gn
 --- a/chrome/android/features/media_router/BUILD.gn
 +++ b/chrome/android/features/media_router/BUILD.gn
-@@ -11,8 +11,6 @@ android_library("java") {
+@@ -12,8 +12,6 @@ android_library("java") {
      ":java_resources",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
@@ -68,7 +66,6 @@ diff --git a/chrome/android/features/media_router/BUILD.gn b/chrome/android/feat
      "//base:base_java",
      "//base:jni_java",
      "//chrome/android:chrome_java",
-diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/CastSessionUtil.java b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/CastSessionUtil.java
 --- a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/CastSessionUtil.java
 +++ b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/CastSessionUtil.java
 @@ -4,9 +4,6 @@
@@ -118,11 +115,10 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
 -        if (album != null) notificationMetadata.setAlbum(album);
 -    }
  }
-diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/MediaSink.java b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/MediaSink.java
 --- a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/MediaSink.java
 +++ b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/MediaSink.java
-@@ -9,41 +9,24 @@ import android.support.v7.media.MediaRouter.RouteInfo;
-
+@@ -9,41 +9,24 @@ import android.support.v7.media.MediaRou
+ 
  import androidx.annotation.Nullable;
  
 -import com.google.android.gms.cast.CastDevice;
@@ -219,7 +215,6 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
          return null;
      }
  }
-diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/MediaStatusBridge.java b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/MediaStatusBridge.java
 --- a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/MediaStatusBridge.java
 +++ b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/MediaStatusBridge.java
 @@ -4,10 +4,6 @@
@@ -233,7 +228,7 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
  import org.chromium.base.annotations.CalledByNative;
  import org.chromium.base.annotations.JNINamespace;
  
-@@ -17,11 +13,6 @@ import org.chromium.base.annotations.JNINamespace;
+@@ -17,11 +13,6 @@ import org.chromium.base.annotations.JNI
   */
  @JNINamespace("media_router")
  public class MediaStatusBridge {
@@ -352,10 +347,9 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
 +        return 0;
      }
  }
-diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/BaseNotificationController.java b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/BaseNotificationController.java
 --- a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/BaseNotificationController.java
 +++ b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/BaseNotificationController.java
-@@ -6,10 +6,6 @@ package org.chromium.chrome.browser.media.router.caf;
+@@ -6,10 +6,6 @@ package org.chromium.chrome.browser.medi
  
  import android.content.Intent;
  
@@ -366,7 +360,7 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
  import org.chromium.chrome.browser.media.ui.MediaNotificationInfo;
  import org.chromium.chrome.browser.media.ui.MediaNotificationListener;
  import org.chromium.chrome.browser.media.ui.MediaNotificationManager;
-@@ -59,20 +55,6 @@ public abstract class BaseNotificationController
+@@ -59,20 +55,6 @@ public abstract class BaseNotificationCo
      public void onStatusUpdated() {
          if (mNotificationBuilder == null) return;
          if (!mSessionController.isConnected()) return;
@@ -387,7 +381,7 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
      }
  
      /** Called when media metadata updated. */
-@@ -88,30 +70,6 @@ public abstract class BaseNotificationController
+@@ -88,30 +70,6 @@ public abstract class BaseNotificationCo
          mNotificationBuilder.setMetadata(notificationMetadata);
  
          if (!mSessionController.isConnected()) return;
@@ -418,7 +412,7 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
      }
  
      /////////////////////////////////////////////////////////////////////////////////////////////
-@@ -120,15 +78,11 @@ public abstract class BaseNotificationController
+@@ -120,15 +78,11 @@ public abstract class BaseNotificationCo
      @Override
      public void onPlay(int actionSource) {
          if (!mSessionController.isConnected()) return;
@@ -434,10 +428,9 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
      }
  
      @Override
-diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/BaseSessionController.java b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/BaseSessionController.java
 --- a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/BaseSessionController.java
 +++ b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/BaseSessionController.java
-@@ -6,12 +6,6 @@ package org.chromium.chrome.browser.media.router.caf;
+@@ -6,12 +6,6 @@ package org.chromium.chrome.browser.medi
  
  import androidx.annotation.Nullable;
  
@@ -450,7 +443,7 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
  import org.json.JSONArray;
  import org.json.JSONException;
  import org.json.JSONObject;
-@@ -50,16 +44,13 @@ public abstract class BaseSessionController {
+@@ -50,16 +44,13 @@ public abstract class BaseSessionControl
      }
  
      private final Random mRequestIdGenerator = new Random();
@@ -467,7 +460,7 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
      }
  
      public void addCallback(Callback callback) {
-@@ -72,9 +63,6 @@ public abstract class BaseSessionController {
+@@ -72,9 +63,6 @@ public abstract class BaseSessionControl
  
      public void requestSessionLaunch() {
          mRouteCreationInfo = mProvider.getPendingCreateRouteRequestInfo();
@@ -477,7 +470,7 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
          // When the user clicks a route on the MediaRouteChooserDialog, we intercept the click event
          // and do not select the route. Instead the route selection is postponed to here. This will
          // trigger CAF to launch the session.
-@@ -93,60 +81,18 @@ public abstract class BaseSessionController {
+@@ -93,60 +81,18 @@ public abstract class BaseSessionControl
          return mRouteCreationInfo;
      }
  
@@ -539,7 +532,7 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
      }
  
      private void updateMediaSessionId(String message) {
-@@ -171,29 +117,6 @@ public abstract class BaseSessionController {
+@@ -171,29 +117,6 @@ public abstract class BaseSessionControl
  
      private void updateRemoteMediaClient(String message) {
          if (!isConnected()) return;
@@ -569,7 +562,7 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
      }
  
      /** Called when session started. */
-@@ -210,40 +133,6 @@ public abstract class BaseSessionController {
+@@ -210,40 +133,6 @@ public abstract class BaseSessionControl
          return mProvider;
      }
  
@@ -610,7 +603,7 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
      @Nullable
      public FlingingController getFlingingController() {
          return null;
-@@ -254,7 +143,7 @@ public abstract class BaseSessionController {
+@@ -254,7 +143,7 @@ public abstract class BaseSessionControl
       * {@link CastSession#getSessionId()} is final.
       */
      public String getSessionId() {
@@ -619,7 +612,6 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
      }
  
      private void notifyCallback(NotifyCallbackAction action) {
-diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CafBaseMediaRouteProvider.java b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CafBaseMediaRouteProvider.java
 --- a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CafBaseMediaRouteProvider.java
 +++ b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CafBaseMediaRouteProvider.java
 @@ -12,9 +12,6 @@ import androidx.annotation.NonNull;
@@ -641,7 +633,7 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
      private static final String TAG = "CafMR";
  
      protected static final List<MediaSink> NO_SINKS = Collections.emptyList();
-@@ -154,7 +151,6 @@ public abstract class CafBaseMediaRouteProvider
+@@ -154,7 +151,6 @@ public abstract class CafBaseMediaRouteP
              // current session and clean up the routes (can't wait for session ending as the signal
              // might be delayed).
              sessionController().endSession();
@@ -649,7 +641,7 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
          }
          if (mPendingCreateRouteRequestInfo != null) {
              cancelPendingRequest("Request replaced");
-@@ -183,9 +179,6 @@ public abstract class CafBaseMediaRouteProvider
+@@ -183,9 +179,6 @@ public abstract class CafBaseMediaRouteP
              mManager.onRouteRequestError("The sink does not exist", nativeRequestId);
          }
  
@@ -659,7 +651,7 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
          mPendingCreateRouteRequestInfo = new CreateRouteRequestInfo(source, sink, presentationId,
                  origin, tabId, isIncognito, nativeRequestId, targetRouteInfo);
  
-@@ -212,100 +205,6 @@ public abstract class CafBaseMediaRouteProvider
+@@ -212,100 +205,6 @@ public abstract class CafBaseMediaRouteP
          removeRoute(routeId, /* error= */ null);
      }
  
@@ -760,7 +752,6 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
      private void cancelPendingRequest(String error) {
          if (mPendingCreateRouteRequestInfo == null) return;
  
-diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CafMediaRouteProvider.java b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CafMediaRouteProvider.java
 --- a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CafMediaRouteProvider.java
 +++ b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CafMediaRouteProvider.java
 @@ -12,8 +12,6 @@ import androidx.annotation.NonNull;
@@ -772,11 +763,10 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
  import org.chromium.base.Log;
  import org.chromium.chrome.browser.media.router.ChromeMediaRouter;
  import org.chromium.chrome.browser.media.router.ClientRecord;
-@@ -148,20 +146,6 @@ public class CafMediaRouteProvider extends CafBaseMediaRouteProvider {
-         return mMessageHandler;
+@@ -149,20 +147,6 @@ public class CafMediaRouteProvider exten
      }
  
--    @Override
+     @Override
 -    protected void handleSessionStart(CastSession session, String sessionId) {
 -        super.handleSessionStart(session, sessionId);
 -
@@ -790,15 +780,15 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
 -        sessionController().getSession().getRemoteMediaClient().requestStatus();
 -    }
 -
-     @Override
+-    @Override
      protected void addRoute(
              MediaRoute route, String origin, int tabId, int nativeRequestId, boolean wasLaunched) {
-diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CafMessageHandler.java b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CafMessageHandler.java
+         super.addRoute(route, origin, tabId, nativeRequestId, wasLaunched);
 --- a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CafMessageHandler.java
 +++ b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CafMessageHandler.java
-@@ -11,10 +11,6 @@ import android.support.v4.util.ArrayMap;
- import android.text.TextUtils;
- import android.util.SparseArray;
+@@ -13,10 +13,6 @@ import android.util.SparseArray;
+ 
+ import androidx.annotation.VisibleForTesting;
  
 -import com.google.android.gms.cast.ApplicationMetadata;
 -import com.google.android.gms.common.api.PendingResult;
@@ -807,7 +797,7 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
  import org.json.JSONArray;
  import org.json.JSONException;
  import org.json.JSONObject;
-@@ -344,49 +340,7 @@ public class CafMessageHandler {
+@@ -345,49 +341,7 @@ public class CafMessageHandler {
              final int sequenceNumber) throws JSONException {
          if (volumeMessage == null) return false;
          if (!mSessionController.isConnected()) return false;
@@ -858,7 +848,7 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
      }
  
      @VisibleForTesting
-@@ -674,19 +628,11 @@ public class CafMessageHandler {
+@@ -675,19 +629,11 @@ public class CafMessageHandler {
          try {
              // "volume" is a part of "receiver" initialized below.
              JSONObject jsonVolume = new JSONObject();
@@ -878,7 +868,7 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
              jsonReceiver.put("displayStatus", null);
              jsonReceiver.put("receiverType", "cast");
  
-@@ -699,23 +645,14 @@ public class CafMessageHandler {
+@@ -700,23 +646,14 @@ public class CafMessageHandler {
  
              JSONObject jsonMessage = new JSONObject();
              jsonMessage.put("sessionId", mSessionController.getSessionId());
@@ -904,7 +894,7 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
  
              return jsonMessage.toString();
          } catch (JSONException e) {
-@@ -796,32 +733,6 @@ public class CafMessageHandler {
+@@ -797,32 +734,6 @@ public class CafMessageHandler {
      boolean sendStringCastMessage(
              String message, String namespace, String clientId, int sequenceNumber) {
          if (!mSessionController.isConnected()) return false;
@@ -938,11 +928,10 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
 +        return false;
      }
  }
-diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CastMediaSource.java b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CastMediaSource.java
 --- a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CastMediaSource.java
 +++ b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CastMediaSource.java
-@@ -9,8 +9,6 @@ import android.support.v7.media.MediaRouteSelector;
-
+@@ -9,8 +9,6 @@ import android.support.v7.media.MediaRou
+ 
  import androidx.annotation.Nullable;
  
 -import com.google.android.gms.cast.CastMediaControlIntent;
@@ -950,7 +939,7 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
  import org.chromium.chrome.browser.media.router.MediaSource;
  
  import java.util.Arrays;
-@@ -106,13 +104,7 @@ public class CastMediaSource implements MediaSource {
+@@ -106,13 +104,7 @@ public class CastMediaSource implements
       */
      @Override
      public MediaRouteSelector buildRouteSelector() {
@@ -965,10 +954,9 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
      }
  
      /**
-diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CastOptionsProvider.java b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CastOptionsProvider.java
 --- a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CastOptionsProvider.java
 +++ b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CastOptionsProvider.java
-@@ -6,28 +6,8 @@ package org.chromium.chrome.browser.media.router.caf;
+@@ -6,28 +6,8 @@ package org.chromium.chrome.browser.medi
  
  import android.content.Context;
  
@@ -998,10 +986,9 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
 -    }
 +public class CastOptionsProvider {
  }
-diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CastSessionController.java b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CastSessionController.java
 --- a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CastSessionController.java
 +++ b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CastSessionController.java
-@@ -7,11 +7,6 @@ package org.chromium.chrome.browser.media.router.caf;
+@@ -7,11 +7,6 @@ package org.chromium.chrome.browser.medi
  import androidx.annotation.NonNull;
  import androidx.annotation.VisibleForTesting;
  
@@ -1013,7 +1000,7 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
  import org.chromium.base.Log;
  
  import java.util.ArrayList;
-@@ -24,12 +19,10 @@ public class CastSessionController extends BaseSessionController {
+@@ -24,12 +19,10 @@ public class CastSessionController exten
      private static final String TAG = "CafSessionCtrl";
  
      private List<String> mNamespaces = new ArrayList<String>();
@@ -1026,7 +1013,7 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
          mNotificationController = new CafNotificationController(this);
      }
  
-@@ -37,30 +30,6 @@ public class CastSessionController extends BaseSessionController {
+@@ -37,30 +30,6 @@ public class CastSessionController exten
          return mNamespaces;
      }
  
@@ -1057,7 +1044,7 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
      @Override
      public void onSessionEnded() {
          getMessageHandler().onSessionEnded();
-@@ -72,24 +41,6 @@ public class CastSessionController extends BaseSessionController {
+@@ -72,24 +41,6 @@ public class CastSessionController exten
          return mNotificationController;
      }
  
@@ -1082,7 +1069,7 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
      private void onApplicationStatusChanged() {
          updateNamespaces();
  
-@@ -100,53 +51,18 @@ public class CastSessionController extends BaseSessionController {
+@@ -100,53 +51,18 @@ public class CastSessionController exten
      @VisibleForTesting
      void updateNamespaces() {
          if (!isConnected()) return;
@@ -1136,7 +1123,6 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
      }
  
      @NonNull
-diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CastUtils.java b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CastUtils.java
 --- a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CastUtils.java
 +++ b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CastUtils.java
 @@ -4,16 +4,10 @@
@@ -1156,10 +1142,9 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
  
      /**
       * Compares two origins. Empty origin strings correspond to unique origins in
-diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/remoting/CafExpandedControllerActivity.java b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/remoting/CafExpandedControllerActivity.java
 --- a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/remoting/CafExpandedControllerActivity.java
 +++ b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/remoting/CafExpandedControllerActivity.java
-@@ -44,15 +44,11 @@ public class CafExpandedControllerActivity
+@@ -44,15 +44,11 @@ public class CafExpandedControllerActivi
          @Override
          public void play() {
              if (!mSessionController.isConnected()) return;
@@ -1175,7 +1160,7 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
          }
  
          @Override
-@@ -70,27 +66,19 @@ public class CafExpandedControllerActivity
+@@ -70,27 +66,19 @@ public class CafExpandedControllerActivi
          @Override
          public void seekTo(long pos) {
              if (!mSessionController.isConnected()) return;
@@ -1204,7 +1189,7 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
              return flags;
          }
      };
-@@ -179,20 +167,10 @@ public class CafExpandedControllerActivity
+@@ -179,20 +167,10 @@ public class CafExpandedControllerActivi
      private void updateUi() {
          if (!mSessionController.isConnected()) return;
  
@@ -1225,7 +1210,6 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
      }
  
      private void scheduleProgressUpdateTask() {
-diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/remoting/FlingingControllerAdapter.java b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/remoting/FlingingControllerAdapter.java
 --- a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/remoting/FlingingControllerAdapter.java
 +++ b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/remoting/FlingingControllerAdapter.java
 @@ -4,11 +4,6 @@
@@ -1240,7 +1224,7 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
  import org.chromium.base.Log;
  import org.chromium.chrome.browser.media.router.FlingingController;
  import org.chromium.chrome.browser.media.router.MediaController;
-@@ -68,14 +63,6 @@ public class FlingingControllerAdapter implements FlingingController, MediaContr
+@@ -68,14 +63,6 @@ public class FlingingControllerAdapter i
      /** Starts loading the media URL, from the given position. */
      public void load(long position) {
          if (!mSessionController.isConnected()) return;
@@ -1255,7 +1239,7 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
      }
  
      ////////////////////////////////////////////
-@@ -90,30 +77,21 @@ public class FlingingControllerAdapter implements FlingingController, MediaContr
+@@ -90,30 +77,21 @@ public class FlingingControllerAdapter i
              load(/* position= */ 0);
              return;
          }
@@ -1286,7 +1270,7 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
      }
  
      @Override
-@@ -124,49 +102,10 @@ public class FlingingControllerAdapter implements FlingingController, MediaContr
+@@ -124,49 +102,10 @@ public class FlingingControllerAdapter i
              load(position);
              return;
          }
@@ -1336,11 +1320,10 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
 -        }
 -    }
  }
-diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/remoting/RemotingMediaSource.java b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/remoting/RemotingMediaSource.java
 --- a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/remoting/RemotingMediaSource.java
 +++ b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/remoting/RemotingMediaSource.java
 @@ -12,8 +12,6 @@ import android.util.Base64;
-
+ 
  import androidx.annotation.Nullable;
  
 -import com.google.android.gms.cast.CastMediaControlIntent;
@@ -1348,7 +1331,7 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
  import org.chromium.base.ContextUtils;
  import org.chromium.base.Log;
  import org.chromium.chrome.browser.media.router.MediaSource;
-@@ -79,9 +77,7 @@ public class RemotingMediaSource implements MediaSource {
+@@ -79,9 +77,7 @@ public class RemotingMediaSource impleme
       */
      @Override
      public MediaRouteSelector buildRouteSelector() {
@@ -1359,7 +1342,7 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
      }
  
      /**
-@@ -108,7 +104,7 @@ public class RemotingMediaSource implements MediaSource {
+@@ -108,7 +104,7 @@ public class RemotingMediaSource impleme
  
              sApplicationId = (customAppId != null && !customAppId.isEmpty())
                      ? customAppId
@@ -1368,7 +1351,6 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
          }
  
          return sApplicationId;
-diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/remoting/RemotingSessionController.java b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/remoting/RemotingSessionController.java
 --- a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/remoting/RemotingSessionController.java
 +++ b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/remoting/RemotingSessionController.java
 @@ -4,8 +4,6 @@
@@ -1380,11 +1362,10 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
  import org.chromium.base.Log;
  import org.chromium.chrome.browser.media.router.CastSessionUtil;
  import org.chromium.chrome.browser.media.router.caf.BaseNotificationController;
-@@ -33,19 +31,6 @@ public class RemotingSessionController extends BaseSessionController {
-         sInstance = new WeakReference<>(this);
+@@ -34,19 +32,6 @@ public class RemotingSessionController e
      }
  
--    @Override
+     @Override
 -    public void attachToCastSession(CastSession session) {
 -        super.attachToCastSession(session);
 -
@@ -1397,26 +1378,26 @@ diff --git a/chrome/android/features/media_router/java/src/org/chromium/chrome/b
 -        }
 -    }
 -
-     @Override
+-    @Override
      public void onSessionStarted() {
          super.onSessionStarted();
-@@ -53,12 +38,6 @@ public class RemotingSessionController extends BaseSessionController {
-         mFlingingControllerAdapter = new FlingingControllerAdapter(this, source.getMediaUrl());
+         RemotingMediaSource source = (RemotingMediaSource) getSource();
+@@ -54,12 +39,6 @@ public class RemotingSessionController e
      }
  
--    @Override
+     @Override
 -    protected void onStatusUpdated() {
 -        mFlingingControllerAdapter.onStatusUpdated();
 -        super.onStatusUpdated();
 -    }
 -
-     @Override
+-    @Override
      public FlingingControllerAdapter getFlingingController() {
          return mFlingingControllerAdapter;
-diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/AndroidManifest.xml
+     }
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
-@@ -189,12 +189,6 @@ by a child template that "extends" this file.
+@@ -189,12 +189,6 @@ by a child template that "extends" this
              android:theme="@android:style/Theme.Material.Light.Dialog.Alert" />
          {% endif %}
  
@@ -1429,7 +1410,7 @@ diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/Andro
          <!-- Note: All activities directly or indirectly derived from ChromeActivity
               must specify android:hardwareAccelerated="false".
  
-@@ -792,16 +786,6 @@ by a child template that "extends" this file.
+@@ -793,16 +787,6 @@ by a child template that "extends" this
              </intent-filter>
          </activity>
  
@@ -1446,7 +1427,7 @@ diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/Andro
          <!-- This activity is used to restart the main Chrome process.  Should never be exported. -->
          <activity android:name="org.chromium.chrome.browser.BrowserRestartActivity"
              android:launchMode="singleInstance"
-@@ -1222,18 +1206,6 @@ android:value="true" />
+@@ -1244,18 +1228,6 @@ android:value="true" />
          {% endif %}
  
          {% block extra_application_definitions %}
@@ -1465,7 +1446,6 @@ diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/Andro
          {% endblock %}
          {% block extra_application_definitions_for_test %}
          {% endblock %}
-diff --git a/chrome/test/android/cast_emulator/BUILD.gn b/chrome/test/android/cast_emulator/BUILD.gn
 --- a/chrome/test/android/cast_emulator/BUILD.gn
 +++ b/chrome/test/android/cast_emulator/BUILD.gn
 @@ -20,7 +20,6 @@ android_library("cast_emulator_java") {
@@ -1476,14 +1456,12 @@ diff --git a/chrome/test/android/cast_emulator/BUILD.gn b/chrome/test/android/ca
      "//base:base_java",
      "//third_party/android_deps:android_support_v7_appcompat_java",
      "//third_party/android_deps:com_android_support_mediarouter_v7_java",
-diff --git a/third_party/android_deps/BUILD.gn b/third_party/android_deps/BUILD.gn
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -828,39 +828,6 @@ android_aar_prebuilt("google_play_services_basement_java") {
-   input_jars_paths = [ "$android_sdk/optional/org.apache.http.legacy.jar" ]
+@@ -847,39 +847,6 @@ android_aar_prebuilt("google_play_servic
  }
  
--# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+ # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
 -android_aar_prebuilt("google_play_services_cast_java") {
 -  aar_path = "libs/com_google_android_gms_play_services_cast/play-services-cast-16.0.1.aar"
 -  info_path = "libs/com_google_android_gms_play_services_cast/com_google_android_gms_play_services_cast.info"
@@ -1516,9 +1494,7 @@ diff --git a/third_party/android_deps/BUILD.gn b/third_party/android_deps/BUILD.
 -  strip_resources = !is_java_debug
 -}
 -
- # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+-# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
  android_aar_prebuilt("google_play_services_fido_java") {
    aar_path = "libs/com_google_android_gms_play_services_fido/play-services-fido-15.0.1.aar"
--- 
-2.11.0
-
+   info_path = "libs/com_google_android_gms_play_services_fido/com_google_android_gms_play_services_fido.info"

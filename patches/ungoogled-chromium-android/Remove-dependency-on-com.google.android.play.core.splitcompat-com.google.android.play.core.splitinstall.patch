@@ -3,22 +3,21 @@ Date: Fri, 10 Jan 2020 21:49:36 -0500
 Subject: Remove dependency on com.google.android.play.core.splitcompat, com.google.android.play.core.splitinstall
 
 ---
- .../module_installer/engine/FakeEngine.java        | 13 +-----
- .../module_installer/engine/SplitCompatEngine.java | 49 +---------------------
- .../engine/SplitCompatEngineFacade.java            | 21 +---------
- .../components/module_installer/logger/Logger.java |  9 ++--
- .../module_installer/logger/PlayCoreLogger.java    | 23 ++--------
- .../logger/SplitAvailabilityLogger.java            | 27 +-----------
- .../logger/SplitInstallFailureLogger.java          | 41 ++----------------
- .../logger/SplitInstallStatusLogger.java           | 27 +-----------
- .../module_installer/util/CrashKeyRecorder.java    |  6 ---
- .../util/SplitCompatInitializer.java               |  5 +--
+ components/module_installer/android/java/src/org/chromium/components/module_installer/engine/FakeEngine.java                |   13 --
+ components/module_installer/android/java/src/org/chromium/components/module_installer/engine/SplitCompatEngine.java         |   49 ----------
+ components/module_installer/android/java/src/org/chromium/components/module_installer/engine/SplitCompatEngineFacade.java   |   21 ----
+ components/module_installer/android/java/src/org/chromium/components/module_installer/logger/Logger.java                    |    9 -
+ components/module_installer/android/java/src/org/chromium/components/module_installer/logger/PlayCoreLogger.java            |   23 ----
+ components/module_installer/android/java/src/org/chromium/components/module_installer/logger/SplitAvailabilityLogger.java   |   27 -----
+ components/module_installer/android/java/src/org/chromium/components/module_installer/logger/SplitInstallFailureLogger.java |   41 --------
+ components/module_installer/android/java/src/org/chromium/components/module_installer/logger/SplitInstallStatusLogger.java  |   27 -----
+ components/module_installer/android/java/src/org/chromium/components/module_installer/util/CrashKeyRecorder.java            |    6 -
+ components/module_installer/android/java/src/org/chromium/components/module_installer/util/SplitCompatInitializer.java      |    5 -
  10 files changed, 17 insertions(+), 204 deletions(-)
 
-diff --git a/components/module_installer/android/java/src/org/chromium/components/module_installer/engine/FakeEngine.java b/components/module_installer/android/java/src/org/chromium/components/module_installer/engine/FakeEngine.java
 --- a/components/module_installer/android/java/src/org/chromium/components/module_installer/engine/FakeEngine.java
 +++ b/components/module_installer/android/java/src/org/chromium/components/module_installer/engine/FakeEngine.java
-@@ -7,9 +7,6 @@ package org.chromium.components.module_installer.engine;
+@@ -7,9 +7,6 @@ package org.chromium.components.module_i
  import android.content.Context;
  import android.content.pm.PackageManager;
  
@@ -28,7 +27,7 @@ diff --git a/components/module_installer/android/java/src/org/chromium/component
  import org.chromium.base.BuildInfo;
  import org.chromium.base.ContextUtils;
  import org.chromium.base.Log;
-@@ -125,17 +122,9 @@ class FakeEngine extends SplitCompatEngine {
+@@ -125,17 +122,9 @@ class FakeEngine extends SplitCompatEngi
          }
  
          // Check that the module's signature matches Chrome's.
@@ -47,12 +46,11 @@ diff --git a/components/module_installer/android/java/src/org/chromium/component
      }
  
      private File joinPaths(String... paths) {
-diff --git a/components/module_installer/android/java/src/org/chromium/components/module_installer/engine/SplitCompatEngine.java b/components/module_installer/android/java/src/org/chromium/components/module_installer/engine/SplitCompatEngine.java
 --- a/components/module_installer/android/java/src/org/chromium/components/module_installer/engine/SplitCompatEngine.java
 +++ b/components/module_installer/android/java/src/org/chromium/components/module_installer/engine/SplitCompatEngine.java
-@@ -6,11 +6,6 @@ package org.chromium.components.module_installer.engine;
+@@ -8,11 +8,6 @@ import android.app.Activity;
  
- import android.app.Activity;
+ import androidx.annotation.VisibleForTesting;
  
 -import com.google.android.play.core.splitinstall.SplitInstallException;
 -import com.google.android.play.core.splitinstall.SplitInstallRequest;
@@ -60,9 +58,9 @@ diff --git a/components/module_installer/android/java/src/org/chromium/component
 -import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus;
 -
  import org.chromium.base.ThreadUtils;
- import org.chromium.base.VisibleForTesting;
  
-@@ -27,7 +22,6 @@ import java.util.Set;
+ import java.util.ArrayList;
+@@ -28,7 +23,6 @@ import java.util.Set;
   */
  class SplitCompatEngine implements InstallEngine {
      private final SplitCompatEngineFacade mFacade;
@@ -70,7 +68,7 @@ diff --git a/components/module_installer/android/java/src/org/chromium/component
      private static final Map<String, List<InstallListener>> sSessions = new HashMap<>();
  
      public SplitCompatEngine() {
-@@ -46,13 +40,11 @@ class SplitCompatEngine implements InstallEngine {
+@@ -47,13 +41,11 @@ class SplitCompatEngine implements Insta
  
      @Override
      public boolean isInstalled(String moduleName) {
@@ -85,7 +83,7 @@ diff --git a/components/module_installer/android/java/src/org/chromium/component
          mFacade.getLogger().logRequestDeferredStart(moduleName);
      }
  
-@@ -71,46 +63,9 @@ class SplitCompatEngine implements InstallEngine {
+@@ -72,46 +64,9 @@ class SplitCompatEngine implements Insta
              { add(listener); }
          });
  
@@ -132,7 +130,7 @@ diff --git a/components/module_installer/android/java/src/org/chromium/component
      private void notifyListeners(String moduleName, Boolean success) {
          for (InstallListener listener : sSessions.get(moduleName)) {
              notifyListener(listener, success);
-@@ -130,13 +85,11 @@ class SplitCompatEngine implements InstallEngine {
+@@ -131,13 +86,11 @@ class SplitCompatEngine implements Insta
  
      private void registerUpdateListener() {
          if (sSessions.size() == 0) {
@@ -146,10 +144,9 @@ diff --git a/components/module_installer/android/java/src/org/chromium/component
          }
      }
  
-diff --git a/components/module_installer/android/java/src/org/chromium/components/module_installer/engine/SplitCompatEngineFacade.java b/components/module_installer/android/java/src/org/chromium/components/module_installer/engine/SplitCompatEngineFacade.java
 --- a/components/module_installer/android/java/src/org/chromium/components/module_installer/engine/SplitCompatEngineFacade.java
 +++ b/components/module_installer/android/java/src/org/chromium/components/module_installer/engine/SplitCompatEngineFacade.java
-@@ -6,11 +6,6 @@ package org.chromium.components.module_installer.engine;
+@@ -6,11 +6,6 @@ package org.chromium.components.module_i
  
  import android.app.Activity;
  
@@ -161,7 +158,7 @@ diff --git a/components/module_installer/android/java/src/org/chromium/component
  import org.chromium.base.ApplicationStatus;
  import org.chromium.base.ContextUtils;
  import org.chromium.components.module_installer.logger.Logger;
-@@ -26,16 +21,13 @@ import org.chromium.components.module_installer.util.ModuleUtil;
+@@ -26,16 +21,13 @@ import org.chromium.components.module_in
  class SplitCompatEngineFacade {
      private InstallerObserver mObserver;
  
@@ -206,7 +203,6 @@ diff --git a/components/module_installer/android/java/src/org/chromium/component
 -        return SplitInstallRequest.newBuilder().addModule(moduleName).build();
 -    }
  }
-diff --git a/components/module_installer/android/java/src/org/chromium/components/module_installer/logger/Logger.java b/components/module_installer/android/java/src/org/chromium/components/module_installer/logger/Logger.java
 --- a/components/module_installer/android/java/src/org/chromium/components/module_installer/logger/Logger.java
 +++ b/components/module_installer/android/java/src/org/chromium/components/module_installer/logger/Logger.java
 @@ -4,9 +4,6 @@
@@ -246,7 +242,6 @@ diff --git a/components/module_installer/android/java/src/org/chromium/component
  
      /**
       * Logs the request start time.
-diff --git a/components/module_installer/android/java/src/org/chromium/components/module_installer/logger/PlayCoreLogger.java b/components/module_installer/android/java/src/org/chromium/components/module_installer/logger/PlayCoreLogger.java
 --- a/components/module_installer/android/java/src/org/chromium/components/module_installer/logger/PlayCoreLogger.java
 +++ b/components/module_installer/android/java/src/org/chromium/components/module_installer/logger/PlayCoreLogger.java
 @@ -4,9 +4,6 @@
@@ -259,7 +254,7 @@ diff --git a/components/module_installer/android/java/src/org/chromium/component
  /**
   * Concrete Logger for SplitCompat Installers (proxy to specific loggers).
   */
-@@ -28,32 +25,18 @@ public class PlayCoreLogger implements Logger {
+@@ -28,32 +25,18 @@ public class PlayCoreLogger implements L
      }
  
      @Override
@@ -295,10 +290,9 @@ diff --git a/components/module_installer/android/java/src/org/chromium/component
      }
  
      @Override
-diff --git a/components/module_installer/android/java/src/org/chromium/components/module_installer/logger/SplitAvailabilityLogger.java b/components/module_installer/android/java/src/org/chromium/components/module_installer/logger/SplitAvailabilityLogger.java
 --- a/components/module_installer/android/java/src/org/chromium/components/module_installer/logger/SplitAvailabilityLogger.java
 +++ b/components/module_installer/android/java/src/org/chromium/components/module_installer/logger/SplitAvailabilityLogger.java
-@@ -9,10 +9,6 @@ import android.content.SharedPreferences;
+@@ -9,10 +9,6 @@ import android.content.SharedPreferences
  import android.os.SystemClock;
  import android.util.SparseLongArray;
  
@@ -353,7 +347,6 @@ diff --git a/components/module_installer/android/java/src/org/chromium/component
          }
      }
  }
-diff --git a/components/module_installer/android/java/src/org/chromium/components/module_installer/logger/SplitInstallFailureLogger.java b/components/module_installer/android/java/src/org/chromium/components/module_installer/logger/SplitInstallFailureLogger.java
 --- a/components/module_installer/android/java/src/org/chromium/components/module_installer/logger/SplitInstallFailureLogger.java
 +++ b/components/module_installer/android/java/src/org/chromium/components/module_installer/logger/SplitInstallFailureLogger.java
 @@ -4,8 +4,6 @@
@@ -422,7 +415,6 @@ diff --git a/components/module_installer/android/java/src/org/chromium/component
          Integer code = getHistogramCode(errorCode);
          log(moduleName, code == -1 ? UNKNOWN_REQUEST_ERROR : code);
      }
-diff --git a/components/module_installer/android/java/src/org/chromium/components/module_installer/logger/SplitInstallStatusLogger.java b/components/module_installer/android/java/src/org/chromium/components/module_installer/logger/SplitInstallStatusLogger.java
 --- a/components/module_installer/android/java/src/org/chromium/components/module_installer/logger/SplitInstallStatusLogger.java
 +++ b/components/module_installer/android/java/src/org/chromium/components/module_installer/logger/SplitInstallStatusLogger.java
 @@ -4,8 +4,6 @@
@@ -469,10 +461,9 @@ diff --git a/components/module_installer/android/java/src/org/chromium/component
          recordInstallStatus(moduleName, getHistogramCode(status));
      }
  
-diff --git a/components/module_installer/android/java/src/org/chromium/components/module_installer/util/CrashKeyRecorder.java b/components/module_installer/android/java/src/org/chromium/components/module_installer/util/CrashKeyRecorder.java
 --- a/components/module_installer/android/java/src/org/chromium/components/module_installer/util/CrashKeyRecorder.java
 +++ b/components/module_installer/android/java/src/org/chromium/components/module_installer/util/CrashKeyRecorder.java
-@@ -11,9 +11,6 @@ import android.content.pm.PackageManager.NameNotFoundException;
+@@ -11,9 +11,6 @@ import android.content.pm.PackageManager
  import android.os.Build;
  import android.text.TextUtils;
  
@@ -492,7 +483,6 @@ diff --git a/components/module_installer/android/java/src/org/chromium/component
          }
  
          ck.set(CrashKeyIndex.INSTALLED_MODULES, encodeCrashKeyValue(fullyInstalledModules));
-diff --git a/components/module_installer/android/java/src/org/chromium/components/module_installer/util/SplitCompatInitializer.java b/components/module_installer/android/java/src/org/chromium/components/module_installer/util/SplitCompatInitializer.java
 --- a/components/module_installer/android/java/src/org/chromium/components/module_installer/util/SplitCompatInitializer.java
 +++ b/components/module_installer/android/java/src/org/chromium/components/module_installer/util/SplitCompatInitializer.java
 @@ -4,8 +4,6 @@

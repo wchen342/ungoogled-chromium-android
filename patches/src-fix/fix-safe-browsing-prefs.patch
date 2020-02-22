@@ -9,10 +9,9 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
  weblayer/browser/profile_impl.cc                                 | 2 --
  4 files changed, 6 insertions(+), 12 deletions(-)
 
-diff --git a/android_webview/browser/aw_browser_context.cc b/android_webview/browser/aw_browser_context.cc
 --- a/android_webview/browser/aw_browser_context.cc
 +++ b/android_webview/browser/aw_browser_context.cc
-@@ -227,7 +227,7 @@ base::FilePath AwBrowserContext::GetContextStoragePath() {
+@@ -227,7 +227,7 @@ base::FilePath AwBrowserContext::GetCont
  
  // static
  void AwBrowserContext::RegisterPrefs(PrefRegistrySimple* registry) {
@@ -21,48 +20,24 @@ diff --git a/android_webview/browser/aw_browser_context.cc b/android_webview/bro
  
    // Register the Autocomplete Data Retention Policy pref.
    // The default value '0' represents the latest Chrome major version on which
-diff --git a/android_webview/browser/safe_browsing/aw_safe_browsing_blocking_page.cc b/android_webview/browser/safe_browsing/aw_safe_browsing_blocking_page.cc
 --- a/android_webview/browser/safe_browsing/aw_safe_browsing_blocking_page.cc
 +++ b/android_webview/browser/safe_browsing/aw_safe_browsing_blocking_page.cc
-@@ -101,12 +101,11 @@ void AwSafeBrowsingBlockingPage::ShowBlockingPage(
-     BaseSafeBrowsingErrorUI::SBErrorDisplayOptions display_options =
-         BaseSafeBrowsingErrorUI::SBErrorDisplayOptions(
-             IsMainPageLoadBlocked(unsafe_resources),
--            safe_browsing::IsExtendedReportingOptInAllowed(*pref_service),
-+            false,
-             browser_context->IsOffTheRecord(),
--            safe_browsing::IsExtendedReportingEnabled(*pref_service),
--            safe_browsing::IsExtendedReportingPolicyManaged(*pref_service),
--            pref_service->GetBoolean(
--                ::prefs::kSafeBrowsingProceedAnywayDisabled),
-+            false,
-+            false,
-+            false,
-             false,                    // should_open_links_in_new_tab
-             false,                    // always_show_back_to_safety
-             "cpn_safe_browsing_wv");  // help_center_article_link
-diff --git a/chrome/browser/android/preferences/pref_service_bridge.cc b/chrome/browser/android/preferences/pref_service_bridge.cc
---- a/chrome/browser/android/preferences/pref_service_bridge.cc
-+++ b/chrome/browser/android/preferences/pref_service_bridge.cc
-@@ -441,16 +441,13 @@ static jboolean JNI_PrefServiceBridge_GetSearchSuggestManaged(
- static jboolean JNI_PrefServiceBridge_GetSafeBrowsingExtendedReportingEnabled(
-     JNIEnv* env,
-     const JavaParamRef<jobject>& obj) {
--  return safe_browsing::IsExtendedReportingEnabled(*GetPrefService());
-+  return false;
- }
- 
- static void JNI_PrefServiceBridge_SetSafeBrowsingExtendedReportingEnabled(
-     JNIEnv* env,
-     const JavaParamRef<jobject>& obj,
-     jboolean enabled) {
--  safe_browsing::SetExtendedReportingPrefAndMetric(
--      GetPrefService(), enabled,
--      safe_browsing::SBER_OPTIN_SITE_ANDROID_SETTINGS);
- }
- 
- static jboolean JNI_PrefServiceBridge_GetSafeBrowsingExtendedReportingManaged(
-diff --git a/weblayer/browser/profile_impl.cc b/weblayer/browser/profile_impl.cc
+@@ -114,11 +114,11 @@ AwSafeBrowsingBlockingPage* AwSafeBrowsi
+   BaseSafeBrowsingErrorUI::SBErrorDisplayOptions display_options =
+       BaseSafeBrowsingErrorUI::SBErrorDisplayOptions(
+           IsMainPageLoadBlocked(unsafe_resources),
+-          safe_browsing::IsExtendedReportingOptInAllowed(*pref_service),
++          false,
+           browser_context->IsOffTheRecord(),
+-          safe_browsing::IsExtendedReportingEnabled(*pref_service),
+-          safe_browsing::IsExtendedReportingPolicyManaged(*pref_service),
+-          pref_service->GetBoolean(::prefs::kSafeBrowsingProceedAnywayDisabled),
++          false,
++          false,
++          false,
+           false,                    // should_open_links_in_new_tab
+           false,                    // always_show_back_to_safety
+           "cpn_safe_browsing_wv");  // help_center_article_link
 --- a/weblayer/browser/profile_impl.cc
 +++ b/weblayer/browser/profile_impl.cc
 @@ -15,7 +15,6 @@
@@ -73,7 +48,7 @@ diff --git a/weblayer/browser/profile_impl.cc b/weblayer/browser/profile_impl.cc
  #include "components/user_prefs/user_prefs.h"
  #include "components/web_cache/browser/web_cache_manager.h"
  #include "content/public/browser/browser_context.h"
-@@ -202,7 +201,6 @@ class ProfileImpl::BrowserContextImpl : public content::BrowserContext {
+@@ -204,7 +203,6 @@ class ProfileImpl::BrowserContextImpl :
  
    // Registers the preferences that WebLayer accesses.
    void RegisterPrefs(PrefRegistrySimple* pref_registry) {

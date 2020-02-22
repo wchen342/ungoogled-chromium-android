@@ -3,28 +3,27 @@ Date: Fri, 22 Jun 2018 17:11:38 +0200
 Subject: kill GCM
 
 ---
- chrome/android/BUILD.gn                            |   1 -
- chrome/android/chrome_java_sources.gni             |   6 -
- chrome/android/java/AndroidManifest.xml            |  64 -------
- .../ChromeBackgroundTaskFactory.java               |   3 -
- .../browser/ntp/snippets/SnippetsLauncher.java     |  45 +----
- .../browser/services/gcm/GCMBackgroundTask.java    |   2 +-
- .../gcm/InvalidationGcmUpstreamSender.java         |  18 --
- components/background_task_scheduler/BUILD.gn      |   1 -
- .../BackgroundTaskSchedulerGcmNetworkManager.java  | 206 +--------------------
- components/gcm_driver/android/BUILD.gn             |   1 -
- components/gcm_driver/instance_id/android/BUILD.gn |   1 -
- .../gcm_driver/instance_id/InstanceIDBridge.java   |  52 +-----
- components/sync/android/BUILD.gn                   |   1 -
- third_party/cacheinvalidation/BUILD.gn             |   6 -
- .../client/contrib/MultiplexingGcmListener.java    |  91 +--------
- .../android2/channel/AndroidNetworkChannel.java    |   6 +-
+ chrome/android/BUILD.gn                                                                                                                               |    1 
+ chrome/android/chrome_java_sources.gni                                                                                                                |    6 
+ chrome/android/java/AndroidManifest.xml                                                                                                               |   64 ---
+ chrome/android/java/src/org/chromium/chrome/browser/background_task_scheduler/ChromeBackgroundTaskFactory.java                                        |    3 
+ chrome/android/java/src/org/chromium/chrome/browser/ntp/snippets/SnippetsLauncher.java                                                                |   45 --
+ chrome/android/java/src/org/chromium/chrome/browser/services/gcm/GCMBackgroundTask.java                                                               |    2 
+ chrome/android/java/src/org/chromium/chrome/browser/services/gcm/InvalidationGcmUpstreamSender.java                                                   |   18 
+ components/background_task_scheduler/BUILD.gn                                                                                                         |    1 
+ components/background_task_scheduler/android/java/src/org/chromium/components/background_task_scheduler/BackgroundTaskSchedulerGcmNetworkManager.java |  206 ----------
+ components/gcm_driver/android/BUILD.gn                                                                                                                |    1 
+ components/gcm_driver/instance_id/android/BUILD.gn                                                                                                    |    1 
+ components/gcm_driver/instance_id/android/java/src/org/chromium/components/gcm_driver/instance_id/InstanceIDBridge.java                               |   52 --
+ components/sync/android/BUILD.gn                                                                                                                      |    1 
+ third_party/cacheinvalidation/BUILD.gn                                                                                                                |    6 
+ third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/contrib/MultiplexingGcmListener.java                               |   91 ----
+ third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidNetworkChannel.java                                   |    6 
  16 files changed, 10 insertions(+), 494 deletions(-)
 
-diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -370,7 +370,6 @@ android_library("chrome_java") {
+@@ -337,7 +337,6 @@ android_library("chrome_java") {
      "//third_party/android_deps:com_google_protobuf_protobuf_lite_java",
      "//third_party/android_deps:javax_inject_javax_inject_java",
      "//third_party/android_media:android_media_java",
@@ -32,7 +31,6 @@ diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
      "//third_party/android_sdk/androidx_browser:androidx_browser_java",
      "//third_party/android_swipe_refresh:android_swipe_refresh_java",
      "//third_party/blink/public:blink_headers_java",
-diff --git a/chrome/android/chrome_java_sources.gni b/chrome/android/chrome_java_sources.gni
 --- a/chrome/android/chrome_java_sources.gni
 +++ b/chrome/android/chrome_java_sources.gni
 @@ -16,7 +16,6 @@ chrome_java_sources = [
@@ -43,7 +41,7 @@ diff --git a/chrome/android/chrome_java_sources.gni b/chrome/android/chrome_java
    "java/src/org/chromium/chrome/browser/ChromeBackupAgent.java",
    "java/src/org/chromium/chrome/browser/ChromeBackupWatcher.java",
    "java/src/org/chromium/chrome/browser/ChromeBaseAppCompatActivity.java",
-@@ -1437,11 +1436,6 @@ chrome_java_sources = [
+@@ -1338,11 +1337,6 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/services/AndroidEduAndChildAccountHelper.java",
    "java/src/org/chromium/chrome/browser/services/AndroidEduOwnerCheckCallback.java",
    "java/src/org/chromium/chrome/browser/services/GoogleServicesManager.java",
@@ -53,12 +51,11 @@ diff --git a/chrome/android/chrome_java_sources.gni b/chrome/android/chrome_java
 -  "java/src/org/chromium/chrome/browser/services/gcm/GcmUma.java",
 -  "java/src/org/chromium/chrome/browser/services/gcm/InvalidationGcmUpstreamSender.java",
    "java/src/org/chromium/chrome/browser/sessions/SessionTabHelper.java",
-   "java/src/org/chromium/chrome/browser/share/LensUtils.java",
-   "java/src/org/chromium/chrome/browser/share/OptionalShareTargetsManager.java",
-diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/AndroidManifest.xml
+   "java/src/org/chromium/chrome/browser/settings/ButtonPreference.java",
+   "java/src/org/chromium/chrome/browser/settings/ChromeBaseCheckBoxPreference.java",
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
-@@ -81,22 +81,17 @@ by a child template that "extends" this file.
+@@ -81,22 +81,17 @@ by a child template that "extends" this
      <permission android:name="{{ manifest_package }}.permission.CHILD_SERVICE" android:protectionLevel="signature" />
      <permission android:name="{{ manifest_package }}.permission.READ_WRITE_BOOKMARK_FOLDERS" android:protectionLevel="signatureOrSystem" />
      <permission android:name="{{ manifest_package }}.TOS_ACKED" android:protectionLevel="signatureOrSystem" />
@@ -81,7 +78,7 @@ diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/Andro
      <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT"/>
  
      <uses-permission android:name="com.google.android.apps.now.CURRENT_ACCOUNT_ACCESS" />
-@@ -1038,50 +1033,9 @@ by a child template that "extends" this file.
+@@ -1056,50 +1051,9 @@ by a child template that "extends" this
              android:configChanges="orientation|keyboardHidden|keyboard|screenSize|mcc|mnc|screenLayout|smallestScreenSize"
              android:hardwareAccelerated="false" />
  
@@ -132,7 +129,7 @@ diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/Andro
          <receiver android:name="com.google.ipc.invalidation.ticl.android2.AndroidInternalScheduler$AlarmReceiver"
              android:exported="false"/>
          <receiver android:name="com.google.ipc.invalidation.external.client.contrib.AndroidListener$AlarmReceiver"
-@@ -1108,24 +1062,6 @@ by a child template that "extends" this file.
+@@ -1126,24 +1080,6 @@ by a child template that "extends" this
              android:exported="false"
              android:permission="android.permission.BIND_JOB_SERVICE"/>
  
@@ -157,10 +154,9 @@ diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/Andro
          <service android:name="org.chromium.chrome.browser.prerender.ChromePrerenderService"
              android:exported="true"
              tools:ignore="ExportedService" />
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/background_task_scheduler/ChromeBackgroundTaskFactory.java b/chrome/android/java/src/org/chromium/chrome/browser/background_task_scheduler/ChromeBackgroundTaskFactory.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/background_task_scheduler/ChromeBackgroundTaskFactory.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/background_task_scheduler/ChromeBackgroundTaskFactory.java
-@@ -19,7 +19,6 @@ import org.chromium.chrome.browser.offlinepages.OfflineBackgroundTask;
+@@ -19,7 +19,6 @@ import org.chromium.chrome.browser.offli
  import org.chromium.chrome.browser.offlinepages.prefetch.OfflineNotificationBackgroundTask;
  import org.chromium.chrome.browser.offlinepages.prefetch.PrefetchBackgroundTask;
  import org.chromium.chrome.browser.omaha.OmahaService;
@@ -168,7 +164,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/background_task
  import org.chromium.chrome.browser.webapps.WebApkUpdateTask;
  import org.chromium.components.background_task_scheduler.BackgroundTask;
  import org.chromium.components.background_task_scheduler.BackgroundTaskFactory;
-@@ -48,8 +47,6 @@ public class ChromeBackgroundTaskFactory implements BackgroundTaskFactory {
+@@ -48,8 +47,6 @@ public class ChromeBackgroundTaskFactory
          switch (taskId) {
              case TaskIds.OMAHA_JOB_ID:
                  return new OmahaService();
@@ -177,12 +173,11 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/background_task
              case TaskIds.OFFLINE_PAGES_BACKGROUND_JOB_ID:
                  return new OfflineBackgroundTask();
              case TaskIds.OFFLINE_PAGES_PREFETCH_JOB_ID:
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ntp/snippets/SnippetsLauncher.java b/chrome/android/java/src/org/chromium/chrome/browser/ntp/snippets/SnippetsLauncher.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ntp/snippets/SnippetsLauncher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ntp/snippets/SnippetsLauncher.java
-@@ -7,15 +7,10 @@ package org.chromium.chrome.browser.ntp.snippets;
- import android.content.Context;
- import android.net.ConnectivityManager;
+@@ -9,14 +9,9 @@ import android.net.ConnectivityManager;
+ 
+ import androidx.annotation.VisibleForTesting;
  
 -import com.google.android.gms.gcm.GcmNetworkManager;
 -import com.google.android.gms.gcm.PeriodicTask;
@@ -190,13 +185,12 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ntp/snippets/Sn
 -
  import org.chromium.base.ContextUtils;
  import org.chromium.base.Log;
- import org.chromium.base.VisibleForTesting;
  import org.chromium.base.annotations.CalledByNative;
 -import org.chromium.chrome.browser.ChromeBackgroundService;
  import org.chromium.chrome.browser.externalauth.ExternalAuthUtils;
  
  /**
-@@ -40,8 +35,6 @@ public class SnippetsLauncher {
+@@ -41,8 +36,6 @@ public class SnippetsLauncher {
      // If it is non-null then the browser is running.
      private static SnippetsLauncher sInstance;
  
@@ -205,7 +199,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ntp/snippets/Sn
      private boolean mGCMEnabled = true;
  
      /**
-@@ -78,7 +71,7 @@ public class SnippetsLauncher {
+@@ -79,7 +72,7 @@ public class SnippetsLauncher {
  
      protected SnippetsLauncher() {
          checkGCM();
@@ -214,7 +208,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ntp/snippets/Sn
      }
  
      private void checkGCM() {
-@@ -89,32 +82,7 @@ public class SnippetsLauncher {
+@@ -90,32 +83,7 @@ public class SnippetsLauncher {
          }
      }
  
@@ -247,7 +241,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ntp/snippets/Sn
      }
  
      @CalledByNative
-@@ -127,23 +95,12 @@ public class SnippetsLauncher {
+@@ -128,23 +96,12 @@ public class SnippetsLauncher {
                  .edit()
                  .putBoolean(PREF_IS_SCHEDULED, isScheduled)
                  .apply();
@@ -271,10 +265,9 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ntp/snippets/Sn
      }
  
      @CalledByNative
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/GCMBackgroundTask.java b/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/GCMBackgroundTask.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/GCMBackgroundTask.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/GCMBackgroundTask.java
-@@ -42,7 +42,7 @@ public class GCMBackgroundTask implements BackgroundTask {
+@@ -42,7 +42,7 @@ public class GCMBackgroundTask implement
              return false;
          }
  
@@ -283,7 +276,6 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/GC
          return false;
      }
  
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/InvalidationGcmUpstreamSender.java b/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/InvalidationGcmUpstreamSender.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/InvalidationGcmUpstreamSender.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/InvalidationGcmUpstreamSender.java
 @@ -14,7 +14,6 @@ import android.util.Log;
@@ -294,7 +286,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/In
  import com.google.ipc.invalidation.ticl.android2.channel.GcmUpstreamSenderService;
  
  import org.chromium.base.ContextUtils;
-@@ -28,9 +27,6 @@ import org.chromium.components.signin.OAuth2TokenService;
+@@ -28,9 +27,6 @@ import org.chromium.components.signin.id
  import org.chromium.components.sync.SyncConstants;
  import org.chromium.content_public.browser.UiThreadTaskTraits;
  
@@ -304,7 +296,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/In
  /**
   * Sends Upstream messages for Invalidations using GCM.
   */
-@@ -92,20 +88,6 @@ public class InvalidationGcmUpstreamSender extends GcmUpstreamSenderService {
+@@ -92,20 +88,6 @@ public class InvalidationGcmUpstreamSend
       * This function runs on a thread pool executor thread.
       */
      private void sendUpstreamMessage(String to, Bundle data, String token, Context context) {
@@ -325,7 +317,6 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/In
      }
  
      private boolean isMessageWithinLimit(Bundle data) {
-diff --git a/components/background_task_scheduler/BUILD.gn b/components/background_task_scheduler/BUILD.gn
 --- a/components/background_task_scheduler/BUILD.gn
 +++ b/components/background_task_scheduler/BUILD.gn
 @@ -32,7 +32,6 @@ if (is_android) {
@@ -336,12 +327,11 @@ diff --git a/components/background_task_scheduler/BUILD.gn b/components/backgrou
        "android/java/src/org/chromium/components/background_task_scheduler/BackgroundTaskJobService.java",
        "android/java/src/org/chromium/components/background_task_scheduler/BackgroundTaskScheduler.java",
        "android/java/src/org/chromium/components/background_task_scheduler/BackgroundTaskSchedulerAlarmManager.java",
-diff --git a/components/background_task_scheduler/android/java/src/org/chromium/components/background_task_scheduler/BackgroundTaskSchedulerGcmNetworkManager.java b/components/background_task_scheduler/android/java/src/org/chromium/components/background_task_scheduler/BackgroundTaskSchedulerGcmNetworkManager.java
 --- a/components/background_task_scheduler/android/java/src/org/chromium/components/background_task_scheduler/BackgroundTaskSchedulerGcmNetworkManager.java
 +++ b/components/background_task_scheduler/android/java/src/org/chromium/components/background_task_scheduler/BackgroundTaskSchedulerGcmNetworkManager.java
-@@ -9,14 +9,6 @@ import android.os.Bundle;
-
+@@ -10,14 +10,6 @@ import android.os.Bundle;
  import androidx.annotation.NonNull;
+ import androidx.annotation.VisibleForTesting;
  
 -import com.google.android.gms.common.ConnectionResult;
 -import com.google.android.gms.common.GoogleApiAvailability;
@@ -353,8 +343,8 @@ diff --git a/components/background_task_scheduler/android/java/src/org/chromium/
 -
  import org.chromium.base.Log;
  import org.chromium.base.ThreadUtils;
- import org.chromium.base.VisibleForTesting;
-@@ -43,212 +35,16 @@ class BackgroundTaskSchedulerGcmNetworkManager implements BackgroundTaskSchedule
+ 
+@@ -43,212 +35,16 @@ class BackgroundTaskSchedulerGcmNetworkM
          sClock = clock;
      }
  
@@ -568,7 +558,6 @@ diff --git a/components/background_task_scheduler/android/java/src/org/chromium/
      }
  
      private static String taskIdToTaskTag(int taskId) {
-diff --git a/components/gcm_driver/android/BUILD.gn b/components/gcm_driver/android/BUILD.gn
 --- a/components/gcm_driver/android/BUILD.gn
 +++ b/components/gcm_driver/android/BUILD.gn
 @@ -15,7 +15,6 @@ android_library("gcm_driver_java") {
@@ -579,10 +568,9 @@ diff --git a/components/gcm_driver/android/BUILD.gn b/components/gcm_driver/andr
      "//third_party/jsr-305:jsr_305_javalib",
    ]
    annotation_processor_deps = [ "//base/android/jni_generator:jni_processor" ]
-diff --git a/components/gcm_driver/instance_id/android/BUILD.gn b/components/gcm_driver/instance_id/android/BUILD.gn
 --- a/components/gcm_driver/instance_id/android/BUILD.gn
 +++ b/components/gcm_driver/instance_id/android/BUILD.gn
-@@ -31,7 +31,6 @@ android_library("instance_id_driver_java") {
+@@ -31,7 +31,6 @@ android_library("instance_id_driver_java
  
    java_files = [
      "java/src/org/chromium/components/gcm_driver/instance_id/InstanceIDBridge.java",
@@ -590,7 +578,6 @@ diff --git a/components/gcm_driver/instance_id/android/BUILD.gn b/components/gcm
    ]
  }
  
-diff --git a/components/gcm_driver/instance_id/android/java/src/org/chromium/components/gcm_driver/instance_id/InstanceIDBridge.java b/components/gcm_driver/instance_id/android/java/src/org/chromium/components/gcm_driver/instance_id/InstanceIDBridge.java
 --- a/components/gcm_driver/instance_id/android/java/src/org/chromium/components/gcm_driver/instance_id/InstanceIDBridge.java
 +++ b/components/gcm_driver/instance_id/android/java/src/org/chromium/components/gcm_driver/instance_id/InstanceIDBridge.java
 @@ -29,7 +29,6 @@ public class InstanceIDBridge {
@@ -694,7 +681,6 @@ diff --git a/components/gcm_driver/instance_id/android/java/src/org/chromium/com
                      return doBackgroundWork();
                  }
                  @Override
-diff --git a/components/sync/android/BUILD.gn b/components/sync/android/BUILD.gn
 --- a/components/sync/android/BUILD.gn
 +++ b/components/sync/android/BUILD.gn
 @@ -12,7 +12,6 @@ android_library("sync_java") {
@@ -705,7 +691,6 @@ diff --git a/components/sync/android/BUILD.gn b/components/sync/android/BUILD.gn
      "//third_party/cacheinvalidation:cacheinvalidation_javalib",
      "//third_party/cacheinvalidation:cacheinvalidation_proto_java",
      "//third_party/jsr-305:jsr_305_javalib",
-diff --git a/third_party/cacheinvalidation/BUILD.gn b/third_party/cacheinvalidation/BUILD.gn
 --- a/third_party/cacheinvalidation/BUILD.gn
 +++ b/third_party/cacheinvalidation/BUILD.gn
 @@ -142,7 +142,6 @@ if (is_android) {
@@ -730,7 +715,6 @@ diff --git a/third_party/cacheinvalidation/BUILD.gn b/third_party/cacheinvalidat
        "src/java/com/google/ipc/invalidation/ticl/android2/channel/GcmUpstreamSenderService.java",
        "src/java/com/google/ipc/invalidation/ticl/proto/AndroidChannel.java",
        "src/java/com/google/ipc/invalidation/ticl/proto/AndroidListenerProtocol.java",
-diff --git a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/contrib/MultiplexingGcmListener.java b/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/contrib/MultiplexingGcmListener.java
 --- a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/contrib/MultiplexingGcmListener.java
 +++ b/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/contrib/MultiplexingGcmListener.java
 @@ -16,9 +16,6 @@
@@ -752,11 +736,10 @@ diff --git a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/
    /* This class is public so that it can be instantiated by the Android runtime. */
  
    /** Constants used in broadcast Intents. */
-@@ -105,18 +102,6 @@ public class MultiplexingGcmListener extends GCMBaseIntentService {
-     public static final String EXTRA_DATA_NUM_DELETED_MSGS = PREFIX + "NUM_DELETED_MSGS";
+@@ -106,18 +103,6 @@ public class MultiplexingGcmListener ext
    }
  
--  /**
+   /**
 -   * {@link GCMBroadcastReceiver} that forwards GCM intents to the {@code MultiplexingGcmListener}
 -   * class.
 -   */
@@ -768,10 +751,11 @@ diff --git a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/
 -    }
 -  }
 -
-   /**
+-  /**
     * Convenience base class for client implementations. It provides base classes for a broadcast
     * receiver and an intent service that work together to handle events from the
-@@ -260,80 +245,6 @@ public class MultiplexingGcmListener extends GCMBaseIntentService {
+    * {@code MultiplexingGcmListener} while holding a wake lock.
+@@ -260,80 +245,6 @@ public class MultiplexingGcmListener ext
    /** Logger. */
    private static final Logger logger = AndroidLogger.forTag("MplexGcmListener");
  
@@ -852,10 +836,9 @@ diff --git a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/
    /**
     * Returns the GCM sender ids from {@link #GCM_SENDER_IDS_METADATA_KEY} or throws a
     * {@code RuntimeException} if they are not defined.
-diff --git a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidNetworkChannel.java b/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidNetworkChannel.java
 --- a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidNetworkChannel.java
 +++ b/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidNetworkChannel.java
-@@ -48,16 +48,12 @@ public class AndroidNetworkChannel implements TestableNetworkChannel {
+@@ -48,16 +48,12 @@ public class AndroidNetworkChannel imple
      Intent intent = ProtocolIntents.newOutboundMessageIntent(outgoingMessage);
  
      // Select the sender service to use for upstream message.
@@ -872,7 +855,7 @@ diff --git a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/
      try {
        context.startService(intent);
      } catch (IllegalStateException exception) {
-@@ -77,6 +73,6 @@ public class AndroidNetworkChannel implements TestableNetworkChannel {
+@@ -77,6 +73,6 @@ public class AndroidNetworkChannel imple
  
    @Override
    public NetworkEndpointId getNetworkIdForTest() {
@@ -880,6 +863,3 @@ diff --git a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/
 +    return null;
    }
  }
--- 
-2.11.0
-
