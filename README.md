@@ -1,5 +1,7 @@
 # ungoogled-chromium-android
 
+Please see [CHANGELOG](https://github.com/wchen342/ungoogled-chromium-android/blob/master/CHANGELOG.md) for newest updates.
+
 *A lightweight approach to removing Google web service dependency*
 
 *Note: this is an **Android** build. It is currently experimental.*

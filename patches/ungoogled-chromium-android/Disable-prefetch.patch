@@ -1,0 +1,31 @@
+From: Wengling Chen <feiyu2817@gmail.com>
+Date: Sat, 22 Feb 2020 18:08:54 -0500
+Subject: Disable prefetch over wifi
+
+---
+ chrome/android/java/src/org/chromium/chrome/browser/offlinepages/prefetch/PrefetchPrefs.java |    2 +-
+ components/offline_pages/core/prefetch/prefetch_prefs.cc                                     |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+--- a/chrome/android/java/src/org/chromium/chrome/browser/offlinepages/prefetch/PrefetchPrefs.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/offlinepages/prefetch/PrefetchPrefs.java
+@@ -37,7 +37,7 @@ public class PrefetchPrefs {
+      */
+     public static boolean getNotificationEnabled() {
+         return ContextUtils.getAppSharedPreferences().getBoolean(
+-                PREF_PREFETCH_NOTIFICATION_ENABLED, true);
++                PREF_PREFETCH_NOTIFICATION_ENABLED, false);
+     }
+ 
+     /**
+--- a/components/offline_pages/core/prefetch/prefetch_prefs.cc
++++ b/components/offline_pages/core/prefetch/prefetch_prefs.cc
+@@ -29,7 +29,7 @@ const char kBackoff[] = "offline_prefetc
+ 
+ void RegisterPrefs(PrefRegistrySimple* registry) {
+   registry->RegisterListPref(kBackoff);
+-  registry->RegisterBooleanPref(kUserSettingEnabled, true);
++  registry->RegisterBooleanPref(kUserSettingEnabled, false);
+   registry->RegisterTimePref(kLimitlessPrefetchingEnabledTimePref,
+                              base::Time());
+   registry->RegisterStringPref(kPrefetchTestingHeaderPref, std::string());

@@ -6,8 +6,9 @@
   * use blank page as homepage
   * setting for DNS-over-HTTPS (DoH)
   * flag to disable pull-to-refresh
-* Set contextual search to `false` in native code instead of Java
+* Disable contextual search in native code instead of Java
 * Disable lite mode prompt
+* Disable download articles over Wi-fi
 * Build time change (not affecting users):
   * Exclude unit tests from domain substitution
   * Using system JDK instead of bundled one. Requires both Java-8 and Java-10 on Arch Linux.
