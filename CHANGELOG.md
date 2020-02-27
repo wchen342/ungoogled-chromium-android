@@ -1,3 +1,10 @@
+# 80.0.3987.122-1
+* This is an important security release that fix three vulnerabilities. All previous versions should update as soon as possible.
+  * [1044570] High: Integer overflow in ICU. Reported by André Bargull (with thanks to Jeff Walden from Mozilla) on 2020-01-22
+  * [1045931] High CVE-2020-6407: Out of bounds memory access in streams. Reported by Sergei Glazunov of Google Project Zero on 2020-01-27
+  * [1053604] High CVE-2020-6418: Type confusion in V8. Reported by Clement Lecigne of Google's Threat Analysis Group on 2020-02-18 (_actively exploited in the wild_)
+* Fix video crash on Android P on certain machines
+
 # 80.0.3987.106-1
 * Port some privacy related functionality from `Bromite`, including:
   * flag to disable WebGL

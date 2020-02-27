@@ -8,7 +8,7 @@ chrome_target=chrome_public_apk
 mono_target=monochrome_public_apk
 webview_target=system_webview_apk
 
-chromium_version=80.0.3987.106
+chromium_version=80.0.3987.122
 ungoogled_chromium_revision=1
 
 # Argument parser from https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash/29754866#29754866

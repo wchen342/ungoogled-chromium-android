@@ -34,3 +34,5 @@ Bromite/Add-user-setting-for-DNS-over-HTTPS-DoH-custom-URL.patch
 Bromite/Revert-flags-remove-disable-pull-to-refresh-effect.patch
 Bromite/updater-disable-updater-pings.patch
 Bromite/Use-a-minimum-DoH-timeout-of-400ms.patch
+Bromite/Disable-AImageReader-for-ARM64-P-and-ARM64-Q.patch
+Bromite/Download-on-Android-Q-Remove-a-DCHECK-in-CreateReservation.patch
