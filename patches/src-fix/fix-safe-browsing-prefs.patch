@@ -3,98 +3,36 @@ Date: Fri, 10 Jan 2020 18:01:56 -0500
 Subject: Fix build error caused by the removal of safe_browsing_prefs.h
 
 ---
- android_webview/browser/aw_browser_context.cc                                                     |    2 -
- android_webview/browser/safe_browsing/aw_safe_browsing_blocking_page.cc                           |    8 ++--
- chrome/android/BUILD.gn                                                                           |    1 
- chrome/android/chrome_java_sources.gni                                                            |    1 
- chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesPreferences.java |   19 ++--------
- chrome/android/java/src/org/chromium/chrome/browser/webshare/ShareServiceImpl.java                |    3 -
- chrome/browser/android/preferences/prefs.h                                                        |    2 -
- weblayer/browser/profile_impl.cc                                                                  |    2 -
- 8 files changed, 10 insertions(+), 28 deletions(-)
+ android_webview/browser/aw_browser_context.cc                                                  |    2 -
+ android_webview/browser/safe_browsing/aw_safe_browsing_blocking_page.cc                        |    8 ++--
+ chrome/android/BUILD.gn                                                                        |    1 
+ chrome/android/chrome_java_sources.gni                                                         |    1 
+ chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesSettings.java |   19 ++--------
+ chrome/android/java/src/org/chromium/chrome/browser/webshare/ShareServiceImpl.java             |    3 -
+ chrome/browser/android/preferences/prefs.h                                                     |    2 -
+ weblayer/browser/browser_context_impl.cc                                                       |    3 -
+ 8 files changed, 10 insertions(+), 29 deletions(-)
 
- --- a/chrome/android/BUILD.gn
+--- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -2780,7 +2780,6 @@ generate_jni("chrome_jni_headers") {
+@@ -2762,7 +2762,6 @@ generate_jni("chrome_jni_headers") {
      "java/src/org/chromium/chrome/browser/rappor/RapporServiceBridge.java",
      "java/src/org/chromium/chrome/browser/rlz/RevenueStats.java",
      "java/src/org/chromium/chrome/browser/rlz/RlzPingHandler.java",
 -    "java/src/org/chromium/chrome/browser/safe_browsing/SafeBrowsingBridge.java",
+     "java/src/org/chromium/chrome/browser/safe_browsing/SafeBrowsingPasswordReuseDialogBridge.java",
      "java/src/org/chromium/chrome/browser/search_engines/TemplateUrlServiceFactory.java",
      "java/src/org/chromium/chrome/browser/send_tab_to_self/NotificationManager.java",
-     "java/src/org/chromium/chrome/browser/send_tab_to_self/SendTabToSelfAndroidBridge.java",
 --- a/chrome/android/chrome_java_sources.gni
 +++ b/chrome/android/chrome_java_sources.gni
-@@ -1315,7 +1315,6 @@ chrome_java_sources = [
+@@ -1336,7 +1336,6 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/rappor/RapporServiceBridge.java",
    "java/src/org/chromium/chrome/browser/rlz/RevenueStats.java",
    "java/src/org/chromium/chrome/browser/rlz/RlzPingHandler.java",
 -  "java/src/org/chromium/chrome/browser/safe_browsing/SafeBrowsingBridge.java",
+   "java/src/org/chromium/chrome/browser/safe_browsing/SafeBrowsingPasswordReuseDialogBridge.java",
    "java/src/org/chromium/chrome/browser/search_engines/SearchEngineChoiceMetrics.java",
    "java/src/org/chromium/chrome/browser/search_engines/SearchEngineChoiceNotification.java",
-   "java/src/org/chromium/chrome/browser/search_engines/TemplateUrlServiceFactory.java",
---- a/chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesPreferences.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesPreferences.java
-@@ -45,7 +45,6 @@ import org.chromium.chrome.browser.metri
- import org.chromium.chrome.browser.preferences.Pref;
- import org.chromium.chrome.browser.preferences.PrefServiceBridge;
- import org.chromium.chrome.browser.profiles.Profile;
--import org.chromium.chrome.browser.safe_browsing.SafeBrowsingBridge;
- import org.chromium.chrome.browser.settings.ChromeBasePreference;
- import org.chromium.chrome.browser.settings.ChromeSwitchPreference;
- import org.chromium.chrome.browser.settings.ManagedPreferenceDelegate;
-@@ -365,17 +364,9 @@ public class SyncAndServicesPreferences
-             PostTask.postTask(UiThreadTaskTraits.DEFAULT, this::updatePreferences);
-         } else if (PREF_SEARCH_SUGGESTIONS.equals(key)) {
-             mPrefServiceBridge.setBoolean(Pref.SEARCH_SUGGEST_ENABLED, (boolean) newValue);
--        } else if (PREF_SAFE_BROWSING.equals(key)) {
--            mPrefServiceBridge.setBoolean(Pref.SAFE_BROWSING_ENABLED, (boolean) newValue);
--            // Toggling the safe browsing preference impacts the leak detection and the
--            // safe browsing reporting preferences as well.
--            PostTask.postTask(UiThreadTaskTraits.DEFAULT,
--                    this::updateLeakDetectionAndSafeBrowsingReportingPreferences);
-         } else if (PREF_PASSWORD_LEAK_DETECTION.equals(key)) {
-             mPrefServiceBridge.setBoolean(
-                     Pref.PASSWORD_MANAGER_LEAK_DETECTION_ENABLED, (boolean) newValue);
--        } else if (PREF_SAFE_BROWSING_SCOUT_REPORTING.equals(key)) {
--            SafeBrowsingBridge.setSafeBrowsingExtendedReportingEnabled((boolean) newValue);
-         } else if (PREF_NAVIGATION_ERROR.equals(key)) {
-             mPrefServiceBridge.setBoolean(Pref.ALTERNATE_ERROR_PAGES_ENABLED, (boolean) newValue);
-         } else if (PREF_USAGE_AND_CRASH_REPORTING.equals(key)) {
-@@ -601,7 +592,6 @@ public class SyncAndServicesPreferences
-         mSearchSuggestions.setChecked(mPrefServiceBridge.getBoolean(Pref.SEARCH_SUGGEST_ENABLED));
-         mNavigationError.setChecked(
-                 mPrefServiceBridge.getBoolean(Pref.ALTERNATE_ERROR_PAGES_ENABLED));
--        mSafeBrowsing.setChecked(mPrefServiceBridge.getBoolean(Pref.SAFE_BROWSING_ENABLED));
- 
-         updateLeakDetectionAndSafeBrowsingReportingPreferences();
- 
-@@ -667,10 +657,9 @@ public class SyncAndServicesPreferences
-      * its appearance needs to be updated. The same goes for safe browsing reporting.
-      */
-     private void updateLeakDetectionAndSafeBrowsingReportingPreferences() {
--        boolean safe_browsing_enabled = mPrefServiceBridge.getBoolean(Pref.SAFE_BROWSING_ENABLED);
-+        boolean safe_browsing_enabled = false;
-         mSafeBrowsingReporting.setEnabled(safe_browsing_enabled);
--        mSafeBrowsingReporting.setChecked(safe_browsing_enabled
--                && SafeBrowsingBridge.isSafeBrowsingExtendedReportingEnabled());
-+        mSafeBrowsingReporting.setChecked(false);
- 
-         if (mPasswordLeakDetection == null) return; // Early exit without leak detection to update.
- 
-@@ -700,10 +689,10 @@ public class SyncAndServicesPreferences
-                 return mPrefServiceBridge.isManagedPreference(Pref.SEARCH_SUGGEST_ENABLED);
-             }
-             if (PREF_SAFE_BROWSING_SCOUT_REPORTING.equals(key)) {
--                return SafeBrowsingBridge.isSafeBrowsingExtendedReportingManaged();
-+                return false;
-             }
-             if (PREF_SAFE_BROWSING.equals(key)) {
--                return mPrefServiceBridge.isManagedPreference(Pref.SAFE_BROWSING_ENABLED);
-+                return false;
-             }
-             if (PREF_PASSWORD_LEAK_DETECTION.equals(key)) {
-                 return mPrefServiceBridge.isManagedPreference(
 --- a/chrome/android/java/src/org/chromium/chrome/browser/webshare/ShareServiceImpl.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/webshare/ShareServiceImpl.java
 @@ -20,7 +20,6 @@ import org.chromium.base.task.PostTask;
@@ -127,7 +65,7 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
    // The default value '0' represents the latest Chrome major version on which
 --- a/android_webview/browser/safe_browsing/aw_safe_browsing_blocking_page.cc
 +++ b/android_webview/browser/safe_browsing/aw_safe_browsing_blocking_page.cc
-@@ -114,11 +114,11 @@ AwSafeBrowsingBlockingPage* AwSafeBrowsi
+@@ -123,11 +123,11 @@ AwSafeBrowsingBlockingPage* AwSafeBrowsi
    BaseSafeBrowsingErrorUI::SBErrorDisplayOptions display_options =
        BaseSafeBrowsingErrorUI::SBErrorDisplayOptions(
            IsMainPageLoadBlocked(unsafe_resources),
@@ -143,27 +81,9 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
            false,                    // should_open_links_in_new_tab
            false,                    // always_show_back_to_safety
            "cpn_safe_browsing_wv");  // help_center_article_link
---- a/weblayer/browser/profile_impl.cc
-+++ b/weblayer/browser/profile_impl.cc
-@@ -15,7 +15,6 @@
- #include "components/prefs/pref_registry_simple.h"
- #include "components/prefs/pref_service.h"
- #include "components/prefs/pref_service_factory.h"
--#include "components/safe_browsing/common/safe_browsing_prefs.h"
- #include "components/user_prefs/user_prefs.h"
- #include "components/web_cache/browser/web_cache_manager.h"
- #include "content/public/browser/browser_context.h"
-@@ -204,7 +203,6 @@ class ProfileImpl::BrowserContextImpl :
- 
-   // Registers the preferences that WebLayer accesses.
-   void RegisterPrefs(PrefRegistrySimple* pref_registry) {
--    safe_browsing::RegisterProfilePrefs(pref_registry);
-   }
- 
-   ProfileImpl* const profile_impl_;
 --- a/chrome/browser/android/preferences/prefs.h
 +++ b/chrome/browser/android/preferences/prefs.h
-@@ -40,8 +40,6 @@ enum Pref {
+@@ -41,8 +41,6 @@ enum Pref {
    AUTOFILL_CREDIT_CARD_ENABLED,
    USAGE_STATS_ENABLED,
    OFFLINE_PREFETCH_USER_SETTING_ENABLED,
@@ -172,3 +92,84 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
    PASSWORD_MANAGER_ONBOARDING_STATE,
    SEARCH_SUGGEST_ENABLED,
    REMEMBER_PASSWORDS_ENABLED,
+--- a/chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesSettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/sync/SyncAndServicesSettings.java
+@@ -45,7 +45,6 @@ import org.chromium.chrome.browser.prefe
+ import org.chromium.chrome.browser.preferences.PrefServiceBridge;
+ import org.chromium.chrome.browser.preferences.SharedPreferencesManager;
+ import org.chromium.chrome.browser.profiles.Profile;
+-import org.chromium.chrome.browser.safe_browsing.SafeBrowsingBridge;
+ import org.chromium.chrome.browser.settings.ChromeBasePreference;
+ import org.chromium.chrome.browser.settings.ChromeSwitchPreference;
+ import org.chromium.chrome.browser.settings.ManagedPreferenceDelegate;
+@@ -356,17 +355,9 @@ public class SyncAndServicesSettings ext
+             PostTask.postTask(UiThreadTaskTraits.DEFAULT, this::updatePreferences);
+         } else if (PREF_SEARCH_SUGGESTIONS.equals(key)) {
+             mPrefServiceBridge.setBoolean(Pref.SEARCH_SUGGEST_ENABLED, (boolean) newValue);
+-        } else if (PREF_SAFE_BROWSING.equals(key)) {
+-            mPrefServiceBridge.setBoolean(Pref.SAFE_BROWSING_ENABLED, (boolean) newValue);
+-            // Toggling the safe browsing preference impacts the leak detection and the
+-            // safe browsing reporting preferences as well.
+-            PostTask.postTask(UiThreadTaskTraits.DEFAULT,
+-                    this::updateLeakDetectionAndSafeBrowsingReportingPreferences);
+         } else if (PREF_PASSWORD_LEAK_DETECTION.equals(key)) {
+             mPrefServiceBridge.setBoolean(
+                     Pref.PASSWORD_MANAGER_LEAK_DETECTION_ENABLED, (boolean) newValue);
+-        } else if (PREF_SAFE_BROWSING_SCOUT_REPORTING.equals(key)) {
+-            SafeBrowsingBridge.setSafeBrowsingExtendedReportingEnabled((boolean) newValue);
+         } else if (PREF_NAVIGATION_ERROR.equals(key)) {
+             mPrefServiceBridge.setBoolean(Pref.ALTERNATE_ERROR_PAGES_ENABLED, (boolean) newValue);
+         } else if (PREF_USAGE_AND_CRASH_REPORTING.equals(key)) {
+@@ -539,7 +530,6 @@ public class SyncAndServicesSettings ext
+         mSearchSuggestions.setChecked(mPrefServiceBridge.getBoolean(Pref.SEARCH_SUGGEST_ENABLED));
+         mNavigationError.setChecked(
+                 mPrefServiceBridge.getBoolean(Pref.ALTERNATE_ERROR_PAGES_ENABLED));
+-        mSafeBrowsing.setChecked(mPrefServiceBridge.getBoolean(Pref.SAFE_BROWSING_ENABLED));
+ 
+         updateLeakDetectionAndSafeBrowsingReportingPreferences();
+ 
+@@ -610,10 +600,9 @@ public class SyncAndServicesSettings ext
+      * its appearance needs to be updated. The same goes for safe browsing reporting.
+      */
+     private void updateLeakDetectionAndSafeBrowsingReportingPreferences() {
+-        boolean safe_browsing_enabled = mPrefServiceBridge.getBoolean(Pref.SAFE_BROWSING_ENABLED);
++        boolean safe_browsing_enabled = false;
+         mSafeBrowsingReporting.setEnabled(safe_browsing_enabled);
+-        mSafeBrowsingReporting.setChecked(safe_browsing_enabled
+-                && SafeBrowsingBridge.isSafeBrowsingExtendedReportingEnabled());
++        mSafeBrowsingReporting.setChecked(safe_browsing_enabled);
+ 
+         boolean has_token_for_leak_check = PasswordUIView.hasAccountForLeakCheckRequest();
+         boolean leak_detection_enabled =
+@@ -641,10 +630,10 @@ public class SyncAndServicesSettings ext
+                 return mPrefServiceBridge.isManagedPreference(Pref.SEARCH_SUGGEST_ENABLED);
+             }
+             if (PREF_SAFE_BROWSING_SCOUT_REPORTING.equals(key)) {
+-                return SafeBrowsingBridge.isSafeBrowsingExtendedReportingManaged();
++                return false;
+             }
+             if (PREF_SAFE_BROWSING.equals(key)) {
+-                return mPrefServiceBridge.isManagedPreference(Pref.SAFE_BROWSING_ENABLED);
++                return false;
+             }
+             if (PREF_PASSWORD_LEAK_DETECTION.equals(key)) {
+                 return mPrefServiceBridge.isManagedPreference(
+--- a/weblayer/browser/browser_context_impl.cc
++++ b/weblayer/browser/browser_context_impl.cc
+@@ -11,7 +11,6 @@
+ #include "components/prefs/pref_registry_simple.h"
+ #include "components/prefs/pref_service.h"
+ #include "components/prefs/pref_service_factory.h"
+-#include "components/safe_browsing/core/common/safe_browsing_prefs.h"
+ #include "components/user_prefs/user_prefs.h"
+ #include "content/public/browser/device_service.h"
+ #include "content/public/browser/download_request_utils.h"
+@@ -212,8 +211,6 @@ void BrowserContextImpl::RegisterPrefs(P
+   // cases in the future, as it is used for various purposes through //chrome).
+   pref_registry->RegisterBooleanPref(
+       embedder_support::kAlternateErrorPagesEnabled, true);
+-
+-  safe_browsing::RegisterProfilePrefs(pref_registry);
+ }
+ 
+ }  // namespace weblayer

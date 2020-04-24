@@ -50,7 +50,6 @@ solutions = [
         "src/chrome/test/data/xr/webvr_info": None,
         "src/chrome/test/data/xr/webxr_samples": None,
         "src/third_party/spirv-cross/spirv-cross": None,
-        "src/third_party/spirv-headers/src": None,
         "src/third_party/shaderc/src": None,
         "src/third_party/dav1d/libdav1d": None,
         "src/third_party/glfw/src": None,

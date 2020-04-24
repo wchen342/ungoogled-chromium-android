@@ -2,12 +2,12 @@ description: prevent clang 9 from printing unknown-warning warning
 author: Wengling Chen <feiyu2817@gmail.com>
 
 ---
- build/config/compiler/BUILD.gn           | 3 +++
- 1 files changed, 3 insertions(+)
+ build/config/compiler/BUILD.gn |    3 +++
+ 1 file changed, 3 insertions(+)
 
 --- a/build/config/compiler/BUILD.gn
 +++ b/build/config/compiler/BUILD.gn
-@@ -1517,6 +1517,9 @@ config("default_warnings") {
+@@ -1511,6 +1511,9 @@ config("default_warnings") {
          # Flags NaCl (Clang 3.7) and Xcode 9.2 (Clang clang-900.0.39.2) do not
          # recognize.
          cflags += [

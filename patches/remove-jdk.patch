@@ -4,9 +4,9 @@ Subject: Remove dependency on bundled jdk
 
 ---
  testing/BUILD.gn | 5 -----
- 1 file changed, 5 deletions(-)
+  build/config/android/rules.gni |    1 -
+ 2 file changed, 6 deletions(-)
 
- diff --git a/testing/BUILD.gn b/testing/BUILD.gn
 --- a/testing/BUILD.gn
 +++ b/testing/BUILD.gn
 @@ -28,9 +28,4 @@ group("run_perf_test") {
@@ -19,3 +19,13 @@ Subject: Remove dependency on bundled jdk
 -    data_deps += [ "//third_party/jdk:java_data" ]
 -  }
  }
+--- a/build/config/android/rules.gni
++++ b/build/config/android/rules.gni
+@@ -1273,7 +1273,6 @@ if (enable_java_templates) {
+       if (!defined(data_deps)) {
+         data_deps = []
+       }
+-      data_deps += [ "//third_party/jdk:java_data" ]
+     }
+   }
+ 

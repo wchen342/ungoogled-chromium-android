@@ -1,0 +1,153 @@
+From: Wengling Chen <feiyu2817@gmail.com>
+Date: Thu, 23 Apr 2020 03:32:39 -0400
+Subject: Add new folder button to bookmark activity
+
+---
+ chrome/android/java/res/menu/bookmark_action_bar_menu.xml                                        |    7 +++
+ chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkActionBar.java             |    6 ++
+ chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkAddEditFolderActivity.java |   21 +++++++++-
+ chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkFolderSelectActivity.java  |   12 +++++
+ chrome/browser/ui/android/strings/android_chrome_strings.grd                                     |    3 +
+ 5 files changed, 47 insertions(+), 2 deletions(-)
+--- a/chrome/android/java/res/menu/bookmark_action_bar_menu.xml
++++ b/chrome/android/java/res/menu/bookmark_action_bar_menu.xml
+@@ -15,6 +15,13 @@
+             app:showAsAction="ifRoom"
+             app:iconTint="@color/standard_mode_tint" />
+         <item
++            android:id="@+id/add_folder_menu_id"
++            android:icon="@drawable/ic_add_outline_white_24dp"
++            android:title="@string/bookmark_action_bar_add_folder"
++            android:visible="false"
++            app:showAsAction="ifRoom"
++            app:iconTint="@color/standard_mode_tint" />
++        <item
+             android:id="@+id/search_menu_id"
+             android:icon="@drawable/ic_search"
+             android:title="@string/search"
+--- a/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkActionBar.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkActionBar.java
+@@ -79,6 +79,9 @@ public class BookmarkActionBar extends S
+         } else if (menuItem.getItemId() == R.id.close_menu_id) {
+             BookmarkUtils.finishActivityOnPhone(getContext());
+             return true;
++        } else if (menuItem.getItemId() == R.id.add_folder_menu_id) {
++            BookmarkAddEditFolderActivity.startAddFolderActivity(getContext());
++            return true;
+         } else if (menuItem.getItemId() == R.id.search_menu_id) {
+             mDelegate.openSearchUI();
+             return true;
+@@ -135,6 +138,7 @@ public class BookmarkActionBar extends S
+         setNavigationButton(NAVIGATION_BUTTON_NONE);
+         getMenu().findItem(R.id.search_menu_id).setVisible(false);
+         getMenu().findItem(R.id.edit_menu_id).setVisible(false);
++        getMenu().findItem(R.id.add_folder_menu_id).setVisible(false);
+     }
+ 
+     @Override
+@@ -144,6 +148,7 @@ public class BookmarkActionBar extends S
+         if (mDelegate == null) {
+             getMenu().findItem(R.id.search_menu_id).setVisible(false);
+             getMenu().findItem(R.id.edit_menu_id).setVisible(false);
++            getMenu().findItem(R.id.add_folder_menu_id).setVisible(false);
+         }
+     }
+ 
+@@ -173,6 +178,7 @@ public class BookmarkActionBar extends S
+         mCurrentFolder = mDelegate.getModel().getBookmarkById(folder);
+ 
+         getMenu().findItem(R.id.search_menu_id).setVisible(true);
++        getMenu().findItem(R.id.add_folder_menu_id).setVisible(true);
+         getMenu().findItem(R.id.edit_menu_id).setVisible(mCurrentFolder.isEditable());
+ 
+         // If this is the root folder, we can't go up anymore.
+--- a/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkAddEditFolderActivity.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkAddEditFolderActivity.java
+@@ -34,12 +34,14 @@ import java.util.List;
+ public class BookmarkAddEditFolderActivity extends SynchronousInitializationActivity
+         implements OnClickListener {
+     static final String INTENT_IS_ADD_MODE = "BookmarkAddEditFolderActivity.isAddMode";
++    static final String INTENT_IS_SIMPLE_ADD_MODE = "BookmarkAddEditFolderActivity.isSimpleAddMode";
+     static final String INTENT_BOOKMARK_ID = "BookmarkAddEditFolderActivity.BookmarkId";
+     static final String
+             INTENT_CREATED_BOOKMARK = "BookmarkAddEditFolderActivity.createdBookmark";
+     static final int PARENT_FOLDER_REQUEST_CODE = 10;
+ 
+     private boolean mIsAddMode;
++    private boolean mIsSimpleAddMode;
+     private BookmarkId mParentId;
+     private BookmarkModel mModel;
+     private TextView mParentTextView;
+@@ -98,6 +100,16 @@ public class BookmarkAddEditFolderActivi
+     }
+ 
+     /**
++     * Starts an add folder activity, without a specific bookmark.
++     */
++    public static void startAddFolderActivity(Context context) {
++        Intent intent = new Intent(context, BookmarkAddEditFolderActivity.class);
++        intent.putExtra(INTENT_IS_ADD_MODE, true);
++        intent.putExtra(INTENT_IS_SIMPLE_ADD_MODE, true);
++        context.startActivity(intent);
++    }
++
++    /**
+      * Starts an add folder activity. This method should only be called by
+      * {@link BookmarkFolderSelectActivity}.
+      */
+@@ -122,7 +134,9 @@ public class BookmarkAddEditFolderActivi
+         mModel = new BookmarkModel();
+         mModel.addObserver(mBookmarkModelObserver);
+         mIsAddMode = getIntent().getBooleanExtra(INTENT_IS_ADD_MODE, false);
+-        if (mIsAddMode) {
++        mIsSimpleAddMode = getIntent().getBooleanExtra(INTENT_IS_SIMPLE_ADD_MODE, false);
++        assert !mIsSimpleAddMode || mIsAddMode;
++        if (mIsAddMode && !mIsSimpleAddMode) {
+             List<String> stringList = getIntent().getStringArrayListExtra(
+                     BookmarkFolderSelectActivity.INTENT_BOOKMARKS_TO_MOVE);
+             mBookmarksToMove = new ArrayList<>(stringList.size());
+@@ -171,7 +185,10 @@ public class BookmarkAddEditFolderActivi
+     public void onClick(View v) {
+         assert v == mParentTextView;
+ 
+-        if (mIsAddMode) {
++        if (mIsSimpleAddMode) {
++            BookmarkFolderSelectActivity.startNewFolderSelectActivity(
++                    this);
++        } else if (mIsAddMode) {
+             BookmarkFolderSelectActivity.startNewFolderSelectActivity(
+                     this, mBookmarksToMove);
+         } else {
+--- a/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkFolderSelectActivity.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkFolderSelectActivity.java
+@@ -97,6 +97,18 @@ public class BookmarkFolderSelectActivit
+     }
+ 
+     /**
++     * Starts a select folder activity for the new folder that is about to be created. No bookmark
++     * specified.
++     */
++    public static void startNewFolderSelectActivity(BookmarkAddEditFolderActivity activity) {
++        Intent intent = new Intent(activity, BookmarkFolderSelectActivity.class);
++        intent.putExtra(INTENT_IS_CREATING_FOLDER, true);
++
++        activity.startActivityForResult(intent,
++                BookmarkAddEditFolderActivity.PARENT_FOLDER_REQUEST_CODE);
++    }
++
++    /**
+      * Starts a select folder activity for the new folder that is about to be created. This method
+      * is only supposed to be called by {@link BookmarkAddEditFolderActivity}
+      */
+--- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
++++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
+@@ -2918,6 +2918,9 @@ To change this setting, <ph name="BEGIN_
+       <message name="IDS_BOOKMARK_ACTION_BAR_EDIT_FOLDER" desc="Button text for editing current folder action on the bookmark action bar [CHAR-LIMIT=32]">
+         Edit folder
+       </message>
++      <message name="IDS_BOOKMARK_ACTION_BAR_ADD_FOLDER" desc="Button text for adding new folder action on the bookmark action bar [CHAR-LIMIT=32]">
++        Add folder
++      </message>
+       <message name="IDS_BOOKMARK_ACTION_BAR_MOVE" desc="Button text for bookmark move action on the bookmark action bar [CHAR-LIMIT=32]">
+         Move bookmarks
+       </message>

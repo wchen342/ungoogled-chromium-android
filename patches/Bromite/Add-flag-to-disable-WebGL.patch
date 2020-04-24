@@ -10,7 +10,7 @@ Subject: Add flag to disable WebGL
 
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -1537,6 +1537,9 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -1605,6 +1605,9 @@ const FeatureEntry kFeatureEntries[] = {
       flag_descriptions::kAccelerated2dCanvasName,
       flag_descriptions::kAccelerated2dCanvasDescription, kOsAll,
       SINGLE_DISABLE_VALUE_TYPE(switches::kDisableAccelerated2dCanvas)},
@@ -22,9 +22,9 @@ Subject: Add flag to disable WebGL
       SINGLE_VALUE_TYPE(cc::switches::kShowCompositedLayerBorders)},
 --- a/chrome/browser/flag_descriptions.cc
 +++ b/chrome/browser/flag_descriptions.cc
-@@ -446,6 +446,10 @@ const char kDisableAudioForDesktopShareD
-     "With this flag on, desktop share picker window will not let the user "
-     "choose whether to share audio.";
+@@ -414,6 +414,10 @@ const char kDevtoolsExperimentsDescripti
+     "Enables Developer Tools experiments. Use Settings panel in Developer "
+     "Tools to toggle individual experiments.";
  
 +const char kDisableWebGLName[] = "Disable all versions of WebGL";
 +
@@ -35,9 +35,9 @@ Subject: Add flag to disable WebGL
      "With this flag on, tasks of the lowest priority will not be executed "
 --- a/chrome/browser/flag_descriptions.h
 +++ b/chrome/browser/flag_descriptions.h
-@@ -287,6 +287,9 @@ extern const char kDevtoolsExperimentsDe
- extern const char kDisableAudioForDesktopShareName[];
- extern const char kDisableAudioForDesktopShareDescription[];
+@@ -264,6 +264,9 @@ extern const char kDeviceDiscoveryNotifi
+ extern const char kDevtoolsExperimentsName[];
+ extern const char kDevtoolsExperimentsDescription[];
  
 +extern const char kDisableWebGLName[];
 +extern const char kDisableWebGLDescription[];

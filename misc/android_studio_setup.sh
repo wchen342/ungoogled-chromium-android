@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eux -o pipefail
 
-chromium_version=80.0.3987.122
+chromium_version=81.0.4044.113
 chrome_target=chrome_public_apk
 monochrome_target=monochrome_public_apk
 webview_target=system_webview_apk
@@ -51,5 +51,6 @@ gn gen ${output_folder} --fail-on-unused-args
 pushd ..
 patch -p1 --ignore-whitespace -i patches/generate_gradle.patch --no-backup-if-mismatch
 popd
+# patch -p1 --ignore-whitespace -i ../patches/src-fix/fix-unkown-warning-clang-9.patch --no-backup-if-mismatch
 python build/android/gradle/generate_gradle.py --target //chrome/android:${monochrome_target} --output-directory ${output_folder}
 popd

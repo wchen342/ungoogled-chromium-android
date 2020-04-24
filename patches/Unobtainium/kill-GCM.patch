@@ -7,8 +7,8 @@ Subject: kill GCM
  chrome/android/chrome_java_sources.gni                                                                                                                |    6 
  chrome/android/java/AndroidManifest.xml                                                                                                               |   64 ---
  chrome/android/java/src/org/chromium/chrome/browser/background_task_scheduler/ChromeBackgroundTaskFactory.java                                        |    3 
- chrome/android/java/src/org/chromium/chrome/browser/ntp/snippets/SnippetsLauncher.java                                                                |   45 --
- chrome/android/java/src/org/chromium/chrome/browser/services/gcm/GCMBackgroundTask.java                                                               |    2 
+ chrome/android/java/src/org/chromium/chrome/browser/ntp/snippets/SnippetsLauncher.java                                                                |   56 --
+ chrome/android/java/src/org/chromium/chrome/browser/services/gcm/GCMBackgroundTask.java                                                               |    1 
  chrome/android/java/src/org/chromium/chrome/browser/services/gcm/InvalidationGcmUpstreamSender.java                                                   |   18 
  components/background_task_scheduler/BUILD.gn                                                                                                         |    1 
  components/background_task_scheduler/android/java/src/org/chromium/components/background_task_scheduler/BackgroundTaskSchedulerGcmNetworkManager.java |  206 ----------
@@ -19,11 +19,11 @@ Subject: kill GCM
  third_party/cacheinvalidation/BUILD.gn                                                                                                                |    6 
  third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/contrib/MultiplexingGcmListener.java                               |   91 ----
  third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidNetworkChannel.java                                   |    6 
- 16 files changed, 10 insertions(+), 494 deletions(-)
+ 16 files changed, 15 insertions(+), 499 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -337,7 +337,6 @@ android_library("chrome_java") {
+@@ -358,7 +358,6 @@ android_library("chrome_java") {
      "//third_party/android_deps:com_google_protobuf_protobuf_lite_java",
      "//third_party/android_deps:javax_inject_javax_inject_java",
      "//third_party/android_media:android_media_java",
@@ -41,7 +41,7 @@ Subject: kill GCM
    "java/src/org/chromium/chrome/browser/ChromeBackupAgent.java",
    "java/src/org/chromium/chrome/browser/ChromeBackupWatcher.java",
    "java/src/org/chromium/chrome/browser/ChromeBaseAppCompatActivity.java",
-@@ -1338,11 +1337,6 @@ chrome_java_sources = [
+@@ -1360,11 +1359,6 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/services/AndroidEduAndChildAccountHelper.java",
    "java/src/org/chromium/chrome/browser/services/AndroidEduOwnerCheckCallback.java",
    "java/src/org/chromium/chrome/browser/services/GoogleServicesManager.java",
@@ -50,9 +50,9 @@ Subject: kill GCM
 -  "java/src/org/chromium/chrome/browser/services/gcm/GCMBackgroundTask.java",
 -  "java/src/org/chromium/chrome/browser/services/gcm/GcmUma.java",
 -  "java/src/org/chromium/chrome/browser/services/gcm/InvalidationGcmUpstreamSender.java",
-   "java/src/org/chromium/chrome/browser/sessions/SessionTabHelper.java",
-   "java/src/org/chromium/chrome/browser/settings/ButtonPreference.java",
-   "java/src/org/chromium/chrome/browser/settings/ChromeBaseCheckBoxPreference.java",
+   "java/src/org/chromium/chrome/browser/settings/HyperlinkPreference.java",
+   "java/src/org/chromium/chrome/browser/settings/LearnMorePreference.java",
+   "java/src/org/chromium/chrome/browser/settings/MainSettings.java",
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
 @@ -81,22 +81,17 @@ by a child template that "extends" this
@@ -78,7 +78,7 @@ Subject: kill GCM
      <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT"/>
  
      <uses-permission android:name="com.google.android.apps.now.CURRENT_ACCOUNT_ACCESS" />
-@@ -1056,50 +1051,9 @@ by a child template that "extends" this
+@@ -1039,50 +1034,9 @@ by a child template that "extends" this
              android:configChanges="orientation|keyboardHidden|keyboard|screenSize|mcc|mnc|screenLayout|smallestScreenSize"
              android:hardwareAccelerated="false" />
  
@@ -129,7 +129,7 @@ Subject: kill GCM
          <receiver android:name="com.google.ipc.invalidation.ticl.android2.AndroidInternalScheduler$AlarmReceiver"
              android:exported="false"/>
          <receiver android:name="com.google.ipc.invalidation.external.client.contrib.AndroidListener$AlarmReceiver"
-@@ -1126,24 +1080,6 @@ by a child template that "extends" this
+@@ -1109,28 +1063,10 @@ by a child template that "extends" this
              android:exported="false"
              android:permission="android.permission.BIND_JOB_SERVICE"/>
  
@@ -142,6 +142,10 @@ Subject: kill GCM
 -            </intent-filter>
 -        </service>
 -
+         <!-- Background Task Scheduler alarm receiver -->
+         <receiver android:name="org.chromium.components.background_task_scheduler.BackgroundTaskBroadcastReceiver"
+             android:exported="false" />
+ 
 -        <!-- GcmTaskService implementation to wake Chrome on scheduled events -->
 -        <service android:name="org.chromium.chrome.browser.ChromeBackgroundService"
 -            android:permission="com.google.android.gms.permission.BIND_NETWORK_TASK_SERVICE"
@@ -188,9 +192,9 @@ Subject: kill GCM
  import org.chromium.base.annotations.CalledByNative;
 -import org.chromium.chrome.browser.ChromeBackgroundService;
  import org.chromium.chrome.browser.externalauth.ExternalAuthUtils;
- 
- /**
-@@ -41,8 +36,6 @@ public class SnippetsLauncher {
+ import org.chromium.chrome.browser.preferences.ChromePreferenceKeys;
+ import org.chromium.chrome.browser.preferences.SharedPreferencesManager;
+@@ -40,8 +35,6 @@ public class SnippetsLauncher {
      // If it is non-null then the browser is running.
      private static SnippetsLauncher sInstance;
  
@@ -199,7 +203,7 @@ Subject: kill GCM
      private boolean mGCMEnabled = true;
  
      /**
-@@ -79,7 +72,7 @@ public class SnippetsLauncher {
+@@ -78,7 +71,7 @@ public class SnippetsLauncher {
  
      protected SnippetsLauncher() {
          checkGCM();
@@ -208,7 +212,7 @@ Subject: kill GCM
      }
  
      private void checkGCM() {
-@@ -90,32 +83,7 @@ public class SnippetsLauncher {
+@@ -89,32 +82,7 @@ public class SnippetsLauncher {
          }
      }
  
@@ -241,11 +245,10 @@ Subject: kill GCM
      }
  
      @CalledByNative
-@@ -128,23 +96,12 @@ public class SnippetsLauncher {
-                 .edit()
-                 .putBoolean(PREF_IS_SCHEDULED, isScheduled)
-                 .apply();
--
+@@ -126,23 +94,13 @@ public class SnippetsLauncher {
+         SharedPreferencesManager.getInstance().writeBoolean(
+                 ChromePreferenceKeys.NTP_SNIPPETS_IS_SCHEDULED, isScheduled);
+ 
 -        // Google Play Services may not be up to date, if the application was not installed through
 -        // the Play Store. In this case, scheduling the task will fail silently.
 -        try {
@@ -254,25 +257,31 @@ Subject: kill GCM
 -            scheduleOrCancelFetchTask(
 -                    TASK_TAG_FALLBACK, periodFallbackSeconds, Task.NETWORK_STATE_CONNECTED);
 -        } catch (IllegalArgumentException e) {
-             // Disable GCM for the remainder of this session.
-             mGCMEnabled = false;
+-            // Disable GCM for the remainder of this session.
+-            mGCMEnabled = false;
++        // Disable GCM for the remainder of this session.
++        mGCMEnabled = false;
  
-             ContextUtils.getAppSharedPreferences().edit().remove(PREF_IS_SCHEDULED).apply();
-             // Return false so that the failure will be logged.
-             return false;
+-            SharedPreferencesManager.getInstance().removeKey(
+-                    ChromePreferenceKeys.NTP_SNIPPETS_IS_SCHEDULED);
+-            // Return false so that the failure will be logged.
+-            return false;
 -        }
 -        return true;
++        SharedPreferencesManager.getInstance().removeKey(
++                ChromePreferenceKeys.NTP_SNIPPETS_IS_SCHEDULED);
++        // Return false so that the failure will be logged.
++        return false;
      }
  
      @CalledByNative
 --- a/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/GCMBackgroundTask.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/GCMBackgroundTask.java
-@@ -42,7 +42,7 @@ public class GCMBackgroundTask implement
+@@ -42,7 +42,6 @@ public class GCMBackgroundTask implement
              return false;
          }
  
--        ChromeGcmListenerService.dispatchMessageToDriver(context, message);
-+        //ChromeGcmListenerService.dispatchMessageToDriver(context, message);
+-        ChromeGcmListenerService.dispatchMessageToDriver(message);
          return false;
      }
  
@@ -560,7 +569,7 @@ Subject: kill GCM
      private static String taskIdToTaskTag(int taskId) {
 --- a/components/gcm_driver/android/BUILD.gn
 +++ b/components/gcm_driver/android/BUILD.gn
-@@ -15,7 +15,6 @@ android_library("gcm_driver_java") {
+@@ -13,7 +13,6 @@ android_library("gcm_driver_java") {
      "//base:base_java",
      "//base:jni_java",
      "//content/public/android:content_java",
@@ -570,9 +579,9 @@ Subject: kill GCM
    annotation_processor_deps = [ "//base/android/jni_generator:jni_processor" ]
 --- a/components/gcm_driver/instance_id/android/BUILD.gn
 +++ b/components/gcm_driver/instance_id/android/BUILD.gn
-@@ -31,7 +31,6 @@ android_library("instance_id_driver_java
+@@ -27,7 +27,6 @@ android_library("instance_id_driver_java
  
-   java_files = [
+   sources = [
      "java/src/org/chromium/components/gcm_driver/instance_id/InstanceIDBridge.java",
 -    "java/src/org/chromium/components/gcm_driver/instance_id/InstanceIDWithSubtype.java",
    ]
@@ -693,15 +702,15 @@ Subject: kill GCM
      "//third_party/jsr-305:jsr_305_javalib",
 --- a/third_party/cacheinvalidation/BUILD.gn
 +++ b/third_party/cacheinvalidation/BUILD.gn
-@@ -142,7 +142,6 @@ if (is_android) {
+@@ -138,7 +138,6 @@ if (is_android) {
        "$google_play_services_package:google_play_services_tasks_java",
        "//base:base_java",
        "//third_party/android_protobuf:protobuf_nano_javalib",
 -      "//third_party/android_sdk:android_gcm_java",
      ]
  
-     java_files = [
-@@ -208,13 +207,8 @@ if (is_android) {
+     sources = [
+@@ -204,13 +203,8 @@ if (is_android) {
        "src/java/com/google/ipc/invalidation/ticl/android2/WakeLockManager.java",
        "src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidChannelConstants.java",
        "src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidChannelPreferences.java",

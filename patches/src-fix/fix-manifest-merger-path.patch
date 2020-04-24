@@ -1,0 +1,20 @@
+From: Wengling Chen <feiyu2817@gmail.com>
+Date: Tue, 21 Apr 2020 23:43:11 -0400
+Subject: fix gn ignoring manifest merger sdk
+
+---
+ build/config/android/config.gni |    3 +++
+ 1 file changed, 3 insertions(+)
+
+--- a/build/config/android/config.gni
++++ b/build/config/android/config.gni
+@@ -142,6 +142,9 @@ if (is_android || is_chromeos) {
+     lint_android_sdk_root = default_lint_android_sdk_root
+     lint_android_sdk_version = default_lint_android_sdk_version
+ 
++    manifest_merger_sdk_root =  manifest_merger_sdk_root
++    manifest_merger_sdk_version =  manifest_merger_sdk_version
++
+     # Libc++ library directory. Override to use a custom libc++ binary.
+     android_libcpp_lib_dir = ""
+ 

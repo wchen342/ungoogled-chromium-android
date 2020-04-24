@@ -3,24 +3,22 @@ Date: Sat, 2 Nov 2019 09:29:52 +0100
 Subject: Remove dependency on com.google.android.gcm
 
 ---
- third_party/android_sdk/BUILD.gn                   |  3 --
- .../external/client/android2/AndroidManifest.xml   | 35 ----------------------
- .../channel/AndroidMessageReceiverService.java     | 17 -----------
- .../channel/AndroidMessageSenderService.java       |  3 +-
+ third_party/android_sdk/BUILD.gn                                                                                            |    3 
+ third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/android2/AndroidManifest.xml             |   35 ----------
+ third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidMessageReceiverService.java |   17 ----
+ third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidMessageSenderService.java   |    3 
  4 files changed, 1 insertion(+), 57 deletions(-)
 
-diff --git a/third_party/android_sdk/BUILD.gn b/third_party/android_sdk/BUILD.gn
 --- a/third_party/android_sdk/BUILD.gn
 +++ b/third_party/android_sdk/BUILD.gn
-@@ -67,7 +67,4 @@ if (enable_java_templates) {
+@@ -63,7 +63,4 @@ if (enable_java_templates) {
      testonly = true
-     java_files = [ "//third_party/android_sdk/public/extras/chromium/support/src/org/chromium/android/support/PackageManagerWrapper.java" ]
+     sources = [ "//third_party/android_sdk/public/extras/chromium/support/src/org/chromium/android/support/PackageManagerWrapper.java" ]
    }
 -  android_java_prebuilt("android_gcm_java") {
 -    jar_path = "//third_party/android_sdk/public/extras/google/gcm/gcm-client/dist/gcm.jar"
 -  }
  }
-diff --git a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/android2/AndroidManifest.xml b/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/android2/AndroidManifest.xml
 --- a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/android2/AndroidManifest.xml
 +++ b/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/android2/AndroidManifest.xml
 @@ -4,10 +4,6 @@
@@ -75,7 +73,6 @@ diff --git a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/
 -    </receiver>
    </application>
  </manifest>
-diff --git a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidMessageReceiverService.java b/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidMessageReceiverService.java
 --- a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidMessageReceiverService.java
 +++ b/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidMessageReceiverService.java
 @@ -15,7 +15,6 @@
@@ -86,7 +83,7 @@ diff --git a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/
  import com.google.ipc.invalidation.external.client.SystemResources.Logger;
  import com.google.ipc.invalidation.external.client.android.service.AndroidLogger;
  import com.google.ipc.invalidation.external.client.contrib.MultiplexingGcmListener;
-@@ -126,20 +125,4 @@ public class AndroidMessageReceiverService extends MultiplexingGcmListener.Abstr
+@@ -126,20 +125,4 @@ public class AndroidMessageReceiverServi
      // now, there is nothing to do.
    }
  
@@ -107,7 +104,6 @@ diff --git a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/
 -    }
 -  }
  }
-diff --git a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidMessageSenderService.java b/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidMessageSenderService.java
 --- a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidMessageSenderService.java
 +++ b/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidMessageSenderService.java
 @@ -15,7 +15,6 @@
@@ -118,7 +114,7 @@ diff --git a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/
  import com.google.ipc.invalidation.common.GcmSharedConstants;
  import com.google.ipc.invalidation.external.client.SystemResources.Logger;
  import com.google.ipc.invalidation.external.client.android.service.AndroidLogger;
-@@ -395,7 +394,7 @@ public class AndroidMessageSenderService extends IntentService {
+@@ -395,7 +394,7 @@ public class AndroidMessageSenderService
          // No client key when using old style registration id.
          clientKey = "";
          try {
@@ -127,6 +123,3 @@ diff --git a/third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/
          } catch (RuntimeException exception) {
              // GCMRegistrar#getRegistrationId occasionally throws a runtime exception. Catching the
              // exception rather than crashing.
--- 
-2.11.0
-

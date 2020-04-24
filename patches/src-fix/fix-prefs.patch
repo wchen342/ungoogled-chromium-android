@@ -10,7 +10,7 @@ Subject: fix build error with prefs.h
  
 --- a/chrome/browser/android/preferences/prefs.h
 +++ b/chrome/browser/android/preferences/prefs.h
-@@ -20,7 +20,6 @@
+@@ -21,7 +21,6 @@
  #include "components/offline_pages/core/prefetch/prefetch_prefs.h"
  #include "components/password_manager/core/common/password_manager_pref_names.h"
  #include "components/payments/core/payment_prefs.h"
@@ -18,7 +18,7 @@ Subject: fix build error with prefs.h
  #include "components/translate/core/browser/translate_pref_names.h"
  
  // A preference exposed to Java.
-@@ -59,7 +58,6 @@ enum Pref {
+@@ -61,7 +60,6 @@ enum Pref {
    OFFER_TRANSLATE_ENABLED,
    NOTIFICATIONS_VIBRATE_ENABLED,
    ALTERNATE_ERROR_PAGES_ENABLED,
@@ -26,30 +26,30 @@ Subject: fix build error with prefs.h
    WEBKIT_PASSWORD_ECHO_ENABLED,
    WEBKIT_FORCE_DARK_MODE_ENABLED,
    HOME_PAGE,
-@@ -109,7 +107,6 @@ const char* const kPrefsExposedToJava[]
+@@ -112,7 +110,6 @@ const char* const kPrefsExposedToJava[]
      prefs::kOfferTranslateEnabled,
      prefs::kNotificationsVibrateEnabled,
-     prefs::kAlternateErrorPagesEnabled,
+     embedder_support::kAlternateErrorPagesEnabled,
 -    prefs::kGoogleServicesLastUsername,
      prefs::kWebKitPasswordEchoEnabled,
      prefs::kWebKitForceDarkModeEnabled,
      prefs::kHomePage,
 --- a/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninFragmentBase.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninFragmentBase.java
-@@ -437,7 +437,7 @@ public abstract class SigninFragmentBase
+@@ -438,7 +438,7 @@ public abstract class SigninFragmentBase
      private void runStateMachineAndSignin(boolean settingsClicked) {
-         mConfirmSyncDataStateMachine = new ConfirmSyncDataStateMachine(getContext(),
-                 getChildFragmentManager(),
+         mConfirmSyncDataStateMachine = new ConfirmSyncDataStateMachine(
+                 new ConfirmSyncDataStateMachineDelegate(getChildFragmentManager()),
 -                PrefServiceBridge.getInstance().getString(Pref.SYNC_LAST_ACCOUNT_NAME),
 +                "",
-                 mSelectedAccountName, new ConfirmImportSyncDataDialog.Listener() {
+                 mSelectedAccountName, new ConfirmSyncDataStateMachine.Listener() {
                      @Override
                      public void onConfirm(boolean wipeData) {
 --- a/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninPromoUtil.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninPromoUtil.java
-@@ -42,8 +42,7 @@ public class SigninPromoUtil {
+@@ -39,8 +39,7 @@ public class SigninPromoUtil {
      public static boolean launchSigninPromoIfNeeded(final Activity activity) {
-         ChromePreferenceManager preferenceManager = ChromePreferenceManager.getInstance();
+         SigninPreferencesManager preferencesManager = SigninPreferencesManager.getInstance();
          int currentMajorVersion = ChromeVersionInfo.getProductMajorVersion();
 -        boolean wasSignedIn = TextUtils.isEmpty(
 -                PrefServiceBridge.getInstance().getString(Pref.SYNC_LAST_ACCOUNT_NAME));

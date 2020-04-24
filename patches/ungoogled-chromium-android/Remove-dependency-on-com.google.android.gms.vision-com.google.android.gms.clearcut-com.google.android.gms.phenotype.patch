@@ -4,18 +4,19 @@ Subject: Remove dependency on com.google.android.gms.vision,
  com.google.android.gms.clearcut, com.google.android.gms.phenotype
 
 ---
- services/BUILD.gn                                                                                        |    4 
- services/shape_detection/BUILD.gn                                                                        |    2 
- services/shape_detection/android/java/src/org/chromium/shape_detection/BarcodeDetectionImpl.java         |  114 ---------
- services/shape_detection/android/java/src/org/chromium/shape_detection/BarcodeDetectionProviderImpl.java |   18 -
- services/shape_detection/android/java/src/org/chromium/shape_detection/FaceDetectionImplGmsCore.java     |  122 ----------
- services/shape_detection/android/java/src/org/chromium/shape_detection/TextDetectionImpl.java            |   60 ----
- third_party/android_deps/BUILD.gn                                                                        |   66 -----
- 7 files changed, 10 insertions(+), 376 deletions(-)
+ chrome/browser/share/android/java/src/org/chromium/chrome/browser/share/qrcode/scan_tab/QrCodeScanMediator.java |   29 --
+ services/BUILD.gn                                                                                               |    4 
+ services/shape_detection/BUILD.gn                                                                               |    2 
+ services/shape_detection/android/java/src/org/chromium/shape_detection/BarcodeDetectionImpl.java                |  114 ---------
+ services/shape_detection/android/java/src/org/chromium/shape_detection/BarcodeDetectionProviderImpl.java        |   18 -
+ services/shape_detection/android/java/src/org/chromium/shape_detection/FaceDetectionImplGmsCore.java            |  122 ----------
+ services/shape_detection/android/java/src/org/chromium/shape_detection/TextDetectionImpl.java                   |   60 ----
+ third_party/android_deps/BUILD.gn                                                                               |   66 -----
+ 8 files changed, 10 insertions(+), 405 deletions(-)
 
 --- a/services/BUILD.gn
 +++ b/services/BUILD.gn
-@@ -109,8 +109,6 @@ if (is_android) {
+@@ -105,8 +105,6 @@ if (is_android) {
      deps = [
        "$google_play_services_package:google_play_services_base_java",
        "$google_play_services_package:google_play_services_basement_java",
@@ -24,7 +25,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
        "//base:base_java",
        "//base:base_java_test_support",
        "//base:base_junit_test_support",
-@@ -140,8 +138,6 @@ if (is_android) {
+@@ -136,8 +134,6 @@ if (is_android) {
      deps = [
        "$google_play_services_package:google_play_services_base_java",
        "$google_play_services_package:google_play_services_basement_java",
@@ -476,7 +477,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
  }
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -859,35 +859,6 @@ android_aar_prebuilt("google_play_servic
+@@ -885,35 +885,6 @@ android_aar_prebuilt("google_play_servic
  }
  
  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
@@ -512,7 +513,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
  android_aar_prebuilt("com_google_android_material_material_java") {
    aar_path = "libs/com_google_android_material_material/material-1.0.0-rc02.aar"
    info_path = "libs/com_google_android_material_material/com_google_android_material_material.info"
-@@ -1577,25 +1548,6 @@ java_prebuilt("com_github_stephenc_jcip_
+@@ -1648,25 +1619,6 @@ java_prebuilt("com_github_kevinstern_sof
  }
  
  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
@@ -521,7 +522,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
 -  info_path = "libs/com_google_android_gms_play_services_clearcut/com_google_android_gms_play_services_clearcut.info"
 -
 -  # To remove visibility constraint, add this dependency to
--  # //tools/android/roll/android_deps/build.gradle.
+-  # //third_party/android_deps/build.gradle.
 -  visibility = [ ":*" ]
 -  deps = [
 -    ":google_play_services_base_java",
@@ -538,7 +539,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
  android_aar_prebuilt("google_play_services_flags_java") {
    aar_path = "libs/com_google_android_gms_play_services_flags/play-services-flags-15.0.1.aar"
    info_path = "libs/com_google_android_gms_play_services_flags/com_google_android_gms_play_services_flags.info"
-@@ -1609,24 +1561,6 @@ android_aar_prebuilt("google_play_servic
+@@ -1680,24 +1632,6 @@ android_aar_prebuilt("google_play_servic
    ]
  
    # Removing drawables from GMS .aars as they are unused bloat.
@@ -551,7 +552,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
 -  info_path = "libs/com_google_android_gms_play_services_phenotype/com_google_android_gms_play_services_phenotype.info"
 -
 -  # To remove visibility constraint, add this dependency to
--  # //tools/android/roll/android_deps/build.gradle.
+-  # //third_party/android_deps/build.gradle.
 -  visibility = [ ":*" ]
 -  deps = [
 -    ":google_play_services_base_java",
@@ -563,3 +564,61 @@ Subject: Remove dependency on com.google.android.gms.vision,
    strip_drawables = true
  }
  
+--- a/chrome/browser/share/android/java/src/org/chromium/chrome/browser/share/qrcode/scan_tab/QrCodeScanMediator.java
++++ b/chrome/browser/share/android/java/src/org/chromium/chrome/browser/share/qrcode/scan_tab/QrCodeScanMediator.java
+@@ -16,10 +16,6 @@ import android.os.Process;
+ import android.util.SparseArray;
+ import android.webkit.URLUtil;
+ 
+-import com.google.android.gms.vision.Frame;
+-import com.google.android.gms.vision.barcode.Barcode;
+-import com.google.android.gms.vision.barcode.BarcodeDetector;
+-
+ import org.chromium.ui.base.ActivityAndroidPermissionDelegate;
+ import org.chromium.ui.base.AndroidPermissionDelegate;
+ import org.chromium.ui.base.PermissionCallback;
+@@ -41,7 +37,6 @@ public class QrCodeScanMediator implemen
+ 
+     private final Context mContext;
+     private final PropertyModel mPropertyModel;
+-    private final BarcodeDetector mDetector;
+     private final NavigationObserver mNavigationObserver;
+     private final TabCreator mTabCreator;
+     private final Handler mMainThreadHandler;
+@@ -63,7 +58,6 @@ public class QrCodeScanMediator implemen
+         mPropertyModel.set(QrCodeScanViewProperties.HAS_CAMERA_PERMISSION, hasCameraPermission());
+         mPropertyModel.set(
+                 QrCodeScanViewProperties.CAN_PROMPT_FOR_PERMISSION, canPromptForPermission());
+-        mDetector = new BarcodeDetector.Builder(context).build();
+         mNavigationObserver = observer;
+         mTabCreator = tabCreator;
+         mMainThreadHandler = new Handler(Looper.getMainLooper());
+@@ -125,28 +119,5 @@ public class QrCodeScanMediator implemen
+     public void onPreviewFrame(byte[] data, Camera camera) {
+         ByteBuffer buffer = ByteBuffer.allocate(data.length);
+         buffer.put(data);
+-        Frame frame =
+-                new Frame.Builder()
+-                        .setImageData(buffer, camera.getParameters().getPreviewSize().width,
+-                                camera.getParameters().getPreviewSize().height, ImageFormat.NV21)
+-                        .build();
+-        SparseArray<Barcode> barcodes = mDetector.detect(frame);
+-        if (barcodes.size() == 0) {
+-            camera.setOneShotPreviewCallback(this);
+-            return;
+-        }
+-
+-        Barcode firstCode = barcodes.valueAt(0);
+-        Toast.makeText(mContext, firstCode.rawValue, Toast.LENGTH_LONG).show();
+-        if (!URLUtil.isValidUrl(firstCode.rawValue)) {
+-            camera.setOneShotPreviewCallback(this);
+-            return;
+-        }
+-
+-        /** Tab creation should happen on the main thread. */
+-        mMainThreadHandler.post(() -> {
+-            mTabCreator.createNewTab(firstCode.rawValue);
+-            mNavigationObserver.onNavigation();
+-        });
+     }
+ }

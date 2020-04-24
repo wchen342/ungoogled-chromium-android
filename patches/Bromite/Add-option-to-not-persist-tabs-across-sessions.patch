@@ -3,14 +3,13 @@ Date: Sat, 7 Sep 2019 15:07:42 +0200
 Subject: Add option to not persist tabs across sessions
 
 ---
- chrome/android/java/res/values/values.xml                                                    |    3 ++
- chrome/android/java/res/xml/privacy_preferences.xml                                          |    5 ++++
- chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java                |    4 ++-
- chrome/android/java/src/org/chromium/chrome/browser/settings/privacy/PrivacyPreferences.java |   12 ++++++++++
- chrome/browser/ui/android/strings/android_chrome_strings.grd                                 |    6 +++++
+ chrome/android/java/res/values/values.xml                                                 |    3 ++
+ chrome/android/java/res/xml/privacy_preferences.xml                                       |    5 ++++
+ chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java             |    4 ++-
+ chrome/android/java/src/org/chromium/chrome/browser/settings/privacy/PrivacySettings.java |   12 ++++++++++
+ chrome/browser/ui/android/strings/android_chrome_strings.grd                              |    6 +++++
  5 files changed, 29 insertions(+), 1 deletion(-)
 
-diff --git a/chrome/android/java/res/values/values.xml b/chrome/android/java/res/values/values.xml
 --- a/chrome/android/java/res/values/values.xml
 +++ b/chrome/android/java/res/values/values.xml
 @@ -57,6 +57,9 @@
@@ -23,25 +22,23 @@ diff --git a/chrome/android/java/res/values/values.xml b/chrome/android/java/res
      <!-- Our manage space activity. Default pre-KitKat to be nothing. -->
      <string name="manage_space_activity"></string>
  
-diff --git a/chrome/android/java/res/xml/privacy_preferences.xml b/chrome/android/java/res/xml/privacy_preferences.xml
 --- a/chrome/android/java/res/xml/privacy_preferences.xml
 +++ b/chrome/android/java/res/xml/privacy_preferences.xml
-@@ -15,6 +15,11 @@
-         android:title="@string/preload_pages_title"
-         android:summary="@string/preload_pages_summary"
-         android:persistent="false" />
+@@ -23,6 +23,11 @@
+         android:fragment="org.chromium.chrome.browser.settings.privacy.DoNotTrackSettings"
+         android:key="do_not_track"
+         android:title="@string/do_not_track_title" />
 +    <org.chromium.chrome.browser.settings.ChromeBaseCheckBoxPreference
 +        android:key="close_tabs_on_exit"
 +        android:title="@string/close_tabs_on_exit_title"
 +        android:summary="@string/close_tabs_on_exit_summary"
 +        android:defaultValue="false" />
-     <org.chromium.chrome.browser.settings.ChromeBasePreference
-         android:key="usage_stats_reporting"
-         android:title="@string/usage_stats_setting_title"
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
+     <Preference
+         android:key="clear_browsing_data"
+         android:title="@string/clear_browsing_data_title"
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-@@ -1143,8 +1143,10 @@ public class ChromeTabbedActivity extend
+@@ -1103,8 +1103,10 @@ public class ChromeTabbedActivity extend
              boolean hadCipherData =
                      CipherFactory.getInstance().restoreFromBundle(getSavedInstanceState());
  
@@ -53,9 +50,8 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedAct
              if (noRestoreState) {
                  // Clear the state files because they are inconsistent and useless from now on.
                  mTabModelSelectorImpl.clearState();
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/privacy/PrivacyPreferences.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/privacy/PrivacyPreferences.java
---- a/chrome/android/java/src/org/chromium/chrome/browser/settings/privacy/PrivacyPreferences.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/privacy/PrivacyPreferences.java
+--- a/chrome/android/java/src/org/chromium/chrome/browser/settings/privacy/PrivacySettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/privacy/PrivacySettings.java
 @@ -4,6 +4,7 @@
  
  package org.chromium.chrome.browser.settings.privacy;
@@ -72,7 +68,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/privac
  import org.chromium.base.BuildInfo;
  import org.chromium.chrome.R;
  import org.chromium.chrome.browser.help.HelpAndFeedback;
-@@ -35,6 +37,7 @@ public class PrivacyPreferences
+@@ -35,6 +37,7 @@ public class PrivacySettings
          extends PreferenceFragmentCompat implements Preference.OnPreferenceChangeListener {
      private static final String PREF_CAN_MAKE_PAYMENT = "can_make_payment";
      private static final String PREF_NETWORK_PREDICTIONS = "preload_pages";
@@ -80,7 +76,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/privac
      private static final String PREF_USAGE_STATS = "usage_stats_reporting";
      private static final String PREF_DO_NOT_TRACK = "do_not_track";
      private static final String PREF_SYNC_AND_SERVICES_LINK = "sync_and_services_link";
-@@ -82,6 +85,10 @@ public class PrivacyPreferences
+@@ -82,6 +85,10 @@ public class PrivacySettings
                      Pref.CAN_MAKE_PAYMENT_ENABLED, (boolean) newValue);
          } else if (PREF_NETWORK_PREDICTIONS.equals(key)) {
              PrivacyPreferencesManager.getInstance().setNetworkPredictionEnabled((boolean) newValue);
@@ -91,7 +87,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/privac
          }
  
          return true;
-@@ -130,6 +137,11 @@ public class PrivacyPreferences
+@@ -130,6 +137,11 @@ public class PrivacySettings
              } else {
                  getPreferenceScreen().removePreference(usageStatsPref);
              }
@@ -102,11 +98,10 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/privac
 +        closeTabsOnExitPref.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
          }
      }
-
-diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
+ 
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -3746,6 +3746,12 @@ The site does NOT gain access to the cam
+@@ -3638,6 +3638,12 @@ Only you can see what your camera is loo
        <message name="IDS_CONTEXTMENU_IMAGE_TITLE" desc="The title of a context menu tab when the item pressed contains more than one type. This indicates that all the actions are related to the image.">
          IMAGE
        </message>

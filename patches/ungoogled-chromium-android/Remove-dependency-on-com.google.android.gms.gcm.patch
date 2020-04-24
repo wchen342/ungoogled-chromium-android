@@ -6,7 +6,7 @@ It also disalbes Snippets, auto-update of offline pages and launching browser fr
 The snippets are already disabled in native codes, this will disable it on Java level.
 ---
  chrome/android/BUILD.gn                                                                                                                   |    3 
- chrome/android/java/src/org/chromium/chrome/browser/ChromeBackgroundService.java                                                          |   62 ------
+ chrome/android/java/src/org/chromium/chrome/browser/ChromeBackgroundService.java                                                          |   60 ------
  chrome/android/java/src/org/chromium/chrome/browser/ntp/snippets/SnippetsLauncher.java                                                    |    2 
  chrome/android/java/src/org/chromium/chrome/browser/services/gcm/ChromeGcmListenerService.java                                            |   57 ------
  components/background_task_scheduler/BUILD.gn                                                                                             |    3 
@@ -17,11 +17,19 @@ The snippets are already disabled in native codes, this will disable it on Java 
  third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidGcmController.java                        |   42 ----
  third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidInstanceIDListenerService.java            |   13 -
  third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/GcmRegistrationTaskService.java                  |   89 ----------
- 12 files changed, 10 insertions(+), 360 deletions(-)
+ 12 files changed, 9 insertions(+), 359 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -222,7 +222,6 @@ android_library("chrome_java") {
+@@ -228,7 +228,6 @@ android_library("chrome_java") {
+     "$google_play_services_package:google_play_services_cast_framework_java",
+     "$google_play_services_package:google_play_services_cast_java",
+     "$google_play_services_package:google_play_services_fido_java",
+-    "$google_play_services_package:google_play_services_gcm_java",
+     "$google_play_services_package:google_play_services_iid_java",
+     "$google_play_services_package:google_play_services_tasks_java",
+     "$google_play_services_package:google_play_services_vision_common_java",
+@@ -747,7 +746,6 @@ android_library("chrome_test_java") {
      "$google_play_services_package:google_play_services_cast_framework_java",
      "$google_play_services_package:google_play_services_cast_java",
      "$google_play_services_package:google_play_services_fido_java",
@@ -29,15 +37,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
      "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
      "//base:base_java",
-@@ -739,7 +738,6 @@ android_library("chrome_test_java") {
-     "$google_play_services_package:google_play_services_cast_framework_java",
-     "$google_play_services_package:google_play_services_cast_java",
-     "$google_play_services_package:google_play_services_fido_java",
--    "$google_play_services_package:google_play_services_gcm_java",
-     "$google_play_services_package:google_play_services_iid_java",
-     "$google_play_services_package:google_play_services_tasks_java",
-     "//base:base_java",
-@@ -1541,7 +1539,6 @@ android_library("browser_java_test_suppo
+@@ -1530,7 +1528,6 @@ android_library("browser_java_test_suppo
    ]
    deps = [
      ":chrome_java",
@@ -108,15 +108,6 @@ The snippets are already disabled in native codes, this will disable it on Java 
      private void handleSnippetsOnPersistentSchedulerWakeUp(Context context, String tag) {
          if (!SnippetsLauncher.hasInstance()) launchBrowser(context, tag);
          snippetsOnPersistentSchedulerWakeUp();
-@@ -92,7 +49,7 @@ public class ChromeBackgroundService ext
-     @VisibleForTesting
-     protected void launchBrowser(Context context, String tag) {
-         Log.i(TAG, "Launching browser");
--        ChromeBrowserInitializer.getInstance(this).handleSynchronousStartup();
-+        ChromeBrowserInitializer.getInstance(context).handleSynchronousStartup();
-     }
- 
-     @VisibleForTesting
 @@ -100,15 +57,6 @@ public class ChromeBackgroundService ext
          rescheduleOneShotBackgroundSyncTasks();
      }
@@ -146,7 +137,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
  }
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ntp/snippets/SnippetsLauncher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ntp/snippets/SnippetsLauncher.java
-@@ -36,7 +36,7 @@ public class SnippetsLauncher {
+@@ -35,7 +35,7 @@ public class SnippetsLauncher {
      // If it is non-null then the browser is running.
      private static SnippetsLauncher sInstance;
  
@@ -157,15 +148,15 @@ The snippets are already disabled in native codes, this will disable it on Java 
       * Create a SnippetsLauncher object, which is owned by C++.
 --- a/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/ChromeGcmListenerService.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/ChromeGcmListenerService.java
-@@ -11,7 +11,6 @@ import android.os.Bundle;
- import android.os.SystemClock;
+@@ -10,7 +10,6 @@ import android.os.Build;
+ import android.os.Bundle;
  import android.text.TextUtils;
  
 -import com.google.android.gms.gcm.GcmListenerService;
  import com.google.ipc.invalidation.ticl.android2.channel.AndroidGcmController;
  
  import org.chromium.base.ContextUtils;
-@@ -34,62 +33,9 @@ import org.chromium.content_public.brows
+@@ -33,62 +32,9 @@ import org.chromium.content_public.brows
  /**
   * Receives Downstream messages and status of upstream messages from GCM.
   */
@@ -229,14 +220,14 @@ The snippets are already disabled in native codes, this will disable it on Java 
      /**
       * Returns if we deliver the GCMMessage with a background service by calling
       * Context#startService. This will only work if Android has put us in a whitelist to allow
-@@ -222,7 +168,6 @@ public class ChromeGcmListenerService ex
-     static void dispatchMessageToDriver(Context applicationContext, GCMMessage message) {
+@@ -218,7 +164,6 @@ public class ChromeGcmListenerService ex
+     static void dispatchMessageToDriver(GCMMessage message) {
          ThreadUtils.assertOnUiThread();
-         ChromeBrowserInitializer.getInstance(applicationContext).handleSynchronousStartup();
+         ChromeBrowserInitializer.getInstance().handleSynchronousStartup();
 -        GCMDriver.dispatchMessage(message);
      }
  
-     private static boolean isNativeLoaded() {
+     private static boolean isFullBrowserLoaded() {
 --- a/components/background_task_scheduler/BUILD.gn
 +++ b/components/background_task_scheduler/BUILD.gn
 @@ -54,7 +54,6 @@ if (is_android) {
@@ -255,7 +246,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
        "$google_play_services_package:google_play_services_tasks_java",
        "//base:base_java",
        "//base:base_java_test_support",
-@@ -109,7 +107,6 @@ if (is_android) {
+@@ -110,7 +108,6 @@ if (is_android) {
        "$google_play_services_package:google_play_services_auth_base_java",
        "$google_play_services_package:google_play_services_base_java",
        "$google_play_services_package:google_play_services_basement_java",
@@ -351,7 +342,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) return;
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -938,21 +938,6 @@ android_aar_prebuilt("google_play_servic
+@@ -966,21 +966,6 @@ android_aar_prebuilt("google_play_servic
  }
  
  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
@@ -375,7 +366,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
    info_path = "libs/com_google_android_gms_play_services_iid/com_google_android_gms_play_services_iid.info"
 --- a/third_party/cacheinvalidation/BUILD.gn
 +++ b/third_party/cacheinvalidation/BUILD.gn
-@@ -137,7 +137,6 @@ if (is_android) {
+@@ -133,7 +133,6 @@ if (is_android) {
      jacoco_never_instrument = true
      deps = [
        ":cacheinvalidation_proto_java",

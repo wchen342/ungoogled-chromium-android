@@ -12,13 +12,12 @@ Reviewed-by: Min Qin <qinmin@chromium.org>
 Commit-Queue: Xing Liu <xingliu@chromium.org>
 Cr-Commit-Position: refs/heads/master@{#742270}
 ---
- .../internal/common/download_path_reservation_tracker.cc        | 2 --
+ components/download/internal/common/download_path_reservation_tracker.cc |    2 --
  1 file changed, 2 deletions(-)
 
-diff --git a/components/download/internal/common/download_path_reservation_tracker.cc b/components/download/internal/common/download_path_reservation_tracker.cc
 --- a/components/download/internal/common/download_path_reservation_tracker.cc
 +++ b/components/download/internal/common/download_path_reservation_tracker.cc
-@@ -326,8 +326,6 @@ PathValidationResult ValidatePathAndResolveConflicts(
+@@ -325,8 +325,6 @@ PathValidationResult ValidatePathAndReso
  // - Returns the result of creating the path reservation.
  PathValidationResult CreateReservation(const CreateReservationInfo& info,
                                         base::FilePath* reserved_path) {
@@ -27,6 +26,3 @@ diff --git a/components/download/internal/common/download_path_reservation_track
    // Create a reservation map if one doesn't exist. It will be automatically
    // deleted when all the reservations are revoked.
    if (g_reservation_map == NULL)
--- 
-2.17.1
-

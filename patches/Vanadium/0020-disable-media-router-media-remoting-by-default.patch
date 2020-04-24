@@ -4,13 +4,12 @@ Date: Thu, 4 Jul 2019 18:11:27 -0400
 Subject: [PATCH 20/30] disable media router media remoting by default
 
 ---
- chrome/browser/profiles/profile.cc | 2 +-
+ chrome/browser/profiles/profile.cc |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/src/chrome/browser/profiles/profile.cc b/src/chrome/browser/profiles/profile.cc
 --- a/chrome/browser/profiles/profile.cc
 +++ b/chrome/browser/profiles/profile.cc
-@@ -231,7 +231,7 @@ void Profile::RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {
+@@ -233,7 +233,7 @@ void Profile::RegisterProfilePrefs(user_
        prefs::kMediaRouterFirstRunFlowAcknowledged,
        false,
        user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
@@ -19,5 +18,3 @@ diff --git a/src/chrome/browser/profiles/profile.cc b/src/chrome/browser/profile
    registry->RegisterListPref(prefs::kMediaRouterTabMirroringSources);
  
    registry->RegisterDictionaryPref(prefs::kWebShareVisitedTargets);
--- 
-2.22.0

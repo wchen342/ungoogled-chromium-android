@@ -16,8 +16,8 @@ Subject: Remove dependency on com.google.android.gms.auth
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -216,7 +216,6 @@ android_library("chrome_java") {
-     ":thumbnail_cache_entry_proto_java",
+@@ -222,7 +222,6 @@ android_library("chrome_java") {
+     ":partner_location_descriptor_proto_java",
      ":update_proto_java",
      ":usage_stats_proto_java",
 -    "$google_play_services_package:google_play_services_auth_base_java",
@@ -26,7 +26,7 @@ Subject: Remove dependency on com.google.android.gms.auth
      "$google_play_services_package:google_play_services_cast_framework_java",
 --- a/components/signin/core/browser/android/BUILD.gn
 +++ b/components/signin/core/browser/android/BUILD.gn
-@@ -15,7 +15,6 @@ generate_jni("jni_headers") {
+@@ -14,7 +14,6 @@ generate_jni("jni_headers") {
  
  android_library("java") {
    deps = [
@@ -73,7 +73,7 @@ Subject: Remove dependency on com.google.android.gms.auth
      @Override
 --- a/content/public/android/BUILD.gn
 +++ b/content/public/android/BUILD.gn
-@@ -53,7 +53,6 @@ action("generate_sandboxed_service_srcja
+@@ -49,7 +49,6 @@ action("generate_sandboxed_service_srcja
  android_library("content_java") {
    deps = [
      ":content_java_resources",
@@ -158,7 +158,7 @@ Subject: Remove dependency on com.google.android.gms.auth
  
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -821,50 +821,6 @@ android_aar_prebuilt("com_android_suppor
+@@ -851,50 +851,6 @@ java_prebuilt("com_android_tools_build_j
  }
  
  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
@@ -211,7 +211,7 @@ Subject: Remove dependency on com.google.android.gms.auth
    info_path = "libs/com_google_android_gms_play_services_base/com_google_android_gms_play_services_base.info"
 --- a/third_party/robolectric/BUILD.gn
 +++ b/third_party/robolectric/BUILD.gn
-@@ -938,7 +938,6 @@ java_library("shadows_play_services_java
+@@ -939,7 +939,6 @@ java_library("shadows_play_services_java
      ":robolectric_shadowapi_java",
      ":robolectric_utils_java",
      ":shadows_core_java",

@@ -4,12 +4,12 @@ Subject: Remove dependency on com.google.android.gms.flags,
  com.google.android.gms.location.places, com.google.android.gms.stats
 
 ---
- third_party/android_deps/BUILD.gn |   49 --------------------------------------
- 1 file changed, 49 deletions(-)
+ third_party/android_deps/BUILD.gn |   45 --------------------------------------
+ 1 file changed, 45 deletions(-)
 
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -1548,55 +1548,6 @@ java_prebuilt("com_github_stephenc_jcip_
+@@ -1619,51 +1619,6 @@ java_prebuilt("com_github_kevinstern_sof
  }
  
  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
@@ -18,7 +18,7 @@ Subject: Remove dependency on com.google.android.gms.flags,
 -  info_path = "libs/com_google_android_gms_play_services_flags/com_google_android_gms_play_services_flags.info"
 -
 -  # To remove visibility constraint, add this dependency to
--  # //tools/android/roll/android_deps/build.gradle.
+-  # //third_party/android_deps/build.gradle.
 -  visibility = [ ":*" ]
 -  deps = [
 -    ":google_play_services_base_java",
@@ -35,11 +35,9 @@ Subject: Remove dependency on com.google.android.gms.flags,
 -  info_path = "libs/com_google_android_gms_play_services_places_placereport/com_google_android_gms_play_services_places_placereport.info"
 -
 -  # To remove visibility constraint, add this dependency to
--  # //tools/android/roll/android_deps/build.gradle.
+-  # //third_party/android_deps/build.gradle.
 -  visibility = [ ":*" ]
--  deps = [
--    ":google_play_services_basement_java",
--  ]
+-  deps = [ ":google_play_services_basement_java" ]
 -
 -  # Removing drawables from GMS .aars as they are unused bloat.
 -  strip_drawables = true
@@ -51,11 +49,9 @@ Subject: Remove dependency on com.google.android.gms.flags,
 -  info_path = "libs/com_google_android_gms_play_services_stats/com_google_android_gms_play_services_stats.info"
 -
 -  # To remove visibility constraint, add this dependency to
--  # //tools/android/roll/android_deps/build.gradle.
+-  # //third_party/android_deps/build.gradle.
 -  visibility = [ ":*" ]
--  deps = [
--    ":google_play_services_basement_java",
--  ]
+-  deps = [ ":google_play_services_basement_java" ]
 -
 -  # Removing drawables from GMS .aars as they are unused bloat.
 -  strip_drawables = true

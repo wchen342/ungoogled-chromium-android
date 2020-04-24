@@ -8,7 +8,7 @@ chrome_target=chrome_public_apk
 mono_target=monochrome_public_apk
 webview_target=system_webview_apk
 
-chromium_version=80.0.3987.122
+chromium_version=81.0.4044.113
 ungoogled_chromium_revision=1
 
 # Argument parser from https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash/29754866#29754866
@@ -138,6 +138,7 @@ rm -rf src/third_party/jdk
 mkdir -p src/third_party/jdk/current/bin
 ln -s /usr/bin/java src/third_party/jdk/current/bin/
 ln -s /usr/bin/javac src/third_party/jdk/current/bin/
+ln -s /usr/bin/javap src/third_party/jdk/current/bin/
 # jre
 mkdir -p src/third_party/jdk/extras/java_8
 ln -s /usr/lib/jvm/java-8-openjdk/jre src/third_party/jdk/extras/java_8
@@ -161,7 +162,7 @@ python3 ungoogled-chromium/utils/domain_substitution.py apply -r ungoogled-chrom
 
 # Workaround for a building failure caused by safe browsing. The file is pre-generated with safe_browsing_mode=2. See https://github.com/nikolowry/bromite-builder/issues/1
 cp safe_browsing_proto_files/download_file_types.pb.h src/chrome/common/safe_browsing/download_file_types.pb.h
-cp safe_browsing_proto_files/webprotect.pb.h src/components/safe_browsing/proto/webprotect.pb.h
+cp safe_browsing_proto_files/webprotect.pb.h src/components/safe_browsing/core/proto/webprotect.pb.h
 
 
 ## Prepare Android SDK/NDK
@@ -263,9 +264,6 @@ export AR=${AR:=llvm-ar}
 export NM=${NM:=llvm-nm}
 export CC=${CC:=clang}
 export CXX=${CXX:=clang++}
-
-# Patch build/android/gyp/javac.py
-patch -p1 --ignore-whitespace -i patches/ignore-aidl-assertion-error.patch --no-backup-if-mismatch
 
 ## Build
 pushd src

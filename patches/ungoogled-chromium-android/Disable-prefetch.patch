@@ -9,12 +9,12 @@ Subject: Disable prefetch over wifi
 
 --- a/chrome/android/java/src/org/chromium/chrome/browser/offlinepages/prefetch/PrefetchPrefs.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/offlinepages/prefetch/PrefetchPrefs.java
-@@ -37,7 +37,7 @@ public class PrefetchPrefs {
+@@ -30,7 +30,7 @@ public class PrefetchPrefs {
       */
      public static boolean getNotificationEnabled() {
-         return ContextUtils.getAppSharedPreferences().getBoolean(
--                PREF_PREFETCH_NOTIFICATION_ENABLED, true);
-+                PREF_PREFETCH_NOTIFICATION_ENABLED, false);
+         return SharedPreferencesManager.getInstance().readBoolean(
+-                ChromePreferenceKeys.PREFETCH_NOTIFICATION_ENABLED, true);
++                ChromePreferenceKeys.PREFETCH_NOTIFICATION_ENABLED, false);
      }
  
      /**

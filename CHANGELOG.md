@@ -1,3 +1,7 @@
+# 81.0.4044.113-1
+* Solve #9, #16.
+* Initial try to add extensions (not working yet)
+
 # 80.0.3987.122-1
 * This is an important security release that fix three vulnerabilities. All previous versions should update as soon as possible.
   * [1044570] High: Integer overflow in ICU. Reported by André Bargull (with thanks to Jeff Walden from Mozilla) on 2020-01-22
