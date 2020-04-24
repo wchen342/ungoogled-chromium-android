@@ -1,6 +1,6 @@
 # 81.0.4044.113-1
-* Solve #9, #16.
-* Initial try to add extensions (not working yet)
+* Resolve [#9](https://github.com/wchen342/ungoogled-chromium-android/issues/9), [#16](https://github.com/wchen342/ungoogled-chromium-android/issues/16).
+* Initial attempt to add extensions (not working yet)
 
 # 80.0.3987.122-1
 * This is an important security release that fix three vulnerabilities. All previous versions should update as soon as possible.
