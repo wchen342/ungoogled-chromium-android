@@ -1,0 +1,484 @@
+---
+ apps/BUILD.gn                                                        |    2 
+ chrome/BUILD.gn                                                      |    2 
+ chrome/browser/BUILD.gn                                              |   17 +++++++
+ chrome/browser/apps/BUILD.gn                                         |    5 +-
+ chrome/browser/apps/platform_apps/api/music_manager_private/BUILD.gn |    1 
+ chrome/browser/media/router/discovery/BUILD.gn                       |    4 -
+ chrome/browser/resources/BUILD.gn                                    |    2 
+ chrome/browser/ui/BUILD.gn                                           |   23 +++++++++
+ chrome/browser/ui/views/BUILD.gn                                     |    2 
+ chrome/browser/web_applications/BUILD.gn                             |    5 --
+ chrome/browser/web_applications/components/BUILD.gn                  |   11 +++-
+ chrome/browser/web_applications/extensions/BUILD.gn                  |    3 -
+ chrome/chrome_paks.gni                                               |   24 ----------
+ chrome/test/BUILD.gn                                                 |    1 
+ components/guest_view/browser/BUILD.gn                               |    2 
+ components/guest_view/renderer/BUILD.gn                              |    2 
+ components/keep_alive_registry/BUILD.gn                              |    2 
+ components/web_modal/BUILD.gn                                        |    2 
+ components/zoom/BUILD.gn                                             |    2 
+ content/public/browser/BUILD.gn                                      |    2 
+ extensions/BUILD.gn                                                  |    1 
+ extensions/browser/api/system_cpu/BUILD.gn                           |    1 
+ extensions/buildflags/buildflags.gni                                 |    2 
+ services/device/public/cpp/hid/BUILD.gn                              |    1 
+ third_party/blink/public/mojom/BUILD.gn                              |    2 
+ ui/base/BUILD.gn                                                     |    5 ++
+ ui/views/BUILD.gn                                                    |    2 
+ 27 files changed, 72 insertions(+), 56 deletions(-)
+
+--- a/apps/BUILD.gn
++++ b/apps/BUILD.gn
+@@ -6,7 +6,7 @@ import("//build/config/features.gni")
+ import("//build/config/ui.gni")
+ import("//extensions/buildflags/buildflags.gni")
+ 
+-assert(!is_android && !is_ios)
++# assert(!is_android && !is_ios)
+ assert(enable_extensions,
+        "Cannot depend on extensions because enable_extensions=false.")
+ 
+--- a/chrome/browser/media/router/discovery/BUILD.gn
++++ b/chrome/browser/media/router/discovery/BUILD.gn
+@@ -2,8 +2,6 @@
+ # Use of this source code is governed by a BSD-style license that can be
+ # found in the LICENSE file.
+ 
+-assert(!is_android)
+-
+ static_library("discovery") {
+   inputs = [ "$root_gen_dir/chrome/grit/generated_resources.h" ]
+   deps = [
+@@ -75,7 +73,7 @@ static_library("discovery") {
+     sources += [ "discovery_network_list_wifi_linux.cc" ]
+   }
+ 
+-  if (is_posix) {
++  if (is_posix && !is_android) {
+     sources += [ "discovery_network_list_posix.cc" ]
+   }
+ 
+--- a/ui/base/BUILD.gn
++++ b/ui/base/BUILD.gn
+@@ -453,6 +453,11 @@ jumbo_component("base") {
+     deps += [ "//third_party/re2" ]
+   }
+ 
++  sources += [
++    "dragdrop/os_exchange_data_provider_android.cc",
++    "dragdrop/os_exchange_data_provider_android.h",
++  ]
++
+   if (!is_ios) {
+     # iOS does not use Chromium-specific code for event handling.
+     public_deps += [
+--- a/chrome/browser/web_applications/BUILD.gn
++++ b/chrome/browser/web_applications/BUILD.gn
+@@ -186,7 +186,6 @@ source_set("web_applications_unit_tests"
+     "//chrome/browser",
+     "//chrome/browser/web_applications/components",
+     "//chrome/common",
+-    "//chrome/test:test_support",
+     "//content/public/browser",
+     "//content/test:test_support",
+     "//skia",
+@@ -217,8 +216,6 @@ source_set("web_applications_browser_tes
+     ":web_applications",
+     ":web_applications_test_support",
+     "//chrome/browser/web_applications/components",
+-    "//chrome/test:test_support",
+-    "//chrome/test:test_support_ui",
+   ]
+ }
+ 
+@@ -234,8 +231,6 @@ source_set("common_browser_tests") {
+     ":web_applications_test_support",
+     "//chrome/app:command_ids",
+     "//chrome/browser/web_applications/components",
+-    "//chrome/test:test_support",
+-    "//chrome/test:test_support_ui",
+   ]
+ }
+ 
+--- a/chrome/browser/web_applications/components/BUILD.gn
++++ b/chrome/browser/web_applications/components/BUILD.gn
+@@ -94,6 +94,14 @@ source_set("components") {
+     ]
+   }
+ 
++  if (is_android) {
++    sources += [
++      "web_app_shortcut_android.h",
++      "web_app_shortcut_android.cc",
++    ]
++  }
++
++
+   if (is_win) {
+     sources += [
+       "web_app_file_handler_registration_win.cc",
+@@ -168,7 +176,6 @@ source_set("unit_tests") {
+     "//chrome/app/theme:theme_resources",
+     "//chrome/browser/web_applications:web_app_test_group",
+     "//chrome/browser/web_applications:web_applications_test_support",
+-    "//chrome/test:test_support",
+     "//content/public/browser",
+     "//skia",
+     "//testing/gmock",
+@@ -190,8 +197,6 @@ source_set("browser_tests") {
+   deps = [
+     ":components",
+     "//chrome/browser/web_applications:web_applications_test_support",
+-    "//chrome/test:test_support",
+-    "//chrome/test:test_support_ui",
+     "//net:test_support",
+   ]
+ }
+--- a/chrome/browser/web_applications/extensions/BUILD.gn
++++ b/chrome/browser/web_applications/extensions/BUILD.gn
+@@ -66,7 +66,6 @@ source_set("unit_tests") {
+     "//chrome/browser/web_applications:web_applications_test_support",
+     "//chrome/browser/web_applications/components",
+     "//chrome/common",
+-    "//chrome/test:test_support",
+     "//components/crx_file:crx_file",
+     "//content/public/browser",
+     "//content/test:test_support",
+@@ -100,8 +99,6 @@ source_set("browser_tests") {
+     "//chrome/browser/web_applications:web_applications_on_extensions_test_support",
+     "//chrome/browser/web_applications:web_applications_test_support",
+     "//chrome/browser/web_applications/components",
+-    "//chrome/test:test_support",
+-    "//chrome/test:test_support_ui",
+     "//extensions:test_support",
+     "//extensions/browser",
+     "//extensions/common",
+--- a/chrome/browser/ui/views/BUILD.gn
++++ b/chrome/browser/ui/views/BUILD.gn
+@@ -5,8 +5,6 @@
+ import("//build/config/ui.gni")
+ import("//ui/views/features.gni")
+ 
+-assert(toolkit_views)
+-
+ component("views") {
+   output_name = "browser_ui_views"
+   sources = [
+--- a/components/guest_view/browser/BUILD.gn
++++ b/components/guest_view/browser/BUILD.gn
+@@ -6,7 +6,7 @@
+ # assert to prevent the accidental building of GuestViews on mobile
+ # platforms. If you're now using GuestViews on mobile, go ahead and
+ # remove this assert.
+-assert(!is_android && !is_ios)
++# assert(!is_android && !is_ios)
+ 
+ static_library("browser") {
+   output_name = "guest_view_browser"
+--- a/components/guest_view/renderer/BUILD.gn
++++ b/components/guest_view/renderer/BUILD.gn
+@@ -6,7 +6,7 @@
+ # assert to prevent the accidental building of GuestViews on mobile
+ # platforms. If you're now using GuestViews on mobile, go ahead and
+ # remove this assert.
+-assert(!is_android && !is_ios)
++# assert(!is_android && !is_ios)
+ 
+ static_library("renderer") {
+   sources = [
+--- a/components/keep_alive_registry/BUILD.gn
++++ b/components/keep_alive_registry/BUILD.gn
+@@ -2,7 +2,7 @@
+ # Use of this source code is governed by a BSD-style license that can be
+ # found in the LICENSE file.
+ 
+-assert(!is_android)
++# assert(!is_android)
+ 
+ source_set("keep_alive_registry") {
+   sources = [
+--- a/components/web_modal/BUILD.gn
++++ b/components/web_modal/BUILD.gn
+@@ -2,7 +2,7 @@
+ # Use of this source code is governed by a BSD-style license that can be
+ # found in the LICENSE file.
+ 
+-assert(!is_android && !is_ios)
++# assert(!is_android && !is_ios)
+ 
+ component("web_modal") {
+   sources = [
+--- a/components/zoom/BUILD.gn
++++ b/components/zoom/BUILD.gn
+@@ -2,7 +2,7 @@
+ # Use of this source code is governed by a BSD-style license that can be
+ # found in the LICENSE file.
+ 
+-assert(!is_android && !is_ios, "Desktop zoom is not used on mobile platforms.")
++# assert(!is_android && !is_ios, "Desktop zoom is not used on mobile platforms.")
+ 
+ static_library("zoom") {
+   sources = [
+--- a/extensions/buildflags/buildflags.gni
++++ b/extensions/buildflags/buildflags.gni
+@@ -5,7 +5,7 @@
+ import("//build/config/features.gni")
+ 
+ declare_args() {
+-  enable_extensions = !is_android && !is_ios && !is_fuchsia
++  enable_extensions = !is_ios && !is_fuchsia
+ 
+   # Enables Wi-Fi Display functionality
+   # WARNING: This enables MPEG Transport Stream (MPEG-TS) encoding!
+--- a/services/device/public/cpp/hid/BUILD.gn
++++ b/services/device/public/cpp/hid/BUILD.gn
+@@ -7,7 +7,6 @@ import("//build/config/features.gni")
+ source_set("hid") {
+   # HID is not implemented on Android and we want to be particularly careful
+   # about not bloating binary size by accidentially including it.
+-  assert(!is_android)
+ 
+   sources = [
+     "fake_input_service_linux.cc",
+--- a/ui/views/BUILD.gn
++++ b/ui/views/BUILD.gn
+@@ -12,7 +12,7 @@ import("//ui/base/ui_features.gni")
+ import("//ui/ozone/ozone.gni")
+ import("//ui/views/features.gni")
+ 
+-assert(toolkit_views)
++# assert(toolkit_views)
+ 
+ # Reset sources_assignment_filter for the BUILD.gn file to prevent
+ # regression during the migration of Chromium away from the feature.
+--- a/chrome/test/BUILD.gn
++++ b/chrome/test/BUILD.gn
+@@ -4782,7 +4782,6 @@ test("unit_tests") {
+       "//chrome/common/extensions/api",
+       "//components/safe_browsing:buildflags",
+       "//components/services/unzip:in_process",
+-      "//extensions:extensions_resources",
+       "//extensions/browser:test_support",
+       "//extensions/common",
+       "//extensions/renderer:unit_test_support",
+--- a/extensions/BUILD.gn
++++ b/extensions/BUILD.gn
+@@ -221,7 +221,6 @@ test("extensions_unittests") {
+   ]
+ 
+   deps = [
+-    ":extensions_resources",
+     ":shell_and_test_pak",
+     ":test_support",
+     "//base/test:test_support",
+--- a/chrome/chrome_paks.gni
++++ b/chrome/chrome_paks.gni
+@@ -277,35 +277,11 @@ template("chrome_paks") {
+     }
+   }
+ 
+-  chrome_repack_locales("${target_name}_locales") {
+-    forward_variables_from(invoker,
+-                           [
+-                             "copy_data_to_bundle",
+-                             "deps",
+-                             "visibility",
+-                           ])
+-    if (defined(invoker.locale_whitelist)) {
+-      repack_whitelist = invoker.locale_whitelist
+-    } else if (defined(invoker.repack_whitelist)) {
+-      repack_whitelist = invoker.repack_whitelist
+-    }
+-
+-    input_locales = locales
+-    output_dir = "${invoker.output_dir}/locales"
+-
+-    if (is_mac) {
+-      output_locales = locales_as_mac_outputs
+-    } else {
+-      output_locales = locales
+-    }
+-  }
+-
+   group(target_name) {
+     forward_variables_from(invoker, [ "deps" ])
+     public_deps = [
+       ":${target_name}_100_percent",
+       ":${target_name}_extra",
+-      ":${target_name}_locales",
+     ]
+     if (enable_hidpi) {
+       public_deps += [ ":${target_name}_200_percent" ]
+--- a/chrome/BUILD.gn
++++ b/chrome/BUILD.gn
+@@ -1410,7 +1410,7 @@ group("extra_resources") {
+     "//components/autofill/core/browser:autofill_address_rewriter_resources",
+   ]
+ 
+-  if (!is_android) {
++  if (enable_extensions || !is_android) {
+     public_deps += [
+       "//chrome/browser/resources:bookmarks_resources",
+       "//chrome/browser/resources:component_extension_resources",
+--- a/chrome/browser/resources/BUILD.gn
++++ b/chrome/browser/resources/BUILD.gn
+@@ -82,7 +82,7 @@ if (closure_compile) {
+   }
+ }
+ 
+-if (!is_android) {
++if (enable_extensions || !is_android) {
+   grit("bookmarks_resources") {
+     # The .grd contains references to generated files.
+     source_is_generated = true
+--- a/third_party/blink/public/mojom/BUILD.gn
++++ b/third_party/blink/public/mojom/BUILD.gn
+@@ -162,7 +162,7 @@ mojom("mojom_platform") {
+     "worker/worker_options.mojom",
+   ]
+ 
+-  if (!is_android) {
++  if (is_android) {
+     sources += [ "serial/serial.mojom" ]
+   }
+ 
+--- a/chrome/browser/apps/BUILD.gn
++++ b/chrome/browser/apps/BUILD.gn
+@@ -13,7 +13,10 @@ source_set("apps") {
+     "apps_launch.h",
+   ]
+ 
+-  deps = [ "//chrome/browser/apps/platform_apps" ]
++  deps = [
++      "//chrome/browser/apps/platform_apps",
++      "//chrome/services/app_service/public/mojom",
++  ]
+ 
+   configs += [ "//build/config/compiler:wexit_time_destructors" ]
+ }
+--- a/chrome/browser/BUILD.gn
++++ b/chrome/browser/BUILD.gn
+@@ -2281,6 +2281,8 @@ jumbo_static_library("browser") {
+ 
+   if (is_android) {
+     sources += [
++      "accessibility/invert_bubble_prefs.cc",
++      "accessibility/invert_bubble_prefs.h",
+       "after_startup_task_utils_android.cc",
+       "android/accessibility/font_size_prefs_android.cc",
+       "android/accessibility/font_size_prefs_android.h",
+@@ -2800,6 +2802,7 @@ jumbo_static_library("browser") {
+       "download/android/service/download_background_task.cc",
+       "download/android/service/download_task_scheduler.cc",
+       "download/android/service/download_task_scheduler.h",
++      "download/download_crx_util.h",
+       "engagement/site_engagement_service_android.cc",
+       "engagement/site_engagement_service_android.h",
+       "first_run/android/first_run_utils.cc",
+@@ -2844,6 +2847,16 @@ jumbo_static_library("browser") {
+       "media/android/router/media_router_dialog_controller_android.h",
+       "media/webrtc/screen_capture_infobar_delegate_android.cc",
+       "media/webrtc/screen_capture_infobar_delegate_android.h",
++      "media_galleries/gallery_watch_manager.cc",
++      "media_galleries/gallery_watch_manager.h",
++      "media_galleries/media_file_system_registry.cc",
++      "media_galleries/media_file_system_registry.h",
++      "media_galleries/media_galleries_histograms.cc",
++      "media_galleries/media_galleries_histograms.h",
++      "media_galleries/media_galleries_permission_controller.cc",
++      "media_galleries/media_galleries_permission_controller.h",
++      "media_galleries/media_galleries_preferences.cc",
++      "media_galleries/media_galleries_preferences.h",
+       "metrics/chrome_android_metrics_provider.cc",
+       "metrics/chrome_android_metrics_provider.h",
+       "metrics/incognito_observer_android.cc",
+@@ -2925,6 +2938,8 @@ jumbo_static_library("browser") {
+       "safe_browsing/android/password_reuse_controller_android.h",
+       "search/contextual_search_policy_handler_android.cc",
+       "search/contextual_search_policy_handler_android.h",
++      "search/instant_service_factory.cc",
++      "search/instant_service_factory.h",
+       "search_engines/template_url_service_factory_android.cc",
+       "search_engines/template_url_service_factory_android.h",
+       "sharing/shared_clipboard/shared_clipboard_message_handler_android.cc",
+@@ -2968,8 +2983,10 @@ jumbo_static_library("browser") {
+       "//chrome/browser/android/webapk:proto",
+       "//chrome/browser/notifications/chime/android",
+       "//chrome/browser/notifications/scheduler/public",
++      "//chrome/browser/resource_coordinator:intervention_policy_database_proto",
+       "//chrome/browser/share",
+       "//chrome/browser/updates",
++      "//chrome/common/importer:interfaces",
+       "//chrome/services/media_gallery_util/public/cpp",
+       "//components/app_modal/android:jni_headers",
+       "//components/autofill_assistant/browser",
+--- a/extensions/browser/api/system_cpu/BUILD.gn
++++ b/extensions/browser/api/system_cpu/BUILD.gn
+@@ -11,6 +11,7 @@ source_set("system_cpu") {
+   sources = [
+     "cpu_info_provider.cc",
+     "cpu_info_provider.h",
++    "cpu_info_provider_android.cc",
+     "cpu_info_provider_linux.cc",
+     "cpu_info_provider_mac.cc",
+     "cpu_info_provider_win.cc",
+--- a/chrome/browser/ui/BUILD.gn
++++ b/chrome/browser/ui/BUILD.gn
+@@ -780,12 +780,35 @@ jumbo_static_library("ui") {
+       "android/toolbar/location_bar_model_android.h",
+       "android/view_android_helper.cc",
+       "android/view_android_helper.h",
++      "apps/chrome_app_window_client.cc",
++      "apps/chrome_app_window_client.h",
++      "browser_commands.cc",
++      "browser_commands.h",
++      "browser_finder.cc",
++      "browser_finder.h",
+       "browser_otr_state_android.cc",
++      "browser_view_prefs.cc",
++      "browser_view_prefs.h",
++      "browser_window.h",
++      "global_error/global_error.cc",
++      "global_error/global_error.h",
+       "screen_capture_notification_ui_stub.cc",
++      "tabs/tab_strip_model.cc",
++      "tabs/tab_strip_model.h",
++      "tabs/tab_strip_model_observer.cc",
++      "tabs/tab_strip_model_observer.h",
++      "views/chrome_browser_main_extra_parts_views.cc",
++      "views/chrome_browser_main_extra_parts_views.h",
++      "views/extensions/extension_installed_bubble_view.cc",
++      "views/extensions/extension_installed_bubble_view.h",
++      "views/media_router/media_remoting_dialog_view.cc",
++      "views/media_router/media_remoting_dialog_view.h",
+       "webui/explore_sites_internals/explore_sites_internals_page_handler.cc",
+       "webui/explore_sites_internals/explore_sites_internals_page_handler.h",
+       "webui/explore_sites_internals/explore_sites_internals_ui.cc",
+       "webui/explore_sites_internals/explore_sites_internals_ui.h",
++      "webui/extensions/extensions_ui.cc",
++      "webui/extensions/extensions_ui.h",
+       "webui/offline/offline_internals_ui.cc",
+       "webui/offline/offline_internals_ui.h",
+       "webui/offline/offline_internals_ui_message_handler.cc",
+--- a/chrome/browser/apps/platform_apps/api/music_manager_private/BUILD.gn
++++ b/chrome/browser/apps/platform_apps/api/music_manager_private/BUILD.gn
+@@ -13,6 +13,7 @@ source_set("music_manager_private") {
+     "device_id.cc",
+     "device_id.h",
+     "device_id_chromeos.cc",
++    "device_id_android.cc",
+     "device_id_linux.cc",
+     "device_id_mac.cc",
+     "device_id_win.cc",
+--- a/content/public/browser/BUILD.gn
++++ b/content/public/browser/BUILD.gn
+@@ -491,7 +491,7 @@ jumbo_source_set("browser_sources") {
+     sources += [ "remote_cocoa.h" ]
+   }
+ 
+-  if (!is_android) {
++  if (is_android) {
+     sources += [
+       "host_zoom_map.h",
+       "zoom_level_delegate.h",

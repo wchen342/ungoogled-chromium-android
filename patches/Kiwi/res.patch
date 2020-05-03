@@ -1,0 +1,180 @@
+---
+ chrome/app/generated_resources.grd         |   26 +++++++++++++-------------
+ chrome/app/theme/theme_resources.grd       |    4 ++--
+ components/components_strings.grd          |    2 +-
+ mojo/public/js/mojo_bindings_resources.grd |    2 +-
+ ui/resources/ui_resources.grd              |    2 +-
+ 5 files changed, 18 insertions(+), 18 deletions(-)
+
+--- a/chrome/app/theme/theme_resources.grd
++++ b/chrome/app/theme/theme_resources.grd
+@@ -28,7 +28,7 @@
+       <if expr="is_linux or is_win or chromeos">
+         <structure type="chrome_scaled_image" name="IDR_ACCESSIBILITY_CAPTIONS_PREVIEW_BACKGROUND" file="common/captions-preview-bg.png" />
+       </if>
+-      <if expr="toolkit_views and not is_macosx">
++      <if expr="not is_macosx">
+         <structure type="chrome_scaled_image" name="IDR_APP_WINDOW_CLOSE" file="common/app_window_close.png" />
+         <structure type="chrome_scaled_image" name="IDR_APP_WINDOW_CLOSE_H" file="common/app_window_close_hover.png" />
+         <structure type="chrome_scaled_image" name="IDR_APP_WINDOW_CLOSE_P" file="common/app_window_close_active.png" />
+@@ -341,7 +341,7 @@
+         <structure type="chrome_scaled_image" name="IDR_PASTE_VIOLATION_DARK" file="common/paste_violation_dark.png" />
+       </if>
+       <if expr="not _google_chrome">
+-        <if expr="not is_android">
++        <if expr="is_android">
+           <structure type="chrome_scaled_image" name="IDR_WEBSTORE_ICON" file="chromium/webstore_icon.png" />
+           <structure type="chrome_scaled_image" name="IDR_WEBSTORE_ICON_16" file="chromium/webstore_icon_16.png" />
+           <structure type="chrome_scaled_image" name="IDR_WEBSTORE_ICON_24" file="chromium/webstore_icon_24.png" />
+--- a/ui/resources/ui_resources.grd
++++ b/ui/resources/ui_resources.grd
+@@ -92,7 +92,7 @@
+       </if>
+       <structure type="chrome_scaled_image" name="IDR_DEFAULT_FAVICON" file="common/default_favicon.png" />
+       <structure type="chrome_scaled_image" name="IDR_DEFAULT_FAVICON_DARK" file="common/default_favicon_dark.png" />
+-      <if expr="not is_android">
++      <if expr="is_android">
+         <structure type="chrome_scaled_image" name="IDR_DEFAULT_FAVICON_32" file="common/default_favicon_32.png" />
+         <structure type="chrome_scaled_image" name="IDR_DEFAULT_FAVICON_DARK_32" file="common/default_favicon_dark_32.png" />
+         <structure type="chrome_scaled_image" name="IDR_DEFAULT_FAVICON_64" file="common/default_favicon_64.png" />
+--- a/mojo/public/js/mojo_bindings_resources.grd
++++ b/mojo/public/js/mojo_bindings_resources.grd
+@@ -14,7 +14,7 @@
+   <release seq="1">
+     <includes>
+       <!-- All resources included on Android should use the lite bindings. -->
+-      <if expr="not is_android">
++      <if expr="is_android">
+         <include name="IDR_MOJO_MOJO_BINDINGS_JS"
+             file="${root_gen_dir}/mojo/public/js/mojo_bindings.js"
+             use_base_dir="false"
+--- a/chrome/app/generated_resources.grd
++++ b/chrome/app/generated_resources.grd
+@@ -448,7 +448,7 @@ are declared in tools/grit/grit_rule.gni
+         Disable
+       </message>
+       <!-- Search strings are only used in webui, so no mobile. -->
+-      <if expr="not is_android">
++      <if expr="is_android">
+         <message name="IDS_SEARCH_CLEARED" desc="Message announced to screenreader users when search is cleared.">
+           Search cleared
+         </message>
+@@ -976,7 +976,7 @@ are declared in tools/grit/grit_rule.gni
+       </if>
+ 
+       <!-- Page menu. Android has separate strings for its menu -->
+-      <if expr="not is_android">
++      <if expr="is_android">
+         <if expr="not use_titlecase">
+           <message name="IDS_NEW_TAB" desc="The text label of a menu item for opening a new tab">
+             New &amp;tab
+@@ -5110,7 +5110,7 @@ Keep your key file in a safe place. You
+       </message>
+ 
+       <!-- about:system strings -->
+-      <if expr="not is_android">
++      <if expr="is_android">
+         <message name="IDS_ABOUT_SYS_TITLE" desc="about:system page title">
+           About System
+         </message>
+@@ -6719,7 +6719,7 @@ the Bookmarks menu.">
+       <!-- Settings related strings not specific to chrome://settings.
+            (Settings specific strings are in settings_strings.grdp).
+            Android uses native UI for settings -->
+-      <if expr="not is_android">
++      <if expr="is_android">
+         <message name="IDS_TOOLBAR_INFORM_SET_HOME_PAGE" desc="The confirmation message when dropping a link on the Home toolbar button">
+            Your home page has been set.
+         </message>
+@@ -9249,7 +9249,7 @@ Please help our engineers fix this probl
+       </message>
+ 
+       <!-- Media Galleries. -->
+-      <if expr="not is_android">
++      <if expr="is_android">
+         <message name="IDS_MEDIA_GALLERIES_DIALOG_HEADER" desc="Header for media gallery permissions dialog.">
+           Media-File Permissions for "<ph name="EXTENSION">$1<ex>Photo Editor</ex></ph>"
+         </message>
+@@ -9782,7 +9782,7 @@ Please help our engineers fix this probl
+       </message>
+     </if>
+ 
+-    <if expr="not is_android">
++    <if expr="is_android">
+       <!-- Device Chooser Prompt -->
+       <message name="IDS_BLUETOOTH_DEVICE_CHOOSER_PROMPT_ORIGIN" desc="The label that is used to introduce Bluetooth chooser details to the user in a popup when it is from a website.">
+         <ph name="Origin">$1<ex>www.9oo91e.qjz9zk</ex></ph> wants to pair
+@@ -9895,7 +9895,7 @@ Please help our engineers fix this probl
+     </message>
+ 
+     <!-- Serial port chooser -->
+-    <if expr="not is_android">
++    <if expr="is_android">
+       <message name="IDS_SERIAL_PORT_CHOOSER_PROMPT_ORIGIN" desc="The label that is used to introduce serial port chooser details to the user in a popup when it is from a website.">
+         <ph name="Origin">$1<ex>www.9oo91e.qjz9zk</ex></ph> wants to connect to a serial port
+       </message>
+@@ -9914,7 +9914,7 @@ Please help our engineers fix this probl
+     </if>
+ 
+     <!-- HID (Human Interface Device) chooser -->
+-    <if expr="not is_android">
++    <if expr="is_android">
+       <message name="IDS_HID_CHOOSER_PROMPT_ORIGIN" desc="The label that is used to introduce the Human Interface Device (HID) chooser details to the user in a popup when it is from a website.">
+         <ph name="Origin">$1<ex>www.9oo91e.qjz9zk</ex></ph> wants to connect to a HID device
+       </message>
+@@ -9975,7 +9975,7 @@ Please help our engineers fix this probl
+     </if>
+ 
+     <!-- Framebust / Blocked Redirection intervention message -->
+-    <if expr="not is_android">
++    <if expr="is_android">
+       <!-- Android strings are declared in android_chrome_strings.grd. -->
+       <message name="IDS_REDIRECT_BLOCKED_MESSAGE" desc="The message stating that a redirect (noun) was blocked on this page. This will be followed on a separate line with the address the user was being redirected to.">
+         Redirect blocked:
+@@ -10081,7 +10081,7 @@ Please help our engineers fix this probl
+     </if>
+ 
+     <!-- Download open confirmation dialog -->
+-    <if expr="not is_android">
++    <if expr="is_android">
+       <message name="IDS_DOWNLOAD_OPEN_CONFIRMATION_DIALOG_TITLE" desc="Title of the dialog prompt shown to users when an extension is trying to open a downloaded file.">
+         Open download
+       </message>
+@@ -10203,7 +10203,7 @@ Please help our engineers fix this probl
+     </message>
+ 
+     <!-- Relaunch notification bubble and dialog. -->
+-    <if expr="not is_android">
++    <if expr="is_android">
+       <if expr="not chromeos">
+         <message name="IDS_RELAUNCH_ACCEPT_BUTTON" desc="The text in the accept button of a dialog that causes the browser to be relaunched immediately.">
+           Relaunch now
+@@ -10510,7 +10510,7 @@ Please help our engineers fix this probl
+     </message>
+ 
+     <!-- User happiness tracking survey UI -->
+-    <if expr="not is_android">
++    <if expr="is_android">
+       <if expr="use_titlecase">
+         <message name="IDS_HATS_BUBBLE_OK_LABEL" translateable="false" desc="Button label on Happiness Tracking Survey's invitation banner, clicking the button gives the user's consent on taking the survey.">
+           Take Survey
+@@ -10640,7 +10640,7 @@ Please help our engineers fix this probl
+     </message>
+ 
+     <!-- Extension request -->
+-    <if expr="not is_android">
++    <if expr="is_android">
+       <message name="IDS_ENTERPRISE_EXTENSION_REQUEST_APPROVED_TITLE" desc="The notification title when there are some extension requests approved.">
+         {NUM_EXTENSIONS, plural,
+           =1 {An extension has been approved}
+--- a/components/components_strings.grd
++++ b/components/components_strings.grd
+@@ -394,7 +394,7 @@
+       <message name="IDS_PLUGIN_NOT_SUPPORTED" desc="The placeholder text for an unsupported plugin.">
+         This plugin is not supported
+       </message>
+-      <if expr="not is_android">
++      <if expr="is_android">
+         <if expr="not use_titlecase">
+           <message name="IDS_PRINT" desc="The text label of the Print... menu item. Opens a dialog box to select print settings">
+             &amp;Print...

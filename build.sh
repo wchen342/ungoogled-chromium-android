@@ -8,7 +8,7 @@ chrome_target=chrome_public_apk
 mono_target=monochrome_public_apk
 webview_target=system_webview_apk
 
-chromium_version=81.0.4044.113
+chromium_version=81.0.4044.129
 ungoogled_chromium_revision=1
 
 # Argument parser from https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash/29754866#29754866
@@ -255,6 +255,7 @@ else
     cat ../android_flags.gn ../android_flags.debug.gn > out/Default/args.gn
 fi
 printf '\ntarget_cpu="'"$ARCH"'"\n' >> out/Default/args.gn
+#printf '\nenable_extensions=true\n' >> out/Default/args.gn
 gn gen out/Default --fail-on-unused-args
 popd
 

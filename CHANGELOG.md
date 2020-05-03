@@ -1,3 +1,7 @@
+# 81.0.4044.129-1
+* Fix a bug with bookmark add new folder activity.
+* Add new fix of [#9](https://github.com/wchen342/ungoogled-chromium-android/issues/9).
+
 # 81.0.4044.113-1
 * Resolve [#9](https://github.com/wchen342/ungoogled-chromium-android/issues/9), [#16](https://github.com/wchen342/ungoogled-chromium-android/issues/16).
 * Initial attempt to add extensions (not working yet)

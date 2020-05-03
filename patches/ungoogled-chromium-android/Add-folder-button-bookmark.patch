@@ -6,9 +6,9 @@ Subject: Add new folder button to bookmark activity
  chrome/android/java/res/menu/bookmark_action_bar_menu.xml                                        |    7 +++
  chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkActionBar.java             |    6 ++
  chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkAddEditFolderActivity.java |   21 +++++++++-
- chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkFolderSelectActivity.java  |   12 +++++
+ chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkFolderSelectActivity.java  |   15 +++++++
  chrome/browser/ui/android/strings/android_chrome_strings.grd                                     |    3 +
- 5 files changed, 47 insertions(+), 2 deletions(-)
+ 5 files changed, 50 insertions(+), 2 deletions(-)
 --- a/chrome/android/java/res/menu/bookmark_action_bar_menu.xml
 +++ b/chrome/android/java/res/menu/bookmark_action_bar_menu.xml
 @@ -15,6 +15,13 @@
@@ -32,7 +32,7 @@ Subject: Add new folder button to bookmark activity
              BookmarkUtils.finishActivityOnPhone(getContext());
              return true;
 +        } else if (menuItem.getItemId() == R.id.add_folder_menu_id) {
-+            BookmarkAddEditFolderActivity.startAddFolderActivity(getContext());
++            BookmarkAddEditFolderActivity.startAddFolderActivity(getContext(), mCurrentFolder.getId());
 +            return true;
          } else if (menuItem.getItemId() == R.id.search_menu_id) {
              mDelegate.openSearchUI();
@@ -78,16 +78,17 @@ Subject: Add new folder button to bookmark activity
      private BookmarkId mParentId;
      private BookmarkModel mModel;
      private TextView mParentTextView;
-@@ -98,6 +100,16 @@ public class BookmarkAddEditFolderActivi
+@@ -98,6 +100,17 @@ public class BookmarkAddEditFolderActivi
      }
  
      /**
 +     * Starts an add folder activity, without a specific bookmark.
 +     */
-+    public static void startAddFolderActivity(Context context) {
++    public static void startAddFolderActivity(Context context, BookmarkId idToEdit) {
 +        Intent intent = new Intent(context, BookmarkAddEditFolderActivity.class);
 +        intent.putExtra(INTENT_IS_ADD_MODE, true);
 +        intent.putExtra(INTENT_IS_SIMPLE_ADD_MODE, true);
++        intent.putExtra(INTENT_BOOKMARK_ID, idToEdit.toString());
 +        context.startActivity(intent);
 +    }
 +
@@ -95,7 +96,7 @@ Subject: Add new folder button to bookmark activity
       * Starts an add folder activity. This method should only be called by
       * {@link BookmarkFolderSelectActivity}.
       */
-@@ -122,7 +134,9 @@ public class BookmarkAddEditFolderActivi
+@@ -122,7 +135,9 @@ public class BookmarkAddEditFolderActivi
          mModel = new BookmarkModel();
          mModel.addObserver(mBookmarkModelObserver);
          mIsAddMode = getIntent().getBooleanExtra(INTENT_IS_ADD_MODE, false);
@@ -106,31 +107,33 @@ Subject: Add new folder button to bookmark activity
              List<String> stringList = getIntent().getStringArrayListExtra(
                      BookmarkFolderSelectActivity.INTENT_BOOKMARKS_TO_MOVE);
              mBookmarksToMove = new ArrayList<>(stringList.size());
-@@ -171,7 +185,10 @@ public class BookmarkAddEditFolderActivi
+@@ -171,7 +186,9 @@ public class BookmarkAddEditFolderActivi
      public void onClick(View v) {
          assert v == mParentTextView;
  
 -        if (mIsAddMode) {
 +        if (mIsSimpleAddMode) {
-+            BookmarkFolderSelectActivity.startNewFolderSelectActivity(
-+                    this);
++            BookmarkFolderSelectActivity.startNewFolderSelectActivity(this, mFolderId);
 +        } else if (mIsAddMode) {
              BookmarkFolderSelectActivity.startNewFolderSelectActivity(
                      this, mBookmarksToMove);
          } else {
 --- a/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkFolderSelectActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkFolderSelectActivity.java
-@@ -97,6 +97,18 @@ public class BookmarkFolderSelectActivit
+@@ -97,6 +97,21 @@ public class BookmarkFolderSelectActivit
      }
  
      /**
 +     * Starts a select folder activity for the new folder that is about to be created. No bookmark
 +     * specified.
 +     */
-+    public static void startNewFolderSelectActivity(BookmarkAddEditFolderActivity activity) {
++    public static void startNewFolderSelectActivity(
++            BookmarkAddEditFolderActivity activity, BookmarkId folderId) {
 +        Intent intent = new Intent(activity, BookmarkFolderSelectActivity.class);
 +        intent.putExtra(INTENT_IS_CREATING_FOLDER, true);
-+
++        ArrayList<String> bookmarkStrings = new ArrayList<>(1);
++        bookmarkStrings.add(folderId.toString());
++        intent.putStringArrayListExtra(INTENT_BOOKMARKS_TO_MOVE, bookmarkStrings);
 +        activity.startActivityForResult(intent,
 +                BookmarkAddEditFolderActivity.PARENT_FOLDER_REQUEST_CODE);
 +    }
