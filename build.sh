@@ -122,6 +122,15 @@ git fetch --depth 1 --no-tags origin "${libsync_commit}"
 git reset --hard FETCH_HEAD
 popd
 
+fontconfig_commit=$(grep 'fontconfig\.git' src/DEPS | cut -d\' -f10)
+mkdir src/third_party/fontconfig/src
+pushd src/third_party/fontconfig/src
+git init
+git remote add origin https://chromium.googlesource.com/external/fontconfig.git
+git fetch --depth 1 --no-tags origin "${fontconfig_commit}"
+git reset --hard FETCH_HEAD
+popd
+
 ## Hooks
 python src/build/util/lastchange.py -o src/build/util/LASTCHANGE
 python src/tools/download_cros_provided_profile.py --newest_state=src/chrome/android/profiles/newest.txt --local_state=src/chrome/android/profiles/local.txt --output_name=src/chrome/android/profiles/afdo.prof --gs_url_base=chromeos-prebuilt/afdo-job/llvm
@@ -255,7 +264,7 @@ else
     cat ../android_flags.gn ../android_flags.debug.gn > out/Default/args.gn
 fi
 printf '\ntarget_cpu="'"$ARCH"'"\n' >> out/Default/args.gn
-#printf '\nenable_extensions=true\n' >> out/Default/args.gn
+printf '\nenable_extensions=true\n' >> out/Default/args.gn
 gn gen out/Default --fail-on-unused-args
 popd
 
