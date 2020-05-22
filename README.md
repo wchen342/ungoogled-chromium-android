@@ -1,6 +1,6 @@
 # ungoogled-chromium-android
 
-Please see [CHANGELOG](https://github.com/wchen342/ungoogled-chromium-android/blob/master/CHANGELOG.md) for newest updates.
+Please see [CHANGELOG](CHANGELOG.md) for newest updates.
 
 *A lightweight approach to removing Google web service dependency*
 
@@ -56,7 +56,7 @@ For a more customized building process, see building instructions from [the orig
 
 ## Reporting and Contributing
 
-* For reporting and contacting, see [SUPPORT.md](SUPPORT.md)
+* For reporting and contacting, see [SUPPORT](SUPPORT.md)
 * This project is still in its early stage, so contributions are welcomed. Currently, the major task is to remove proprietary Google dependencies.
 
 ## F-droid Repository
@@ -81,4 +81,4 @@ You can use f-Droid client and add [this repository](https://www.droidware.info/
 
 ## License
 
-See [LICENSE](LICENSE)
+See [LICENSE](LICENSE.md)
