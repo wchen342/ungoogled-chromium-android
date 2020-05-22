@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eux -o pipefail
 
-chromium_version=81.0.4044.129
+chromium_version=81.0.4044.138
 chrome_target=chrome_public_apk
 monochrome_target=monochrome_public_apk
 webview_target=system_webview_apk
@@ -33,7 +33,7 @@ cat ../android_flags.debug.gn ../android_flags.gn > ${output_folder}/args.gn
 gn gen ${output_folder} --fail-on-unused-args
 
 # Compile apk
-/usr/bin/ninja -C ${output_folder} ${monochrome_target}
+ninja -C ${output_folder} ${monochrome_target}
 popd
 
 ###

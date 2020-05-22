@@ -1,3 +1,7 @@
+# 81.0.4044.138-1
+* Fix a crash with incognito tab
+* Minor fix for extension patches. From next release, `chrome`/`arm` target will include a beta version with extension support.
+
 # 81.0.4044.129-1
 * Fix a bug with bookmark add new folder activity.
 * Add new fix of [#9](https://github.com/wchen342/ungoogled-chromium-android/issues/9).

@@ -8,11 +8,11 @@ Subject: Remove dependency on com.google.android.gms.auth
  components/signin/core/browser/android/java/src/org/chromium/components/signin/AccountIdProvider.java            |    7 -
  components/signin/core/browser/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java |   12 --
  content/public/android/BUILD.gn                                                                                  |    1 
- content/public/android/java/src/org/chromium/content/browser/sms/SmsReceiver.java                                |   40 ---------
+ content/public/android/java/src/org/chromium/content/browser/sms/SmsReceiver.java                                |   38 --------
  content/public/android/java/src/org/chromium/content/browser/sms/Wrappers.java                                   |   10 --
  third_party/android_deps/BUILD.gn                                                                                |   44 ----------
  third_party/robolectric/BUILD.gn                                                                                 |    1 
- 9 files changed, 4 insertions(+), 113 deletions(-)
+ 9 files changed, 4 insertions(+), 111 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
@@ -95,17 +95,15 @@ Subject: Remove dependency on com.google.android.gms.auth
  import org.chromium.base.ContextUtils;
  import org.chromium.base.Log;
  import org.chromium.base.annotations.CalledByNative;
-@@ -51,9 +46,6 @@ public class SmsReceiver extends Broadca
-         // If this broadcast receiver becomes more heavyweight, we should make
+@@ -52,7 +47,6 @@ public class SmsReceiver extends Broadca
          // this registration expire after the SMS message is received.
          if (DEBUG) Log.d(TAG, "Registering intent filters.");
--        IntentFilter filter = new IntentFilter();
+         IntentFilter filter = new IntentFilter();
 -        filter.addAction(SmsRetriever.SMS_RETRIEVED_ACTION);
--        mContext.registerReceiver(this, filter);
+         mContext.registerReceiver(this, filter);
      }
  
-     @CalledByNative
-@@ -77,49 +69,19 @@ public class SmsReceiver extends Broadca
+@@ -77,49 +71,19 @@ public class SmsReceiver extends Broadca
              return;
          }
  

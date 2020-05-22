@@ -66,19 +66,14 @@ I have set up an experimental f-droid repository. Because of the limitation of i
 You can use f-Droid client and add [this repository](https://www.droidware.info/fdroid/repo).
 
 
-## TODO List
-- [x] Remove dependencies on SDK tools and extras
-- [x] Domain substitution in java files
-- [x] Prune binaries (*Note: haven't found a way to build desugar-runtime.jar without bazel. Please let me know if you know how.*)
-- [x] Remove Play Services
-- [ ] Java patches
-
 ## Credits
 
 * [The Chromium Project](//www.chromium.org/)
 * [ungoogled-chromium](//github.com/Eloston/ungoogled-chromium)
 * [xsmile's fork](//github.com/xsmile/ungoogled-chromium/tree/android)
 * [Bromite](//github.com/bromite/bromite)
+* [Kiwi Browser](//github.com/kiwibrowser)
+* [dvalter's patches](//github.com/dvalter/chromium-android-ext-dev)
 
 ## Related Projects
 
