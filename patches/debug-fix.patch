@@ -1,0 +1,225 @@
+---
+ build/android/gyp/compile_java.py                                                   |    2 
+ build/config/compiler/BUILD.gn                                                      |    7 
+ cc/trees/layer_tree_host_impl.cc                                                    |    3 
+ chrome/browser/BUILD.gn                                                             |    2 
+ chrome/browser/content_settings/host_content_settings_map_factory.cc                |    1 
+ chrome/browser/extensions/extension_system_factory.cc                               |    3 
+ chrome/browser/prefs/browser_prefs.cc                                               |   15 -
+ chrome/browser/profiles/chrome_browser_main_extra_parts_profiles.cc                 |    9 
+ chrome/browser/profiles/profile.cc                                                  |    4 
+ chrome/browser/profiles/profile.h                                                   |    2 
+ chrome/browser/resource_coordinator/resource_coordinator_parts.h                    |    4 
+ chrome/browser/supervised_user/supervised_user_service_factory.cc                   |    1 
+ chrome/browser/sync/profile_sync_service_factory.cc                                 |    2 
+ chrome/browser/ui/BUILD.gn                                                          |   12 -
+ chrome/browser/ui/browser_ui_prefs.cc                                               |    2 
+ chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc                         |   18 -
+ chrome/browser/ui/webui/history/foreign_session_handler.cc                          |    1 
+ chrome/browser/ui/webui/settings/people_handler.cc                                  |    1 
+ chrome/browser/ui/webui/settings/printing_handler.cc                                |    2 
+ chrome/browser/ui/webui/settings/system_handler.cc                                  |    1 
+ chrome/browser/ui/webui/signin/inline_login_handler_impl.cc                         |   34 --
+ chrome/browser/web_applications/web_app_provider_factory.cc                         |    1 
+ chrome/common/importer/firefox_importer_utils.cc                                    |    4 
+ components/omnibox/browser/autocomplete_controller.cc                               |    3 
+ components/omnibox/browser/autocomplete_match.cc                                    |    7 
+ components/omnibox/browser/autocomplete_result.cc                                   |    7 
+ components/omnibox/browser/shortcuts_backend.cc                                     |    3 
+ components/policy/core/browser/configuration_policy_handler.cc                      |    1 
+ components/policy/resources/policy_templates.json                                   |    8 
+ components/search/search.cc                                                         |    2 
+ components/signin/internal/identity_manager/primary_account_manager.cc              |   12 -
+ components/signin/internal/identity_manager/profile_oauth2_token_service_builder.cc |    1 
+ content/browser/BUILD.gn                                                            |    6 
+ content/common/input/input_event_stream_validator.cc                                |    3 
+ content/public/browser/content_browser_client.cc                                    |    2 
+ content/public/browser/content_browser_client.h                                     |    2 
+ extensions/renderer/bindings/api_binding_util.cc                                    |    2 
+ services/network/network_context.cc                                                 |    1 
+ third_party/skia/src/gpu/ops/GrSimpleMeshDrawOpHelper.cpp                           |    1 
+ ui/android/java/src/org/chromium/ui/base/SelectFileDialog.java                      |  116 +++++++++-
+ ui/shell_dialogs/select_file_dialog_android.cc                                      |    8 
+ ui/views/painter.cc                                                                 |    1 
+ ui/webui/resources/webui_resources.grd                                              |    6 
+ 43 files changed, 179 insertions(+), 144 deletions(-)
+
+--- a/components/signin/internal/identity_manager/primary_account_manager.cc
++++ b/components/signin/internal/identity_manager/primary_account_manager.cc
+@@ -137,18 +137,6 @@ void PrimaryAccountManager::SetAuthentic
+   DCHECK(!account_info.account_id.empty());
+   DCHECK(!IsAuthenticated());
+ 
+-#if DCHECK_IS_ON()
+-  {
+-    std::string pref_account_id;
+-    bool consented_to_sync =
+-        client_->GetPrefs()->GetBoolean(prefs::kGoogleServicesConsentedToSync);
+-
+-    DCHECK(pref_account_id.empty() || !consented_to_sync ||
+-           pref_account_id == account_info.account_id.ToString())
+-        << "account_id=" << account_info.account_id
+-        << " pref_account_id=" << pref_account_id;
+-  }
+-#endif  // DCHECK_IS_ON()
+ 
+   SetPrimaryAccountInternal(account_info, /*consented_to_sync=*/true);
+ 
+--- a/build/config/compiler/BUILD.gn
++++ b/build/config/compiler/BUILD.gn
+@@ -230,7 +230,7 @@ config("compiler") {
+   cflags_cc = []
+   cflags_objc = []
+   cflags_objcc = []
+-  ldflags = []
++  ldflags = [ "-Wl,-error-limit=0",  "-Wl,--gc-sections", "-fdata-sections", "-ffunction-sections", "-Wl,--gdb-index", ]
+   defines = []
+   configs = []
+ 
+@@ -1955,8 +1955,6 @@ if (is_win) {
+ 
+       # Put data and code in their own sections, so that unused symbols
+       # can be removed at link time with --gc-sections.
+-      "-fdata-sections",
+-      "-ffunction-sections",
+     ]
+ 
+     common_optimize_on_ldflags += [
+@@ -1964,7 +1962,6 @@ if (is_win) {
+       # See http://lwn.net/Articles/192624/ .
+       # -O2 enables string tail merge optimization in gold and lld.
+       "-Wl,-O2",
+-      "-Wl,--gc-sections",
+     ]
+   }
+ }
+@@ -2366,7 +2363,7 @@ config("symbols") {
+         # sections (llvm.org/PR34820).
+         cflags += [ "-ggnu-pubnames" ]
+       }
+-      ldflags += [ "-Wl,--gdb-index" ]
++      ldflags += []
+     }
+   }
+ }
+--- a/components/policy/core/browser/configuration_policy_handler.cc
++++ b/components/policy/core/browser/configuration_policy_handler.cc
+@@ -364,7 +364,6 @@ SchemaValidatingPolicyHandler::SchemaVal
+     Schema schema,
+     SchemaOnErrorStrategy strategy)
+     : policy_name_(policy_name), schema_(schema), strategy_(strategy) {
+-  DCHECK(schema_.valid());
+ }
+ 
+ SchemaValidatingPolicyHandler::~SchemaValidatingPolicyHandler() {}
+--- a/build/android/gyp/compile_java.py
++++ b/build/android/gyp/compile_java.py
+@@ -145,7 +145,7 @@ ERRORPRONE_WARNINGS_TO_ERROR = [
+     'LongLiteralLowerCaseSuffix',
+     'MultiVariableDeclaration',
+     'RedundantOverride',
+-    'RemoveUnusedImports',
++    #'RemoveUnusedImports',
+     'StaticQualifiedUsingExpression',
+     'StringEquality',
+     'TimeUnitMismatch',
+--- a/components/signin/internal/identity_manager/profile_oauth2_token_service_builder.cc
++++ b/components/signin/internal/identity_manager/profile_oauth2_token_service_builder.cc
+@@ -177,7 +177,6 @@ std::unique_ptr<ProfileOAuth2TokenServic
+   // device ID is needed on the network thread, but can only be generated on the
+   // main thread.
+   std::string device_id = signin::GetSigninScopedDeviceId(pref_service);
+-  DCHECK(!device_id.empty());
+ #endif
+ 
+   return std::make_unique<ProfileOAuth2TokenService>(
+--- a/chrome/browser/ui/webui/settings/people_handler.cc
++++ b/chrome/browser/ui/webui/settings/people_handler.cc
+@@ -778,7 +778,6 @@ void PeopleHandler::HandleSignout(const
+ }
+ 
+ void PeopleHandler::HandlePauseSync(const base::ListValue* args) {
+-  DCHECK(AccountConsistencyModeManager::IsDiceEnabledForProfile(profile_));
+   auto* identity_manager = IdentityManagerFactory::GetForProfile(profile_);
+   DCHECK(identity_manager->HasPrimaryAccount());
+ 
+--- a/components/omnibox/browser/autocomplete_match.cc
++++ b/components/omnibox/browser/autocomplete_match.cc
+@@ -1199,13 +1199,6 @@ void AutocompleteMatch::TryAutocompleteW
+   is_navigational_title_match = true;
+ }
+ 
+-#if DCHECK_IS_ON()
+-void AutocompleteMatch::Validate() const {
+-  std::string provider_name = provider ? provider->GetName() : "None";
+-  ValidateClassifications(contents, contents_class, provider_name);
+-  ValidateClassifications(description, description_class, provider_name);
+-}
+-#endif  // DCHECK_IS_ON()
+ 
+ // static
+ void AutocompleteMatch::ValidateClassifications(
+--- a/components/omnibox/browser/autocomplete_result.cc
++++ b/components/omnibox/browser/autocomplete_result.cc
+@@ -609,13 +609,6 @@ void AutocompleteResult::CopyFrom(const
+   matches_ = other.matches_;
+ }
+ 
+-#if DCHECK_IS_ON()
+-void AutocompleteResult::Validate() const {
+-  for (auto i(begin()); i != end(); ++i)
+-    i->Validate();
+-}
+-#endif  // DCHECK_IS_ON()
+-
+ // static
+ GURL AutocompleteResult::ComputeAlternateNavUrl(
+     const AutocompleteInput& input,
+--- a/components/omnibox/browser/shortcuts_backend.cc
++++ b/components/omnibox/browser/shortcuts_backend.cc
+@@ -119,9 +119,6 @@ void ShortcutsBackend::RemoveObserver(Sh
+ 
+ void ShortcutsBackend::AddOrUpdateShortcut(const base::string16& text,
+                                            const AutocompleteMatch& match) {
+-#if DCHECK_IS_ON()
+-  match.Validate();
+-#endif  // DCHECK_IS_ON()
+   const base::string16 text_lowercase(base::i18n::ToLower(text));
+   const base::Time now(base::Time::Now());
+   for (ShortcutMap::const_iterator it(
+--- a/components/omnibox/browser/autocomplete_controller.cc
++++ b/components/omnibox/browser/autocomplete_controller.cc
+@@ -602,9 +602,6 @@ void AutocompleteController::UpdateResul
+ 
+   // Need to validate before invoking CopyOldMatches as the old matches are not
+   // valid against the current input.
+-#if DCHECK_IS_ON()
+-  result_.Validate();
+-#endif  // DCHECK_IS_ON()
+ 
+   if (!done_) {
+     // This conditional needs to match the conditional in Start that invokes
+--- a/cc/trees/layer_tree_host_impl.cc
++++ b/cc/trees/layer_tree_host_impl.cc
+@@ -4422,9 +4422,6 @@ gfx::Vector2dF LayerTreeHostImpl::Scroll
+ }
+ 
+ void LayerTreeHostImpl::ScrollLatchedScroller(ScrollState* scroll_state) {
+-  DCHECK(CurrentlyScrollingNode());
+-  DCHECK(scroll_state);
+-  DCHECK(latched_scroll_type_.has_value());
+ 
+   ScrollNode* scroll_node = CurrentlyScrollingNode();
+   gfx::Point viewport_point(scroll_state->position_x(),
+--- a/content/common/input/input_event_stream_validator.cc
++++ b/content/common/input/input_event_stream_validator.cc
+@@ -29,9 +29,6 @@ void InputEventStreamValidator::Validate
+   if (!enabled_)
+     return;
+ 
+-  DCHECK(ValidateImpl(event, &error_msg_))
+-      << error_msg_
+-      << "\nInvalid Event: " << ui::WebInputEventTraits::ToString(event);
+ }
+ 
+ bool InputEventStreamValidator::ValidateImpl(

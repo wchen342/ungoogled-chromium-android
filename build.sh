@@ -157,7 +157,7 @@ python src/build/util/lastchange.py -m SKIA_COMMIT_HASH -s src/third_party/skia 
 ## Run ungoogled-chromium scripts
 # Patch prune list and domain substitution
 # TODO some pruned binaries are excluded since they will cause android build to fail
-patch -p1 --ignore-whitespace -i patches/android-prune-fix.patch --no-backup-if-mismatch
+patch -p1 --ignore-whitespace -i patches/ungoogled-main-repo-fix.patch --no-backup-if-mismatch
 # Remove the cache file if exists
 cache_file="domsubcache.tar.gz"
 if [[ -f ${cache_file} ]] ; then

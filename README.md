@@ -4,7 +4,7 @@ Please see [CHANGELOG](CHANGELOG.md) for newest updates.
 
 *A lightweight approach to removing Google web service dependency*
 
-*Note: this is an **Android** build. It is currently experimental.*
+*Note: this is an **Android** build.*
 
 **ungoogled-chromium is Google Chromium**, sans dependency on Google web services. It also features some tweaks to enhance privacy, control, and transparency *(almost all of which require manual activation or enabling)*.
 
@@ -18,6 +18,7 @@ For more information on `ungoogled-chromium`, please visit the original repo: [E
 * [Platforms and Versions](#platforms-and-versions)
 * [Building Instructions](#building-instructions)
 * [Reporting and Contributing](#reporting-and-contributing)
+* [Extensions](#extensions)
 * [F-droid Repository](#f-droid-repository)
 * [TODO List](#todo-list)
 * [Credits](#credits)
@@ -58,6 +59,21 @@ For a more customized building process, see building instructions from [the orig
 
 * For reporting and contacting, see [SUPPORT](SUPPORT.md)
 * This project is still in its early stage, so contributions are welcomed. Currently, the major task is to remove proprietary Google dependencies.
+
+## Extensions
+
+*Note: the Extension-support version is highly experimental and unstable. Only use it if you want to help testing, or you know what you are doing! I will not be responsible for any loss or damage caused.*
+
+Only loading unpacked `crx` is tested. The extensions are likely not fully functional yet.
+
+Currently only `Android 5.1+` is supported. More will come in the future.
+
+To install extensions:
+1. Download extension following the instructions [here](https://ungoogled-software.github.io/ungoogled-chromium-wiki/faq#downloading-the-crx-file).
+2. Extract the `crx` file into a folder with`unzip`/`7z` and copy the folder to your device. Make sure you have read access to that folder.
+3. Open "chrome://extensions/" and enable Developer mode, refresh.
+4. Click `Load unpacked` and select the folder you copied. Notice that Android has two file selections, one for selecting files and one for selecting folders. Make sure you use the right one.
+5. Refresh and you shall see the extension in the list.
 
 ## F-droid Repository
 

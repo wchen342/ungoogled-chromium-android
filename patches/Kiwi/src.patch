@@ -8,6 +8,7 @@
  chrome/browser/autofill/autofill_keyboard_accessory_adapter.h                                      |    3 
  chrome/browser/chrome_browser_main_posix.cc                                                        |    2 
  chrome/browser/chrome_content_browser_client.cc                                                    |    4 
+ chrome/browser/content_settings/host_content_settings_map_factory.cc                               |    1 
  chrome/browser/custom_handlers/register_protocol_handler_permission_request.cc                     |   14 
  chrome/browser/custom_handlers/register_protocol_handler_permission_request.h                      |    2 
  chrome/browser/devtools/chrome_devtools_manager_delegate.h                                         |    2 
@@ -24,6 +25,7 @@
  chrome/browser/extensions/api/messaging/native_messaging_host_manifest.cc                          |   13 
  chrome/browser/extensions/api/safe_browsing_private/safe_browsing_private_event_router.cc          |   43 
  chrome/browser/extensions/api/tabs/windows_event_router.cc                                         |    2 
+ chrome/browser/extensions/extension_system_factory.cc                                              |    3 
  chrome/browser/extensions/global_shortcut_listener_android.cc                                      |   50 +
  chrome/browser/extensions/global_shortcut_listener_android.h                                       |   36 
  chrome/browser/extensions/system_display/display_info_provider_android.cc                          |   17 
@@ -55,10 +57,13 @@
  chrome/browser/policy/browser_dm_token_storage_android.h                                           |   55 +
  chrome/browser/policy/chrome_browser_policy_connector.cc                                           |   19 
  chrome/browser/policy/chrome_browser_policy_connector.h                                            |    6 
+ chrome/browser/prefs/browser_prefs.cc                                                              |   15 
+ chrome/browser/profiles/chrome_browser_main_extra_parts_profiles.cc                                |   28 
+ chrome/browser/profiles/chrome_browser_main_extra_parts_profiles.h                                 |    2 
  chrome/browser/profiles/off_the_record_profile_impl.cc                                             |    9 
  chrome/browser/profiles/off_the_record_profile_impl.h                                              |   10 
- chrome/browser/profiles/profile.cc                                                                 |    6 
- chrome/browser/profiles/profile.h                                                                  |    4 
+ chrome/browser/profiles/profile.cc                                                                 |   10 
+ chrome/browser/profiles/profile.h                                                                  |    6 
  chrome/browser/profiles/profile_impl.cc                                                            |    5 
  chrome/browser/profiles/profile_impl.h                                                             |    6 
  chrome/browser/profiles/profile_manager.cc                                                         |   21 
@@ -70,7 +75,7 @@
  chrome/browser/profiles/profiles_state.cc                                                          |    4 
  chrome/browser/profiles/profiles_state.h                                                           |    2 
  chrome/browser/resource_coordinator/resource_coordinator_parts.cc                                  |    4 
- chrome/browser/resource_coordinator/resource_coordinator_parts.h                                   |    4 
+ chrome/browser/resource_coordinator/resource_coordinator_parts.h                                   |    8 
  chrome/browser/search/instant_service.h                                                            |    2 
  chrome/browser/search/instant_service_factory.h                                                    |    2 
  chrome/browser/search/instant_service_observer.h                                                   |    2 
@@ -79,7 +84,10 @@
  chrome/browser/sessions/session_restore.cc                                                         |   25 
  chrome/browser/sharing/shared_clipboard/feature_flags.cc                                           |    2 
  chrome/browser/sharing/shared_clipboard/feature_flags.h                                            |    2 
+ chrome/browser/startup_data.cc                                                                     |    2 
  chrome/browser/storage/storage_notification_service_impl.cc                                        |    2 
+ chrome/browser/supervised_user/supervised_user_service_factory.cc                                  |    1 
+ chrome/browser/sync/profile_sync_service_factory.cc                                                |    2 
  chrome/browser/ui/autofill/autofill_popup_controller_impl.cc                                       |    2 
  chrome/browser/ui/autofill/autofill_popup_controller_impl.h                                        |    2 
  chrome/browser/ui/autofill/autofill_popup_layout_model.cc                                          |    4 
@@ -93,6 +101,7 @@
  chrome/browser/ui/browser_instant_controller.h                                                     |    2 
  chrome/browser/ui/browser_navigator_params.cc                                                      |    2 
  chrome/browser/ui/browser_navigator_params.h                                                       |    6 
+ chrome/browser/ui/browser_ui_prefs.cc                                                              |    2 
  chrome/browser/ui/browser_window.h                                                                 |    2 
  chrome/browser/ui/chrome_pages.cc                                                                  |    4 
  chrome/browser/ui/chrome_pages.h                                                                   |    4 
@@ -117,8 +126,10 @@
  chrome/browser/ui/tabs/tab_strip_model.h                                                           |    4 
  chrome/browser/ui/views/accelerator_utils_android.cc                                               |   34 
  chrome/browser/ui/views/autofill/payments/save_card_manage_cards_bubble_views.cc                   |   17 
+ chrome/browser/ui/views/autofill/payments/save_card_sign_in_promo_bubble_views.cc                  |    2 
  chrome/browser/ui/views/bookmarks/bookmark_bubble_view.cc                                          |    9 
  chrome/browser/ui/views/browser_dialogs_views.cc                                                   |    9 
+ chrome/browser/ui/views/desktop_capture/desktop_media_list_view.cc                                 |    2 
  chrome/browser/ui/views/dropdown_bar_host_android.cc                                               |   11 
  chrome/browser/ui/views/extensions/extension_installed_bubble_view.cc                              |    6 
  chrome/browser/ui/views/frame/browser_frame.cc                                                     |    6 
@@ -133,17 +144,24 @@
  chrome/browser/ui/views/profiles/profile_menu_view.cc                                              |    9 
  chrome/browser/ui/views/tabs/tab_strip.cc                                                          |   12 
  chrome/browser/ui/views/tabs/window_finder_android.cc                                              |   19 
+ chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc                                        |   18 
+ chrome/browser/ui/webui/history/foreign_session_handler.cc                                         |    1 
+ chrome/browser/ui/webui/settings/printing_handler.cc                                               |    2 
+ chrome/browser/ui/webui/settings/system_handler.cc                                                 |    1 
+ chrome/browser/ui/webui/signin/inline_login_handler_impl.cc                                        |   34 
  chrome/browser/ui/webui/signin/login_ui_service.cc                                                 |   12 
  chrome/browser/ui/webui/welcome/welcome_handler.cc                                                 |    3 
  chrome/browser/ui/window_sizer/window_sizer_android.cc                                             |   16 
  chrome/browser/web_applications/components/web_app_shortcut_android.cc                             |  116 ++
  chrome/browser/web_applications/components/web_app_shortcut_android.h                              |   62 +
+ chrome/browser/web_applications/web_app_provider_factory.cc                                        |    1 
  chrome/common/chrome_features.cc                                                                   |    6 
  chrome/common/chrome_features.h                                                                    |    6 
  chrome/common/chrome_paths.cc                                                                      |    2 
  chrome/common/chrome_paths.h                                                                       |    2 
  chrome/common/chrome_switches.cc                                                                   |    4 
  chrome/common/chrome_switches.h                                                                    |    4 
+ chrome/common/importer/firefox_importer_utils.cc                                                   |    4 
  chrome/common/pref_names.cc                                                                        |   21 
  chrome/common/pref_names.h                                                                         |   21 
  chrome/common/webui_url_constants.cc                                                               |    2 
@@ -163,6 +181,8 @@
  components/omnibox/browser/omnibox_pedal_implementations.h                                         |    2 
  components/omnibox/browser/omnibox_popup_model.cc                                                  |    4 
  components/omnibox/browser/omnibox_popup_model.h                                                   |    2 
+ components/policy/resources/policy_templates.json                                                  |    8 
+ components/search/search.cc                                                                        |    2 
  components/ui_devtools/views/overlay_agent_views.cc                                                |   34 
  components/url_formatter/elide_url.cc                                                              |    4 
  components/url_formatter/elide_url.h                                                               |    2 
@@ -172,7 +192,9 @@
  content/browser/web_contents/web_contents_impl.cc                                                  |    3 
  content/browser/web_contents/web_contents_impl.h                                                   |    2 
  content/public/browser/browser_context.h                                                           |    4 
- content/public/browser/desktop_media_id.cc                                                         |    2 
+ content/public/browser/content_browser_client.cc                                                   |    2 
+ content/public/browser/content_browser_client.h                                                    |    2 
+ content/public/browser/desktop_media_id.cc                                                         |    6 
  content/public/browser/desktop_media_id.h                                                          |    2 
  content/public/browser/native_web_keyboard_event.h                                                 |    1 
  content/public/browser/storage_partition.h                                                         |    4 
@@ -182,9 +204,13 @@
  extensions/browser/api/hid/hid_device_manager.cc                                                   |    2 
  extensions/browser/api/system_cpu/cpu_info_provider_android.cc                                     |   77 +
  extensions/browser/guest_view/web_view/web_view_guest.cc                                           |    1 
+ extensions/renderer/bindings/api_binding_util.cc                                                   |    2 
+ services/network/network_context.cc                                                                |    1 
  third_party/blink/public/mojom/payments/payment_request.mojom                                      |    3 
  third_party/blink/renderer/modules/payments/payment_request.cc                                     |    2 
+ third_party/skia/src/gpu/ops/GrSimpleMeshDrawOpHelper.cpp                                          |    1 
  tools/grit/grit/tool/build.py                                                                      |    2 
+ ui/android/java/src/org/chromium/ui/base/SelectFileDialog.java                                     |  114 ++
  ui/android/window_android.cc                                                                       |   28 
  ui/android/window_android.h                                                                        |   17 
  ui/base/dragdrop/os_exchange_data.h                                                                |    8 
@@ -194,6 +220,8 @@
  ui/events/event.h                                                                                  |    1 
  ui/native_theme/native_theme_android.cc                                                            |    3 
  ui/native_theme/native_theme_android.h                                                             |    2 
+ ui/shell_dialogs/select_file_dialog_android.cc                                                     |    6 
+ ui/views/controls/menu/menu_config_android.cc                                                      |   11 
  ui/views/controls/menu/menu_controller.h                                                           |    1 
  ui/views/controls/menu/menu_host.cc                                                                |    8 
  ui/views/controls/menu/menu_host.h                                                                 |    2 
@@ -207,14 +235,17 @@
  ui/views/event_monitor_android.h                                                                   |   41 
  ui/views/metrics_android.cc                                                                        |   20 
  ui/views/native_cursor_android.cc                                                                  |   31 
+ ui/views/painter.cc                                                                                |    1 
+ ui/views/touchui/touch_selection_controller_impl.cc                                                |   43 
+ ui/views/views_touch_selection_controller_factory_android.cc                                       |   21 
  ui/views/widget/native_widget_android.cc                                                           |  445 ++++++++++
  ui/views/widget/native_widget_android.h                                                            |  194 ++++
- ui/views/widget/tooltip_manager_android.cc                                                         |   78 +
+ ui/views/widget/tooltip_manager_android.cc                                                         |   72 +
  ui/views/widget/tooltip_manager_android.h                                                          |   65 +
- ui/views/widget/widget.cc                                                                          |    6 
+ ui/views/widget/widget.cc                                                                          |    5 
  weblayer/browser/browser_context_impl.cc                                                           |    2 
  weblayer/browser/browser_context_impl.h                                                            |    2 
- 215 files changed, 3132 insertions(+), 601 deletions(-)
+ 246 files changed, 3343 insertions(+), 732 deletions(-)
 
 --- /dev/null
 +++ b/chrome/browser/web_applications/components/web_app_shortcut_android.cc
@@ -1219,6 +1250,24 @@
  ChromeZoomLevelPrefs* Profile::GetZoomLevelPrefs() {
    return nullptr;
  }
+@@ -185,7 +185,7 @@ void Profile::RegisterProfilePrefs(user_
+                                std::string());
+   registry->RegisterBooleanPref(prefs::kLiveCaptionEnabled, false);
+   registry->RegisterFilePathPref(prefs::kSODAPath, base::FilePath());
+-#if !defined(OS_ANDROID)
++#if defined(OS_ANDROID)
+   registry->RegisterDictionaryPref(prefs::kPartitionDefaultZoomLevel);
+   registry->RegisterDictionaryPref(prefs::kPartitionPerHostZoomLevels);
+ #endif  // !defined(OS_ANDROID)
+@@ -353,7 +353,7 @@ bool ProfileCompare::operator()(Profile*
+   return a->GetOriginalProfile() < b->GetOriginalProfile();
+ }
+ 
+-#if !defined(OS_ANDROID)
++#if defined(OS_ANDROID)
+ double Profile::GetDefaultZoomLevelForProfile() {
+   return GetDefaultStoragePartition(this)
+       ->GetHostZoomMap()
 --- a/chrome/browser/profiles/profile.h
 +++ b/chrome/browser/profiles/profile.h
 @@ -21,7 +21,7 @@
@@ -1239,6 +1288,15 @@
    // Retrieves a pointer to the PrefService that manages the default zoom
    // level and the per-host zoom levels for this user profile.
    // TODO(wjmaclean): Remove this when HostZoomMap migrates to StoragePartition.
+@@ -421,7 +421,7 @@ class Profile : public content::BrowserC
+   // correctly assigned to its owner.
+   Profile* CreateOffTheRecordProfile();
+ 
+-#if !defined(OS_ANDROID)
++#if defined(OS_ANDROID)
+   // Convenience method to retrieve the default zoom level for the default
+   // storage partition.
+   double GetDefaultZoomLevelForProfile();
 --- a/chrome/browser/ui/browser_navigator_params.cc
 +++ b/chrome/browser/ui/browser_navigator_params.cc
 @@ -21,7 +21,7 @@ using content::GlobalRequestID;
@@ -2365,20 +2423,12 @@
  #endif  // !defined(OS_ANDROID)
 --- a/ui/views/widget/widget.cc
 +++ b/ui/views/widget/widget.cc
-@@ -26,6 +26,7 @@
- #include "ui/events/event.h"
- #include "ui/events/event_utils.h"
- #include "ui/gfx/image/image_skia.h"
-+#include "ui/native_theme/native_theme_android.h"
- #include "ui/views/controls/menu/menu_controller.h"
- #include "ui/views/event_monitor.h"
- #include "ui/views/focus/focus_manager.h"
-@@ -191,6 +192,11 @@ Widget::~Widget() {
+@@ -191,6 +191,11 @@ Widget::~Widget() {
  }
  
  // static
 +const ui::NativeTheme* Widget::GetNativeTheme() const {
-+  return ui::NativeThemeAndroid::instance();
++  return ui::NativeTheme::GetInstanceForNativeUi();
 +}
 +
 +// static
@@ -3226,6 +3276,24 @@
  #include "chrome/browser/resource_coordinator/tab_lifecycle_unit_source.h"
  #include "chrome/browser/resource_coordinator/tab_manager.h"
  #endif
+@@ -39,7 +39,7 @@ class ResourceCoordinatorParts {
+   TabLoadTracker* tab_load_tracker() { return &tab_load_tracker_; }
+ 
+   TabManager* tab_manager() {
+-#if defined(OS_ANDROID)
++#if !defined(OS_ANDROID)
+     return nullptr;
+ #else
+     return &tab_manager_;
+@@ -47,7 +47,7 @@ class ResourceCoordinatorParts {
+   }
+ 
+   TabLifecycleUnitSource* tab_lifecycle_unit_source() {
+-#if defined(OS_ANDROID)
++#if !defined(OS_ANDROID)
+     return nullptr;
+ #else
+     return &tab_lifecycle_unit_source_;
 @@ -62,7 +62,7 @@ class ResourceCoordinatorParts {
    // Created on demand the first time it's being accessed.
    std::unique_ptr<TabMemoryMetricsReporter> tab_memory_metrics_reporter_;
@@ -3993,7 +4061,7 @@
    // The fonts for the popup text.
 --- a/content/public/browser/desktop_media_id.cc
 +++ b/content/public/browser/desktop_media_id.cc
-@@ -27,7 +27,7 @@ const DesktopMediaID::Id DesktopMediaID:
+@@ -27,22 +27,20 @@ const DesktopMediaID::Id DesktopMediaID:
  // static
  const DesktopMediaID::Id DesktopMediaID::kFakeId = -3;
  
@@ -4002,6 +4070,22 @@
  // static
  DesktopMediaID DesktopMediaID::RegisterNativeWindow(DesktopMediaID::Type type,
                                                      gfx::NativeWindow window) {
+   DCHECK(type == TYPE_SCREEN || type == TYPE_WINDOW);
+   DCHECK(window);
+   DesktopMediaID media_id(type, kNullId);
+-  media_id.window_id =
+-      DesktopMediaWindowRegistry::GetInstance()->RegisterWindow(window);
+   return media_id;
+ }
+ 
+ // static
+ gfx::NativeWindow DesktopMediaID::GetNativeWindowById(
+     const DesktopMediaID& id) {
+-  return DesktopMediaWindowRegistry::GetInstance()->GetWindowById(id.window_id);
++  return nullptr;
+ }
+ #endif
+ 
 --- a/content/public/browser/desktop_media_id.h
 +++ b/content/public/browser/desktop_media_id.h
 @@ -28,7 +28,7 @@ struct CONTENT_EXPORT DesktopMediaID {
@@ -5794,7 +5878,7 @@
 +}  // namespace views
 --- /dev/null
 +++ b/ui/views/widget/tooltip_manager_android.cc
-@@ -0,0 +1,78 @@
+@@ -0,0 +1,72 @@
 +// Copyright (c) 2012 The Chromium Authors. All rights reserved.
 +// Use of this source code is governed by a BSD-style license that can be
 +// found in the LICENSE file.
@@ -5814,11 +5898,9 @@
 +// TooltipManagerAndroid public:
 +
 +TooltipManagerAndroid::TooltipManagerAndroid(Widget* widget) : widget_(widget) {
-+  wm::SetTooltipText(GetWindow(), &tooltip_text_);
 +}
 +
 +TooltipManagerAndroid::~TooltipManagerAndroid() {
-+  wm::SetTooltipText(GetWindow(), nullptr);
 +}
 +
 +// static
@@ -5862,10 +5944,6 @@
 +  } else {
 +    tooltip_text_.clear();
 +  }
-+
-+  wm::SetTooltipId(GetWindow(), target);
-+
-+  wm::GetTooltipClient(root_window)->UpdateTooltip(GetWindow());
 +}
 +
 +aura::Window* TooltipManagerAndroid::GetWindow() {
@@ -6832,3 +6910,1003 @@
  // Closes all browsers and if successful, quits.
  void CloseAllBrowsersAndQuit();
  
+--- /dev/null
++++ b/ui/views/controls/menu/menu_config_android.cc
+@@ -0,0 +1,11 @@
++// Copyright 2017 The Chromium Authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++#include "ui/views/controls/menu/menu_config.h"
++
++namespace views {
++
++void MenuConfig::Init() {}
++
++}  // namespace views
+--- a/chrome/browser/ui/views/desktop_capture/desktop_media_list_view.cc
++++ b/chrome/browser/ui/views/desktop_capture/desktop_media_list_view.cc
+@@ -171,7 +171,6 @@ void DesktopMediaListView::OnSourceAdded
+   source_view->SetName(source.name);
+   source_view->SetGroup(kDesktopMediaSourceViewGroupId);
+   if (source.id.type == DesktopMediaID::TYPE_WINDOW) {
+-    gfx::ImageSkia icon_image = GetWindowIcon(source.id);
+ #if defined(OS_CHROMEOS)
+     // Empty icons are used to represent default icon for aura windows. By
+     // detecting this, we load the default icon from resource.
+@@ -181,7 +180,6 @@ void DesktopMediaListView::OnSourceAdded
+         icon_image = LoadDefaultIcon(window);
+     }
+ #endif
+-    source_view->SetIcon(icon_image);
+   }
+   AddChildViewAt(source_view, index);
+ 
+--- a/chrome/browser/ui/views/autofill/payments/save_card_sign_in_promo_bubble_views.cc
++++ b/chrome/browser/ui/views/autofill/payments/save_card_sign_in_promo_bubble_views.cc
+@@ -44,7 +44,7 @@ SaveCardSignInPromoBubbleViews::CreateMa
+       provider->GetDistanceMetric(views::DISTANCE_UNRELATED_CONTROL_VERTICAL)));
+   view->SetID(DialogViewId::SIGN_IN_PROMO_VIEW);
+ 
+-#if !defined(OS_CHROMEOS)
++#if !defined(OS_CHROMEOS) && !defined(OS_ANDROID)
+   sync_promo_delegate_ =
+       std::make_unique<SaveCardSignInPromoBubbleViews::SyncPromoDelegate>(
+           controller(),
+--- /dev/null
++++ b/ui/views/views_touch_selection_controller_factory_android.cc
+@@ -0,0 +1,21 @@
++// Copyright 2014 The Chromium Authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++#include "ui/views/views_touch_selection_controller_factory.h"
++
++#include "ui/base/ui_base_switches_util.h"
++#include "ui/views/touchui/touch_selection_controller_impl.h"
++
++namespace views {
++
++ViewsTouchEditingControllerFactory::ViewsTouchEditingControllerFactory() =
++    default;
++
++ui::TouchEditingControllerDeprecated*
++ViewsTouchEditingControllerFactory::Create(
++    ui::TouchEditable* client_view) {
++  return new views::TouchSelectionControllerImpl(client_view);
++}
++
++}  // namespace views
+--- a/ui/views/touchui/touch_selection_controller_impl.cc
++++ b/ui/views/touchui/touch_selection_controller_impl.cc
+@@ -219,10 +219,6 @@ class TouchSelectionControllerImpl::Edit
+         draw_invisible_(false) {
+     widget_.reset(CreateTouchSelectionPopupWidget(parent, this));
+ 
+-    targeter_ = new aura::WindowTargeter();
+-    aura::Window* window = widget_->GetNativeWindow();
+-    window->SetEventTargeter(std::unique_ptr<aura::WindowTargeter>(targeter_));
+-
+     // We are owned by the TouchSelectionControllerImpl.
+     set_owned_by_client();
+   }
+@@ -339,18 +335,14 @@ class TouchSelectionControllerImpl::Edit
+ 
+       widget_->SetBounds(GetSelectionWidgetBounds(selection_bound_));
+ 
+-      aura::Window* window = widget_->GetNativeView();
+       gfx::Point edge_start = selection_bound_.edge_start_rounded();
+       gfx::Point edge_end = selection_bound_.edge_end_rounded();
+-      wm::ConvertPointFromScreen(window, &edge_start);
+-      wm::ConvertPointFromScreen(window, &edge_end);
+       selection_bound_.SetEdge(gfx::PointF(edge_start), gfx::PointF(edge_end));
+     }
+ 
+     const gfx::Insets insets(
+         selection_bound_.GetHeight() + kSelectionHandleVerticalVisualOffset, 0,
+         0, 0);
+-    targeter_->SetInsets(insets, insets);
+   }
+ 
+   void SetDrawInvisible(bool draw_invisible) {
+@@ -364,12 +356,6 @@ class TouchSelectionControllerImpl::Edit
+   std::unique_ptr<Widget> widget_;
+   TouchSelectionControllerImpl* controller_;
+ 
+-  // A WindowTargeter that shifts the hit-test target below the apparent bounds
+-  // to make dragging easier. The |widget_|'s NativeWindow takes ownership over
+-  // the |targeter_| but since the |widget_|'s lifetime is known to this class,
+-  // it can safely access the |targeter_|.
+-  aura::WindowTargeter* targeter_;
+-
+   // In local coordinates
+   gfx::SelectionBound selection_bound_;
+   gfx::Image* image_;
+@@ -404,24 +390,17 @@ TouchSelectionControllerImpl::TouchSelec
+       cursor_handle_(
+           new EditingHandleView(this, client_view->GetNativeView(), true)) {
+   selection_start_time_ = base::TimeTicks::Now();
+-  aura::Window* client_window = client_view_->GetNativeView();
++  ui::ViewAndroid* client_window = client_view_->GetNativeView();
+   client_widget_ = Widget::GetTopLevelWidgetForNativeView(client_window);
+   // Observe client widget moves and resizes to update the selection handles.
+   if (client_widget_)
+     client_widget_->AddObserver(this);
+-
+-  // Observe certain event types sent to any event target, to hide this ui.
+-  aura::Env* env = aura::Env::GetInstance();
+-  std::set<ui::EventType> types = {ui::ET_MOUSE_PRESSED, ui::ET_MOUSE_MOVED,
+-                                   ui::ET_KEY_PRESSED, ui::ET_MOUSEWHEEL};
+-  env->AddEventObserver(this, env, types);
+ }
+ 
+ TouchSelectionControllerImpl::~TouchSelectionControllerImpl() {
+   UMA_HISTOGRAM_BOOLEAN("Event.TouchSelection.EndedWithAction",
+                         command_executed_);
+   HideQuickMenu();
+-  aura::Env::GetInstance()->RemoveEventObserver(this);
+   if (client_widget_)
+     client_widget_->RemoveObserver(this);
+ }
+@@ -629,19 +608,7 @@ void TouchSelectionControllerImpl::OnWid
+ 
+ void TouchSelectionControllerImpl::OnEvent(const ui::Event& event) {
+   if (event.IsMouseEvent()) {
+-    auto* cursor = aura::client::GetCursorClient(
+-        client_view_->GetNativeView()->GetRootWindow());
+-    if (cursor && !cursor->IsMouseEventsEnabled())
+-      return;
+-
+-    // Windows OS unhandled WM_POINTER* may be redispatched as WM_MOUSE*.
+-    // Avoid adjusting the handles on synthesized events or events generated
+-    // from touch as this can clear an active selection generated by the pen.
+-    if ((event.flags() & (ui::EF_IS_SYNTHESIZED | ui::EF_FROM_TOUCH)) ||
+-        event.AsMouseEvent()->pointer_details().pointer_type ==
+-            ui::EventPointerType::POINTER_TYPE_PEN) {
+-      return;
+-    }
++    return;
+   }
+ 
+   client_view_->DestroyTouchSelection();
+@@ -651,10 +618,6 @@ void TouchSelectionControllerImpl::Quick
+   gfx::Rect menu_anchor = GetQuickMenuAnchorRect();
+   if (menu_anchor == gfx::Rect())
+     return;
+-
+-  ui::TouchSelectionMenuRunner::GetInstance()->OpenMenu(
+-      this, menu_anchor, GetMaxHandleImageSize(),
+-      client_view_->GetNativeView());
+ }
+ 
+ void TouchSelectionControllerImpl::StartQuickMenuTimer() {
+@@ -672,8 +635,6 @@ void TouchSelectionControllerImpl::Updat
+ }
+ 
+ void TouchSelectionControllerImpl::HideQuickMenu() {
+-  if (ui::TouchSelectionMenuRunner::GetInstance()->IsRunning())
+-    ui::TouchSelectionMenuRunner::GetInstance()->CloseMenu();
+   quick_menu_timer_.Stop();
+ }
+ 
+--- a/chrome/browser/startup_data.cc
++++ b/chrome/browser/startup_data.cc
+@@ -151,7 +151,7 @@ StartupData::TakeProtoDatabaseProvider()
+ void StartupData::PreProfilePrefServiceInit() {
+   pref_registry_ = base::MakeRefCounted<user_prefs::PrefRegistrySyncable>();
+   ChromeBrowserMainExtraPartsProfiles::
+-      EnsureBrowserContextKeyedServiceFactoriesBuilt();
++      EnsureBrowserContextKeyedServiceFactoriesBuilt(false);
+ }
+ 
+ void StartupData::CreateServicesInternal() {
+--- a/chrome/browser/profiles/chrome_browser_main_extra_parts_profiles.cc
++++ b/chrome/browser/profiles/chrome_browser_main_extra_parts_profiles.cc
+@@ -100,7 +100,7 @@
+ #include "chrome/browser/android/explore_sites/explore_sites_service_factory.h"
+ #include "chrome/browser/android/search_permissions/search_permissions_service.h"
+ #include "chrome/browser/media/android/cdm/media_drm_origin_id_manager_factory.h"
+-#else
++
+ #include "chrome/browser/apps/app_service/app_service_proxy_factory.h"
+ #include "chrome/browser/feedback/feedback_uploader_factory_chrome.h"
+ #include "chrome/browser/metrics/desktop_session_duration/desktop_profile_session_durations_service_factory.h"
+@@ -189,16 +189,20 @@ ChromeBrowserMainExtraPartsProfiles::~Ch
+ // TODO(erg): This needs to be something else. I don't think putting every
+ // FooServiceFactory here will scale or is desirable long term.
+ //
++// Special Android
++// When we are on Android, we need to initialize the first pass only the minimum to be able to init the profile the first time
+ // static
+ void ChromeBrowserMainExtraPartsProfiles::
+-    EnsureBrowserContextKeyedServiceFactoriesBuilt() {
++    EnsureBrowserContextKeyedServiceFactoriesBuilt(bool full_init) {
+ #if BUILDFLAG(ENABLE_EXTENSIONS)
++  if (full_init) {
+   apps::EnsureBrowserContextKeyedServiceFactoriesBuilt();
+   extensions::EnsureBrowserContextKeyedServiceFactoriesBuilt();
+   extensions::ExtensionManagementFactory::GetInstance();
+   chrome_extensions::EnsureBrowserContextKeyedServiceFactoriesBuilt();
+   chrome_apps::EnsureBrowserContextKeyedServiceFactoriesBuilt();
+   chrome_apps::api::EnsureAPIBrowserContextKeyedServiceFactoriesBuilt();
++  }
+ #endif
+ 
+ #if defined(OS_CHROMEOS)
+@@ -213,7 +217,9 @@ void ChromeBrowserMainExtraPartsProfiles
+   AccountConsistencyModeManagerFactory::GetInstance();
+   AccountInvestigatorFactory::GetInstance();
+   AccountReconcilorFactory::GetInstance();
++  if (full_init)
+   AdaptiveQuietNotificationPermissionUiEnabler::Factory::GetInstance();
++  if (full_init)
+   AutocompleteClassifierFactory::GetInstance();
+   autofill::PersonalDataManagerFactory::GetInstance();
+ #if BUILDFLAG(ENABLE_BACKGROUND_CONTENTS)
+@@ -226,6 +232,7 @@ void ChromeBrowserMainExtraPartsProfiles
+ #if BUILDFLAG(ENABLE_CAPTIVE_PORTAL_DETECTION)
+   CaptivePortalServiceFactory::GetInstance();
+ #endif
++  if (full_init)
+   ChromeBrowsingDataRemoverDelegateFactory::GetInstance();
+   ChromeSigninClientFactory::GetInstance();
+   ClientHintsFactory::GetInstance();
+@@ -235,6 +242,7 @@ void ChromeBrowserMainExtraPartsProfiles
+   ConsentAuditorFactory::GetInstance();
+   ContentSuggestionsServiceFactory::GetInstance();
+   CookieSettingsFactory::GetInstance();
++  if (full_init)
+   NotifierStateTrackerFactory::GetInstance();
+   DomainDiversityReporterFactory::GetInstance();
+   dom_distiller::DomDistillerServiceFactory::GetInstance();
+@@ -244,6 +252,7 @@ void ChromeBrowserMainExtraPartsProfiles
+   explore_sites::ExploreSitesServiceFactory::GetInstance();
+ #endif
+   FaviconServiceFactory::GetInstance();
++  if (full_init)
+   HistoryUiFaviconRequestHandlerFactory::GetInstance();
+ #if BUILDFLAG(ENABLE_LEGACY_DESKTOP_IN_PRODUCT_HELP)
+   feature_engagement::BookmarkTrackerFactory::GetInstance();
+@@ -265,7 +274,7 @@ void ChromeBrowserMainExtraPartsProfiles
+   IdentityManagerFactory::EnsureFactoryAndDependeeFactoriesBuilt();
+   InMemoryURLIndexFactory::GetInstance();
+   invalidation::DeprecatedProfileInvalidationProviderFactory::GetInstance();
+-#if !defined(OS_ANDROID)
++#if defined(OS_ANDROID)
+   InstantServiceFactory::GetInstance();
+ #endif
+ #if BUILDFLAG(ENABLE_SERVICE_DISCOVERY)
+@@ -273,6 +282,7 @@ void ChromeBrowserMainExtraPartsProfiles
+ #endif
+   RendererUpdaterFactory::GetInstance();
+ #if BUILDFLAG(ENABLE_SUPERVISED_USERS)
++  if (full_init)
+   SupervisedUserServiceFactory::GetInstance();
+ #endif
+   LanguageModelManagerFactory::GetInstance();
+@@ -280,6 +290,7 @@ void ChromeBrowserMainExtraPartsProfiles
+   LoginUIServiceFactory::GetInstance();
+ #endif
+   if (MediaEngagementService::IsEnabled())
++    if (full_init)
+     MediaEngagementServiceFactory::GetInstance();
+   media_router::MediaRouterFactory::GetInstance();
+ #if !defined(OS_ANDROID)
+@@ -302,8 +313,9 @@ void ChromeBrowserMainExtraPartsProfiles
+   NTPResourceCacheFactory::GetInstance();
+ #endif
+   PasswordStoreFactory::GetInstance();
+-#if !defined(OS_ANDROID)
++#if defined(OS_ANDROID)
+   PinnedTabServiceFactory::GetInstance();
++  if (full_init)
+   ThemeServiceFactory::GetInstance();
+ #endif
+ #if BUILDFLAG(ENABLE_PLUGINS)
+@@ -314,6 +326,7 @@ void ChromeBrowserMainExtraPartsProfiles
+   policy::UserPolicySigninServiceFactory::GetInstance();
+ #endif
+   policy::UserCloudPolicyInvalidatorFactory::GetInstance();
++  if (full_init) {
+   predictors::AutocompleteActionPredictorFactory::GetInstance();
+   predictors::PredictorDatabaseFactory::GetInstance();
+   predictors::LoadingPredictorFactory::GetInstance();
+@@ -321,6 +334,7 @@ void ChromeBrowserMainExtraPartsProfiles
+   prerender::PrerenderManagerFactory::GetInstance();
+   prerender::PrerenderMessageFilter::EnsureShutdownNotifierFactoryBuilt();
+   ProfileSyncServiceFactory::GetInstance();
++  }
+   ProtocolHandlerRegistryFactory::GetInstance();
+ #if !defined(OS_ANDROID)
+   resource_coordinator::LocalSiteCharacteristicsDataStoreFactory::GetInstance();
+@@ -335,11 +349,13 @@ void ChromeBrowserMainExtraPartsProfiles
+ #if BUILDFLAG(ENABLE_SESSION_SERVICE)
+   SessionServiceFactory::GetInstance();
+ #endif
++  if (full_init)
+   SharingServiceFactory::GetInstance();
+   ShortcutsBackendFactory::GetInstance();
+   SigninProfileAttributesUpdaterFactory::GetInstance();
+ 
+   if (SiteEngagementService::IsEnabled())
++    if (full_init)
+     SiteEngagementServiceFactory::GetInstance();
+ 
+ #if BUILDFLAG(ENABLE_SPELLCHECK)
+@@ -348,10 +364,12 @@ void ChromeBrowserMainExtraPartsProfiles
+ #if !defined(OS_ANDROID)
+   StorageNotificationServiceFactory::GetInstance();
+ #endif
++  if (full_init)
+   suggestions::SuggestionsServiceFactory::GetInstance();
+   TabRestoreServiceFactory::GetInstance();
+   TemplateURLFetcherFactory::GetInstance();
+   TemplateURLServiceFactory::GetInstance();
++  if (full_init)
+   TopSitesFactory::GetInstance();
+   translate::TranslateRankerFactory::GetInstance();
+ #if defined(OS_WIN)
+@@ -363,8 +381,10 @@ void ChromeBrowserMainExtraPartsProfiles
+   UsbChooserContextFactory::GetInstance();
+ #endif
+ #if BUILDFLAG(ENABLE_EXTENSIONS)
++  if (full_init) {
+   web_app::WebAppProviderFactory::GetInstance();
+   web_app::WebAppMetricsFactory::GetInstance();
++  }
+ #endif
+   WebDataServiceFactory::GetInstance();
+   webrtc_event_logging::WebRtcEventLogManagerKeyedServiceFactory::GetInstance();
+--- a/chrome/browser/profiles/chrome_browser_main_extra_parts_profiles.h
++++ b/chrome/browser/profiles/chrome_browser_main_extra_parts_profiles.h
+@@ -23,7 +23,7 @@ class ChromeBrowserMainExtraPartsProfile
+   // Instantiates all chrome KeyedService factories, which is
+   // especially important for services that should be created at profile
+   // creation time as compared to lazily on first access.
+-  static void EnsureBrowserContextKeyedServiceFactoriesBuilt();
++  static void EnsureBrowserContextKeyedServiceFactoriesBuilt(bool full_init = true);
+ 
+   // Overridden from ChromeBrowserMainExtraParts:
+   void PreProfileInit() override;
+--- a/ui/views/painter.cc
++++ b/ui/views/painter.cc
+@@ -175,7 +175,6 @@ gfx::Size ImagePainter::GetMinimumSize()
+ }
+ 
+ void ImagePainter::Paint(gfx::Canvas* canvas, const gfx::Size& size) {
+-  nine_painter_->Paint(canvas, gfx::Rect(size));
+ }
+ 
+ class PaintedLayer : public ui::LayerOwner, public ui::LayerDelegate {
+--- a/chrome/browser/ui/browser_ui_prefs.cc
++++ b/chrome/browser/ui/browser_ui_prefs.cc
+@@ -40,7 +40,7 @@ uint32_t GetHomeButtonAndHomePageIsNewTa
+ void RegisterBrowserPrefs(PrefRegistrySimple* registry) {
+   registry->RegisterBooleanPref(prefs::kAllowFileSelectionDialogs, true);
+ 
+-#if !defined(OS_ANDROID)
++#if defined(OS_ANDROID)
+   registry->RegisterIntegerPref(prefs::kRelaunchNotification, 0);
+   registry->RegisterIntegerPref(
+       prefs::kRelaunchNotificationPeriod,
+--- a/chrome/browser/prefs/browser_prefs.cc
++++ b/chrome/browser/prefs/browser_prefs.cc
+@@ -218,7 +218,7 @@
+ #if BUILDFLAG(ENABLE_FEED_IN_CHROME)
+ #include "components/feed/core/common/pref_names.h"
+ #endif  // BUILDFLAG(ENABLE_FEED_IN_CHROME)
+-#else   // defined(OS_ANDROID)
++
+ #include "chrome/browser/apps/app_service/app_service_proxy.h"
+ #include "chrome/browser/enterprise_reporting/prefs.h"
+ #include "chrome/browser/gcm/gcm_product_util.h"
+@@ -475,7 +475,7 @@ const char kNtpActivateHideShortcutsFiel
+     "ntp.activate_hide_shortcuts_field_trial";
+ #endif  // !defined(OS_ANDROID)
+ 
+-#if defined(OS_ANDROID)
++#if !defined(OS_ANDROID)
+ // Deprecated 7/2019
+ // WebAuthn prefs were being erroneously stored on Android. They are registered
+ // on other platforms.
+@@ -590,7 +590,7 @@ void RegisterProfilePrefsForMigration(
+ 
+   registry->RegisterInt64Pref(kSignedInTime, 0);
+ 
+-#if defined(OS_ANDROID)
++#if !defined(OS_ANDROID)
+   registry->RegisterStringPref(kWebAuthnLastTransportUsedPrefName,
+                                std::string());
+   registry->RegisterListPref(kWebAuthnBlePairedMacAddressesPrefName);
+@@ -671,7 +671,7 @@ void RegisterLocalState(PrefRegistrySimp
+ 
+ #if defined(OS_ANDROID)
+   ::android::RegisterPrefs(registry);
+-#else
++
+   enterprise_reporting::RegisterLocalStatePrefs(registry);
+   gcm::RegisterPrefs(registry);
+   media_router::RegisterLocalStatePrefs(registry);
+@@ -932,7 +932,7 @@ void RegisterProfilePrefs(user_prefs::Pr
+ #if BUILDFLAG(ENABLE_FEED_IN_CHROME)
+   feed::RegisterProfilePrefs(registry);
+ #endif  // BUILDFLAG(ENABLE_FEED_IN_CHROME)
+-#else   // defined(OS_ANDROID)
++
+   apps::AppServiceProxy::RegisterProfilePrefs(registry);
+   AppShortcutManager::RegisterProfilePrefs(registry);
+   browser_sync::ForeignSessionHandler::RegisterProfilePrefs(registry);
+@@ -943,7 +943,6 @@ void RegisterProfilePrefs(user_prefs::Pr
+   extensions::TabsCaptureVisibleTabFunction::RegisterProfilePrefs(registry);
+   first_run::RegisterProfilePrefs(registry);
+   gcm::RegisterProfilePrefs(registry);
+-  HatsService::RegisterProfilePrefs(registry);
+   HistoryUI::RegisterProfilePrefs(registry);
+   InstantService::RegisterProfilePrefs(registry);
+   media_router::RegisterProfilePrefs(registry);
+@@ -1023,7 +1022,7 @@ void RegisterProfilePrefs(user_prefs::Pr
+   browser_switcher::BrowserSwitcherPrefs::RegisterProfilePrefs(registry);
+ #endif
+ 
+-#if !defined(OS_ANDROID) && !defined(OS_CHROMEOS)
++#if defined(OS_ANDROID) && !defined(OS_CHROMEOS)
+   default_apps::RegisterProfilePrefs(registry);
+ #endif
+ 
+@@ -1220,7 +1219,7 @@ void MigrateObsoleteProfilePrefs(Profile
+   profile_prefs->ClearPref(kLastKnownGoogleURL);
+   profile_prefs->ClearPref(kLastPromptedGoogleURL);
+ 
+-#if defined(OS_ANDROID)
++#if !defined(OS_ANDROID)
+   // Added 7/2019.
+   profile_prefs->ClearPref(kWebAuthnLastTransportUsedPrefName);
+   profile_prefs->ClearPref(kWebAuthnBlePairedMacAddressesPrefName);
+--- a/chrome/browser/ui/webui/history/foreign_session_handler.cc
++++ b/chrome/browser/ui/webui/history/foreign_session_handler.cc
+@@ -144,7 +144,6 @@ ForeignSessionHandler::~ForeignSessionHa
+ // static
+ void ForeignSessionHandler::RegisterProfilePrefs(
+     user_prefs::PrefRegistrySyncable* registry) {
+-  registry->RegisterDictionaryPref(prefs::kNtpCollapsedForeignSessions);
+ }
+ 
+ // static
+--- a/chrome/browser/content_settings/host_content_settings_map_factory.cc
++++ b/chrome/browser/content_settings/host_content_settings_map_factory.cc
+@@ -45,6 +45,7 @@ HostContentSettingsMapFactory::HostConte
+   DependsOn(SupervisedUserSettingsServiceFactory::GetInstance());
+ #endif
+ #if BUILDFLAG(ENABLE_EXTENSIONS)
++  if (extensions::ExtensionsBrowserClient::Get())
+   DependsOn(
+       extensions::ExtensionsBrowserClient::Get()->GetExtensionSystemFactory());
+ #endif
+--- a/chrome/browser/supervised_user/supervised_user_service_factory.cc
++++ b/chrome/browser/supervised_user/supervised_user_service_factory.cc
+@@ -45,6 +45,7 @@ SupervisedUserServiceFactory::Supervised
+         "SupervisedUserService",
+         BrowserContextDependencyManager::GetInstance()) {
+ #if BUILDFLAG(ENABLE_EXTENSIONS)
++  if (extensions::ExtensionsBrowserClient::Get())
+   DependsOn(
+       extensions::ExtensionsBrowserClient::Get()->GetExtensionSystemFactory());
+ #endif
+--- a/chrome/browser/sync/profile_sync_service_factory.cc
++++ b/chrome/browser/sync/profile_sync_service_factory.cc
+@@ -171,9 +171,11 @@ ProfileSyncServiceFactory::ProfileSyncSe
+ #endif  // !defined(OS_ANDROID)
+   DependsOn(WebDataServiceFactory::GetInstance());
+ #if BUILDFLAG(ENABLE_EXTENSIONS)
++  if (extensions::ExtensionsBrowserClient::Get()) {
+   DependsOn(
+       extensions::ExtensionsBrowserClient::Get()->GetExtensionSystemFactory());
+   DependsOn(extensions::StorageFrontend::GetFactoryInstance());
++  }
+   DependsOn(web_app::WebAppProviderFactory::GetInstance());
+ #endif  // BUILDFLAG(ENABLE_EXTENSIONS)
+ #if defined(OS_CHROMEOS)
+--- a/chrome/browser/extensions/extension_system_factory.cc
++++ b/chrome/browser/extensions/extension_system_factory.cc
+@@ -90,8 +90,7 @@ ExtensionSystemFactory* ExtensionSystemF
+ ExtensionSystemFactory::ExtensionSystemFactory()
+     : ExtensionSystemProvider("ExtensionSystem",
+                               BrowserContextDependencyManager::GetInstance()) {
+-  DCHECK(ExtensionsBrowserClient::Get())
+-      << "ExtensionSystemFactory must be initialized after BrowserProcess";
++  if (ExtensionsBrowserClient::Get())
+   DependsOn(ExtensionSystemSharedFactory::GetInstance());
+ }
+ 
+--- a/chrome/browser/web_applications/web_app_provider_factory.cc
++++ b/chrome/browser/web_applications/web_app_provider_factory.cc
+@@ -31,6 +31,7 @@ WebAppProviderFactory::WebAppProviderFac
+           "WebAppProvider",
+           BrowserContextDependencyManager::GetInstance()) {
+   WebAppProviderBaseFactory::SetInstance(this);
++  if (extensions::ExtensionsBrowserClient::Get())
+   DependsOn(
+       extensions::ExtensionsBrowserClient::Get()->GetExtensionSystemFactory());
+   DependsOn(ModelTypeStoreServiceFactory::GetInstance());
+--- a/components/search/search.cc
++++ b/components/search/search.cc
+@@ -9,7 +9,7 @@
+ namespace search {
+ 
+ bool IsInstantExtendedAPIEnabled() {
+-#if defined(OS_IOS) || defined(OS_ANDROID)
++#if defined(OS_IOS)
+   return false;
+ #else
+   return true;
+--- a/third_party/skia/src/gpu/ops/GrSimpleMeshDrawOpHelper.cpp
++++ b/third_party/skia/src/gpu/ops/GrSimpleMeshDrawOpHelper.cpp
+@@ -40,6 +40,7 @@ GrDrawOp::FixedFunctionFlags GrSimpleMes
+ bool GrSimpleMeshDrawOpHelper::isCompatible(const GrSimpleMeshDrawOpHelper& that,
+                                             const GrCaps& caps, const SkRect& thisBounds,
+                                             const SkRect& thatBounds, bool ignoreAAType) const {
++    return false;
+     if (SkToBool(fProcessors) != SkToBool(that.fProcessors)) {
+         return false;
+     }
+--- a/components/policy/resources/policy_templates.json
++++ b/components/policy/resources/policy_templates.json
+@@ -3976,7 +3976,7 @@
+         'items': { 'type': 'string' },
+         'id': 'ExtensionInstallSources',
+       },
+-      'supported_on': ['chrome.*:21-', 'chrome_os:21-'],
++      'supported_on': ['chrome.*:21-', 'chrome_os:21-', 'android:30-'],
+       'features': {
+         'dynamic_refresh': True,
+         'per_profile': True,
+@@ -4035,7 +4035,7 @@
+         },
+         'id': 'ExtensionAllowedTypes',
+       },
+-      'supported_on': ['chrome.*:25-', 'chrome_os:25-'],
++      'supported_on': ['chrome.*:25-', 'chrome_os:25-', 'android:30-'],
+       'features': {
+         'dynamic_refresh': True,
+         'per_profile': True,
+@@ -4150,7 +4150,7 @@
+         },
+       },
+       'url_schema': 'https://www.ch40m1um.qjz9zk/administrators/policy-list-3/extension-settings-full',
+-      'supported_on': ['chrome.*:62-', 'chrome_os:62-'],
++      'supported_on': ['chrome.*:62-', 'chrome_os:62-', 'android:30-'],
+       'features': {
+         'dynamic_refresh': True,
+         'per_profile': True,
+@@ -4327,7 +4327,7 @@
+           'caption': '''Disallow usage of the Developer Tools''',
+         },
+       ],
+-      'supported_on': ['chrome.*:68-', 'chrome_os:68-'],
++      'supported_on': ['chrome.*:68-', 'chrome_os:68-', 'android:30-'],
+       'features': {
+         'dynamic_refresh': True,
+         'per_profile': True,
+--- a/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
++++ b/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
+@@ -113,7 +113,7 @@
+ #include "chrome/browser/ui/webui/tab_strip/tab_strip_ui.h"
+ #endif
+ 
+-#if !defined(OS_ANDROID)
++#if defined(OS_ANDROID)
+ #include "chrome/browser/media/router/media_router_feature.h"
+ #include "chrome/browser/ui/webui/management_ui.h"
+ #include "chrome/browser/ui/webui/media_router/media_router_internals_ui.h"
+@@ -133,7 +133,7 @@
+ #if BUILDFLAG(ENABLE_FEED_IN_CHROME)
+ #include "chrome/browser/ui/webui/feed_internals/feed_internals_ui.h"
+ #endif  // BUILDFLAG(ENABLE_FEED_IN_CHROME)
+-#else   // defined(OS_ANDROID)
++
+ #include "chrome/browser/ui/webui/bookmarks/bookmarks_ui.h"
+ #include "chrome/browser/ui/webui/devtools_ui.h"
+ #include "chrome/browser/ui/webui/downloads/downloads_ui.h"
+@@ -207,7 +207,7 @@
+ #include "chrome/browser/ui/webui/app_launcher_page_ui.h"
+ #endif
+ 
+-#if !defined(OS_CHROMEOS) && !defined(OS_ANDROID)
++#if !defined(OS_CHROMEOS) && defined(OS_ANDROID)
+ #include "chrome/browser/ui/sync/sync_promo_ui.h"
+ #include "chrome/browser/ui/webui/browser_switch/browser_switch_ui.h"
+ #include "chrome/browser/ui/webui/signin/inline_login_ui.h"
+@@ -275,7 +275,7 @@ WebUIController* NewWebUI(WebUI* web_ui,
+   return new T(web_ui);
+ }
+ 
+-#if !defined(OS_ANDROID)
++#if defined(OS_ANDROID)
+ template <>
+ WebUIController* NewWebUI<PageNotAvailableForGuestUI>(WebUI* web_ui,
+                                                       const GURL& url) {
+@@ -322,7 +322,7 @@ WebUIController* NewWebUI<chromeos::mult
+ }
+ #endif
+ 
+-#if !defined(OS_ANDROID) && !defined(OS_CHROMEOS)
++#if defined(OS_ANDROID) && !defined(OS_CHROMEOS)
+ template <>
+ WebUIController* NewWebUI<WelcomeUI>(WebUI* web_ui, const GURL& url) {
+   return new WelcomeUI(web_ui, url);
+@@ -440,7 +440,7 @@ WebUIFactoryFunction GetWebUIFactoryFunc
+   if (url.host_piece() == chrome::kChromeUIVersionHost)
+     return &NewWebUI<VersionUI>;
+ 
+-#if !defined(OS_ANDROID)
++#if defined(OS_ANDROID)
+ #if !defined(OS_CHROMEOS)
+   // AppLauncherPage is not needed on Android or ChromeOS.
+   if (url.host_piece() == chrome::kChromeUIAppLauncherPageHost && profile &&
+@@ -630,7 +630,7 @@ WebUIFactoryFunction GetWebUIFactoryFunc
+   }
+   if (url.host_piece() == chrome::kChromeUIWebApksHost)
+     return &NewWebUI<WebApksUI>;
+-#else   // !defined(OS_ANDROID)
++
+   if (url.SchemeIs(content::kChromeDevToolsScheme)) {
+     if (!DevToolsUIBindings::IsValidFrontendURL(url))
+       return nullptr;
+@@ -646,7 +646,7 @@ WebUIFactoryFunction GetWebUIFactoryFunc
+     return &NewWebUI<SyncConfirmationUI>;
+   }
+ #endif  // defined(OS_ANDROID)
+-#if !defined(OS_CHROMEOS) && !defined(OS_ANDROID)
++#if !defined(OS_CHROMEOS) && defined(OS_ANDROID)
+   if (url.host_piece() == chrome::kChromeUIMdUserManagerHost)
+     return &NewWebUI<UserManagerUI>;
+   if (url.host_piece() == chrome::kChromeUISigninErrorHost &&
+@@ -930,7 +930,7 @@ base::RefCountedMemory* ChromeWebUIContr
+         .LoadDataResourceBytesForScale(IDR_HISTORY_FAVICON, scale_factor);
+   }
+ 
+-#if !defined(OS_ANDROID)
++#if defined(OS_ANDROID)
+ #if !defined(OS_CHROMEOS)
+   // The Apps launcher page is not available on android or ChromeOS.
+   if (page_url.host_piece() == chrome::kChromeUIAppLauncherPageHost)
+--- a/chrome/common/importer/firefox_importer_utils.cc
++++ b/chrome/common/importer/firefox_importer_utils.cc
+@@ -45,7 +45,7 @@ base::FilePath GetProfilePath(const base
+   // path of profiles.ini. IsRelative=0 refers to a custom profile
+   // location.
+   if (is_relative == "1")
+-    path = GetProfilesINI().DirName().Append(path);
++    path = base::FilePath().DirName().Append(path);
+ 
+   return path;
+ }
+@@ -97,7 +97,7 @@ base::FilePath GetLegacyDefaultProfilePa
+ } // namespace
+ 
+ base::FilePath GetFirefoxProfilePath(const std::string& firefox_install_id) {
+-  base::FilePath ini_file = GetProfilesINI();
++  base::FilePath ini_file = base::FilePath();
+   std::string content;
+   base::ReadFileToString(ini_file, &content);
+   DictionaryValueINIParser ini_parser;
+--- a/content/public/browser/content_browser_client.cc
++++ b/content/public/browser/content_browser_client.cc
+@@ -850,7 +850,7 @@ void ContentBrowserClient::CreateWebUsbS
+     RenderFrameHost* render_frame_host,
+     mojo::PendingReceiver<blink::mojom::WebUsbService> receiver) {}
+ 
+-#if !defined(OS_ANDROID)
++#if defined(OS_ANDROID)
+ SerialDelegate* ContentBrowserClient::GetSerialDelegate() {
+   return nullptr;
+ }
+--- a/content/public/browser/content_browser_client.h
++++ b/content/public/browser/content_browser_client.h
+@@ -1525,7 +1525,7 @@ class CONTENT_EXPORT ContentBrowserClien
+       RenderFrameHost* render_frame_host,
+       mojo::PendingReceiver<blink::mojom::WebUsbService> receiver);
+ 
+-#if !defined(OS_ANDROID)
++#if defined(OS_ANDROID)
+   // Allows the embedder to provide an implementation of the Serial API.
+   virtual SerialDelegate* GetSerialDelegate();
+ #endif
+--- a/chrome/browser/ui/webui/settings/system_handler.cc
++++ b/chrome/browser/ui/webui/settings/system_handler.cc
+@@ -35,7 +35,6 @@ void SystemHandler::RegisterMessages() {
+ 
+ void SystemHandler::HandleShowProxySettings(const base::ListValue* /*args*/) {
+   base::RecordAction(base::UserMetricsAction("Options_ShowProxySettings"));
+-  settings_utils::ShowNetworkProxySettings(web_ui()->GetWebContents());
+ }
+ 
+ }  // namespace settings
+--- a/chrome/browser/ui/webui/signin/inline_login_handler_impl.cc
++++ b/chrome/browser/ui/webui/signin/inline_login_handler_impl.cc
+@@ -117,30 +117,6 @@ signin_metrics::Reason GetSigninReasonFr
+   }
+ }
+ 
+-// Specific implementation of DiceTurnSyncOnHelper::Delegate for forced
+-// signin flows. Some confirmation prompts are skipped.
+-class ForcedSigninDiceTurnSyncOnHelperDelegate
+-    : public DiceTurnSyncOnHelperDelegateImpl {
+- public:
+-  explicit ForcedSigninDiceTurnSyncOnHelperDelegate(Browser* browser)
+-      : DiceTurnSyncOnHelperDelegateImpl(browser) {}
+-
+- private:
+-  void ShowMergeSyncDataConfirmation(
+-      const std::string& previous_email,
+-      const std::string& new_email,
+-      DiceTurnSyncOnHelper::SigninChoiceCallback callback) override {
+-    NOTREACHED();
+-  }
+-
+-  void ShowEnterpriseAccountConfirmation(
+-      const std::string& email,
+-      DiceTurnSyncOnHelper::SigninChoiceCallback callback) override {
+-    std::move(callback).Run(
+-        DiceTurnSyncOnHelper ::SigninChoice::SIGNIN_CHOICE_CONTINUE);
+-  }
+-};
+-
+ #if defined(OS_WIN)
+ 
+ // Returns a list of valid signin domains that were passed in
+@@ -452,16 +428,6 @@ void InlineSigninHelper::CreateSyncStart
+           signin_metrics::SourceForRefreshTokenOperation::
+               kInlineLoginHandler_Signin);
+ 
+-  std::unique_ptr<DiceTurnSyncOnHelper::Delegate> delegate =
+-      std::make_unique<ForcedSigninDiceTurnSyncOnHelperDelegate>(browser);
+-
+-  new DiceTurnSyncOnHelper(
+-      profile_, signin::GetAccessPointForEmbeddedPromoURL(current_url_),
+-      signin_metrics::PromoAction::PROMO_ACTION_NO_SIGNIN_PROMO,
+-      signin::GetSigninReasonForEmbeddedPromoURL(current_url_), account_id,
+-      DiceTurnSyncOnHelper::SigninAbortedMode::REMOVE_ACCOUNT,
+-      std::move(delegate),
+-      base::BindOnce(&OnSyncSetupComplete, profile_, email_, password_));
+ }
+ 
+ void InlineSigninHelper::OnClientOAuthFailure(
+--- a/chrome/browser/ui/webui/settings/printing_handler.cc
++++ b/chrome/browser/ui/webui/settings/printing_handler.cc
+@@ -28,8 +28,6 @@ void PrintingHandler::OnJavascriptAllowe
+ void PrintingHandler::OnJavascriptDisallowed() {}
+ 
+ void PrintingHandler::HandleOpenSystemPrintDialog(const base::ListValue* args) {
+-  printing::PrinterManagerDialog::ShowPrinterManagerDialog(
+-      Profile::FromWebUI(web_ui()));
+ }
+ 
+ }  // namespace settings
+--- a/services/network/network_context.cc
++++ b/services/network/network_context.cc
+@@ -825,7 +825,6 @@ void NetworkContext::QueueReport(const s
+ 
+ void NetworkContext::QueueSignedExchangeReport(
+     mojom::SignedExchangeReportPtr report) {
+-  NOTREACHED();
+ }
+ #endif  // BUILDFLAG(ENABLE_REPORTING)
+ 
+--- a/ui/android/java/src/org/chromium/ui/base/SelectFileDialog.java
++++ b/ui/android/java/src/org/chromium/ui/base/SelectFileDialog.java
+@@ -15,10 +15,13 @@ import android.content.Intent;
+ import android.content.pm.PackageManager;
+ import android.net.Uri;
+ import android.os.Build;
++import android.os.storage.StorageManager;
+ import android.provider.MediaStore;
++import android.provider.DocumentsContract;
+ import android.text.TextUtils;
+ import android.webkit.MimeTypeMap;
+ 
++import androidx.annotation.Nullable;
+ import androidx.annotation.VisibleForTesting;
+ 
+ import org.chromium.base.ContentUriUtils;
+@@ -39,6 +42,8 @@ import org.chromium.ui.UiUtils;
+ 
+ import java.io.File;
+ import java.io.IOException;
++import java.lang.reflect.Array;
++import java.lang.reflect.Method;
+ import java.util.ArrayList;
+ import java.util.Arrays;
+ import java.util.List;
+@@ -95,6 +100,7 @@ public class SelectFileDialog implements
+ 
+     private final long mNativeSelectFileDialog;
+     private List<String> mFileTypes;
++    private boolean mIsFolder;
+     private boolean mCapture;
+     private boolean mAllowMultiple;
+     private Uri mCameraOutputUri;
+@@ -142,9 +148,10 @@ public class SelectFileDialog implements
+     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
+     @CalledByNative
+     private void selectFile(
+-            String[] fileTypes, boolean capture, boolean multiple, WindowAndroid window) {
++            String[] fileTypes, boolean capture, boolean multiple, boolean isFolder, WindowAndroid window) {
+         mFileTypes = new ArrayList<String>(Arrays.asList(fileTypes));
+         mCapture = capture;
++        mIsFolder = isFolder;
+         mAllowMultiple = multiple;
+         mWindowAndroid = (sOverrideWindowAndroid == null) ? window : sOverrideWindowAndroid;
+ 
+@@ -236,6 +243,12 @@ public class SelectFileDialog implements
+         RecordHistogram.recordEnumeratedHistogram("Android.SelectFileDialogScope",
+                 determineSelectFileDialogScope(), SELECT_FILE_DIALOG_SCOPE_COUNT);
+ 
++        Intent folderSelector = null;
++        if (mIsFolder) {
++            folderSelector = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
++            folderSelector.addCategory(Intent.CATEGORY_DEFAULT);
++        }
++
+         boolean hasCameraPermission = mWindowAndroid.hasPermission(Manifest.permission.CAMERA);
+         Intent camcorder = null;
+         if (mSupportsVideoCapture && hasCameraPermission) {
+@@ -289,6 +302,9 @@ public class SelectFileDialog implements
+             } else if (shouldShowAudioTypes()) {
+                 if (soundRecorder != null) extraIntents.add(soundRecorder);
+                 getContentIntent.setType(ALL_AUDIO_TYPES);
++            } else if (mIsFolder) {
++                if (folderSelector != null) extraIntents.add(folderSelector);
++                getContentIntent.setType(ANY_TYPES);
+             }
+ 
+             // If any types are specified, then only accept openable files, as coercing
+@@ -302,6 +318,7 @@ public class SelectFileDialog implements
+             if (camera != null) extraIntents.add(camera);
+             if (camcorder != null) extraIntents.add(camcorder);
+             if (soundRecorder != null) extraIntents.add(soundRecorder);
++            if (folderSelector != null) extraIntents.add(folderSelector);
+         }
+ 
+         Intent chooser = new Intent(Intent.ACTION_CHOOSER);
+@@ -697,6 +714,14 @@ public class SelectFileDialog implements
+             String[] displayNames = new String[mUris.length];
+             try {
+                 for (int i = 0; i < mUris.length; i++) {
++                    // Convert content Uri to absolute file path if in folder selection mode
++                    if (mIsFolder) {
++                        Context context = ContextUtils.getApplicationContext();
++                        String path = FileUtil.getFullPathFromTreeUri(mUris[i], context);
++                        if (path != null)
++                            mUris[i] = Uri.fromFile(new File(path));
++                    }
++
+                     // The selected files must be returned as a list of absolute paths. A MIUI 8.5
+                     // device was observed to return a file:// URI instead, so convert if necessary.
+                     // See https://crbug.com/752834 for context.
+@@ -705,8 +730,13 @@ public class SelectFileDialog implements
+                     } else {
+                         mFilePaths[i] = mUris[i].toString();
+                     }
+-                    displayNames[i] = ContentUriUtils.getDisplayName(
+-                            mUris[i], mContext, MediaStore.MediaColumns.DISPLAY_NAME);
++
++                    if (mIsFolder) {
++                        displayNames[i] = mFilePaths[i];
++                    } else {
++                        displayNames[i] = ContentUriUtils.getDisplayName(
++                                mUris[i], mContext, MediaStore.MediaColumns.DISPLAY_NAME);
++                    }
+                 }
+             }  catch (SecurityException e) {
+                 // Some third party apps will present themselves as being able
+@@ -803,4 +833,82 @@ public class SelectFileDialog implements
+         void onContactsSelected(
+                 long nativeSelectFileDialogImpl, SelectFileDialog caller, String contacts);
+     }
++
++    // The following code is from
++    // <a href="https://stackoverflow.com/questions/34927748#36162691">Stack Overflow</a>.
++    // Licensed under CC-BY-SA 3.0.
++    private static final class FileUtil {
++        private static final String PRIMARY_VOLUME_NAME = "primary";
++
++        @Nullable
++        static String getFullPathFromTreeUri(@Nullable final Uri treeUri, Context con) {
++            if (treeUri == null) return null;
++            String volumePath = getVolumePath(getVolumeIdFromTreeUri(treeUri),con);
++            if (volumePath == null) return File.separator;
++            if (volumePath.endsWith(File.separator))
++                volumePath = volumePath.substring(0, volumePath.length() - 1);
++
++            String documentPath = getDocumentPathFromTreeUri(treeUri);
++            if (documentPath.endsWith(File.separator))
++                documentPath = documentPath.substring(0, documentPath.length() - 1);
++
++            if (documentPath.length() > 0) {
++                if (documentPath.startsWith(File.separator))
++                    return volumePath + documentPath;
++                else
++                    return volumePath + File.separator + documentPath;
++            }
++            else return volumePath;
++        }
++
++        @SuppressLint("ObsoleteSdkInt")
++        private static String getVolumePath(final String volumeId, Context context) {
++            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) return null;
++            try {
++                StorageManager mStorageManager =
++                        (StorageManager) context.getSystemService(Context.STORAGE_SERVICE);
++                Class<?> storageVolumeClazz = Class.forName("android.os.storage.StorageVolume");
++                Method getVolumeList = mStorageManager.getClass().getMethod("getVolumeList");
++                Method getUuid = storageVolumeClazz.getMethod("getUuid");
++                Method getPath = storageVolumeClazz.getMethod("getPath");
++                Method isPrimary = storageVolumeClazz.getMethod("isPrimary");
++                Object result = getVolumeList.invoke(mStorageManager);
++
++                final int length = Array.getLength(result);
++                for (int i = 0; i < length; i++) {
++                    Object storageVolumeElement = Array.get(result, i);
++                    String uuid = (String) getUuid.invoke(storageVolumeElement);
++                    Boolean primary = (Boolean) isPrimary.invoke(storageVolumeElement);
++
++                    // primary volume?
++                    if (primary && PRIMARY_VOLUME_NAME.equals(volumeId))
++                        return (String) getPath.invoke(storageVolumeElement);
++
++                    // other volumes?
++                    if (uuid != null && uuid.equals(volumeId))
++                        return (String) getPath.invoke(storageVolumeElement);
++                }
++                // not found.
++                return null;
++            } catch (Exception ex) {
++                return null;
++            }
++        }
++
++        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
++        private static String getVolumeIdFromTreeUri(final Uri treeUri) {
++            final String docId = DocumentsContract.getTreeDocumentId(treeUri);
++            final String[] split = docId.split(":");
++            if (split.length > 0) return split[0];
++            else return null;
++        }
++
++        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
++        private static String getDocumentPathFromTreeUri(final Uri treeUri) {
++            final String docId = DocumentsContract.getTreeDocumentId(treeUri);
++            final String[] split = docId.split(":");
++            if ((split.length >= 2) && (split[1] != null)) return split[1];
++            else return File.separator;
++        }
++    }
+ }
+--- a/ui/shell_dialogs/select_file_dialog_android.cc
++++ b/ui/shell_dialogs/select_file_dialog_android.cc
+@@ -134,8 +134,12 @@ void SelectFileDialogImpl::SelectFileImp
+ 
+   bool accept_multiple_files = SelectFileDialog::SELECT_OPEN_MULTI_FILE == type;
+ 
++  bool is_folder = false;
++  if (type == SelectFileDialog::SELECT_EXISTING_FOLDER)
++      is_folder = true;
++
+   Java_SelectFileDialog_selectFile(env, java_object_, accept_types_java,
+-                                   accept_types.second, accept_multiple_files,
++                                   accept_types.second, accept_multiple_files, is_folder,
+                                    owning_window->GetJavaObject());
+ }
+ 
+--- a/extensions/renderer/bindings/api_binding_util.cc
++++ b/extensions/renderer/bindings/api_binding_util.cc
+@@ -129,6 +129,8 @@ std::string GetPlatformString() {
+   return "mac";
+ #elif defined(OS_WIN)
+   return "win";
++#elif defined(OS_ANDROID)
++  return "android";
+ #else
+   NOTREACHED();
+   return std::string();

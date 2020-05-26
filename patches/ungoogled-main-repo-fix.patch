@@ -1,4 +1,4 @@
-description: remove some prune causing build to fail, avoid matching Android namespace declaration/com.google.common package in .java
+description: remove some prune causing build to fail, modify GN flags
 author: Wengling Chen <feiyu2817@gmail.com>
 
 
@@ -25,3 +25,13 @@ author: Wengling Chen <feiyu2817@gmail.com>
  third_party/icu/flutter/icudtl.dat
  third_party/icu/ios/icudtl.dat
  third_party/icu/source/data/in/coll/ucadata-implicithan.icu
+--- a/ungoogled-chromium/flags.gn
++++ b/ungoogled-chromium/flags.gn
+@@ -11,7 +11,6 @@
+ enable_reporting=false
+ enable_service_discovery=false
+ enable_widevine=true
+-exclude_unwind_tables=true
+ fieldtrial_testing_like_official_build=true
+ google_api_key=""
+ google_default_client_id=""

@@ -5,6 +5,7 @@ disable_tab_ui_dfm=true
 enable_iterator_debugging=false
 enable_swiftshader=false
 fatal_linker_warnings=false
+is_component_build=false
 is_debug=false
 is_official_build=true
 proprietary_codecs=true

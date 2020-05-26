@@ -28,11 +28,44 @@ pushd src
 output_folder=out/Debug_apk
 mkdir -p ${output_folder}
 cat ../android_flags.debug.gn ../android_flags.gn > ${output_folder}/args.gn
+popd
+
+# Fix repos
+ui_automator_commit=$(grep 'ub-uiautomator\.git' src/DEPS | cut -d\' -f10)
+mkdir src/third_party/ub-uiautomator/lib
+pushd src/third_party/ub-uiautomator/lib
+git init
+git remote add origin https://chromium.googlesource.com/chromium/third_party/ub-uiautomator.git
+git fetch --depth 1 --no-tags origin "${ui_automator_commit}"
+git reset --hard FETCH_HEAD
+popd
+
+robolectric_commit=$(grep 'robolectric\.git' src/DEPS | cut -d\' -f10)
+mkdir -p src/third_party/robolectric/robolectric
+pushd src/third_party/robolectric/robolectric
+git init
+git remote add origin https://chromium.googlesource.com/external/robolectric.git
+git fetch --depth 1 --no-tags origin "${robolectric_commit}"
+git reset --hard FETCH_HEAD
+popd
+
+netty4_commit=$(grep 'netty4\.git' src/DEPS | cut -d\' -f10)
+mkdir -p src/third_party/netty4/src
+pushd src/third_party/netty4/src
+git init
+git remote add origin https://chromium.googlesource.com/external/netty4.git
+git fetch --depth 1 --no-tags origin "${netty4_commit}"
+git reset --hard FETCH_HEAD
+popd
+
 
 # Run gn first
+pushd src
 gn gen ${output_folder} --fail-on-unused-args
+popd
 
 # Compile apk
+pushd src
 ninja -C ${output_folder} ${monochrome_target}
 popd
 
