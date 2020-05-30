@@ -1,0 +1,87 @@
+From: csagan5 <32685696+csagan5@users.noreply.github.com>
+Date: Sun, 14 Apr 2019 12:08:27 +0200
+Subject: Remove all sync and account permissions/features from manifest
+
+---
+ chrome/android/java/AndroidManifest.xml                                                |   26 ----------
+ components/sync/android/java/src/org/chromium/components/sync/AndroidSyncSettings.java |    2 
+ 2 files changed, 1 insertion(+), 27 deletions(-)
+
+--- a/chrome/android/java/AndroidManifest.xml
++++ b/chrome/android/java/AndroidManifest.xml
+@@ -43,23 +43,17 @@ by a child template that "extends" this
+     {% if target_sdk_version|int > 27 or target_sdk_version == "Q" %}
+         <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+     {% endif %}
+-    <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
+     <uses-permission android:name="android.permission.INTERNET"/>
+-    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS"/>
+     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+     <uses-permission android:name="android.permission.NFC"/>
+     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+-    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS"/>
+-    <uses-permission android:name="android.permission.READ_SYNC_STATS"/>
+     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+-    <uses-permission android:name="android.permission.USE_CREDENTIALS"/>
+     <uses-permission-sdk-23 android:name="android.permission.USE_BIOMETRIC"/>
+     <uses-permission-sdk-23 android:name="android.permission.USE_FINGERPRINT"/>
+     <uses-permission android:name="android.permission.VIBRATE"/>
+     <uses-permission android:name="android.permission.WAKE_LOCK"/>
+     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+-    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"/>
+     {% set enable_vr = enable_vr|default(0) %}
+     {% if enable_vr == "true" %}
+     <!-- Indicates use of Android's VR-mode, available only on Android N+. -->
+@@ -95,8 +89,6 @@ by a child template that "extends" this
+     <uses-permission android:name="com.android.browser.permission.WRITE_HISTORY_BOOKMARKS"/>
+     <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT"/>
+ 
+-    <uses-permission android:name="com.google.android.apps.now.CURRENT_ACCOUNT_ACCESS" />
+-
+     {% block extra_uses_permissions %}
+     {% endblock %}
+ 
+@@ -932,16 +924,6 @@ by a child template that "extends" this
+                 android:resource="@xml/file_paths" />
+         </provider>
+ 
+-        <!-- Sync adapter for browser invalidation. -->
+-        <service android:name="org.chromium.chrome.browser.invalidation.ChromeBrowserSyncAdapterService"
+-            android:exported="false">
+-            <intent-filter>
+-                <action android:name="android.content.SyncAdapter" />
+-            </intent-filter>
+-            <meta-data android:name="android.content.SyncAdapter"
+-                       android:resource="@xml/syncadapter" />
+-        </service>
+-
+         <!-- Broadcast receiver that will be notified of account changes -->
+         <receiver android:name="org.chromium.chrome.browser.services.AccountsChangedReceiver">
+             <intent-filter>
+@@ -1010,14 +992,6 @@ by a child template that "extends" this
+             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|mcc|mnc|screenLayout|smallestScreenSize"
+             android:hardwareAccelerated="false" />
+ 
+-        <!-- Notification service for sync. -->
+-        <service android:name="com.google.ipc.invalidation.ticl.android2.TiclService"
+-            android:exported="false"/>
+-        <receiver android:name="com.google.ipc.invalidation.ticl.android2.AndroidInternalScheduler$AlarmReceiver"
+-            android:exported="false"/>
+-        <receiver android:name="com.google.ipc.invalidation.external.client.contrib.AndroidListener$AlarmReceiver"
+-            android:exported="false"/>
+-
+         <!-- Android Notification service listener -->
+         <service android:name="org.chromium.chrome.browser.notifications.NotificationService"
+             android:exported="false"/>
+--- a/components/sync/android/java/src/org/chromium/components/sync/AndroidSyncSettings.java
++++ b/components/sync/android/java/src/org/chromium/components/sync/AndroidSyncSettings.java
+@@ -311,7 +311,7 @@ public class AndroidSyncSettings {
+                 mIsSyncable = false;
+                 mChromeSyncEnabled = false;
+             }
+-            mMasterSyncEnabled = mSyncContentResolverDelegate.getMasterSyncAutomatically();
++            mMasterSyncEnabled = false;
+             StrictMode.setThreadPolicy(oldPolicy);
+ 
+             return oldChromeSyncEnabled != mChromeSyncEnabled

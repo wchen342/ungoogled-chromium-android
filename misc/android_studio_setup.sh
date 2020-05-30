@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -eux -o pipefail
 
-chromium_version=81.0.4044.138
+chromium_version=83.0.4103.61
 chrome_target=chrome_public_apk
-monochrome_target=monochrome_public_apk
+mono_target=monochrome_public_apk
 webview_target=system_webview_apk
 
 # Create symbol links to gn, depot-tools
@@ -22,13 +22,6 @@ export AR=${AR:=llvm-ar}
 export NM=${NM:=llvm-nm}
 export CC=${CC:=clang}
 export CXX=${CXX:=clang++}
-
-# Need different GN flags than a release build
-pushd src
-output_folder=out/Debug_apk
-mkdir -p ${output_folder}
-cat ../android_flags.debug.gn ../android_flags.gn > ${output_folder}/args.gn
-popd
 
 # Fix repos
 ui_automator_commit=$(grep 'ub-uiautomator\.git' src/DEPS | cut -d\' -f10)
@@ -58,6 +51,13 @@ git fetch --depth 1 --no-tags origin "${netty4_commit}"
 git reset --hard FETCH_HEAD
 popd
 
+# Need different GN flags than a release build
+pushd src
+output_folder=out/Debug_apk
+mkdir -p ${output_folder}
+cat ../android_flags.debug.gn ../android_flags.gn > ${output_folder}/args.gn
+printf '\ntarget_cpu="arm64"\n' >> ${output_folder}/args.gn
+popd
 
 # Run gn first
 pushd src
@@ -66,7 +66,7 @@ popd
 
 # Compile apk
 pushd src
-ninja -C ${output_folder} ${monochrome_target}
+ninja -C ${output_folder} ${mono_target}
 popd
 
 ###
@@ -75,6 +75,7 @@ pushd src
 output_folder=out/Debug
 mkdir -p ${output_folder}
 cat ../android_flags.debug.gn ../android_flags.gn > ${output_folder}/args.gn
+printf '\ntarget_cpu="arm64"\n' >> ${output_folder}/args.gn
 
 # Run gn first
 gn gen ${output_folder} --fail-on-unused-args
@@ -85,5 +86,5 @@ pushd ..
 patch -p1 --ignore-whitespace -i patches/generate_gradle.patch --no-backup-if-mismatch
 popd
 # patch -p1 --ignore-whitespace -i ../patches/src-fix/fix-unkown-warning-clang-9.patch --no-backup-if-mismatch
-python build/android/gradle/generate_gradle.py --target //chrome/android:${monochrome_target} --output-directory ${output_folder}
+python build/android/gradle/generate_gradle.py --target //chrome/android:${mono_target} --output-directory ${output_folder}
 popd

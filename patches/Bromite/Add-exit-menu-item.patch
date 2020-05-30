@@ -23,7 +23,7 @@ Corrected Exit functionality
      <!-- Items shown only in the tab switcher -->
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeActivity.java
-@@ -2078,6 +2078,8 @@ public abstract class ChromeActivity<C e
+@@ -1994,6 +1994,8 @@ public abstract class ChromeActivity<C e
              AddToHomescreenCoordinator.showForAppMenu(
                      this, getWindowAndroid(), getModalDialogManager(), currentTab.getWebContents());
              RecordUserAction.record("MobileMenuAddToHomescreen");
@@ -49,7 +49,7 @@ Corrected Exit functionality
      @Override
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -2854,6 +2854,9 @@ To change this setting, <ph name="BEGIN_
+@@ -2876,6 +2876,9 @@ To change this setting, <ph name="BEGIN_
        <message name="IDS_MENU_SETTINGS" desc="Menu item for opening browser settings. [CHAR-LIMIT=27]">
          Settings
        </message>

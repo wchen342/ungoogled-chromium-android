@@ -1,4 +1,3 @@
-src-fix/fix-manifest-merger-path.patch
 src-fix/android-rlz-fix-missing-variable.patch
 src-fix/fix-null-mInstanceID.patch
 src-fix/fix-unkown-warning-clang-9.patch
@@ -29,15 +28,15 @@ ungoogled-chromium-android/Remove-dependency-on-com.google.android.play.core.spl
 ungoogled-chromium-android/Disable-contextual-search.patch
 ungoogled-chromium-android/Disable-lite-mode-prompt.patch
 ungoogled-chromium-android/Disable-prefetch.patch
-ungoogled-chromium-android/Add-Starpage-search-engine.patch
+ungoogled-chromium-android/Add-more-search-engines.patch
 ungoogled-chromium-android/Add-folder-button-bookmark.patch
+ungoogled-chromium-android/Mark-http-as-dangerous-mixed-content-warning.patch
 Bromite/Add-exit-menu-item.patch
 Bromite/Add-flag-to-disable-WebGL.patch
 Bromite/Add-flags-to-disable-device-motion-and-orientation-APIs.patch
 Bromite/Add-option-to-not-persist-tabs-across-sessions.patch
 Bromite/Add-user-setting-for-DNS-over-HTTPS-DoH-custom-URL.patch
+Bromite/Change-default-webRTC-policy-to-not-use-any-address.patch
+Bromite/Remove-account-permissions-from-manifest.patch
 Bromite/Revert-flags-remove-disable-pull-to-refresh-effect.patch
 Bromite/updater-disable-updater-pings.patch
-Bromite/Use-a-minimum-DoH-timeout-of-400ms.patch
-Bromite/Disable-AImageReader-for-ARM64-P-and-ARM64-Q.patch
-Bromite/Download-on-Android-Q-Remove-a-DCHECK-in-CreateReservation.patch

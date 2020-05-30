@@ -8,13 +8,14 @@ author: Wengling Chen <feiyu2817@gmail.com>
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -35,8 +35,8 @@ import("java_sources.gni")
- import("static_initializers.gni")
- import("trichrome.gni")
- 
--chrome_public_manifest_package = "org.chromium.chrome"
+@@ -43,9 +43,9 @@ declare_args() {
+   # WebView providers which declare one of a handful of package names. See
+   # https://chromium.9oo91esource.qjz9zk/chromium/src/+/HEAD/android_webview/docs/build-instructions.md#Changing-package-name
+   # for details.
+-  chrome_public_manifest_package = "org.chromium.chrome"
++  chrome_public_manifest_package = "org.ungoogled.chromium"
+ }
 -chrome_public_test_manifest_package = "org.chromium.chrome.tests"
-+chrome_public_manifest_package = "org.ungoogled.chromium"
 +chrome_public_test_manifest_package = "org.ungoogled.chromium.tests"
  
  chrome_public_jinja_variables =

@@ -23,12 +23,12 @@ Subject: Remove dependency on com.google.android.gms.cast
  chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/remoting/RemotingSessionController.java     |   21 -
  chrome/android/java/AndroidManifest.xml                                                                                                |   28 --
  chrome/test/android/cast_emulator/BUILD.gn                                                                                             |    1 
- third_party/android_deps/BUILD.gn                                                                                                      |   33 --
- 21 files changed, 26 insertions(+), 786 deletions(-)
+ third_party/android_deps/BUILD.gn                                                                                                      |   39 ---
+ 21 files changed, 26 insertions(+), 792 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -224,8 +224,6 @@ android_library("chrome_java") {
+@@ -264,8 +264,6 @@ android_library("chrome_java") {
      ":usage_stats_proto_java",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
@@ -37,7 +37,7 @@ Subject: Remove dependency on com.google.android.gms.cast
      "$google_play_services_package:google_play_services_fido_java",
      "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
-@@ -631,8 +629,6 @@ junit_binary("chrome_junit_tests") {
+@@ -703,8 +701,6 @@ junit_binary("chrome_junit_tests") {
      ":partner_location_descriptor_proto_java",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
@@ -46,7 +46,7 @@ Subject: Remove dependency on com.google.android.gms.cast
      "$google_play_services_package:google_play_services_fido_java",
      "//base:base_java",
      "//base:base_java_test_support",
-@@ -742,8 +738,6 @@ android_library("chrome_test_java") {
+@@ -818,8 +814,6 @@ android_library("chrome_test_java") {
      ":partner_location_descriptor_proto_java",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
@@ -117,9 +117,9 @@ Subject: Remove dependency on com.google.android.gms.cast
  }
 --- a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/MediaSink.java
 +++ b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/MediaSink.java
-@@ -9,41 +9,24 @@ import android.support.v7.media.MediaRou
- 
- import androidx.annotation.Nullable;
+@@ -8,41 +8,24 @@ import androidx.annotation.Nullable;
+ import androidx.mediarouter.media.MediaRouter;
+ import androidx.mediarouter.media.MediaRouter.RouteInfo;
  
 -import com.google.android.gms.cast.CastDevice;
 -
@@ -161,7 +161,7 @@ Subject: Remove dependency on com.google.android.gms.cast
      }
  
      /**
-@@ -53,17 +36,8 @@ public class MediaSink {
+@@ -52,17 +35,8 @@ public class MediaSink {
          return CAST_SINK_URN_PREFIX + getId();
      }
  
@@ -179,7 +179,7 @@ Subject: Remove dependency on com.google.android.gms.cast
          return false;
      }
  
-@@ -71,23 +45,15 @@ public class MediaSink {
+@@ -70,23 +44,15 @@ public class MediaSink {
      public int hashCode() {
          final int prime = 31;
          int result = 1;
@@ -204,7 +204,7 @@ Subject: Remove dependency on com.google.android.gms.cast
      }
  
      /**
-@@ -98,10 +64,6 @@ public class MediaSink {
+@@ -97,10 +63,6 @@ public class MediaSink {
       */
      @Nullable
      public static MediaSink fromSinkId(String sinkId, MediaRouter router) {
@@ -614,9 +614,9 @@ Subject: Remove dependency on com.google.android.gms.cast
      private void notifyCallback(NotifyCallbackAction action) {
 --- a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CafBaseMediaRouteProvider.java
 +++ b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CafBaseMediaRouteProvider.java
-@@ -12,9 +12,6 @@ import androidx.annotation.NonNull;
- import androidx.annotation.Nullable;
- import androidx.annotation.VisibleForTesting;
+@@ -12,9 +12,6 @@ import androidx.mediarouter.media.MediaR
+ import androidx.mediarouter.media.MediaRouter;
+ import androidx.mediarouter.media.MediaRouter.RouteInfo;
  
 -import com.google.android.gms.cast.framework.CastSession;
 -import com.google.android.gms.cast.framework.SessionManagerListener;
@@ -754,16 +754,16 @@ Subject: Remove dependency on com.google.android.gms.cast
  
 --- a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CafMediaRouteProvider.java
 +++ b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CafMediaRouteProvider.java
-@@ -12,8 +12,6 @@ import androidx.annotation.NonNull;
- import androidx.annotation.Nullable;
+@@ -11,8 +11,6 @@ import androidx.annotation.Nullable;
  import androidx.annotation.VisibleForTesting;
+ import androidx.mediarouter.media.MediaRouter;
  
 -import com.google.android.gms.cast.framework.CastSession;
 -
  import org.chromium.base.Log;
  import org.chromium.chrome.browser.media.router.ChromeMediaRouter;
  import org.chromium.chrome.browser.media.router.ClientRecord;
-@@ -149,20 +147,6 @@ public class CafMediaRouteProvider exten
+@@ -148,20 +146,6 @@ public class CafMediaRouteProvider exten
      }
  
      @Override
@@ -787,8 +787,8 @@ Subject: Remove dependency on com.google.android.gms.cast
 --- a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CafMessageHandler.java
 +++ b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CafMessageHandler.java
 @@ -13,10 +13,6 @@ import android.util.SparseArray;
- 
  import androidx.annotation.VisibleForTesting;
+ import androidx.collection.ArrayMap;
  
 -import com.google.android.gms.cast.ApplicationMetadata;
 -import com.google.android.gms.common.api.PendingResult;
@@ -930,9 +930,9 @@ Subject: Remove dependency on com.google.android.gms.cast
  }
 --- a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CastMediaSource.java
 +++ b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/CastMediaSource.java
-@@ -9,8 +9,6 @@ import android.support.v7.media.MediaRou
- 
+@@ -9,8 +9,6 @@ import android.net.Uri;
  import androidx.annotation.Nullable;
+ import androidx.mediarouter.media.MediaRouteSelector;
  
 -import com.google.android.gms.cast.CastMediaControlIntent;
 -
@@ -1144,7 +1144,7 @@ Subject: Remove dependency on com.google.android.gms.cast
       * Compares two origins. Empty origin strings correspond to unique origins in
 --- a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/remoting/CafExpandedControllerActivity.java
 +++ b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/remoting/CafExpandedControllerActivity.java
-@@ -44,15 +44,11 @@ public class CafExpandedControllerActivi
+@@ -45,15 +45,11 @@ public class CafExpandedControllerActivi
          @Override
          public void play() {
              if (!mSessionController.isConnected()) return;
@@ -1160,7 +1160,7 @@ Subject: Remove dependency on com.google.android.gms.cast
          }
  
          @Override
-@@ -70,27 +66,19 @@ public class CafExpandedControllerActivi
+@@ -71,27 +67,19 @@ public class CafExpandedControllerActivi
          @Override
          public void seekTo(long pos) {
              if (!mSessionController.isConnected()) return;
@@ -1189,7 +1189,7 @@ Subject: Remove dependency on com.google.android.gms.cast
              return flags;
          }
      };
-@@ -179,20 +167,10 @@ public class CafExpandedControllerActivi
+@@ -180,20 +168,10 @@ public class CafExpandedControllerActivi
      private void updateUi() {
          if (!mSessionController.isConnected()) return;
  
@@ -1328,8 +1328,8 @@ Subject: Remove dependency on com.google.android.gms.cast
 --- a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/remoting/RemotingMediaSource.java
 +++ b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/caf/remoting/RemotingMediaSource.java
 @@ -12,8 +12,6 @@ import android.util.Base64;
- 
  import androidx.annotation.Nullable;
+ import androidx.mediarouter.media.MediaRouteSelector;
  
 -import com.google.android.gms.cast.CastMediaControlIntent;
 -
@@ -1402,7 +1402,7 @@ Subject: Remove dependency on com.google.android.gms.cast
      }
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
-@@ -172,12 +172,6 @@ by a child template that "extends" this
+@@ -173,12 +173,6 @@ by a child template that "extends" this
          <meta-data android:name="com.google.ar.core" android:value="optional" />
          {% endif %}
  
@@ -1415,7 +1415,7 @@ Subject: Remove dependency on com.google.android.gms.cast
          <!-- Note: All activities directly or indirectly derived from ChromeActivity
               must specify android:hardwareAccelerated="false".
  
-@@ -776,16 +770,6 @@ by a child template that "extends" this
+@@ -777,16 +771,6 @@ by a child template that "extends" this
              </intent-filter>
          </activity>
  
@@ -1432,7 +1432,7 @@ Subject: Remove dependency on com.google.android.gms.cast
          <!-- This activity is used to restart the main Chrome process.  Should never be exported. -->
          <activity android:name="org.chromium.chrome.browser.BrowserRestartActivity"
              android:launchMode="singleInstance"
-@@ -1227,18 +1211,6 @@ android:value="true" />
+@@ -1232,18 +1216,6 @@ android:value="true" />
          {% endif %}
  
          {% block extra_application_definitions %}
@@ -1460,18 +1460,19 @@ Subject: Remove dependency on com.google.android.gms.cast
 -    "$google_play_services_package:google_play_services_cast_java",
      "//base:base_java",
      "//third_party/android_deps:android_support_v7_appcompat_java",
-     "//third_party/android_deps:com_android_support_mediarouter_v7_java",
+     "//third_party/android_deps:androidx_mediarouter_mediarouter_java",
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -875,39 +875,6 @@ android_aar_prebuilt("google_play_servic
+@@ -1165,45 +1165,6 @@ android_aar_prebuilt("google_play_servic
  }
  
  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
 -android_aar_prebuilt("google_play_services_cast_java") {
--  aar_path = "libs/com_google_android_gms_play_services_cast/play-services-cast-16.0.1.aar"
+-  aar_path = "libs/com_google_android_gms_play_services_cast/play-services-cast-17.0.0.aar"
 -  info_path = "libs/com_google_android_gms_play_services_cast/com_google_android_gms_play_services_cast.info"
 -  deps = [
--    ":com_android_support_mediarouter_v7_java",
+-    ":androidx_core_core_java",
+-    ":androidx_mediarouter_mediarouter_java",
 -    ":google_play_services_base_java",
 -    ":google_play_services_basement_java",
 -    ":google_play_services_flags_java",
@@ -1484,11 +1485,16 @@ Subject: Remove dependency on com.google.android.gms.cast
 -
 -# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
 -android_aar_prebuilt("google_play_services_cast_framework_java") {
--  aar_path = "libs/com_google_android_gms_play_services_cast_framework/play-services-cast-framework-16.0.1.aar"
+-  aar_path = "libs/com_google_android_gms_play_services_cast_framework/play-services-cast-framework-17.0.0.aar"
 -  info_path = "libs/com_google_android_gms_play_services_cast_framework/com_google_android_gms_play_services_cast_framework.info"
 -  deps = [
--    ":com_android_support_mediarouter_v7_java",
--    ":com_android_support_recyclerview_v7_java",
+-    ":androidx_appcompat_appcompat_java",
+-    ":androidx_collection_collection_java",
+-    ":androidx_core_core_java",
+-    ":androidx_fragment_fragment_java",
+-    ":androidx_media_media_java",
+-    ":androidx_mediarouter_mediarouter_java",
+-    ":androidx_recyclerview_recyclerview_java",
 -    ":google_play_services_base_java",
 -    ":google_play_services_basement_java",
 -    ":google_play_services_cast_java",
@@ -1501,5 +1507,5 @@ Subject: Remove dependency on com.google.android.gms.cast
 -
 -# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
  android_aar_prebuilt("google_play_services_fido_java") {
-   aar_path = "libs/com_google_android_gms_play_services_fido/play-services-fido-15.0.1.aar"
+   aar_path = "libs/com_google_android_gms_play_services_fido/play-services-fido-18.1.0.aar"
    info_path = "libs/com_google_android_gms_play_services_fido/com_google_android_gms_play_services_fido.info"

@@ -8,7 +8,7 @@ Subject: fix gn ignoring manifest merger sdk
 
 --- a/build/config/android/config.gni
 +++ b/build/config/android/config.gni
-@@ -142,6 +142,9 @@ if (is_android || is_chromeos) {
+@@ -140,6 +140,9 @@ if (is_android || is_chromeos) {
      lint_android_sdk_root = default_lint_android_sdk_root
      lint_android_sdk_version = default_lint_android_sdk_version
  

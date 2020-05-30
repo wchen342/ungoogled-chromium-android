@@ -3,15 +3,14 @@
  android_webview/browser/aw_browser_context.h                                                       |    2 
  chrome/android/java/src/org/chromium/chrome/browser/payments/PaymentRequestFactory.java            |    3 
  chrome/android/java/src/org/chromium/chrome/browser/payments/PaymentRequestImpl.java               |   12 
- chrome/browser/apps/platform_apps/api/music_manager_private/device_id_android.cc                   |  188 ++++
- chrome/browser/autofill/autofill_keyboard_accessory_adapter.cc                                     |    8 
- chrome/browser/autofill/autofill_keyboard_accessory_adapter.h                                      |    3 
+ chrome/browser/apps/platform_apps/api/music_manager_private/device_id_android.cc                   |  188 +++
  chrome/browser/chrome_browser_main_posix.cc                                                        |    2 
- chrome/browser/chrome_content_browser_client.cc                                                    |    4 
+ chrome/browser/chrome_content_browser_client.cc                                                    |    3 
  chrome/browser/content_settings/host_content_settings_map_factory.cc                               |    1 
- chrome/browser/custom_handlers/register_protocol_handler_permission_request.cc                     |   14 
- chrome/browser/custom_handlers/register_protocol_handler_permission_request.h                      |    2 
+ chrome/browser/custom_handlers/register_protocol_handler_permission_request.cc                     |    8 
+ chrome/browser/custom_handlers/register_protocol_handler_permission_request.h                      |    1 
  chrome/browser/devtools/chrome_devtools_manager_delegate.h                                         |    2 
+ chrome/browser/devtools/devtools_window.cc                                                         |    1 
  chrome/browser/download/download_commands.cc                                                       |    6 
  chrome/browser/download/download_commands.h                                                        |    4 
  chrome/browser/download/download_ui_model.cc                                                       |    4 
@@ -41,19 +40,19 @@
  chrome/browser/media/router/media_router_base.cc                                                   |    2 
  chrome/browser/media/router/media_router_base.h                                                    |    4 
  chrome/browser/media/router/media_router_feature.cc                                                |    7 
- chrome/browser/media/router/media_router_feature.h                                                 |    4 
+ chrome/browser/media/router/media_router_feature.h                                                 |    3 
  chrome/browser/media/webrtc/media_capture_devices_dispatcher.cc                                    |    9 
- chrome/browser/metrics/thread_watcher.cc                                                           |   10 
+ chrome/browser/metrics/thread_watcher.cc                                                           |    8 
  chrome/browser/metrics/thread_watcher.h                                                            |    2 
  chrome/browser/metrics/thread_watcher_report_hang.cc                                               |    2 
  chrome/browser/metrics/thread_watcher_report_hang.h                                                |    2 
  chrome/browser/obsolete_system/obsolete_system_android.cc                                          |   25 
  chrome/browser/performance_manager/graph/policies/policy_features.cc                               |    2 
  chrome/browser/performance_manager/graph/policies/policy_features.h                                |    2 
- chrome/browser/permissions/attestation_permission_request.cc                                       |   12 
+ chrome/browser/permissions/attestation_permission_request.cc                                       |    7 
  chrome/browser/platform_util.cc                                                                    |   18 
  chrome/browser/platform_util_android.cc                                                            |    6 
- chrome/browser/policy/browser_dm_token_storage_android.cc                                          |  181 ++++
+ chrome/browser/policy/browser_dm_token_storage_android.cc                                          |  181 +++
  chrome/browser/policy/browser_dm_token_storage_android.h                                           |   55 +
  chrome/browser/policy/chrome_browser_policy_connector.cc                                           |   19 
  chrome/browser/policy/chrome_browser_policy_connector.h                                            |    6 
@@ -68,8 +67,7 @@
  chrome/browser/profiles/profile_impl.h                                                             |    6 
  chrome/browser/profiles/profile_manager.cc                                                         |   21 
  chrome/browser/profiles/profile_manager.h                                                          |    8 
- chrome/browser/profiles/profile_metrics.cc                                                         |   12 
- chrome/browser/profiles/profile_metrics.h                                                          |    4 
+ chrome/browser/profiles/profile_metrics.cc                                                         |    6 
  chrome/browser/profiles/profile_window.cc                                                          |    4 
  chrome/browser/profiles/profile_window.h                                                           |    3 
  chrome/browser/profiles/profiles_state.cc                                                          |    4 
@@ -84,15 +82,10 @@
  chrome/browser/sessions/session_restore.cc                                                         |   25 
  chrome/browser/sharing/shared_clipboard/feature_flags.cc                                           |    2 
  chrome/browser/sharing/shared_clipboard/feature_flags.h                                            |    2 
- chrome/browser/startup_data.cc                                                                     |    2 
+ chrome/browser/startup_data.cc                                                                     |    5 
  chrome/browser/storage/storage_notification_service_impl.cc                                        |    2 
  chrome/browser/supervised_user/supervised_user_service_factory.cc                                  |    1 
  chrome/browser/sync/profile_sync_service_factory.cc                                                |    2 
- chrome/browser/ui/autofill/autofill_popup_controller_impl.cc                                       |    2 
- chrome/browser/ui/autofill/autofill_popup_controller_impl.h                                        |    2 
- chrome/browser/ui/autofill/autofill_popup_layout_model.cc                                          |    4 
- chrome/browser/ui/autofill/autofill_popup_layout_model.h                                           |    4 
- chrome/browser/ui/autofill/autofill_popup_view_delegate.h                                          |    2 
  chrome/browser/ui/bookmarks/bookmark_utils_desktop.cc                                              |    6 
  chrome/browser/ui/browser.h                                                                        |    4 
  chrome/browser/ui/browser_commands.cc                                                              |    1 
@@ -108,15 +101,14 @@
  chrome/browser/ui/content_settings/content_setting_bubble_model.cc                                 |   11 
  chrome/browser/ui/content_settings/content_setting_bubble_model.h                                  |    2 
  chrome/browser/ui/content_settings/content_setting_image_model.cc                                  |    2 
+ chrome/browser/ui/native_file_system_dialogs.cc                                                    |    2 
  chrome/browser/ui/native_window_tracker_android.cc                                                 |   26 
  chrome/browser/ui/native_window_tracker_android.h                                                  |   27 
- chrome/browser/ui/page_info/page_info_ui.cc                                                        |   10 
- chrome/browser/ui/page_info/page_info_ui.h                                                         |    4 
  chrome/browser/ui/passwords/manage_passwords_view_utils.cc                                         |    4 
  chrome/browser/ui/passwords/password_generation_popup_controller_impl.cc                           |    2 
- chrome/browser/ui/passwords/password_generation_popup_controller_impl.h                            |    2 
- chrome/browser/ui/passwords/settings/password_manager_presenter.cc                                 |    4 
- chrome/browser/ui/permission_bubble/chooser_bubble_delegate.cc                                     |    2 
+ chrome/browser/ui/passwords/password_generation_popup_controller_impl.h                            |    6 
+ chrome/browser/ui/passwords/settings/password_manager_presenter.cc                                 |    6 
+ chrome/browser/ui/passwords/settings/password_manager_presenter.h                                  |    2 
  chrome/browser/ui/search/instant_controller.h                                                      |    2 
  chrome/browser/ui/search/ntp_user_data_logger.h                                                    |    2 
  chrome/browser/ui/search/search_ipc_router.h                                                       |    2 
@@ -124,7 +116,7 @@
  chrome/browser/ui/search/search_tab_helper.h                                                       |    2 
  chrome/browser/ui/signin_view_controller.h                                                         |    4 
  chrome/browser/ui/tabs/tab_strip_model.h                                                           |    4 
- chrome/browser/ui/views/accelerator_utils_android.cc                                               |   34 
+ chrome/browser/ui/views/accelerator_utils_android.cc                                               |   23 
  chrome/browser/ui/views/autofill/payments/save_card_manage_cards_bubble_views.cc                   |   17 
  chrome/browser/ui/views/autofill/payments/save_card_sign_in_promo_bubble_views.cc                  |    2 
  chrome/browser/ui/views/bookmarks/bookmark_bubble_view.cc                                          |    9 
@@ -132,30 +124,36 @@
  chrome/browser/ui/views/desktop_capture/desktop_media_list_view.cc                                 |    2 
  chrome/browser/ui/views/dropdown_bar_host_android.cc                                               |   11 
  chrome/browser/ui/views/extensions/extension_installed_bubble_view.cc                              |    6 
- chrome/browser/ui/views/frame/browser_frame.cc                                                     |    6 
- chrome/browser/ui/views/frame/browser_view.cc                                                      |    2 
+ chrome/browser/ui/views/frame/browser_frame.cc                                                     |    5 
+ chrome/browser/ui/views/frame/browser_view.cc                                                      |    3 
  chrome/browser/ui/views/frame/desktop_browser_frame_android.cc                                     |   76 +
  chrome/browser/ui/views/frame/desktop_browser_frame_android.h                                      |   63 +
  chrome/browser/ui/views/frame/native_browser_frame_factory_android.cc                              |   13 
  chrome/browser/ui/views/intent_picker_bubble_view.cc                                               |    2 
  chrome/browser/ui/views/location_bar/location_bar_view.cc                                          |    2 
  chrome/browser/ui/views/page_action/page_action_icon_controller.cc                                 |   22 
+ chrome/browser/ui/views/page_info/page_info_bubble_view.cc                                         |    1 
  chrome/browser/ui/views/permission_bubble/permission_prompt_bubble_view.cc                         |    3 
  chrome/browser/ui/views/profiles/profile_menu_view.cc                                              |    9 
  chrome/browser/ui/views/tabs/tab_strip.cc                                                          |   12 
  chrome/browser/ui/views/tabs/window_finder_android.cc                                              |   19 
  chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc                                        |   18 
  chrome/browser/ui/webui/history/foreign_session_handler.cc                                         |    1 
+ chrome/browser/ui/webui/omnibox/omnibox_ui.cc                                                      |    4 
+ chrome/browser/ui/webui/omnibox/omnibox_ui.h                                                       |    6 
  chrome/browser/ui/webui/settings/printing_handler.cc                                               |    2 
+ chrome/browser/ui/webui/settings/settings_ui.cc                                                    |    8 
  chrome/browser/ui/webui/settings/system_handler.cc                                                 |    1 
  chrome/browser/ui/webui/signin/inline_login_handler_impl.cc                                        |   34 
- chrome/browser/ui/webui/signin/login_ui_service.cc                                                 |   12 
+ chrome/browser/ui/webui/signin/login_ui_service.cc                                                 |   11 
  chrome/browser/ui/webui/welcome/welcome_handler.cc                                                 |    3 
  chrome/browser/ui/window_sizer/window_sizer_android.cc                                             |   16 
+ chrome/browser/upgrade_detector/get_installed_version_android.cc                                   |   33 
+ chrome/browser/web_applications/components/web_app_file_handler_registration.cc                    |    2 
  chrome/browser/web_applications/components/web_app_shortcut_android.cc                             |  116 ++
  chrome/browser/web_applications/components/web_app_shortcut_android.h                              |   62 +
  chrome/browser/web_applications/web_app_provider_factory.cc                                        |    1 
- chrome/common/chrome_features.cc                                                                   |    6 
+ chrome/common/chrome_features.cc                                                                   |    4 
  chrome/common/chrome_features.h                                                                    |    6 
  chrome/common/chrome_paths.cc                                                                      |    2 
  chrome/common/chrome_paths.h                                                                       |    2 
@@ -181,6 +179,8 @@
  components/omnibox/browser/omnibox_pedal_implementations.h                                         |    2 
  components/omnibox/browser/omnibox_popup_model.cc                                                  |    4 
  components/omnibox/browser/omnibox_popup_model.h                                                   |    2 
+ components/page_info/page_info_ui.cc                                                               |    8 
+ components/page_info/page_info_ui.h                                                                |    3 
  components/policy/resources/policy_templates.json                                                  |    8 
  components/search/search.cc                                                                        |    2 
  components/ui_devtools/views/overlay_agent_views.cc                                                |   34 
@@ -225,10 +225,10 @@
  ui/views/controls/menu/menu_controller.h                                                           |    1 
  ui/views/controls/menu/menu_host.cc                                                                |    8 
  ui/views/controls/menu/menu_host.h                                                                 |    2 
- ui/views/controls/menu/menu_pre_target_handler_android.cc                                          |   48 +
+ ui/views/controls/menu/menu_pre_target_handler_android.cc                                          |   48 
  ui/views/controls/menu/menu_pre_target_handler_android.h                                           |   44 
  ui/views/controls/native/native_view_host_android.cc                                               |  122 ++
- ui/views/controls/native/native_view_host_android.h                                                |   98 ++
+ ui/views/controls/native/native_view_host_android.h                                                |   98 +
  ui/views/controls/webview/unhandled_keyboard_event_handler_default.cc                              |    2 
  ui/views/drag_utils_android.cc                                                                     |   18 
  ui/views/event_monitor_android.cc                                                                  |   76 +
@@ -238,14 +238,14 @@
  ui/views/painter.cc                                                                                |    1 
  ui/views/touchui/touch_selection_controller_impl.cc                                                |   43 
  ui/views/views_touch_selection_controller_factory_android.cc                                       |   21 
- ui/views/widget/native_widget_android.cc                                                           |  445 ++++++++++
- ui/views/widget/native_widget_android.h                                                            |  194 ++++
+ ui/views/widget/native_widget_android.cc                                                           |  496 ++++++++++
+ ui/views/widget/native_widget_android.h                                                            |  194 +++
  ui/views/widget/tooltip_manager_android.cc                                                         |   72 +
  ui/views/widget/tooltip_manager_android.h                                                          |   65 +
  ui/views/widget/widget.cc                                                                          |    5 
  weblayer/browser/browser_context_impl.cc                                                           |    2 
  weblayer/browser/browser_context_impl.h                                                            |    2 
- 246 files changed, 3343 insertions(+), 732 deletions(-)
+ 246 files changed, 3384 insertions(+), 740 deletions(-)
 
 --- /dev/null
 +++ b/chrome/browser/web_applications/components/web_app_shortcut_android.cc
@@ -822,7 +822,7 @@
    void UnregisterRemotingSource(SessionID tab_id) override;
 --- a/chrome/browser/media/router/media_router.h
 +++ b/chrome/browser/media/router/media_router.h
-@@ -27,11 +27,9 @@
+@@ -28,11 +28,9 @@
  #include "media/base/flinging_controller.h"
  #include "third_party/blink/public/mojom/presentation/presentation.mojom.h"
  
@@ -834,7 +834,7 @@
  
  namespace content {
  class WebContents;
-@@ -198,7 +196,6 @@ class MediaRouter : public KeyedService
+@@ -183,7 +181,6 @@ class MediaRouter : public KeyedService
    virtual std::unique_ptr<media::FlingingController> GetFlingingController(
        const MediaRoute::Id& route_id) = 0;
  
@@ -842,7 +842,7 @@
    // Binds |controller| for sending media commands to a route. The controller
    // will notify |observer| whenever there is a change to the status of the
    // media. It may invalidate bindings from previous calls to this method.
-@@ -206,7 +203,6 @@ class MediaRouter : public KeyedService
+@@ -191,7 +188,6 @@ class MediaRouter : public KeyedService
        const MediaRoute::Id& route_id,
        mojo::PendingReceiver<mojom::MediaController> controller,
        mojo::PendingRemote<mojom::MediaStatusObserver> observer) = 0;
@@ -852,7 +852,7 @@
    // given |tab_id|, only one CastRemotingConnector can be registered. The
 --- a/chrome/browser/media/router/media_router_feature.cc
 +++ b/chrome/browser/media/router/media_router_feature.cc
-@@ -23,13 +23,10 @@
+@@ -22,13 +22,10 @@
  #include "components/user_prefs/user_prefs.h"
  #endif  // defined(OS_ANDROID) || BUILDFLAG(ENABLE_EXTENSIONS)
  
@@ -866,7 +866,7 @@
  // Controls if browser side DialMediaRouteProvider is enabled.
  const base::Feature kDialMediaRouteProvider{"DialMediaRouteProvider",
                                              base::FEATURE_ENABLED_BY_DEFAULT};
-@@ -37,7 +34,6 @@ const base::Feature kCastMediaRouteProvi
+@@ -36,7 +33,6 @@ const base::Feature kCastMediaRouteProvi
                                              base::FEATURE_DISABLED_BY_DEFAULT};
  const base::Feature kCastAllowAllIPsFeature{"CastAllowAllIPs",
                                              base::FEATURE_DISABLED_BY_DEFAULT};
@@ -874,7 +874,7 @@
  
  #if defined(OS_ANDROID) || BUILDFLAG(ENABLE_EXTENSIONS)
  namespace {
-@@ -67,7 +63,6 @@ bool MediaRouterEnabled(content::Browser
+@@ -66,7 +62,6 @@ bool MediaRouterEnabled(content::Browser
  #endif  // defined(OS_ANDROID) || BUILDFLAG(ENABLE_EXTENSIONS)
  }
  
@@ -882,8 +882,8 @@
  void RegisterLocalStatePrefs(PrefRegistrySimple* registry) {
    registry->RegisterBooleanPref(prefs::kMediaRouterCastAllowAllIPs, false,
                                  PrefRegistry::PUBLIC);
-@@ -121,6 +116,4 @@ bool ShouldUseMirroringService() {
-          base::FeatureList::IsEnabled(kCastMediaRouteProvider);
+@@ -113,6 +108,4 @@ bool CastMediaRouteProviderEnabled() {
+   return base::FeatureList::IsEnabled(kCastMediaRouteProvider);
  }
  
 -#endif  // !defined(OS_ANDROID)
@@ -900,18 +900,17 @@
  // TODO(crbug.com/1028753): Remove default-enabled kDialMediaRouteProvider after
  // tests stop disabling it.
  extern const base::Feature kDialMediaRouteProvider;
-@@ -66,8 +64,6 @@ bool CastMediaRouteProviderEnabled();
- // Returns true if Mirroring Service should be used for mirroring.
- bool ShouldUseMirroringService();
- 
+@@ -62,7 +60,6 @@ bool DialMediaRouteProviderEnabled();
+ // Returns true if browser side Cast Media Route Provider and sink query are
+ // enabled.
+ bool CastMediaRouteProviderEnabled();
 -#endif  // !defined(OS_ANDROID)
--
+ 
  }  // namespace media_router
  
- #endif  // CHROME_BROWSER_MEDIA_ROUTER_MEDIA_ROUTER_FEATURE_H_
 --- a/chrome/browser/ui/browser.h
 +++ b/chrome/browser/ui/browser.h
-@@ -55,10 +55,6 @@
+@@ -56,10 +56,6 @@
  #include "ui/gfx/geometry/rect.h"
  #include "ui/shell_dialogs/select_file_dialog.h"
  
@@ -924,9 +923,9 @@
  class BrowserInstantController;
 --- a/chrome/browser/ui/signin_view_controller.h
 +++ b/chrome/browser/ui/signin_view_controller.h
-@@ -13,10 +13,6 @@
- #include "components/signin/public/base/signin_buildflags.h"
- #include "url/gurl.h"
+@@ -17,10 +17,6 @@
+ #include "chrome/browser/ui/webui/signin/signin_email_confirmation_dialog.h"
+ #endif
  
 -#if defined(OS_ANDROID)
 -#error This file should only be included on desktop.
@@ -1018,7 +1017,7 @@
    void SetHtml(const base::string16& html, const GURL& base_url);
 --- a/ui/views/controls/menu/menu_host.cc
 +++ b/ui/views/controls/menu/menu_host.cc
-@@ -28,7 +28,7 @@ namespace views {
+@@ -30,7 +30,7 @@ namespace views {
  
  namespace internal {
  
@@ -1036,7 +1035,7 @@
    NOTIMPLEMENTED();
  #else   // !defined(OS_MACOSX)
    source->GetGestureRecognizer()->TransferEventsTo(
-@@ -138,7 +138,7 @@ void MenuHost::InitMenuHost(Widget* pare
+@@ -136,7 +136,7 @@ void MenuHost::InitMenuHost(Widget* pare
  #endif
    Init(std::move(params));
  
@@ -1045,7 +1044,7 @@
    pre_dispatch_handler_ =
        std::make_unique<internal::PreMenuEventDispatchHandler>(
            menu_controller, submenu_, GetNativeView());
-@@ -203,7 +203,7 @@ void MenuHost::DestroyMenuHost() {
+@@ -201,7 +201,7 @@ void MenuHost::DestroyMenuHost() {
    HideMenuHost();
    destroying_ = true;
    static_cast<MenuHostRootView*>(GetRootView())->ClearSubmenu();
@@ -1119,7 +1118,7 @@
    // Compositor callback relay.
    void OnCompositingDidCommit();
  
-@@ -140,6 +149,12 @@ class UI_ANDROID_EXPORT WindowAndroid :
+@@ -142,6 +151,12 @@ class UI_ANDROID_EXPORT WindowAndroid :
    // ViewAndroid overrides.
    WindowAndroid* GetWindowAndroid() const override;
  
@@ -1134,7 +1133,7 @@
  
 --- a/chrome/browser/chrome_content_browser_client.cc
 +++ b/chrome/browser/chrome_content_browser_client.cc
-@@ -421,7 +421,7 @@
+@@ -427,7 +427,7 @@
  #include "chrome/browser/chrome_browser_main_posix.h"
  #endif
  
@@ -1143,12 +1142,11 @@
  #include "chrome/browser/badging/badge_manager.h"
  #include "chrome/browser/devtools/chrome_devtools_manager_delegate.h"
  #include "chrome/browser/devtools/devtools_window.h"
-@@ -1275,7 +1275,7 @@ ChromeContentBrowserClient::CreateBrowse
- #else
+@@ -1232,7 +1232,6 @@ ChromeContentBrowserClient::CreateBrowse
+ #if defined(TOOLKIT_VIEWS)
+ #if defined(OS_LINUX) && !defined(OS_CHROMEOS)
    main_parts->AddParts(new ChromeBrowserMainExtraPartsViewsLinux());
- #endif  // USE_X11
 -#else
-+#elif !defined(OS_ANDROID)
    main_parts->AddParts(new ChromeBrowserMainExtraPartsViews());
  #endif
  #endif
@@ -1230,7 +1228,7 @@
  #include "components/download/public/common/download_item.h"
 --- a/chrome/browser/profiles/profile.cc
 +++ b/chrome/browser/profiles/profile.cc
-@@ -38,8 +38,8 @@
+@@ -42,8 +42,8 @@
  #include "chromeos/constants/chromeos_switches.h"
  #endif
  
@@ -1241,7 +1239,7 @@
  #include "content/public/browser/host_zoom_map.h"
  #endif
  
-@@ -128,7 +128,7 @@ TestingProfile* Profile::AsTestingProfil
+@@ -163,7 +163,7 @@ TestingProfile* Profile::AsTestingProfil
    return nullptr;
  }
  
@@ -1250,7 +1248,7 @@
  ChromeZoomLevelPrefs* Profile::GetZoomLevelPrefs() {
    return nullptr;
  }
-@@ -185,7 +185,7 @@ void Profile::RegisterProfilePrefs(user_
+@@ -220,7 +220,7 @@ void Profile::RegisterProfilePrefs(user_
                                 std::string());
    registry->RegisterBooleanPref(prefs::kLiveCaptionEnabled, false);
    registry->RegisterFilePathPref(prefs::kSODAPath, base::FilePath());
@@ -1259,7 +1257,7 @@
    registry->RegisterDictionaryPref(prefs::kPartitionDefaultZoomLevel);
    registry->RegisterDictionaryPref(prefs::kPartitionPerHostZoomLevels);
  #endif  // !defined(OS_ANDROID)
-@@ -353,7 +353,7 @@ bool ProfileCompare::operator()(Profile*
+@@ -384,7 +384,7 @@ bool ProfileCompare::operator()(Profile*
    return a->GetOriginalProfile() < b->GetOriginalProfile();
  }
  
@@ -1279,7 +1277,7 @@
  class ChromeZoomLevelPrefs;
  #endif
  
-@@ -218,7 +218,7 @@ class Profile : public content::BrowserC
+@@ -213,7 +213,7 @@ class Profile : public content::BrowserC
    virtual PrefService* GetPrefs() = 0;
    virtual const PrefService* GetPrefs() const = 0;
  
@@ -1288,7 +1286,7 @@
    // Retrieves a pointer to the PrefService that manages the default zoom
    // level and the per-host zoom levels for this user profile.
    // TODO(wjmaclean): Remove this when HostZoomMap migrates to StoragePartition.
-@@ -421,7 +421,7 @@ class Profile : public content::BrowserC
+@@ -412,7 +412,7 @@ class Profile : public content::BrowserC
    // correctly assigned to its owner.
    Profile* CreateOffTheRecordProfile();
  
@@ -1328,7 +1326,7 @@
    explicit NavigateParams(
        std::unique_ptr<content::WebContents> contents_to_insert);
  #else
-@@ -211,7 +211,7 @@ struct NavigateParams {
+@@ -215,7 +215,7 @@ struct NavigateParams {
    };
    PathBehavior path_behavior = RESPECT;
  
@@ -1339,7 +1337,7 @@
    //       it is not compatible with the operation being performed. This can be
 --- a/chrome/browser/extensions/api/safe_browsing_private/safe_browsing_private_event_router.cc
 +++ b/chrome/browser/extensions/api/safe_browsing_private/safe_browsing_private_event_router.cc
-@@ -443,24 +443,9 @@ void SafeBrowsingPrivateEventRouter::OnS
+@@ -444,24 +444,9 @@ void SafeBrowsingPrivateEventRouter::OnS
                triggered_rule.SetIntKey(kKeyTriggeredRuleId, rule.rule_id());
                triggered_rule.SetStringKey(kKeyTriggeredRuleName,
                                            rule.rule_name());
@@ -1364,7 +1362,7 @@
                triggered_rule.SetKey(kKeyMatchedDetectors,
                                      std::move(matched_detectors));
  
-@@ -481,35 +466,7 @@ void SafeBrowsingPrivateEventRouter::OnS
+@@ -482,35 +467,7 @@ void SafeBrowsingPrivateEventRouter::OnS
      const std::string& mime_type,
      const std::string& trigger,
      const int64_t content_size) {
@@ -1402,7 +1400,7 @@
  void SafeBrowsingPrivateEventRouter::OnUnscannedFileEvent(
 --- a/chrome/common/pref_names.cc
 +++ b/chrome/common/pref_names.cc
-@@ -1041,7 +1041,7 @@ const char kSpeechRecognitionFilterProfa
+@@ -1090,7 +1090,7 @@ const char kSpeechRecognitionFilterProfa
  // permitted.
  const char kAllowDeletingBrowserHistory[] = "history.deleting_enabled";
  
@@ -1411,7 +1409,7 @@
  // Whether the "Click here to clear your browsing data" tooltip promo has been
  // shown on the History page.
  const char kHistoryMenuPromoShown[] = "history.menu_promo_shown";
-@@ -1205,7 +1205,7 @@ const char kContentSettingsPluginWhiteli
+@@ -1254,7 +1254,7 @@ const char kContentSettingsPluginWhiteli
      "profile.content_settings.plugin_whitelist";
  #endif
  
@@ -1420,7 +1418,7 @@
  // Double that indicates the default zoom level.
  const char kPartitionDefaultZoomLevel[] = "partition.default_zoom_level";
  
-@@ -1494,7 +1494,7 @@ const char kWebRtcEventLogCollectionAllo
+@@ -1550,7 +1550,7 @@ const char kWebRtcEventLogCollectionAllo
  // in ICE candidates.
  const char kWebRtcLocalIpsAllowedUrls[] = "webrtc.local_ips_allowed_urls";
  
@@ -1429,7 +1427,7 @@
  // Whether or not this profile has been shown the Welcome page.
  const char kHasSeenWelcomePage[] = "browser.has_seen_welcome_page";
  #endif
-@@ -1697,7 +1697,7 @@ const char kShutdownNumProcessesSlow[] =
+@@ -1753,7 +1753,7 @@ const char kShutdownNumProcessesSlow[] =
  // before shutting everything down.
  const char kRestartLastSessionOnShutdown[] = "restart.last.session.on.shutdown";
  
@@ -1438,7 +1436,7 @@
  #if !defined(OS_CHROMEOS)
  // Pref name for the policy controlling presentation of full-tab promotional
  // and/or educational content.
-@@ -1740,7 +1740,6 @@ const char kNtpCollapsedSnapshotDocument
+@@ -1796,7 +1796,6 @@ const char kNtpCollapsedSnapshotDocument
  
  // Keeps track of sync promo collapsed state in the Other Devices menu.
  const char kNtpCollapsedSyncPromo[] = "ntp.collapsed_sync_promo";
@@ -1446,7 +1444,7 @@
  // Holds info for New Tab Page custom background
  const char kNtpCustomBackgroundDict[] = "ntp.custom_background_dict";
  const char kNtpCustomBackgroundLocalToDevice[] =
-@@ -1807,7 +1806,7 @@ const char kDevToolsTCPDiscoveryConfig[]
+@@ -1863,7 +1862,7 @@ const char kDevToolsTCPDiscoveryConfig[]
  // A dictionary with generic DevTools settings.
  const char kDevToolsPreferences[] = "devtools.preferences";
  
@@ -1455,7 +1453,7 @@
  // Tracks the number of times the dice signin promo has been shown in the user
  // menu.
  const char kDiceSigninUserMenuPromoCount[] = "sync_promo.user_menu_show_count";
-@@ -2310,13 +2309,13 @@ const char kSystemTimezoneAutomaticDetec
+@@ -2368,13 +2367,13 @@ const char kSystemTimezoneAutomaticDetec
  
  // Pref name for the policy controlling whether to enable Media Router.
  const char kEnableMediaRouter[] = "media_router.enable_media_router";
@@ -1471,7 +1469,7 @@
  // Pref name for the policy controlling the way in which users are notified of
  // the need to relaunch the browser for a pending update.
  const char kRelaunchNotification[] = "browser.relaunch_notification";
-@@ -2429,7 +2428,7 @@ const char kCustomHandlersEnabled[] = "c
+@@ -2487,7 +2486,7 @@ const char kCustomHandlersEnabled[] = "c
  // by the cloud policy subsystem.
  const char kDevicePolicyRefreshRate[] = "policy.device_refresh_rate";
  
@@ -1480,7 +1478,7 @@
  // A boolean where true means that the browser has previously attempted to
  // enable autoupdate and failed, so the next out-of-date browser start should
  // not prompt the user to enable autoupdate, it should offer to reinstall Chrome
-@@ -2561,7 +2560,7 @@ const char kRecoveryComponentNeedsElevat
+@@ -2623,7 +2622,7 @@ const char kRecoveryComponentNeedsElevat
  const char kRegisteredSupervisedUserWhitelists[] =
      "supervised_users.whitelists";
  
@@ -1489,7 +1487,7 @@
  // Boolean that indicates whether Chrome enterprise cloud reporting is enabled
  // or not.
  const char kCloudReportingEnabled[] =
-@@ -2828,7 +2827,7 @@ const char kSitePerProcess[] = "site_iso
+@@ -2871,7 +2870,7 @@ const char kSitePerProcess[] = "site_iso
  const char kUserTriggeredIsolatedOrigins[] =
      "site_isolation.user_triggered_isolated_origins";
  
@@ -1500,7 +1498,7 @@
  
 --- a/chrome/common/pref_names.h
 +++ b/chrome/common/pref_names.h
-@@ -328,7 +328,7 @@ extern const char kDeviceLoginScreenWebU
+@@ -340,7 +340,7 @@ extern const char kDeviceLoginScreenWebU
  extern const char kShowHomeButton[];
  extern const char kSpeechRecognitionFilterProfanities[];
  extern const char kAllowDeletingBrowserHistory[];
@@ -1509,7 +1507,7 @@
  extern const char kHistoryMenuPromoShown[];
  #endif
  extern const char kForceGoogleSafeSearch[];
-@@ -371,7 +371,7 @@ extern const char kUseCustomChromeFrame[
+@@ -383,7 +383,7 @@ extern const char kUseCustomChromeFrame[
  #if BUILDFLAG(ENABLE_PLUGINS)
  extern const char kContentSettingsPluginWhitelist[];
  #endif
@@ -1518,7 +1516,7 @@
  extern const char kPartitionDefaultZoomLevel[];
  extern const char kPartitionPerHostZoomLevels[];
  
-@@ -479,7 +479,7 @@ extern const char kWebRTCUDPPortRange[];
+@@ -492,7 +492,7 @@ extern const char kWebRTCUDPPortRange[];
  extern const char kWebRtcEventLogCollectionAllowed[];
  extern const char kWebRtcLocalIpsAllowedUrls[];
  
@@ -1527,7 +1525,7 @@
  extern const char kHasSeenWelcomePage[];
  #endif
  
-@@ -565,7 +565,7 @@ extern const char kShutdownNumProcesses[
+@@ -578,7 +578,7 @@ extern const char kShutdownNumProcesses[
  extern const char kShutdownNumProcessesSlow[];
  
  extern const char kRestartLastSessionOnShutdown[];
@@ -1536,7 +1534,7 @@
  #if !defined(OS_CHROMEOS)
  extern const char kPromotionalTabsEnabled[];
  extern const char kCommandLineFlagSecurityWarningsEnabled[];
-@@ -582,7 +582,6 @@ extern const char kNtpCollapsedForeignSe
+@@ -595,7 +595,6 @@ extern const char kNtpCollapsedForeignSe
  extern const char kNtpCollapsedRecentlyClosedTabs[];
  extern const char kNtpCollapsedSnapshotDocument[];
  extern const char kNtpCollapsedSyncPromo[];
@@ -1544,7 +1542,7 @@
  extern const char kNtpCustomBackgroundDict[];
  extern const char kNtpCustomBackgroundLocalToDevice[];
  extern const char kNtpPromoBlocklist[];
-@@ -607,7 +606,7 @@ extern const char kDevToolsPreferences[]
+@@ -620,7 +619,7 @@ extern const char kDevToolsPreferences[]
  extern const char kDevToolsDiscoverTCPTargetsEnabled[];
  extern const char kDevToolsTCPDiscoveryConfig[];
  
@@ -1553,7 +1551,7 @@
  extern const char kDiceSigninUserMenuPromoCount[];
  #endif
  
-@@ -801,11 +800,11 @@ extern const char kSystemTimezoneAutomat
+@@ -815,11 +814,11 @@ extern const char kSystemTimezoneAutomat
  #endif  // defined(OS_CHROMEOS)
  
  extern const char kEnableMediaRouter[];
@@ -1567,7 +1565,7 @@
  extern const char kRelaunchNotification[];
  extern const char kRelaunchNotificationPeriod[];
  #endif  // !defined(OS_ANDROID)
-@@ -814,7 +813,7 @@ extern const char kRelaunchNotificationP
+@@ -828,7 +827,7 @@ extern const char kRelaunchNotificationP
  extern const char kRelaunchHeadsUpPeriod[];
  #endif  // defined(OS_CHROMEOS)
  
@@ -1576,7 +1574,7 @@
  extern const char kAttemptedToEnableAutoupdate[];
  
  extern const char kMediaGalleriesUniqueId[];
-@@ -865,7 +864,7 @@ extern const char kRecoveryComponentNeed
+@@ -880,7 +879,7 @@ extern const char kRecoveryComponentNeed
  
  extern const char kRegisteredSupervisedUserWhitelists[];
  
@@ -1585,7 +1583,7 @@
  extern const char kCloudReportingEnabled[];
  extern const char kCloudExtensionRequestEnabled[];
  extern const char kCloudExtensionRequestIds[];
-@@ -975,7 +974,7 @@ extern const char kIsolateOrigins[];
+@@ -985,7 +984,7 @@ extern const char kIsolateOrigins[];
  extern const char kSitePerProcess[];
  extern const char kUserTriggeredIsolatedOrigins[];
  
@@ -1607,25 +1605,16 @@
    AppWindowRegistry* registry = AppWindowRegistry::Get(profile_);
 --- a/chrome/common/chrome_features.cc
 +++ b/chrome/common/chrome_features.cc
-@@ -64,7 +64,7 @@ const base::Feature kAppNotificationStat
-     "AppNotificationStatusMessaging", base::FEATURE_DISABLED_BY_DEFAULT};
- #endif  // defined(OS_ANDROID)
+@@ -46,7 +46,7 @@ const base::Feature kShow10_9ObsoleteInf
+                                              base::FEATURE_DISABLED_BY_DEFAULT};
+ #endif  // defined(OS_MACOSX)
  
 -#if !defined(OS_ANDROID)
 +#if defined(OS_ANDROID)
  // App Service related flags. See chrome/services/app_service/README.md.
  const base::Feature kAppServiceContextMenu{"AppServiceContextMenu",
-                                            base::FEATURE_DISABLED_BY_DEFAULT};
-@@ -328,7 +328,7 @@ const base::Feature kEnableAmbientAuthen
-     "EnableAmbientAuthenticationInGuestSession",
-     base::FEATURE_DISABLED_BY_DEFAULT};
- 
--#if !defined(OS_ANDROID)
-+#if defined(OS_ANDROID)
- // Upload enterprise cloud reporting without the extension.
- const base::Feature kEnterpriseReportingInBrowser{
-     "EnterpriseReportingInBrowser", base::FEATURE_DISABLED_BY_DEFAULT};
-@@ -521,7 +521,7 @@ const base::Feature kAcknowledgeNtpOverr
+                                            base::FEATURE_ENABLED_BY_DEFAULT};
+@@ -474,7 +474,7 @@ const base::Feature kAcknowledgeNtpOverr
  const base::Feature kMixedContentSiteSetting{"MixedContentSiteSetting",
                                               base::FEATURE_ENABLED_BY_DEFAULT};
  
@@ -1636,25 +1625,25 @@
  #endif
 --- a/chrome/common/chrome_features.h
 +++ b/chrome/common/chrome_features.h
-@@ -55,7 +55,7 @@ COMPONENT_EXPORT(CHROME_FEATURES)
- extern const base::Feature kAppNotificationStatusMessaging;
- #endif  // defined(OS_ANDROID)
+@@ -48,7 +48,7 @@ COMPONENT_EXPORT(CHROME_FEATURES)
+ extern const base::Feature kShow10_9ObsoleteInfobar;
+ #endif  // defined(OS_MACOSX)
  
 -#if !defined(OS_ANDROID)
 +#if defined(OS_ANDROID)
  COMPONENT_EXPORT(CHROME_FEATURES)
  extern const base::Feature kAppServiceContextMenu;
  COMPONENT_EXPORT(CHROME_FEATURES)
-@@ -187,7 +187,7 @@ extern const base::Feature kEnableAmbien
- COMPONENT_EXPORT(CHROME_FEATURES)
- extern const base::Feature kEnableAmbientAuthenticationInIncognito;
+@@ -216,7 +216,7 @@ COMPONENT_EXPORT(CHROME_FEATURES)
+ extern const base::Feature kHappinessTrackingSystem;
+ #endif
  
 -#if !defined(OS_ANDROID)
 +#if defined(OS_ANDROID)
  COMPONENT_EXPORT(CHROME_FEATURES)
- extern const base::Feature kEnterpriseReportingInBrowser;
- #endif
-@@ -327,7 +327,7 @@ extern const base::Feature kAcknowledgeN
+ extern const base::Feature kHappinessTrackingSurveysForDesktop;
+ 
+@@ -291,7 +291,7 @@ extern const base::Feature kAcknowledgeN
  COMPONENT_EXPORT(CHROME_FEATURES)
  extern const base::Feature kMixedContentSiteSetting;
  
@@ -1665,7 +1654,7 @@
  
 --- a/chrome/browser/extensions/api/enterprise_reporting_private/chrome_desktop_report_request_helper.cc
 +++ b/chrome/browser/extensions/api/enterprise_reporting_private/chrome_desktop_report_request_helper.cc
-@@ -89,12 +89,7 @@ std::string GetProfileId(const Profile*
+@@ -90,12 +90,7 @@ std::string GetProfileId(const Profile*
  // Returns last policy fetch timestamp of machine level user cloud policy if
  // it exists. Otherwise, returns zero.
  int64_t GetMachineLevelUserCloudPolicyFetchTimestamp() {
@@ -1702,7 +1691,7 @@
    DIR_USER_NATIVE_MESSAGING,  // Directory with Native Messaging Hosts
 --- a/chrome/browser/profiles/profile_window.h
 +++ b/chrome/browser/profiles/profile_window.h
-@@ -15,9 +15,6 @@
+@@ -14,9 +14,6 @@
  #include "chrome/browser/ui/profile_chooser_constants.h"
  #include "chrome/browser/ui/startup/startup_types.h"
  
@@ -1723,7 +1712,7 @@
  #include "chrome/browser/ui/browser.h"
  #endif
  
-@@ -81,7 +81,7 @@ void SetLastUsedProfile(const std::strin
+@@ -80,7 +80,7 @@ void SetLastUsedProfile(const std::strin
    local_state->SetString(prefs::kProfileLastUsed, profile_dir);
  }
  
@@ -1734,7 +1723,7 @@
      return l10n_util::GetStringUTF16(IDS_GUEST_PROFILE_NAME);
 --- a/chrome/browser/profiles/profiles_state.h
 +++ b/chrome/browser/profiles/profiles_state.h
-@@ -43,7 +43,7 @@ void RegisterPrefs(PrefRegistrySimple* r
+@@ -42,7 +42,7 @@ void RegisterPrefs(PrefRegistrySimple* r
  // System Profile directory, which is an invalid last used profile.
  void SetLastUsedProfile(const std::string& profile_dir);
  
@@ -2045,14 +2034,14 @@
 +}  // namespace chrome_apps
 --- a/chrome/browser/ui/browser_commands.cc
 +++ b/chrome/browser/ui/browser_commands.cc
-@@ -76,6 +76,7 @@
- #include "components/prefs/pref_service.h"
+@@ -88,6 +88,7 @@
+ #include "components/services/app_service/public/mojom/types.mojom.h"
  #include "components/sessions/core/live_tab_context.h"
  #include "components/sessions/core/tab_restore_service.h"
 +#include "components/signin/public/base/signin_metrics.h"
+ #include "components/tab_groups/tab_group_id.h"
+ #include "components/tab_groups/tab_group_visual_data.h"
  #include "components/translate/core/browser/language_state.h"
- #include "components/version_info/version_info.h"
- #include "components/web_modal/web_contents_modal_dialog_manager.h"
 --- a/ui/native_theme/native_theme_android.cc
 +++ b/ui/native_theme/native_theme_android.cc
 @@ -22,8 +22,7 @@ NativeTheme* NativeTheme::GetInstanceFor
@@ -2082,16 +2071,16 @@
    void AdjustCheckboxRadioRectForPadding(SkRect* rect) const override;
 --- a/content/browser/storage_partition_impl.h
 +++ b/content/browser/storage_partition_impl.h
-@@ -50,7 +50,7 @@
+@@ -54,7 +54,7 @@
  #include "storage/browser/quota/special_storage_policy.h"
- #include "third_party/blink/public/mojom/dom_storage/storage_partition_service.mojom.h"
+ #include "third_party/blink/public/mojom/dom_storage/dom_storage.mojom.h"
  
 -#if !defined(OS_ANDROID)
 +#if defined(OS_ANDROID)
  #include "content/browser/host_zoom_level_context.h"
  #endif
  
-@@ -144,7 +144,7 @@ class CONTENT_EXPORT StoragePartitionImp
+@@ -149,7 +149,7 @@ class CONTENT_EXPORT StoragePartitionImp
    DevToolsBackgroundServicesContextImpl* GetDevToolsBackgroundServicesContext()
        override;
    ContentIndexContextImpl* GetContentIndexContext() override;
@@ -2100,18 +2089,18 @@
    HostZoomMap* GetHostZoomMap() override;
    HostZoomLevelContext* GetHostZoomLevelContext() override;
    ZoomLevelDelegate* GetZoomLevelDelegate() override;
-@@ -445,7 +445,7 @@ class CONTENT_EXPORT StoragePartitionImp
+@@ -475,7 +475,7 @@ class CONTENT_EXPORT StoragePartitionImp
    std::unique_ptr<SharedWorkerServiceImpl> shared_worker_service_;
    std::unique_ptr<PushMessagingContext> push_messaging_context_;
    scoped_refptr<storage::SpecialStoragePolicy> special_storage_policy_;
 -#if !defined(OS_ANDROID)
 +#if defined(OS_ANDROID)
-   scoped_refptr<HostZoomLevelContext> host_zoom_level_context_;
+   std::unique_ptr<HostZoomLevelContext, BrowserThread::DeleteOnUIThread>
+       host_zoom_level_context_;
  #endif  // !defined(OS_ANDROID)
-   scoped_refptr<PlatformNotificationContextImpl> platform_notification_context_;
 --- a/content/public/browser/storage_partition.h
 +++ b/content/public/browser/storage_partition.h
-@@ -67,7 +67,7 @@ class PlatformNotificationContext;
+@@ -66,7 +66,7 @@ class PlatformNotificationContext;
  class ServiceWorkerContext;
  class SharedWorkerService;
  
@@ -2120,7 +2109,7 @@
  class HostZoomLevelContext;
  class HostZoomMap;
  class ZoomLevelDelegate;
-@@ -138,7 +138,7 @@ class CONTENT_EXPORT StoragePartition {
+@@ -136,7 +136,7 @@ class CONTENT_EXPORT StoragePartition {
    virtual DevToolsBackgroundServicesContext*
    GetDevToolsBackgroundServicesContext() = 0;
    virtual ContentIndexContext* GetContentIndexContext() = 0;
@@ -2131,7 +2120,7 @@
    virtual ZoomLevelDelegate* GetZoomLevelDelegate() = 0;
 --- a/content/browser/web_contents/web_contents_impl.cc
 +++ b/content/browser/web_contents/web_contents_impl.cc
-@@ -173,7 +173,6 @@
+@@ -177,7 +177,6 @@
  #include "content/browser/android/nfc_host.h"
  #include "content/browser/web_contents/web_contents_android.h"
  #include "services/device/public/mojom/nfc.mojom.h"
@@ -2139,7 +2128,7 @@
  #include "content/browser/host_zoom_map_impl.h"
  #endif  // OS_ANDROID
  
-@@ -1181,7 +1180,7 @@ FindRequestManager* WebContentsImpl::Get
+@@ -1203,7 +1202,7 @@ FindRequestManager* WebContentsImpl::Get
    return GetFindRequestManager();
  }
  
@@ -2150,7 +2139,7 @@
    if (rwh->GetView())
 --- a/content/browser/web_contents/web_contents_impl.h
 +++ b/content/browser/web_contents/web_contents_impl.h
-@@ -255,7 +255,7 @@ class CONTENT_EXPORT WebContentsImpl : p
+@@ -260,7 +260,7 @@ class CONTENT_EXPORT WebContentsImpl : p
    // bitmap.
    void AddAccessibilityMode(ui::AXMode mode);
  
@@ -2161,16 +2150,16 @@
  
 --- a/content/browser/storage_partition_impl.cc
 +++ b/content/browser/storage_partition_impl.cc
-@@ -1346,7 +1346,7 @@ void StoragePartitionImpl::Initialize()
+@@ -1490,7 +1490,7 @@ void StoragePartitionImpl::Initialize()
    push_messaging_context_ = std::make_unique<PushMessagingContext>(
        browser_context_, service_worker_context_);
  
 -#if !defined(OS_ANDROID)
 +#if defined(OS_ANDROID)
-   host_zoom_level_context_ = new HostZoomLevelContext(
-       browser_context_->CreateZoomLevelDelegate(partition_path_));
+   host_zoom_level_context_.reset(new HostZoomLevelContext(
+       browser_context_->CreateZoomLevelDelegate(partition_path_)));
  #endif  // !defined(OS_ANDROID)
-@@ -1603,7 +1603,7 @@ SharedWorkerServiceImpl* StoragePartitio
+@@ -1751,7 +1751,7 @@ SharedWorkerServiceImpl* StoragePartitio
    return shared_worker_service_.get();
  }
  
@@ -2190,7 +2179,7 @@
  #include "content/public/browser/zoom_level_delegate.h"
  #endif
  
-@@ -248,7 +248,7 @@ class CONTENT_EXPORT BrowserContext : pu
+@@ -255,7 +255,7 @@ class CONTENT_EXPORT BrowserContext : pu
    // StoragePartition can have time to do necessary cleanups on IO thread.
    void ShutdownStoragePartitions();
  
@@ -2201,7 +2190,7 @@
    virtual std::unique_ptr<ZoomLevelDelegate> CreateZoomLevelDelegate(
 --- a/chrome/browser/profiles/profile_impl.cc
 +++ b/chrome/browser/profiles/profile_impl.cc
-@@ -186,7 +186,6 @@
+@@ -188,7 +188,6 @@
  
  #if defined(OS_ANDROID)
  #include "chrome/browser/android/profile_key_startup_accessor.h"
@@ -2209,7 +2198,7 @@
  #include "components/zoom/zoom_event_manager.h"
  #include "content/public/common/page_zoom.h"
  #endif
-@@ -796,7 +795,7 @@ Profile::ProfileType ProfileImpl::GetPro
+@@ -812,7 +811,7 @@ Profile::ProfileType ProfileImpl::GetPro
    return REGULAR_PROFILE;
  }
  
@@ -2218,7 +2207,7 @@
  std::unique_ptr<content::ZoomLevelDelegate>
  ProfileImpl::CreateZoomLevelDelegate(const base::FilePath& partition_path) {
    return std::make_unique<ChromeZoomLevelPrefs>(
-@@ -1051,7 +1050,7 @@ const PrefService* ProfileImpl::GetPrefs
+@@ -1058,7 +1057,7 @@ const PrefService* ProfileImpl::GetPrefs
    return prefs_.get();
  }
  
@@ -2229,16 +2218,16 @@
        GetDefaultStoragePartition(this)->GetZoomLevelDelegate());
 --- a/chrome/browser/profiles/profile_impl.h
 +++ b/chrome/browser/profiles/profile_impl.h
-@@ -27,7 +27,7 @@
- #include "mojo/public/cpp/bindings/remote.h"
- #include "services/identity/public/mojom/identity_service.mojom.h"
+@@ -26,7 +26,7 @@
+ #include "content/public/browser/content_browser_client.h"
+ #include "extensions/buildflags/buildflags.h"
  
 -#if !defined(OS_ANDROID)
 +#if defined(OS_ANDROID)
  #include "chrome/browser/ui/zoom/chrome_zoom_level_prefs.h"
  #include "content/public/browser/host_zoom_map.h"
  #endif
-@@ -76,7 +76,7 @@ class ProfileImpl : public Profile {
+@@ -71,7 +71,7 @@ class ProfileImpl : public Profile {
    static void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry);
  
    // content::BrowserContext implementation:
@@ -2247,7 +2236,7 @@
    std::unique_ptr<content::ZoomLevelDelegate> CreateZoomLevelDelegate(
        const base::FilePath& partition_path) override;
  #endif
-@@ -133,7 +133,7 @@ class ProfileImpl : public Profile {
+@@ -128,7 +128,7 @@ class ProfileImpl : public Profile {
    ExtensionSpecialStoragePolicy* GetExtensionSpecialStoragePolicy() override;
    PrefService* GetPrefs() override;
    const PrefService* GetPrefs() const override;
@@ -2401,7 +2390,7 @@
        parent_default_zoom_level_subscription_;
 --- a/weblayer/browser/browser_context_impl.cc
 +++ b/weblayer/browser/browser_context_impl.cc
-@@ -95,7 +95,7 @@ base::FilePath BrowserContextImpl::GetDe
+@@ -106,7 +106,7 @@ base::FilePath BrowserContextImpl::GetDe
    return download_dir;
  }
  
@@ -2412,7 +2401,7 @@
    return nullptr;
 --- a/weblayer/browser/browser_context_impl.h
 +++ b/weblayer/browser/browser_context_impl.h
-@@ -30,7 +30,7 @@ class BrowserContextImpl : public conten
+@@ -31,7 +31,7 @@ class BrowserContextImpl : public conten
    static base::FilePath GetDefaultDownloadDirectory();
  
    // BrowserContext implementation:
@@ -2423,7 +2412,7 @@
  #endif  // !defined(OS_ANDROID)
 --- a/ui/views/widget/widget.cc
 +++ b/ui/views/widget/widget.cc
-@@ -191,6 +191,11 @@ Widget::~Widget() {
+@@ -193,6 +193,11 @@ Widget::~Widget() {
  }
  
  // static
@@ -2433,11 +2422,11 @@
 +
 +// static
  Widget* Widget::CreateWindowWithParent(WidgetDelegate* delegate,
-                                        gfx::NativeView parent) {
-   return CreateWindowWithParentAndBounds(delegate, parent, gfx::Rect());
+                                        gfx::NativeView parent,
+                                        const gfx::Rect& bounds) {
 --- a/chrome/browser/ui/browser_dialogs.cc
 +++ b/chrome/browser/ui/browser_dialogs.cc
-@@ -16,7 +16,7 @@ void RecordDialogCreation(DialogIdentifi
+@@ -29,7 +29,7 @@ bool IsDeviceChooserShowingForTesting()
  
  }  // namespace chrome
  
@@ -2514,7 +2503,7 @@
  
 --- a/chrome/browser/ui/search/search_tab_helper.h
 +++ b/chrome/browser/ui/search/search_tab_helper.h
-@@ -29,7 +29,7 @@
+@@ -32,7 +32,7 @@
  #include "content/public/browser/web_contents_user_data.h"
  #include "ui/shell_dialogs/select_file_dialog.h"
  
@@ -2525,11 +2514,10 @@
  
 --- a/chrome/browser/custom_handlers/register_protocol_handler_permission_request.h
 +++ b/chrome/browser/custom_handlers/register_protocol_handler_permission_request.h
-@@ -26,6 +26,8 @@ class RegisterProtocolHandlerPermissionR
+@@ -28,6 +28,7 @@ class RegisterProtocolHandlerPermissionR
   private:
    // permissions::PermissionRequest:
    IconId GetIconId() const override;
-+  base::string16 GetTitleText() const override;
 +  base::string16 GetMessageText() const override;
    base::string16 GetMessageTextFragment() const override;
    GURL GetOrigin() const override;
@@ -2583,38 +2571,27 @@
 +
 --- /dev/null
 +++ b/chrome/browser/ui/views/accelerator_utils_android.cc
-@@ -0,0 +1,34 @@
+@@ -0,0 +1,23 @@
 +// Copyright (c) 2013 The Chromium Authors. All rights reserved.
 +// Use of this source code is governed by a BSD-style license that can be
 +// found in the LICENSE file.
 +
 +#include <stddef.h>
 +
-+#include "chrome/app/chrome_command_ids.h"
-+#include "chrome/browser/profiles/profile.h"
 +#include "chrome/browser/ui/views/accelerator_table.h"
 +#include "ui/base/accelerators/accelerator.h"
 +
-+#if defined(OS_CHROMEOS)
-+#include "ash/public/cpp/accelerators.h"
-+#endif
-+
 +namespace chrome {
 +
-+bool IsChromeAccelerator(const ui::Accelerator& accelerator, Profile* profile) {
-+  return false;
-+}
-+
-+ui::Accelerator GetPrimaryChromeAcceleratorForBookmarkTab() {
-+  std::vector<AcceleratorMapping> accelerators = GetAcceleratorList();
-+  for (size_t i = 0; i < accelerators.size(); ++i) {
-+    if (accelerators[i].command_id == IDC_BOOKMARK_THIS_TAB) {
-+      return ui::Accelerator(accelerators[i].keycode,
-+                             accelerators[i].modifiers);
-+    }
++bool IsChromeAccelerator(const ui::Accelerator& accelerator) {
++  const std::vector<AcceleratorMapping> accelerators = GetAcceleratorList();
++  for (const auto& entry : accelerators) {
++    if (entry.keycode == accelerator.key_code() &&
++        entry.modifiers == accelerator.modifiers())
++      return true;
 +  }
 +
-+  return ui::Accelerator();
++  return false;
 +}
 +
 +}  // namespace chrome
@@ -2651,7 +2628,7 @@
  #include "chrome/browser/ui/browser.h"
  #endif
  
-@@ -538,7 +538,7 @@ bool DownloadUIModel::ShouldPromoteOrigi
+@@ -531,7 +531,7 @@ bool DownloadUIModel::ShouldPromoteOrigi
    return false;
  }
  
@@ -2662,7 +2639,7 @@
      DownloadCommands::Command command) const {
 --- a/chrome/browser/download/download_ui_model.h
 +++ b/chrome/browser/download/download_ui_model.h
-@@ -19,7 +19,7 @@
+@@ -18,7 +18,7 @@
  #include "components/offline_items_collection/core/offline_item.h"
  #include "components/safe_browsing/buildflags.h"
  
@@ -2671,7 +2648,7 @@
  #include "chrome/browser/download/download_commands.h"
  #endif
  
-@@ -295,7 +295,7 @@ class DownloadUIModel {
+@@ -285,7 +285,7 @@ class DownloadUIModel {
    // security reasons.
    virtual bool ShouldPromoteOrigin() const;
  
@@ -2803,7 +2780,7 @@
  }  // namespace chrome
 --- a/chrome/browser/ui/chrome_pages.cc
 +++ b/chrome/browser/ui/chrome_pages.cc
-@@ -69,7 +69,7 @@
+@@ -71,7 +71,7 @@
  #include "chrome/browser/ui/signin_view_controller.h"
  #endif
  
@@ -2812,7 +2789,7 @@
  #include "chrome/browser/signin/identity_manager_factory.h"
  #include "components/signin/public/identity_manager/identity_manager.h"
  #endif
-@@ -488,7 +488,7 @@ GURL GetOSSettingsUrl(const std::string&
+@@ -490,7 +490,7 @@ GURL GetOSSettingsUrl(const std::string&
  }
  #endif
  
@@ -2832,7 +2809,7 @@
  #include "chrome/browser/signin/signin_promo.h"
  #endif
  
-@@ -135,7 +135,7 @@ void ShowEnterpriseManagementPageInTabbe
+@@ -138,7 +138,7 @@ void ShowEnterpriseManagementPageInTabbe
  GURL GetOSSettingsUrl(const std::string& sub_page);
  #endif
  
@@ -2870,19 +2847,10 @@
    browser_activity_watcher_ = std::make_unique<BrowserActivityWatcher>(
        base::BindRepeating(&ThreadWatcherObserver::OnUserActivityDetected,
                            base::Unretained(this)));
-@@ -477,7 +477,7 @@ namespace {
- // StartupTimeBomb::DisarmStartupTimeBomb() proxy, to avoid ifdefing out
- // individual calls by ThreadWatcherList methods.
- static void DisarmStartupTimeBomb() {
--#if !defined(OS_ANDROID)
-+#if defined(OS_ANDROID)
-   StartupTimeBomb::DisarmStartupTimeBomb();
- #endif
- }
-@@ -851,7 +851,7 @@ void WatchDogThread::CleanUp() {
+@@ -832,7 +832,7 @@ void WatchDogThread::CleanUp() {
  }
  
- // StartupTimeBomb and ShutdownWatcherHelper are not available on Android.
+ // ShutdownWatcherHelper is not available on Android.
 -#if !defined(OS_ANDROID)
 +#if defined(OS_ANDROID)
  
@@ -2890,15 +2858,15 @@
  
 --- a/chrome/browser/metrics/thread_watcher.h
 +++ b/chrome/browser/metrics/thread_watcher.h
-@@ -502,7 +502,7 @@ class WatchDogThread : public base::Thre
+@@ -498,7 +498,7 @@ class WatchDogThread : public base::Thre
  // ShutdownWatcherHelper is useless on Android because there is no shutdown,
  // Chrome is always killed one way or another (swiped away in the task
  // switcher, OOM-killed, etc.).
 -#if !defined(OS_ANDROID)
 +#if defined(OS_ANDROID)
- 
- // This is a wrapper class for getting the crash dumps of the hangs during
- // startup.
+ // This is a wrapper class for detecting hangs during shutdown.
+ class ShutdownWatcherHelper {
+  public:
 --- a/chrome/browser/lifetime/browser_shutdown.cc
 +++ b/chrome/browser/lifetime/browser_shutdown.cc
 @@ -46,7 +46,7 @@
@@ -2919,7 +2887,7 @@
  bool ShutdownPreThreadsStop() {
  #if defined(OS_CHROMEOS)
    chromeos::BootTimesRecorder::Get()->AddLogoutTimeMarker(
-@@ -383,7 +383,7 @@ void SetTryingToQuit(bool quitting) {
+@@ -380,7 +380,7 @@ void SetTryingToQuit(bool quitting) {
    // attempt is cancelled.
    PrefService* pref_service = g_browser_process->local_state();
    if (pref_service) {
@@ -2950,7 +2918,7 @@
  //
 --- a/chrome/browser/metrics/thread_watcher_report_hang.cc
 +++ b/chrome/browser/metrics/thread_watcher_report_hang.cc
-@@ -22,7 +22,7 @@ NOINLINE void ReportThreadHang() {
+@@ -34,7 +34,7 @@ NOINLINE void ReportThreadHang() {
  #endif
  }
  
@@ -2983,7 +2951,7 @@
  
 --- a/chrome/browser/profiles/profile_metrics.cc
 +++ b/chrome/browser/profiles/profile_metrics.cc
-@@ -25,7 +25,7 @@
+@@ -25,13 +25,13 @@
  #include "components/signin/core/browser/signin_header_helper.h"
  #include "content/public/browser/browser_thread.h"
  
@@ -2992,74 +2960,25 @@
  #include "chrome/browser/ui/browser_finder.h"
  #endif
  
-@@ -33,7 +33,7 @@ namespace {
- 
- const int kMaximumDaysOfDisuse = 4 * 7;  // Should be integral number of weeks.
+ namespace {
  
 -#if !defined(OS_ANDROID)
 +#if defined(OS_ANDROID)
- size_t number_of_profile_switches_ = 0;
+ constexpr base::TimeDelta kProfileActivityThreshold =
+     base::TimeDelta::FromDays(28);  // Should be integral number of weeks.
  #endif
+@@ -133,7 +133,7 @@ enum ProfileAvatar {
  
-@@ -47,7 +47,7 @@ enum ProfileOpenState {
-   PROFILE_UNOPENED
- };
- 
--#if !defined(OS_ANDROID)
-+#if defined(OS_ANDROID)
- ProfileOpenState GetProfileOpenState(
-     ProfileManager* manager,
-     const base::FilePath& path) {
-@@ -80,7 +80,7 @@ ProfileMetrics::ProfileType GetProfileTy
- 
- bool HasProfileBeenActiveSince(const ProfileAttributesEntry* entry,
-                                const base::Time& active_limit) {
+ // static
+ bool ProfileMetrics::IsProfileActive(const ProfileAttributesEntry* entry) {
 -#if !defined(OS_ANDROID)
 +#if defined(OS_ANDROID)
    // TODO(mlerman): iOS and Android should set an ActiveTime in the
    // ProfileAttributesStorage. (see ProfileManager::OnBrowserSetLastActive)
-   if (entry->GetActiveTime() < active_limit)
-@@ -214,7 +214,7 @@ profile_metrics::BrowserProfileType Prof
-   return profile_metrics::BrowserProfileType::kMaxValue;
- }
- 
--#if !defined(OS_ANDROID)
-+#if defined(OS_ANDROID)
- void ProfileMetrics::LogNumberOfProfileSwitches() {
-   UMA_HISTOGRAM_COUNTS_100("Profile.NumberOfSwitches",
-                            number_of_profile_switches_);
-@@ -436,7 +436,7 @@ void ProfileMetrics::LogProfileOpenMetho
-                             NUM_PROFILE_OPEN_METRICS);
- }
- 
--#if !defined(OS_ANDROID)
-+#if defined(OS_ANDROID)
- void ProfileMetrics::LogProfileSwitch(
-     ProfileOpen metric,
-     ProfileManager* manager,
---- a/chrome/browser/profiles/profile_metrics.h
-+++ b/chrome/browser/profiles/profile_metrics.h
-@@ -154,7 +154,7 @@ class ProfileMetrics {
-   static bool CountProfileInformation(ProfileManager* manager,
-                                       profile_metrics::Counts* counts);
- 
--#if !defined(OS_ANDROID)
-+#if defined(OS_ANDROID)
-   static void LogNumberOfProfileSwitches();
- #endif
- 
-@@ -167,7 +167,7 @@ class ProfileMetrics {
-   static void LogProfileAvatarSelection(size_t icon_index);
-   static void LogProfileDeleteUser(ProfileDelete metric);
-   static void LogProfileOpenMethod(ProfileOpen metric);
--#if !defined(OS_ANDROID)
-+#if defined(OS_ANDROID)
-   static void LogProfileSwitch(ProfileOpen metric,
-                                ProfileManager* manager,
-                                const base::FilePath& profile_path);
+   if (base::Time::Now() - entry->GetActiveTime() > kProfileActivityThreshold)
 --- a/chrome/browser/download/download_commands.cc
 +++ b/chrome/browser/download/download_commands.cc
-@@ -26,7 +26,7 @@
+@@ -27,7 +27,7 @@
  #include "net/base/url_util.h"
  #include "ui/base/clipboard/scoped_clipboard_writer.h"
  
@@ -3068,7 +2987,7 @@
  #include "chrome/browser/ui/browser.h"
  #include "chrome/browser/ui/browser_finder.h"
  #include "chrome/browser/ui/scoped_tabbed_browser_displayer.h"
-@@ -153,7 +153,7 @@ void DownloadCommands::ExecuteCommand(Co
+@@ -154,7 +154,7 @@ void DownloadCommands::ExecuteCommand(Co
    model_->ExecuteCommand(this, command);
  }
  
@@ -3077,7 +2996,7 @@
  
  Browser* DownloadCommands::GetBrowser() const {
    chrome::ScopedTabbedBrowserDisplayer browser_displayer(model_->profile());
-@@ -176,7 +176,7 @@ bool DownloadCommands::CanOpenPdfInSyste
+@@ -177,7 +177,7 @@ bool DownloadCommands::CanOpenPdfInSyste
    return IsDownloadPdf() &&
           (IsAdobeReaderDefaultPDFViewer() ? is_adobe_pdf_reader_up_to_date
                                            : true);
@@ -3088,18 +3007,12 @@
  }
 --- a/chrome/browser/custom_handlers/register_protocol_handler_permission_request.cc
 +++ b/chrome/browser/custom_handlers/register_protocol_handler_permission_request.cc
-@@ -27,7 +27,19 @@ RegisterProtocolHandlerPermissionRequest
+@@ -29,7 +29,13 @@ RegisterProtocolHandlerPermissionRequest
  
  permissions::PermissionRequest::IconId
  RegisterProtocolHandlerPermissionRequest::GetIconId() const {
 -  return vector_icons::kProtocolHandlerIcon;
 +  return 0;
-+}
-+
-+base::string16 RegisterProtocolHandlerPermissionRequest::GetTitleText() const {
-+  return l10n_util::GetStringFUTF16(
-+                   IDS_REGISTER_PROTOCOL_HANDLER_CONFIRM,
-+                   handler_.GetProtocolDisplayName());
 +}
 +
 +base::string16 RegisterProtocolHandlerPermissionRequest::GetMessageText() const {
@@ -3111,7 +3024,7 @@
  base::string16
 --- a/chrome/browser/policy/chrome_browser_policy_connector.cc
 +++ b/chrome/browser/policy/chrome_browser_policy_connector.cc
-@@ -32,22 +32,10 @@
+@@ -33,22 +33,10 @@
  #include "extensions/buildflags/buildflags.h"
  #include "services/network/public/cpp/shared_url_loader_factory.h"
  
@@ -3135,7 +3048,7 @@
  #include "chrome/browser/policy/chrome_browser_cloud_management_controller.h"
  #include "components/policy/core/common/cloud/machine_level_user_cloud_policy_manager.h"
  #endif
-@@ -109,7 +97,7 @@ bool ChromeBrowserPolicyConnector::IsEnt
+@@ -96,7 +84,7 @@ bool ChromeBrowserPolicyConnector::IsEnt
  bool ChromeBrowserPolicyConnector::HasMachineLevelPolicies() {
    if (ProviderHasPolicies(GetPlatformProvider()))
      return true;
@@ -3144,7 +3057,7 @@
    if (ProviderHasPolicies(machine_level_user_cloud_policy_manager_))
      return true;
  #endif  // !defined(OS_ANDROID) && !defined(OS_CHROMEOS)
-@@ -117,7 +105,7 @@ bool ChromeBrowserPolicyConnector::HasMa
+@@ -104,7 +92,7 @@ bool ChromeBrowserPolicyConnector::HasMa
  }
  
  void ChromeBrowserPolicyConnector::Shutdown() {
@@ -3153,7 +3066,7 @@
    // Reset the controller before calling base class so that
    // shutdown occurs in correct sequence.
    chrome_browser_cloud_management_controller_.reset();
-@@ -205,7 +193,6 @@ ChromeBrowserPolicyConnector::CreatePlat
+@@ -184,7 +172,6 @@ ChromeBrowserPolicyConnector::CreatePlat
    } else {
      return nullptr;
    }
@@ -3192,7 +3105,7 @@
    // Owned by base class.
 --- a/chrome/browser/hid/hid_chooser_context.cc
 +++ b/chrome/browser/hid/hid_chooser_context.cc
-@@ -177,11 +177,6 @@ base::WeakPtr<HidChooserContext> HidChoo
+@@ -179,11 +179,6 @@ base::WeakPtr<HidChooserContext> HidChoo
  void HidChooserContext::EnsureHidManagerConnection() {
    if (hid_manager_)
      return;
@@ -3206,7 +3119,7 @@
  void HidChooserContext::SetUpHidManagerConnection(
 --- a/chrome/browser/permissions/attestation_permission_request.cc
 +++ b/chrome/browser/permissions/attestation_permission_request.cc
-@@ -26,9 +26,19 @@ class AttestationPermissionRequest : pub
+@@ -26,9 +26,14 @@ class AttestationPermissionRequest : pub
        : origin_(origin), callback_(std::move(callback)) {}
  
    permissions::PermissionRequest::IconId GetIconId() const override {
@@ -3214,11 +3127,6 @@
 +    return 0;
    }
  
-+  base::string16 GetTitleText() const override {
-+    return l10n_util::GetStringUTF16(
-+        IDS_SECURITY_KEY_ATTESTATION_PERMISSION_FRAGMENT);
-+  }
-+
 +  base::string16 GetMessageText() const override {
 +    return l10n_util::GetStringUTF16(
 +        IDS_SECURITY_KEY_ATTESTATION_PERMISSION_FRAGMENT);
@@ -3327,9 +3235,9 @@
  extern const base::Feature kPageFreezingFromPerformanceManager;
 --- a/chrome/browser/storage/storage_notification_service_impl.cc
 +++ b/chrome/browser/storage/storage_notification_service_impl.cc
-@@ -7,7 +7,7 @@
- #include "build/build_config.h"
+@@ -11,7 +11,7 @@
  #include "chrome/browser/profiles/profile.h"
+ #include "chrome/common/chrome_switches.h"
  
 -#if !defined(OS_ANDROID)
 +#if defined(OS_ANDROID)
@@ -3409,7 +3317,7 @@
  void PopulateInfoMapWithInstalled(
      browsing_data::TimePeriod time_period,
      Profile* profile,
-@@ -483,7 +482,7 @@ ImportantSitesUtil::GetImportantRegister
+@@ -482,7 +481,7 @@ ImportantSitesUtil::GetImportantRegister
    return final_list;
  }
  
@@ -3418,20 +3326,9 @@
  std::vector<ImportantDomainInfo>
  ImportantSitesUtil::GetInstalledRegisterableDomains(
      browsing_data::TimePeriod time_period,
---- a/chrome/browser/ui/permission_bubble/chooser_bubble_delegate.cc
-+++ b/chrome/browser/ui/permission_bubble/chooser_bubble_delegate.cc
-@@ -17,6 +17,8 @@ ChooserBubbleDelegate::ChooserBubbleDele
-           content::WebContents::FromRenderFrameHost(owner))),
-       chooser_controller_(std::move(chooser_controller)) {}
- 
-+std::unique_ptr<BubbleUi> ChooserBubbleDelegate::BuildBubbleUi() {}
-+
- ChooserBubbleDelegate::~ChooserBubbleDelegate() {}
- 
- const content::RenderFrameHost* ChooserBubbleDelegate::OwningFrame() const {
 --- a/chrome/common/chrome_switches.h
 +++ b/chrome/common/chrome_switches.h
-@@ -261,12 +261,12 @@ extern const char kAllowNaClFileHandleAP
+@@ -259,12 +259,12 @@ extern const char kAllowNaClFileHandleAP
  extern const char kAllowNaClSocketAPI[];
  #endif
  
@@ -3445,10 +3342,10 @@
 +#if !defined(OS_CHROMEOS) && defined(OS_ANDROID)
  // Only has an effect in branded builds.
  extern const char kEnableChromeBrowserCloudManagement[];
- #endif
+ extern const char kUseSystemDefaultPrinter[];
 --- a/chrome/common/chrome_switches.cc
 +++ b/chrome/common/chrome_switches.cc
-@@ -846,14 +846,14 @@ const char kAllowNaClFileHandleAPI[]
+@@ -850,14 +850,14 @@ const char kAllowNaClFileHandleAPI[]
  const char kAllowNaClSocketAPI[]            = "allow-nacl-socket-api";
  #endif
  
@@ -3467,7 +3364,7 @@
  const char kEnableChromeBrowserCloudManagement[] =
 --- a/chrome/common/webui_url_constants.cc
 +++ b/chrome/common/webui_url_constants.cc
-@@ -336,7 +336,7 @@ const char kChromeUILinuxProxyConfigHost
+@@ -335,7 +335,7 @@ const char kChromeUILinuxProxyConfigHost
  const char kChromeUISandboxHost[] = "sandbox";
  #endif
  
@@ -3478,7 +3375,7 @@
  const char kChromeUIBrowserSwitchURL[] = "chrome://browser-switch/";
 --- a/chrome/common/webui_url_constants.h
 +++ b/chrome/common/webui_url_constants.h
-@@ -291,7 +291,7 @@ extern const char kChromeUILinuxProxyCon
+@@ -299,7 +299,7 @@ extern const char kChromeUILinuxProxyCon
  extern const char kChromeUISandboxHost[];
  #endif
  
@@ -3489,7 +3386,7 @@
  extern const char kChromeUIBrowserSwitchURL[];
 --- a/chrome/browser/profiles/profile_manager.cc
 +++ b/chrome/browser/profiles/profile_manager.cc
-@@ -124,7 +124,6 @@
+@@ -126,7 +126,6 @@
  #if defined(OS_ANDROID)
  #include "chrome/browser/android/metrics/android_profile_session_durations_service_factory.h"
  #include "chrome/browser/ntp_snippets/content_suggestions_service_factory.h"
@@ -3497,7 +3394,7 @@
  #include "chrome/browser/first_run/first_run.h"
  #include "chrome/browser/ui/browser.h"
  #include "chrome/browser/ui/browser_finder.h"
-@@ -146,7 +145,7 @@
+@@ -148,7 +147,7 @@
  #include "components/user_manager/user_type.h"
  #endif
  
@@ -3506,7 +3403,7 @@
  #include "chrome/browser/profiles/profile_statistics.h"
  #include "chrome/browser/profiles/profile_statistics_factory.h"
  #endif
-@@ -236,7 +235,7 @@ void ProfileSizeTask(const base::FilePat
+@@ -238,7 +237,7 @@ void ProfileSizeTask(const base::FilePat
      UMA_HISTOGRAM_COUNTS_10000("Profile.AppCount", enabled_app_count);
  }
  
@@ -3515,7 +3412,7 @@
  // Schedule a profile for deletion if it isn't already scheduled.
  // Returns whether the profile has been newly scheduled.
  bool ScheduleProfileDirectoryForDeletion(const base::FilePath& path) {
-@@ -335,7 +334,7 @@ void OnProfileLoaded(ProfileManager::Pro
+@@ -337,7 +336,7 @@ void OnProfileLoaded(ProfileManager::Pro
        .Run(incognito ? profile->GetOffTheRecordProfile() : profile);
  }
  
@@ -3524,7 +3421,7 @@
  // Helper function for ScheduleForcedEphemeralProfileForDeletion.
  bool IsProfileEphemeral(ProfileAttributesStorage* storage,
                          const base::FilePath& profile_dir) {
-@@ -804,7 +803,7 @@ ProfileShortcutManager* ProfileManager::
+@@ -818,7 +817,7 @@ ProfileShortcutManager* ProfileManager::
    return profile_shortcut_manager_.get();
  }
  
@@ -3533,7 +3430,7 @@
  void ProfileManager::MaybeScheduleProfileForDeletion(
      const base::FilePath& profile_dir,
      ProfileLoadedCallback callback,
-@@ -1022,7 +1021,7 @@ void ProfileManager::InitProfileUserPref
+@@ -1035,7 +1034,7 @@ void ProfileManager::InitProfileUserPref
      } else if (profile->GetPath() ==
                     profiles::GetDefaultProfileDir(user_data_dir())) {
        avatar_index = profiles::GetPlaceholderAvatarIndex();
@@ -3542,7 +3439,7 @@
        profile_name =
            base::UTF16ToUTF8(storage.ChooseNameForNewProfile(avatar_index));
  #else
-@@ -1246,7 +1245,7 @@ void ProfileManager::DoFinalInitForServi
+@@ -1259,7 +1258,7 @@ void ProfileManager::DoFinalInitForServi
    ChildAccountServiceFactory::GetForProfile(profile)->Init();
    SupervisedUserServiceFactory::GetForProfile(profile)->Init();
  #endif
@@ -3551,7 +3448,7 @@
    // If the lock enabled algorithm changed, update this profile's lock status.
    // This depends on services which shouldn't be initialized until
    // DoFinalInitForServices.
-@@ -1418,7 +1417,7 @@ Profile* ProfileManager::CreateAndInitia
+@@ -1439,7 +1438,7 @@ Profile* ProfileManager::CreateAndInitia
    return profile_ptr;
  }
  
@@ -3560,7 +3457,7 @@
  void ProfileManager::EnsureActiveProfileExistsBeforeDeletion(
      ProfileLoadedCallback callback,
      const base::FilePath& profile_dir) {
-@@ -1609,13 +1608,13 @@ void ProfileManager::AddProfileToStorage
+@@ -1630,7 +1629,7 @@ void ProfileManager::AddProfileToStorage
      bool has_entry = storage.GetProfileAttributesWithPath(profile->GetPath(),
                                                            &entry);
      if (has_entry) {
@@ -3569,14 +3466,16 @@
        bool was_authenticated_status = entry->IsAuthenticated();
  #endif
        // The ProfileAttributesStorage's info must match the Identity Manager.
-       entry->SetAuthInfo(account_info.gaia, username,
-                          is_consented_primary_account);
+@@ -1639,7 +1638,7 @@ void ProfileManager::AddProfileToStorage
+ 
+       entry->SetSignedInWithCredentialProvider(false);
+ 
 -#if !defined(OS_ANDROID) && !defined(OS_CHROMEOS)
 +#if defined(OS_ANDROID) && !defined(OS_CHROMEOS)
        // Sign out if force-sign-in policy is enabled and profile is not signed
        // in.
        VLOG(1) << "ForceSigninCheck: " << signin_util::IsForceSigninEnabled()
-@@ -1733,7 +1732,7 @@ void ProfileManager::SaveActiveProfiles(
+@@ -1759,7 +1758,7 @@ void ProfileManager::SaveActiveProfiles(
    }
  }
  
@@ -3605,7 +3504,7 @@
    // Continues the scheduled profile deletion after closing all the profile's
    // browsers tabs. Creates a new profile if the profile to be deleted is the
    // last non-supervised profile. In the Mac, loads the next non-supervised
-@@ -369,7 +369,7 @@ class ProfileManager : public content::N
+@@ -372,7 +372,7 @@ class ProfileManager : public content::N
  
    void SaveActiveProfiles();
  
@@ -3614,7 +3513,7 @@
    void OnBrowserOpened(Browser* browser);
    void OnBrowserClosed(Browser* browser);
  
-@@ -433,7 +433,7 @@ class ProfileManager : public content::N
+@@ -436,7 +436,7 @@ class ProfileManager : public content::N
    // default.
    bool logged_in_ = false;
  
@@ -3988,29 +3887,9 @@
  }
  
  }  // namespace ui_devtools
---- a/chrome/browser/ui/autofill/autofill_popup_layout_model.cc
-+++ b/chrome/browser/ui/autofill/autofill_popup_layout_model.cc
-@@ -30,7 +30,7 @@
- #include "ui/gfx/image/image_skia.h"
- #include "ui/gfx/paint_vector_icon.h"
- 
--#if !defined(OS_ANDROID)
-+#if defined(OS_ANDROID)
- #include "chrome/app/vector_icons/vector_icons.h"
- #include "components/omnibox/browser/vector_icons.h"  // nogncheck
- #endif
-@@ -114,7 +114,7 @@ AutofillPopupLayoutModel::AutofillPopupL
- 
- AutofillPopupLayoutModel::~AutofillPopupLayoutModel() {}
- 
--#if !defined(OS_ANDROID)
-+#if defined(OS_ANDROID)
- int AutofillPopupLayoutModel::GetDesiredPopupHeight() const {
-   std::vector<autofill::Suggestion> suggestions = delegate_->GetSuggestions();
-   int popup_height = 2 * kPopupBorderThickness;
 --- a/components/url_formatter/elide_url.cc
 +++ b/components/url_formatter/elide_url.cc
-@@ -25,7 +25,7 @@
+@@ -26,7 +26,7 @@
  
  namespace {
  
@@ -4019,7 +3898,7 @@
  const base::char16 kDot = '.';
  
  // Build a path from the first |num_components| elements in |path_elements|.
-@@ -144,7 +144,7 @@ base::string16 HostForDisplay(base::Stri
+@@ -145,7 +145,7 @@ base::string16 HostForDisplay(base::Stri
  
  namespace url_formatter {
  
@@ -4030,7 +3909,7 @@
  // kerning/ligatures/etc. issues potentially wrong by assuming that the width of
 --- a/components/url_formatter/elide_url.h
 +++ b/components/url_formatter/elide_url.h
-@@ -27,7 +27,7 @@ namespace url_formatter {
+@@ -26,7 +26,7 @@ namespace url_formatter {
  
  // ElideUrl and Elide host require
  // gfx::GetStringWidthF which is not implemented in Android
@@ -4039,26 +3918,6 @@
  // This function takes a GURL object and elides it. It returns a string
  // composed of parts from subdomain, domain, path, filename and query.
  // A "..." is added automatically at the end if the elided string is bigger
---- a/chrome/browser/ui/autofill/autofill_popup_layout_model.h
-+++ b/chrome/browser/ui/autofill/autofill_popup_layout_model.h
-@@ -43,7 +43,7 @@ class AutofillPopupLayoutModel {
-   // The amount of padding at the end of the popup in dip.
-   static const int kEndPadding = 8;
- 
--#if !defined(OS_ANDROID)
-+#if defined(OS_ANDROID)
-   // Calculates the desired height of the popup based on its contents.
-   int GetDesiredPopupHeight() const;
- 
-@@ -99,7 +99,7 @@ class AutofillPopupLayoutModel {
-   // Returns the enclosing rectangle for the element_bounds.
-   gfx::Rect RoundedElementBounds() const;
- 
--#if !defined(OS_ANDROID)
-+#if defined(OS_ANDROID)
-   gfx::ImageSkia GetIconImageByName(const std::string& icon_str) const;
- 
-   // The fonts for the popup text.
 --- a/content/public/browser/desktop_media_id.cc
 +++ b/content/public/browser/desktop_media_id.cc
 @@ -27,22 +27,20 @@ const DesktopMediaID::Id DesktopMediaID:
@@ -4097,90 +3956,46 @@
    // Assigns integer identifier to the |window| and returns its DesktopMediaID.
    static DesktopMediaID RegisterNativeWindow(Type type,
                                               gfx::NativeWindow window);
---- a/chrome/browser/ui/autofill/autofill_popup_view_delegate.h
-+++ b/chrome/browser/ui/autofill/autofill_popup_view_delegate.h
-@@ -64,7 +64,7 @@ class AutofillPopupViewDelegate {
-   // Returns the full set of autofill suggestions, if applicable.
-   virtual const std::vector<autofill::Suggestion> GetSuggestions() = 0;
- 
--#if !defined(OS_ANDROID)
-+#if defined(OS_ANDROID)
-   // Returns elided values and labels for the given |row|.
-   virtual int GetElidedValueWidthForRow(int row) = 0;
-   virtual int GetElidedLabelWidthForRow(int row) = 0;
---- a/chrome/browser/autofill/autofill_keyboard_accessory_adapter.cc
-+++ b/chrome/browser/autofill/autofill_keyboard_accessory_adapter.cc
-@@ -113,6 +113,14 @@ const base::string16& AutofillKeyboardAc
-   return labels_[OffsetIndexFor(row)];
- }
- 
-+int AutofillKeyboardAccessoryAdapter::GetElidedValueWidthForRow(int row) {
-+  return 0;
-+}
-+
-+int AutofillKeyboardAccessoryAdapter::GetElidedLabelWidthForRow(int row) {
-+  return 0;
-+}
-+
- bool AutofillKeyboardAccessoryAdapter::GetRemovalConfirmationText(
-     int index,
-     base::string16* title,
---- a/chrome/browser/autofill/autofill_keyboard_accessory_adapter.h
-+++ b/chrome/browser/autofill/autofill_keyboard_accessory_adapter.h
-@@ -50,6 +50,9 @@ class AutofillKeyboardAccessoryAdapter :
-                                  base::OnceClosure confirm_deletion) = 0;
-   };
- 
-+  int GetElidedValueWidthForRow(int row) override;
-+  int GetElidedLabelWidthForRow(int row) override;
-+
-   void SetAccessoryView(std::unique_ptr<AccessoryView> view) {
-     view_ = std::move(view);
-   }
 --- a/chrome/browser/ui/passwords/password_generation_popup_controller_impl.cc
 +++ b/chrome/browser/ui/passwords/password_generation_popup_controller_impl.cc
-@@ -344,7 +344,7 @@ PasswordGenerationPopupControllerImpl::G
-   return std::vector<autofill::Suggestion>();
+@@ -271,7 +271,7 @@ void PasswordGenerationPopupControllerIm
+   }
  }
  
 -#if !defined(OS_ANDROID)
 +#if defined(OS_ANDROID)
- int PasswordGenerationPopupControllerImpl::GetElidedValueWidthForRow(int row) {
-   return 0;
- }
+ void PasswordGenerationPopupControllerImpl::OnZoomChanged(
+     const zoom::ZoomController::ZoomChangedEventData& data) {
+   Hide(PopupHidingReason::kContentAreaMoved);
 --- a/chrome/browser/ui/passwords/password_generation_popup_controller_impl.h
 +++ b/chrome/browser/ui/passwords/password_generation_popup_controller_impl.h
-@@ -140,7 +140,7 @@ class PasswordGenerationPopupControllerI
-   const gfx::RectF& element_bounds() const override;
-   bool IsRTL() const override;
-   const std::vector<autofill::Suggestion> GetSuggestions() override;
--#if !defined(OS_ANDROID)
-+#if defined(OS_ANDROID)
-   int GetElidedValueWidthForRow(int row) override;
-   int GetElidedLabelWidthForRow(int row) override;
- #endif
---- a/chrome/browser/ui/autofill/autofill_popup_controller_impl.cc
-+++ b/chrome/browser/ui/autofill/autofill_popup_controller_impl.cc
-@@ -379,7 +379,7 @@ const std::vector<Suggestion> AutofillPo
-   return suggestions_;
- }
+@@ -24,7 +24,7 @@
+ #include "ui/gfx/geometry/rect_f.h"
+ #include "ui/gfx/native_widget_types.h"
  
 -#if !defined(OS_ANDROID)
 +#if defined(OS_ANDROID)
- int AutofillPopupControllerImpl::GetElidedValueWidthForRow(int row) {
-   return gfx::GetStringWidth(GetElidedValueAt(row),
-                              layout_model_.GetValueFontListForRow(row));
---- a/chrome/browser/ui/autofill/autofill_popup_controller_impl.h
-+++ b/chrome/browser/ui/autofill/autofill_popup_controller_impl.h
-@@ -101,7 +101,7 @@ class AutofillPopupControllerImpl : publ
-   void SetElementBounds(const gfx::RectF& bounds);
-   bool IsRTL() const override;
-   const std::vector<Suggestion> GetSuggestions() override;
+ #include "components/zoom/zoom_observer.h"
+ #endif  // !defined(OS_ANDROID)
+ 
+@@ -59,7 +59,7 @@ class PasswordGenerationPopupView;
+ class PasswordGenerationPopupControllerImpl
+     : public PasswordGenerationPopupController,
+       public content::WebContentsObserver
 -#if !defined(OS_ANDROID)
 +#if defined(OS_ANDROID)
-   int GetElidedValueWidthForRow(int row) override;
-   int GetElidedLabelWidthForRow(int row) override;
- #endif
+     ,
+       public zoom::ZoomObserver
+ #endif  // !defined(OS_ANDROID)
+@@ -106,7 +106,7 @@ class PasswordGenerationPopupControllerI
+   void DidFinishNavigation(
+       content::NavigationHandle* navigation_handle) override;
+ 
+-#if !defined(OS_ANDROID)
++#if defined(OS_ANDROID)
+   // ZoomObserver implementation.
+   void OnZoomChanged(
+       const zoom::ZoomController::ZoomChangedEventData& data) override;
 --- a/content/public/browser/native_web_keyboard_event.h
 +++ b/content/public/browser/native_web_keyboard_event.h
 @@ -48,7 +48,6 @@ struct CONTENT_EXPORT NativeWebKeyboardE
@@ -4204,18 +4019,26 @@
  }  // namespace content
 --- a/chrome/browser/ui/views/frame/browser_view.cc
 +++ b/chrome/browser/ui/views/frame/browser_view.cc
-@@ -3081,7 +3081,7 @@ void BrowserView::ShowAvatarBubbleFromAv
+@@ -1699,7 +1699,6 @@ void BrowserView::UserChangedTheme(Brows
+   // In Incognito, the usage of dark or normal hinges on the browser theme.
+   if (theme_change_type == BrowserThemeChangeType::kBrowserTheme &&
+       !IsRegularOrGuestSession()) {
+-    ui::NativeTheme::GetInstanceForDarkUI()->NotifyObservers();
+     ui::NativeTheme::GetInstanceForNativeUi()->NotifyObservers();
+ 
+     // Early exit. A native theme change will update all the
+@@ -3215,7 +3214,7 @@ void BrowserView::ShowAvatarBubbleFromAv
    profiles::BubbleViewMode bubble_view_mode;
    profiles::BubbleViewModeFromAvatarBubbleMode(mode, GetProfile(),
                                                 &bubble_view_mode);
 -#if !defined(OS_CHROMEOS)
 +#if defined(OS_CHROMEOS)
    if (SigninViewController::ShouldShowSigninForMode(bubble_view_mode)) {
-     browser_->signin_view_controller()->ShowSignin(
-         bubble_view_mode, browser_.get(), access_point);
+     browser_->signin_view_controller()->ShowSignin(bubble_view_mode,
+                                                    access_point);
 --- a/chrome/browser/ui/views/location_bar/location_bar_view.cc
 +++ b/chrome/browser/ui/views/location_bar/location_bar_view.cc
-@@ -238,7 +238,7 @@ void LocationBarView::Init() {
+@@ -235,7 +235,7 @@ void LocationBarView::Init() {
      // The send tab to self icon is intentionally the first one added so it is
      // the left most icon.
      params.types_enabled.push_back(PageActionIconType::kSendTabToSelf);
@@ -4226,7 +4049,7 @@
        params.types_enabled.push_back(PageActionIconType::kQRCodeGenerator);
 --- a/components/omnibox/browser/omnibox_popup_model.cc
 +++ b/components/omnibox/browser/omnibox_popup_model.cc
-@@ -20,7 +20,7 @@
+@@ -21,7 +21,7 @@
  #include "third_party/icu/source/common/unicode/ubidi.h"
  #include "ui/gfx/geometry/rect.h"
  
@@ -4235,7 +4058,7 @@
  #include "components/omnibox/browser/vector_icons.h"  // nogncheck
  #include "ui/gfx/paint_vector_icon.h"
  #include "ui/gfx/vector_icon_types.h"
-@@ -278,7 +278,7 @@ void OmniboxPopupModel::SetRichSuggestio
+@@ -328,7 +328,7 @@ void OmniboxPopupModel::SetRichSuggestio
  }
  
  // Android and iOS have their own platform-specific icon logic.
@@ -4246,7 +4069,7 @@
    gfx::Image extension_icon =
 --- a/components/omnibox/browser/omnibox_popup_model.h
 +++ b/components/omnibox/browser/omnibox_popup_model.h
-@@ -136,7 +136,7 @@ class OmniboxPopupModel {
+@@ -188,7 +188,7 @@ class OmniboxPopupModel {
    // Stores the image in a local data member and schedules a repaint.
    void SetRichSuggestionBitmap(int result_index, const SkBitmap& bitmap);
  
@@ -4255,73 +4078,6 @@
    // Gets the icon for the match index.
    gfx::Image GetMatchIcon(const AutocompleteMatch& match,
                            SkColor vector_icon_color);
---- a/chrome/browser/ui/page_info/page_info_ui.cc
-+++ b/chrome/browser/ui/page_info/page_info_ui.cc
-@@ -31,7 +31,7 @@
- 
- #if defined(OS_ANDROID)
- #include "chrome/browser/android/android_theme_resources.h"
--#else
-+
- #include "chrome/app/vector_icons/vector_icons.h"
- #include "chrome/browser/profiles/profile.h"
- #include "chrome/common/pref_names.h"
-@@ -50,7 +50,7 @@ namespace {
- 
- const int kInvalidResourceID = -1;
- 
--#if !defined(OS_ANDROID)
-+#if defined(OS_ANDROID)
- // The icon size is actually 16, but the vector icons being used generally all
- // have additional internal padding. Account for this difference by asking for
- // the vectors in 18x18dip sizes.
-@@ -110,7 +110,7 @@ static_assert(base::size(kPermissionButt
-                   CONTENT_SETTING_NUM_SETTINGS,
-               "kPermissionButtonTextIDDefaultSetting array size is incorrect");
- 
--#if !defined(OS_ANDROID)
-+#if defined(OS_ANDROID)
- // The resource IDs for the strings that are displayed on the sound permission
- // button if the sound permission setting is managed by the user.
- const int kSoundPermissionButtonTextIDUserManaged[] = {
-@@ -176,7 +176,7 @@ base::span<const PermissionsUIInfo> GetC
-          ? IDS_PAGE_INFO_TYPE_SENSORS
-          : IDS_PAGE_INFO_TYPE_MOTION_SENSORS},
-     {ContentSettingsType::USB_GUARD, IDS_PAGE_INFO_TYPE_USB},
--#if !defined(OS_ANDROID)
-+#if defined(OS_ANDROID)
-     {ContentSettingsType::SERIAL_GUARD, IDS_PAGE_INFO_TYPE_SERIAL},
- #endif
-     {ContentSettingsType::NATIVE_FILE_SYSTEM_WRITE_GUARD,
-@@ -554,7 +554,7 @@ int PageInfoUI::GetConnectionIconID(Page
-   }
-   return resource_id;
- }
--#else  // !defined(OS_ANDROID)
-+
- // static
- const gfx::ImageSkia PageInfoUI::GetPermissionIcon(const PermissionInfo& info,
-                                                    SkColor related_text_color) {
---- a/chrome/browser/ui/page_info/page_info_ui.h
-+++ b/chrome/browser/ui/page_info/page_info_ui.h
-@@ -18,7 +18,7 @@
- #include "components/safe_browsing/buildflags.h"
- #include "ui/gfx/native_widget_types.h"
- 
--#if !defined(OS_ANDROID)
-+#if defined(OS_ANDROID)
- #include "ui/gfx/image/image_skia.h"
- #endif
- 
-@@ -204,7 +204,7 @@ class PageInfoUI {
- 
-   // Returns the connection icon ID for the given connection |status|.
-   static int GetConnectionIconID(PageInfo::SiteConnectionStatus status);
--#else  // !defined(OS_ANDROID)
-+
-   // Returns icons for the given PermissionInfo |info|. If |info|'s current
-   // setting is CONTENT_SETTING_DEFAULT, it will return the icon for |info|'s
-   // default setting.
 --- a/third_party/blink/public/mojom/payments/payment_request.mojom
 +++ b/third_party/blink/public/mojom/payments/payment_request.mojom
 @@ -214,8 +214,7 @@ interface PaymentRequest {
@@ -4336,7 +4092,7 @@
    Show(bool is_user_gesture, bool wait_for_updated_details);
 --- a/third_party/blink/renderer/modules/payments/payment_request.cc
 +++ b/third_party/blink/renderer/modules/payments/payment_request.cc
-@@ -1144,7 +1144,7 @@ PaymentRequest::PaymentRequest(
+@@ -1148,7 +1148,7 @@ PaymentRequest::PaymentRequest(
    UseCounter::Count(execution_context, WebFeature::kPaymentRequestInitialized);
    mojo::PendingRemote<payments::mojom::blink::PaymentRequestClient> client;
    client_receiver_.Bind(client.InitWithNewPipeAndPassReceiver(), task_runner);
@@ -4393,7 +4149,7 @@
  
 --- a/chrome/browser/ui/views/permission_bubble/permission_prompt_bubble_view.cc
 +++ b/chrome/browser/ui/views/permission_bubble/permission_prompt_bubble_view.cc
-@@ -72,12 +72,9 @@ void PermissionPromptBubbleView::AddPerm
+@@ -108,12 +108,9 @@ void PermissionPromptBubbleView::AddPerm
  
    auto* icon =
        line_container->AddChildView(std::make_unique<views::ImageView>());
@@ -4403,9 +4159,9 @@
    constexpr int kPermissionIconSize = 18;
 -  icon->SetImage(
 -      gfx::CreateVectorIcon(vector_id, kPermissionIconSize, icon_color));
+   icon->SetVerticalAlignment(views::ImageView::Alignment::kLeading);
  
    auto* label = line_container->AddChildView(
-       std::make_unique<views::Label>(request->GetMessageTextFragment()));
 --- a/chrome/browser/ui/views/tabs/tab_strip.cc
 +++ b/chrome/browser/ui/views/tabs/tab_strip.cc
 @@ -136,21 +136,9 @@ class TabHoverCardEventSniffer : public
@@ -4441,7 +4197,7 @@
  #include "components/omnibox/browser/vector_icons.h"  // nogncheck
  #include "components/vector_icons/vector_icons.h"     // nogncheck
  #endif
-@@ -222,7 +222,7 @@ AutocompleteMatch& AutocompleteMatch::op
+@@ -228,7 +228,7 @@ AutocompleteMatch& AutocompleteMatch::op
    return *this;
  }
  
@@ -4534,7 +4290,7 @@
  };
 --- a/chrome/browser/ui/views/browser_dialogs_views.cc
 +++ b/chrome/browser/ui/views/browser_dialogs_views.cc
-@@ -18,15 +18,6 @@
+@@ -17,15 +17,6 @@
  // This file provides definitions of desktop browser dialog-creation methods for
  // all toolkit-views platforms.
  // static
@@ -4552,15 +4308,15 @@
                            const EditDetails& details,
 --- a/chrome/browser/ui/content_settings/content_setting_image_model.cc
 +++ b/chrome/browser/ui/content_settings/content_setting_image_model.cc
-@@ -231,8 +231,6 @@ const ContentSettingsImageDetails kImage
-      IDS_BLOCKED_PLUGIN_EXPLANATORY_TEXT, 0},
+@@ -232,8 +232,6 @@ const ContentSettingsImageDetails kImage
+      IDS_BLOCKED_PLUGINS_MESSAGE, IDS_BLOCKED_PLUGIN_EXPLANATORY_TEXT, 0},
      {ContentSettingsType::MIXEDSCRIPT, kMixedContentIcon,
       IDS_BLOCKED_DISPLAYING_INSECURE_CONTENT, 0, 0},
--    {ContentSettingsType::PPAPI_BROKER, kExtensionIcon,
+-    {ContentSettingsType::PPAPI_BROKER, vector_icons::kExtensionIcon,
 -     IDS_BLOCKED_PPAPI_BROKER_MESSAGE, 0, IDS_ALLOWED_PPAPI_BROKER_MESSAGE},
      {ContentSettingsType::SOUND, kTabAudioIcon, IDS_BLOCKED_SOUND_TITLE, 0, 0},
-     {ContentSettingsType::ADS, kAdsIcon, IDS_BLOCKED_ADS_PROMPT_TOOLTIP,
-      IDS_BLOCKED_ADS_PROMPT_TITLE, 0},
+     {ContentSettingsType::ADS, vector_icons::kAdsIcon,
+      IDS_BLOCKED_ADS_PROMPT_TOOLTIP, IDS_BLOCKED_ADS_PROMPT_TITLE, 0},
 --- a/chrome/browser/ui/content_settings/content_setting_bubble_model.cc
 +++ b/chrome/browser/ui/content_settings/content_setting_bubble_model.cc
 @@ -208,7 +208,6 @@ void ContentSettingSimpleBubbleModel::Se
@@ -4595,7 +4351,7 @@
        {ContentSettingsType::CLIPBOARD_READ_WRITE,
         IDS_ALLOWED_CLIPBOARD_MESSAGE},
        {ContentSettingsType::SENSORS,
-@@ -687,8 +683,7 @@ ContentSettingPluginBubbleModel::Content
+@@ -689,8 +685,7 @@ ContentSettingPluginBubbleModel::Content
        GetSettingManagedByUser(url, content_type(), GetProfile(), nullptr);
    HostContentSettingsMap* map =
        HostContentSettingsMapFactory::GetForProfile(GetProfile());
@@ -4605,7 +4361,7 @@
  
    // If the setting is not managed by the user, hide the "Manage" button.
    if (!managed_by_user)
-@@ -792,7 +787,6 @@ void ContentSettingSingleRadioGroup::Set
+@@ -794,7 +789,6 @@ void ContentSettingSingleRadioGroup::Set
        {ContentSettingsType::IMAGES, IDS_BLOCKED_IMAGES_UNBLOCK},
        {ContentSettingsType::JAVASCRIPT, IDS_BLOCKED_JAVASCRIPT_UNBLOCK},
        {ContentSettingsType::POPUPS, IDS_BLOCKED_POPUPS_REDIRECTS_UNBLOCK},
@@ -4613,7 +4369,7 @@
        {ContentSettingsType::SOUND, IDS_BLOCKED_SOUND_UNBLOCK},
        {ContentSettingsType::CLIPBOARD_READ_WRITE,
         IDS_BLOCKED_CLIPBOARD_UNBLOCK},
-@@ -801,7 +795,6 @@ void ContentSettingSingleRadioGroup::Set
+@@ -803,7 +797,6 @@ void ContentSettingSingleRadioGroup::Set
    // Fields as for kBlockedAllowIDs, above.
    static const ContentSettingsTypeIdEntry kAllowedAllowIDs[] = {
        {ContentSettingsType::COOKIES, IDS_ALLOWED_COOKIES_NO_ACTION},
@@ -4621,7 +4377,7 @@
        {ContentSettingsType::CLIPBOARD_READ_WRITE,
         IDS_ALLOWED_CLIPBOARD_NO_ACTION},
        {ContentSettingsType::SENSORS, IDS_ALLOWED_SENSORS_NO_ACTION},
-@@ -824,7 +817,6 @@ void ContentSettingSingleRadioGroup::Set
+@@ -826,7 +819,6 @@ void ContentSettingSingleRadioGroup::Set
        {ContentSettingsType::IMAGES, IDS_BLOCKED_IMAGES_NO_ACTION},
        {ContentSettingsType::JAVASCRIPT, IDS_BLOCKED_JAVASCRIPT_NO_ACTION},
        {ContentSettingsType::POPUPS, IDS_BLOCKED_POPUPS_REDIRECTS_NO_ACTION},
@@ -4629,7 +4385,7 @@
        {ContentSettingsType::SOUND, IDS_BLOCKED_SOUND_NO_ACTION},
        {ContentSettingsType::CLIPBOARD_READ_WRITE,
         IDS_BLOCKED_CLIPBOARD_NO_ACTION},
-@@ -832,7 +824,6 @@ void ContentSettingSingleRadioGroup::Set
+@@ -834,7 +826,6 @@ void ContentSettingSingleRadioGroup::Set
    };
    static const ContentSettingsTypeIdEntry kAllowedBlockIDs[] = {
        {ContentSettingsType::COOKIES, IDS_ALLOWED_COOKIES_BLOCK},
@@ -4650,7 +4406,7 @@
      : public ContentSettingSingleRadioGroup,
 --- a/chrome/browser/ui/passwords/settings/password_manager_presenter.cc
 +++ b/chrome/browser/ui/passwords/settings/password_manager_presenter.cc
-@@ -44,7 +44,7 @@
+@@ -45,7 +45,7 @@
  #include "components/undo/undo_operation.h"
  #include "content/public/browser/browser_thread.h"
  
@@ -4659,15 +4415,24 @@
  #include "chrome/browser/extensions/api/passwords_private/passwords_private_utils.h"
  #endif
  
-@@ -342,7 +342,7 @@ void PasswordManagerPresenter::UndoRemov
+@@ -101,7 +101,7 @@ FormVector GetEntryList(const std::map<s
+   return result;
+ }
+ 
+-#if !defined(OS_ANDROID)
++#if defined(OS_ANDROID)
+ password_manager::metrics_util::AccessPasswordInSettingsEvent
+ ConvertPlaintextReason(password_manager::PlaintextReason reason) {
+   switch (reason) {
+@@ -357,7 +357,7 @@ void PasswordManagerPresenter::UndoRemov
    undo_manager_.Undo();
  }
  
 -#if !defined(OS_ANDROID)  // This is never called on Android.
 +#if defined(OS_ANDROID)  // This is never called on Android.
- void PasswordManagerPresenter::RequestShowPassword(
+ void PasswordManagerPresenter::RequestPlaintextPassword(
      const std::string& sort_key,
-     base::OnceCallback<void(base::Optional<base::string16>)> callback) const {
+     password_manager::PlaintextReason reason,
 --- /dev/null
 +++ b/chrome/browser/extensions/global_shortcut_listener_android.cc
 @@ -0,0 +1,50 @@
@@ -4762,7 +4527,7 @@
 +#endif  // CHROME_BROWSER_EXTENSIONS_GLOBAL_SHORTCUT_LISTENER_ANDROID_H_
 --- a/chrome/browser/ui/webui/signin/login_ui_service.cc
 +++ b/chrome/browser/ui/webui/signin/login_ui_service.cc
-@@ -78,18 +78,6 @@ void LoginUIService::ShowExtensionLoginP
+@@ -78,17 +78,6 @@ void LoginUIService::ShowExtensionLoginP
    chrome::ScopedTabbedBrowserDisplayer displayer(
        profile_->GetOriginalProfile());
    Browser* browser = displayer.browser();
@@ -4770,20 +4535,19 @@
 -  if (enable_sync) {
 -    // Set a primary account.
 -    browser->signin_view_controller()->ShowDiceEnableSyncTab(
--        browser, signin_metrics::AccessPoint::ACCESS_POINT_EXTENSIONS,
+-        signin_metrics::AccessPoint::ACCESS_POINT_EXTENSIONS,
 -        signin_metrics::PromoAction::PROMO_ACTION_NO_SIGNIN_PROMO, email_hint);
 -  } else {
 -    // Add an account to the web without setting a primary account.
 -    browser->signin_view_controller()->ShowDiceAddAccountTab(
--        browser, signin_metrics::AccessPoint::ACCESS_POINT_EXTENSIONS,
--        email_hint);
+-        signin_metrics::AccessPoint::ACCESS_POINT_EXTENSIONS, email_hint);
 -  }
  #endif
  }
  
 --- a/chrome/browser/platform_util.cc
 +++ b/chrome/browser/platform_util.cc
-@@ -55,24 +55,6 @@ void DisableShellOperationsForTesting()
+@@ -56,24 +56,6 @@ void DisableShellOperationsForTesting()
  
  }  // namespace internal
  
@@ -4797,9 +4561,9 @@
 -  // TaskShutdownBehavior::CONTINUE_ON_SHUTDOWN because this doesn't need global
 -  // state and can hang shutdown without this trait as it may result in an
 -  // interactive dialog.
--  base::PostTask(
+-  base::ThreadPool::PostTask(
 -      FROM_HERE,
--      {base::ThreadPool(), base::MayBlock(), base::TaskPriority::USER_BLOCKING,
+-      {base::MayBlock(), base::TaskPriority::USER_BLOCKING,
 -       base::TaskShutdownBehavior::CONTINUE_ON_SHUTDOWN},
 -      base::BindOnce(&VerifyAndOpenItemOnBlockingThread, full_path, item_type,
 -                     callback));
@@ -5024,33 +4788,33 @@
        break;
 --- a/chrome/browser/ui/views/profiles/profile_menu_view.cc
 +++ b/chrome/browser/ui/views/profiles/profile_menu_view.cc
-@@ -246,16 +246,10 @@ void ProfileMenuView::OnSyncErrorButtonC
+@@ -277,16 +277,10 @@ void ProfileMenuView::OnSyncErrorButtonC
              signin_metrics::USER_CLICKED_SIGNOUT_SETTINGS,
              signin_metrics::SignoutDelete::IGNORE_METRIC);
          Hide();
 -        browser()->signin_view_controller()->ShowSignin(
--            profiles::BUBBLE_VIEW_MODE_GAIA_SIGNIN, browser(),
+-            profiles::BUBBLE_VIEW_MODE_GAIA_SIGNIN,
 -            signin_metrics::AccessPoint::ACCESS_POINT_AVATAR_BUBBLE_SIGN_IN);
        }
        break;
      case sync_ui_util::AUTH_ERROR:
        Hide();
 -      browser()->signin_view_controller()->ShowSignin(
--          profiles::BUBBLE_VIEW_MODE_GAIA_REAUTH, browser(),
+-          profiles::BUBBLE_VIEW_MODE_GAIA_REAUTH,
 -          signin_metrics::AccessPoint::ACCESS_POINT_AVATAR_BUBBLE_SIGN_IN);
        break;
      case sync_ui_util::UPGRADE_CLIENT_ERROR:
        chrome::OpenUpdateChromeDialog(browser());
-@@ -277,9 +271,6 @@ void ProfileMenuView::OnSyncErrorButtonC
+@@ -331,9 +325,6 @@ void ProfileMenuView::OnSignoutButtonCli
  void ProfileMenuView::OnSigninButtonClicked() {
    RecordClick(ActionableItem::kSigninButton);
    Hide();
 -  browser()->signin_view_controller()->ShowSignin(
--      profiles::BUBBLE_VIEW_MODE_GAIA_SIGNIN, browser(),
+-      profiles::BUBBLE_VIEW_MODE_GAIA_SIGNIN,
 -      signin_metrics::AccessPoint::ACCESS_POINT_AVATAR_BUBBLE_SIGN_IN);
  }
  
- void ProfileMenuView::OnSigninAccountButtonClicked(AccountInfo account) {
+ void ProfileMenuView::OnOtherProfileSelected(
 --- a/components/feature_engagement/public/event_constants.h
 +++ b/components/feature_engagement/public/event_constants.h
 @@ -23,7 +23,7 @@ extern const char kNewTabOpened[];
@@ -5163,28 +4927,6 @@
 +
 +void DropdownBarHost::SetHostViewNative(views::View* host_view) {
 +}
---- a/chrome/browser/ui/views/frame/browser_frame.cc
-+++ b/chrome/browser/ui/views/frame/browser_frame.cc
-@@ -31,7 +31,6 @@
- #include "ui/base/material_design/material_design_controller.h"
- #include "ui/events/event_handler.h"
- #include "ui/gfx/font_list.h"
--#include "ui/native_theme/native_theme_dark_aura.h"
- #include "ui/views/controls/menu/menu_runner.h"
- #include "ui/views/widget/native_widget.h"
- 
-@@ -207,11 +206,6 @@ const ui::ThemeProvider* BrowserFrame::G
- }
- 
- const ui::NativeTheme* BrowserFrame::GetNativeTheme() const {
--  if (browser_view_->browser()->profile()->IsIncognitoProfile() &&
--      ThemeServiceFactory::GetForProfile(browser_view_->browser()->profile())
--          ->UsingDefaultTheme()) {
--    return ui::NativeThemeDarkAura::instance();
--  }
-   return views::Widget::GetNativeTheme();
- }
- 
 --- a/chrome/browser/ui/webui/welcome/welcome_handler.cc
 +++ b/chrome/browser/ui/webui/welcome/welcome_handler.cc
 @@ -91,9 +91,6 @@ void WelcomeHandler::HandleActivateSignI
@@ -5192,14 +4934,14 @@
  
      Browser* browser = GetBrowser();
 -    browser->signin_view_controller()->ShowSignin(
--        profiles::BubbleViewMode::BUBBLE_VIEW_MODE_GAIA_SIGNIN, browser,
+-        profiles::BubbleViewMode::BUBBLE_VIEW_MODE_GAIA_SIGNIN,
 -        signin_metrics::AccessPoint::ACCESS_POINT_START_PAGE, redirect_url);
    }
  }
  
 --- /dev/null
 +++ b/ui/views/widget/native_widget_android.cc
-@@ -0,0 +1,445 @@
+@@ -0,0 +1,496 @@
 +// Copyright (c) 2012 The Chromium Authors. All rights reserved.
 +// Use of this source code is governed by a BSD-style license that can be
 +// found in the LICENSE file.
@@ -5248,6 +4990,22 @@
 +
 +namespace views {
 +
++namespace {
++
++DEFINE_UI_CLASS_PROPERTY_KEY(internal::NativeWidgetPrivate*,
++                             kNativeWidgetPrivateKey,
++                             nullptr)
++
++void SetRestoreBounds(gfx::NativeWindow window, const gfx::Rect& bounds) {
++}
++
++void SetIcon(gfx::NativeWindow window,
++             const aura::WindowProperty<gfx::ImageSkia*>* key,
++             const gfx::ImageSkia& value) {
++}
++
++}  // namespace
++
 +////////////////////////////////////////////////////////////////////////////////
 +// NativeWidgetAndroid, public:
 +
@@ -5284,7 +5042,38 @@
 +// NativeWidgetAndroid, internal::NativeWidgetPrivate implementation:
 +
 +void NativeWidgetAndroid::InitNativeWidget(Widget::InitParams params) {
++  // See Widget::InitParams::context for details.
++  DCHECK(params.parent || params.context);
++
++  ownership_ = params.ownership;
++
++  RegisterNativeWidgetForWindow(this, window_);
++  // Check for ShadowType::kNone before aura::Window::Init() to ensure observers
++  // do not add useless shadow layers by deriving one from the window type.
++  SetShadowElevationFromInitParams(window_, params);
++
 +  delegate_->OnNativeWidgetCreated();
++
++  gfx::Rect window_bounds = params.bounds;
++  gfx::NativeView parent = params.parent;
++  gfx::NativeView context = params.context;
++  if (!params.child) {
++    // SetZOrderLevel before SetParent so that always-on-top container is used.
++    SetZOrderLevel(params.EffectiveZOrderLevel());
++  }
++
++  // Set properties before adding to the parent so that its layout manager sees
++  // the correct values.
++  OnSizeConstraintsChanged();
++
++  // Wait to set the bounds until we have a parent. That way we can know our
++  // true state/bounds (the LayoutManager may enforce a particular
++  // state/bounds).
++  if (IsMaximized())
++    SetRestoreBounds(window_, window_bounds);
++  else
++    SetBounds(window_bounds);
++  DCHECK(GetWidget()->GetRootView());
 +}
 +
 +void NativeWidgetAndroid::OnWidgetInitDone() {}
@@ -5307,6 +5096,14 @@
 +  // widget.
 +  GetWidget()->ThemeChanged();
 +  GetWidget()->GetRootView()->SchedulePaint();
++}
++
++Widget* NativeWidgetAndroid::GetWidget() {
++  return delegate_->AsWidget();
++}
++
++const Widget* NativeWidgetAndroid::GetWidget() const {
++  return delegate_->AsWidget();
 +}
 +
 +gfx::NativeView NativeWidgetAndroid::GetNativeView() const {
@@ -5582,10 +5379,6 @@
 +void NativeWidgetAndroid::SetInitialFocus(ui::WindowShowState show_state) {
 +}
 +
-+const Widget* NativeWidgetAndroid::GetWidgetImpl() const {
-+  return delegate_->AsWidget();
-+}
-+
 +////////////////////////////////////////////////////////////////////////////////
 +// Widget, public:
 +
@@ -5655,6 +5448,7 @@
 +#ifndef UI_VIEWS_WIDGET_NATIVE_WIDGET_ANDROID_H_
 +#define UI_VIEWS_WIDGET_NATIVE_WIDGET_ANDROID_H_
 +
++#include <memory>
 +#include <string>
 +
 +#include "base/macros.h"
@@ -5710,6 +5504,8 @@
 +  bool ShouldUseNativeFrame() const override;
 +  bool ShouldWindowContentsBeTransparent() const override;
 +  void FrameTypeChanged() override;
++  Widget* GetWidget() override;
++  const Widget* GetWidget() const override;
 +  gfx::NativeView GetNativeView() const override;
 +  gfx::NativeWindow GetNativeWindow() const override;
 +  Widget* GetTopLevelWidget() override;
@@ -5801,9 +5597,6 @@
 +
 + private:
 +  void SetInitialFocus(ui::WindowShowState show_state);
-+
-+  // internal::NativeWidgetPrivate:
-+  const Widget* GetWidgetImpl() const override;
 +
 +  internal::NativeWidgetDelegate* delegate_;
 +
@@ -6145,7 +5938,7 @@
  void WindowAndroid::AddObserver(WindowAndroidObserver* observer) {
    if (!observer_list_.HasObserver(observer))
      observer_list_.AddObserver(observer);
-@@ -273,6 +285,22 @@ WindowAndroid* WindowAndroid::GetWindowA
+@@ -279,6 +291,22 @@ WindowAndroid* WindowAndroid::GetWindowA
    return const_cast<WindowAndroid*>(this);
  }
  
@@ -6414,7 +6207,7 @@
        case PageActionIconType::kCookieControls:
          cookie_controls_icon_ =
              new CookieControlsIconView(params.icon_label_bubble_delegate,
-@@ -131,17 +120,6 @@ void PageActionIconController::Init(cons
+@@ -132,17 +121,6 @@ void PageActionIconController::Init(cons
              params.page_action_icon_delegate);
          page_action_icons_.push_back(send_tab_to_self_icon_);
          break;
@@ -6557,7 +6350,7 @@
 +#endif  // UI_VIEWS_EVENT_MONITOR_ANDROID_H_
 --- a/chrome/browser/sharing/shared_clipboard/feature_flags.cc
 +++ b/chrome/browser/sharing/shared_clipboard/feature_flags.cc
-@@ -11,7 +11,7 @@ const base::Feature kSharedClipboardUI{"
+@@ -8,7 +8,7 @@ const base::Feature kSharedClipboardUI{"
                                         base::FEATURE_DISABLED_BY_DEFAULT};
  
  #if defined(OS_WIN) || defined(OS_MACOSX) || defined(OS_LINUX) || \
@@ -6568,7 +6361,7 @@
  
 --- a/chrome/browser/sharing/shared_clipboard/feature_flags.h
 +++ b/chrome/browser/sharing/shared_clipboard/feature_flags.h
-@@ -18,7 +18,7 @@ extern const base::Feature kSharedClipbo
+@@ -15,7 +15,7 @@
  extern const base::Feature kSharedClipboardUI;
  
  #if defined(OS_WIN) || defined(OS_MACOSX) || defined(OS_LINUX) || \
@@ -6600,7 +6393,7 @@
 +}  // namespace views
 --- a/chrome/browser/ui/views/extensions/extension_installed_bubble_view.cc
 +++ b/chrome/browser/ui/views/extensions/extension_installed_bubble_view.cc
-@@ -146,11 +146,7 @@ std::unique_ptr<views::View> CreateSigni
+@@ -95,11 +95,7 @@ std::unique_ptr<views::View> CreateSigni
    // ChromeOS does not show the signin promo.
    return nullptr;
  #else
@@ -6866,7 +6659,7 @@
        error = '''Asserted file list does not match.
 --- a/android_webview/browser/aw_browser_context.cc
 +++ b/android_webview/browser/aw_browser_context.cc
-@@ -225,6 +225,12 @@ base::FilePath AwBrowserContext::GetCont
+@@ -234,6 +234,12 @@ base::FilePath AwBrowserContext::GetCont
    return user_data_dir;
  }
  
@@ -6881,7 +6674,7 @@
    // safe_browsing::RegisterProfilePrefs(registry);
 --- a/android_webview/browser/aw_browser_context.h
 +++ b/android_webview/browser/aw_browser_context.h
-@@ -84,6 +84,8 @@ class AwBrowserContext : public content:
+@@ -85,6 +85,8 @@ class AwBrowserContext : public content:
    bool IsDefaultBrowserContext() { return true; }
  
    // content::BrowserContext implementation.
@@ -6979,7 +6772,7 @@
 +}  // namespace views
 --- a/ui/views/touchui/touch_selection_controller_impl.cc
 +++ b/ui/views/touchui/touch_selection_controller_impl.cc
-@@ -219,10 +219,6 @@ class TouchSelectionControllerImpl::Edit
+@@ -220,10 +220,6 @@ class TouchSelectionControllerImpl::Edit
          draw_invisible_(false) {
      widget_.reset(CreateTouchSelectionPopupWidget(parent, this));
  
@@ -6990,7 +6783,7 @@
      // We are owned by the TouchSelectionControllerImpl.
      set_owned_by_client();
    }
-@@ -339,18 +335,14 @@ class TouchSelectionControllerImpl::Edit
+@@ -337,18 +333,14 @@ class TouchSelectionControllerImpl::Edit
  
        widget_->SetBounds(GetSelectionWidgetBounds(selection_bound_));
  
@@ -7009,7 +6802,7 @@
    }
  
    void SetDrawInvisible(bool draw_invisible) {
-@@ -364,12 +356,6 @@ class TouchSelectionControllerImpl::Edit
+@@ -362,12 +354,6 @@ class TouchSelectionControllerImpl::Edit
    std::unique_ptr<Widget> widget_;
    TouchSelectionControllerImpl* controller_;
  
@@ -7022,7 +6815,7 @@
    // In local coordinates
    gfx::SelectionBound selection_bound_;
    gfx::Image* image_;
-@@ -404,24 +390,17 @@ TouchSelectionControllerImpl::TouchSelec
+@@ -402,24 +388,17 @@ TouchSelectionControllerImpl::TouchSelec
        cursor_handle_(
            new EditingHandleView(this, client_view->GetNativeView(), true)) {
    selection_start_time_ = base::TimeTicks::Now();
@@ -7048,7 +6841,7 @@
    if (client_widget_)
      client_widget_->RemoveObserver(this);
  }
-@@ -629,19 +608,7 @@ void TouchSelectionControllerImpl::OnWid
+@@ -626,19 +605,7 @@ void TouchSelectionControllerImpl::OnWid
  
  void TouchSelectionControllerImpl::OnEvent(const ui::Event& event) {
    if (event.IsMouseEvent()) {
@@ -7069,7 +6862,7 @@
    }
  
    client_view_->DestroyTouchSelection();
-@@ -651,10 +618,6 @@ void TouchSelectionControllerImpl::Quick
+@@ -648,10 +615,6 @@ void TouchSelectionControllerImpl::Quick
    gfx::Rect menu_anchor = GetQuickMenuAnchorRect();
    if (menu_anchor == gfx::Rect())
      return;
@@ -7080,7 +6873,7 @@
  }
  
  void TouchSelectionControllerImpl::StartQuickMenuTimer() {
-@@ -672,8 +635,6 @@ void TouchSelectionControllerImpl::Updat
+@@ -669,8 +632,6 @@ void TouchSelectionControllerImpl::Updat
  }
  
  void TouchSelectionControllerImpl::HideQuickMenu() {
@@ -7091,7 +6884,17 @@
  
 --- a/chrome/browser/startup_data.cc
 +++ b/chrome/browser/startup_data.cc
-@@ -151,7 +151,7 @@ StartupData::TakeProtoDatabaseProvider()
+@@ -33,9 +33,6 @@
+ #include "chrome/browser/profiles/chrome_browser_main_extra_parts_profiles.h"
+ #include "chrome/browser/profiles/pref_service_builder_utils.h"
+ #include "chrome/browser/profiles/profile_key.h"
+-#include "chrome/browser/supervised_user/supervised_user_pref_store.h"
+-#include "chrome/browser/supervised_user/supervised_user_settings_service.h"
+-#include "chrome/browser/supervised_user/supervised_user_settings_service_factory.h"
+ #include "chrome/common/chrome_constants.h"
+ #include "chrome/common/chrome_paths.h"
+ #include "components/keyed_service/content/browser_context_dependency_manager.h"
+@@ -152,7 +149,7 @@ StartupData::TakeProtoDatabaseProvider()
  void StartupData::PreProfilePrefServiceInit() {
    pref_registry_ = base::MakeRefCounted<user_prefs::PrefRegistrySyncable>();
    ChromeBrowserMainExtraPartsProfiles::
@@ -7167,16 +6970,16 @@
    HistoryUiFaviconRequestHandlerFactory::GetInstance();
  #if BUILDFLAG(ENABLE_LEGACY_DESKTOP_IN_PRODUCT_HELP)
    feature_engagement::BookmarkTrackerFactory::GetInstance();
-@@ -265,7 +274,7 @@ void ChromeBrowserMainExtraPartsProfiles
+@@ -264,7 +273,7 @@ void ChromeBrowserMainExtraPartsProfiles
+   HostContentSettingsMapFactory::GetInstance();
    IdentityManagerFactory::EnsureFactoryAndDependeeFactoriesBuilt();
    InMemoryURLIndexFactory::GetInstance();
-   invalidation::DeprecatedProfileInvalidationProviderFactory::GetInstance();
 -#if !defined(OS_ANDROID)
 +#if defined(OS_ANDROID)
    InstantServiceFactory::GetInstance();
  #endif
  #if BUILDFLAG(ENABLE_SERVICE_DISCOVERY)
-@@ -273,6 +282,7 @@ void ChromeBrowserMainExtraPartsProfiles
+@@ -272,6 +281,7 @@ void ChromeBrowserMainExtraPartsProfiles
  #endif
    RendererUpdaterFactory::GetInstance();
  #if BUILDFLAG(ENABLE_SUPERVISED_USERS)
@@ -7184,7 +6987,7 @@
    SupervisedUserServiceFactory::GetInstance();
  #endif
    LanguageModelManagerFactory::GetInstance();
-@@ -280,6 +290,7 @@ void ChromeBrowserMainExtraPartsProfiles
+@@ -279,6 +289,7 @@ void ChromeBrowserMainExtraPartsProfiles
    LoginUIServiceFactory::GetInstance();
  #endif
    if (MediaEngagementService::IsEnabled())
@@ -7203,7 +7006,7 @@
    ThemeServiceFactory::GetInstance();
  #endif
  #if BUILDFLAG(ENABLE_PLUGINS)
-@@ -314,6 +326,7 @@ void ChromeBrowserMainExtraPartsProfiles
+@@ -314,12 +326,14 @@ void ChromeBrowserMainExtraPartsProfiles
    policy::UserPolicySigninServiceFactory::GetInstance();
  #endif
    policy::UserCloudPolicyInvalidatorFactory::GetInstance();
@@ -7211,15 +7014,14 @@
    predictors::AutocompleteActionPredictorFactory::GetInstance();
    predictors::PredictorDatabaseFactory::GetInstance();
    predictors::LoadingPredictorFactory::GetInstance();
-@@ -321,6 +334,7 @@ void ChromeBrowserMainExtraPartsProfiles
+   prerender::PrerenderLinkManagerFactory::GetInstance();
    prerender::PrerenderManagerFactory::GetInstance();
-   prerender::PrerenderMessageFilter::EnsureShutdownNotifierFactoryBuilt();
    ProfileSyncServiceFactory::GetInstance();
 +  }
    ProtocolHandlerRegistryFactory::GetInstance();
  #if !defined(OS_ANDROID)
    resource_coordinator::LocalSiteCharacteristicsDataStoreFactory::GetInstance();
-@@ -335,11 +349,13 @@ void ChromeBrowserMainExtraPartsProfiles
+@@ -334,11 +348,13 @@ void ChromeBrowserMainExtraPartsProfiles
  #if BUILDFLAG(ENABLE_SESSION_SERVICE)
    SessionServiceFactory::GetInstance();
  #endif
@@ -7233,7 +7035,7 @@
      SiteEngagementServiceFactory::GetInstance();
  
  #if BUILDFLAG(ENABLE_SPELLCHECK)
-@@ -348,10 +364,12 @@ void ChromeBrowserMainExtraPartsProfiles
+@@ -347,10 +363,12 @@ void ChromeBrowserMainExtraPartsProfiles
  #if !defined(OS_ANDROID)
    StorageNotificationServiceFactory::GetInstance();
  #endif
@@ -7246,7 +7048,7 @@
    TopSitesFactory::GetInstance();
    translate::TranslateRankerFactory::GetInstance();
  #if defined(OS_WIN)
-@@ -363,8 +381,10 @@ void ChromeBrowserMainExtraPartsProfiles
+@@ -362,8 +380,10 @@ void ChromeBrowserMainExtraPartsProfiles
    UsbChooserContextFactory::GetInstance();
  #endif
  #if BUILDFLAG(ENABLE_EXTENSIONS)
@@ -7291,16 +7093,16 @@
        prefs::kRelaunchNotificationPeriod,
 --- a/chrome/browser/prefs/browser_prefs.cc
 +++ b/chrome/browser/prefs/browser_prefs.cc
-@@ -218,7 +218,7 @@
+@@ -230,7 +230,7 @@
  #if BUILDFLAG(ENABLE_FEED_IN_CHROME)
  #include "components/feed/core/common/pref_names.h"
  #endif  // BUILDFLAG(ENABLE_FEED_IN_CHROME)
 -#else   // defined(OS_ANDROID)
 +
  #include "chrome/browser/apps/app_service/app_service_proxy.h"
- #include "chrome/browser/enterprise_reporting/prefs.h"
+ #include "chrome/browser/enterprise/reporting/prefs.h"
  #include "chrome/browser/gcm/gcm_product_util.h"
-@@ -475,7 +475,7 @@ const char kNtpActivateHideShortcutsFiel
+@@ -493,7 +493,7 @@ const char kNtpActivateHideShortcutsFiel
      "ntp.activate_hide_shortcuts_field_trial";
  #endif  // !defined(OS_ANDROID)
  
@@ -7309,7 +7111,7 @@
  // Deprecated 7/2019
  // WebAuthn prefs were being erroneously stored on Android. They are registered
  // on other platforms.
-@@ -590,7 +590,7 @@ void RegisterProfilePrefsForMigration(
+@@ -615,7 +615,7 @@ void RegisterProfilePrefsForMigration(
  
    registry->RegisterInt64Pref(kSignedInTime, 0);
  
@@ -7318,7 +7120,7 @@
    registry->RegisterStringPref(kWebAuthnLastTransportUsedPrefName,
                                 std::string());
    registry->RegisterListPref(kWebAuthnBlePairedMacAddressesPrefName);
-@@ -671,7 +671,7 @@ void RegisterLocalState(PrefRegistrySimp
+@@ -703,7 +703,7 @@ void RegisterLocalState(PrefRegistrySimp
  
  #if defined(OS_ANDROID)
    ::android::RegisterPrefs(registry);
@@ -7327,7 +7129,7 @@
    enterprise_reporting::RegisterLocalStatePrefs(registry);
    gcm::RegisterPrefs(registry);
    media_router::RegisterLocalStatePrefs(registry);
-@@ -932,7 +932,7 @@ void RegisterProfilePrefs(user_prefs::Pr
+@@ -983,7 +983,7 @@ void RegisterProfilePrefs(user_prefs::Pr
  #if BUILDFLAG(ENABLE_FEED_IN_CHROME)
    feed::RegisterProfilePrefs(registry);
  #endif  // BUILDFLAG(ENABLE_FEED_IN_CHROME)
@@ -7336,7 +7138,7 @@
    apps::AppServiceProxy::RegisterProfilePrefs(registry);
    AppShortcutManager::RegisterProfilePrefs(registry);
    browser_sync::ForeignSessionHandler::RegisterProfilePrefs(registry);
-@@ -943,7 +943,6 @@ void RegisterProfilePrefs(user_prefs::Pr
+@@ -994,7 +994,6 @@ void RegisterProfilePrefs(user_prefs::Pr
    extensions::TabsCaptureVisibleTabFunction::RegisterProfilePrefs(registry);
    first_run::RegisterProfilePrefs(registry);
    gcm::RegisterProfilePrefs(registry);
@@ -7344,7 +7146,7 @@
    HistoryUI::RegisterProfilePrefs(registry);
    InstantService::RegisterProfilePrefs(registry);
    media_router::RegisterProfilePrefs(registry);
-@@ -1023,7 +1022,7 @@ void RegisterProfilePrefs(user_prefs::Pr
+@@ -1079,7 +1078,7 @@ void RegisterProfilePrefs(user_prefs::Pr
    browser_switcher::BrowserSwitcherPrefs::RegisterProfilePrefs(registry);
  #endif
  
@@ -7353,7 +7155,7 @@
    default_apps::RegisterProfilePrefs(registry);
  #endif
  
-@@ -1220,7 +1219,7 @@ void MigrateObsoleteProfilePrefs(Profile
+@@ -1281,7 +1280,7 @@ void MigrateObsoleteProfilePrefs(Profile
    profile_prefs->ClearPref(kLastKnownGoogleURL);
    profile_prefs->ClearPref(kLastPromptedGoogleURL);
  
@@ -7374,7 +7176,7 @@
  // static
 --- a/chrome/browser/content_settings/host_content_settings_map_factory.cc
 +++ b/chrome/browser/content_settings/host_content_settings_map_factory.cc
-@@ -45,6 +45,7 @@ HostContentSettingsMapFactory::HostConte
+@@ -47,6 +47,7 @@ HostContentSettingsMapFactory::HostConte
    DependsOn(SupervisedUserSettingsServiceFactory::GetInstance());
  #endif
  #if BUILDFLAG(ENABLE_EXTENSIONS)
@@ -7384,7 +7186,7 @@
  #endif
 --- a/chrome/browser/supervised_user/supervised_user_service_factory.cc
 +++ b/chrome/browser/supervised_user/supervised_user_service_factory.cc
-@@ -45,6 +45,7 @@ SupervisedUserServiceFactory::Supervised
+@@ -51,6 +51,7 @@ SupervisedUserServiceFactory::Supervised
          "SupervisedUserService",
          BrowserContextDependencyManager::GetInstance()) {
  #if BUILDFLAG(ENABLE_EXTENSIONS)
@@ -7394,7 +7196,7 @@
  #endif
 --- a/chrome/browser/sync/profile_sync_service_factory.cc
 +++ b/chrome/browser/sync/profile_sync_service_factory.cc
-@@ -171,9 +171,11 @@ ProfileSyncServiceFactory::ProfileSyncSe
+@@ -168,9 +168,11 @@ ProfileSyncServiceFactory::ProfileSyncSe
  #endif  // !defined(OS_ANDROID)
    DependsOn(WebDataServiceFactory::GetInstance());
  #if BUILDFLAG(ENABLE_EXTENSIONS)
@@ -7441,7 +7243,7 @@
    return true;
 --- a/third_party/skia/src/gpu/ops/GrSimpleMeshDrawOpHelper.cpp
 +++ b/third_party/skia/src/gpu/ops/GrSimpleMeshDrawOpHelper.cpp
-@@ -40,6 +40,7 @@ GrDrawOp::FixedFunctionFlags GrSimpleMes
+@@ -42,6 +42,7 @@ GrDrawOp::FixedFunctionFlags GrSimpleMes
  bool GrSimpleMeshDrawOpHelper::isCompatible(const GrSimpleMeshDrawOpHelper& that,
                                              const GrCaps& caps, const SkRect& thisBounds,
                                              const SkRect& thatBounds, bool ignoreAAType) const {
@@ -7451,7 +7253,7 @@
      }
 --- a/components/policy/resources/policy_templates.json
 +++ b/components/policy/resources/policy_templates.json
-@@ -3976,7 +3976,7 @@
+@@ -4082,7 +4082,7 @@
          'items': { 'type': 'string' },
          'id': 'ExtensionInstallSources',
        },
@@ -7460,7 +7262,7 @@
        'features': {
          'dynamic_refresh': True,
          'per_profile': True,
-@@ -4035,7 +4035,7 @@
+@@ -4141,7 +4141,7 @@
          },
          'id': 'ExtensionAllowedTypes',
        },
@@ -7469,7 +7271,7 @@
        'features': {
          'dynamic_refresh': True,
          'per_profile': True,
-@@ -4150,7 +4150,7 @@
+@@ -4256,7 +4256,7 @@
          },
        },
        'url_schema': 'https://www.ch40m1um.qjz9zk/administrators/policy-list-3/extension-settings-full',
@@ -7478,7 +7280,7 @@
        'features': {
          'dynamic_refresh': True,
          'per_profile': True,
-@@ -4327,7 +4327,7 @@
+@@ -4433,7 +4433,7 @@
            'caption': '''Disallow usage of the Developer Tools''',
          },
        ],
@@ -7489,7 +7291,7 @@
          'per_profile': True,
 --- a/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
 +++ b/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
-@@ -113,7 +113,7 @@
+@@ -117,7 +117,7 @@
  #include "chrome/browser/ui/webui/tab_strip/tab_strip_ui.h"
  #endif
  
@@ -7498,7 +7300,7 @@
  #include "chrome/browser/media/router/media_router_feature.h"
  #include "chrome/browser/ui/webui/management_ui.h"
  #include "chrome/browser/ui/webui/media_router/media_router_internals_ui.h"
-@@ -133,7 +133,7 @@
+@@ -137,7 +137,7 @@
  #if BUILDFLAG(ENABLE_FEED_IN_CHROME)
  #include "chrome/browser/ui/webui/feed_internals/feed_internals_ui.h"
  #endif  // BUILDFLAG(ENABLE_FEED_IN_CHROME)
@@ -7507,7 +7309,7 @@
  #include "chrome/browser/ui/webui/bookmarks/bookmarks_ui.h"
  #include "chrome/browser/ui/webui/devtools_ui.h"
  #include "chrome/browser/ui/webui/downloads/downloads_ui.h"
-@@ -207,7 +207,7 @@
+@@ -215,7 +215,7 @@
  #include "chrome/browser/ui/webui/app_launcher_page_ui.h"
  #endif
  
@@ -7516,7 +7318,7 @@
  #include "chrome/browser/ui/sync/sync_promo_ui.h"
  #include "chrome/browser/ui/webui/browser_switch/browser_switch_ui.h"
  #include "chrome/browser/ui/webui/signin/inline_login_ui.h"
-@@ -275,7 +275,7 @@ WebUIController* NewWebUI(WebUI* web_ui,
+@@ -283,7 +283,7 @@ WebUIController* NewWebUI(WebUI* web_ui,
    return new T(web_ui);
  }
  
@@ -7525,7 +7327,7 @@
  template <>
  WebUIController* NewWebUI<PageNotAvailableForGuestUI>(WebUI* web_ui,
                                                        const GURL& url) {
-@@ -322,7 +322,7 @@ WebUIController* NewWebUI<chromeos::mult
+@@ -343,7 +343,7 @@ WebUIController* NewWebUI<chromeos::mult
  }
  #endif
  
@@ -7534,7 +7336,7 @@
  template <>
  WebUIController* NewWebUI<WelcomeUI>(WebUI* web_ui, const GURL& url) {
    return new WelcomeUI(web_ui, url);
-@@ -440,7 +440,7 @@ WebUIFactoryFunction GetWebUIFactoryFunc
+@@ -461,7 +461,7 @@ WebUIFactoryFunction GetWebUIFactoryFunc
    if (url.host_piece() == chrome::kChromeUIVersionHost)
      return &NewWebUI<VersionUI>;
  
@@ -7543,7 +7345,7 @@
  #if !defined(OS_CHROMEOS)
    // AppLauncherPage is not needed on Android or ChromeOS.
    if (url.host_piece() == chrome::kChromeUIAppLauncherPageHost && profile &&
-@@ -630,7 +630,7 @@ WebUIFactoryFunction GetWebUIFactoryFunc
+@@ -655,7 +655,7 @@ WebUIFactoryFunction GetWebUIFactoryFunc
    }
    if (url.host_piece() == chrome::kChromeUIWebApksHost)
      return &NewWebUI<WebApksUI>;
@@ -7552,7 +7354,7 @@
    if (url.SchemeIs(content::kChromeDevToolsScheme)) {
      if (!DevToolsUIBindings::IsValidFrontendURL(url))
        return nullptr;
-@@ -646,7 +646,7 @@ WebUIFactoryFunction GetWebUIFactoryFunc
+@@ -671,7 +671,7 @@ WebUIFactoryFunction GetWebUIFactoryFunc
      return &NewWebUI<SyncConfirmationUI>;
    }
  #endif  // defined(OS_ANDROID)
@@ -7561,7 +7363,7 @@
    if (url.host_piece() == chrome::kChromeUIMdUserManagerHost)
      return &NewWebUI<UserManagerUI>;
    if (url.host_piece() == chrome::kChromeUISigninErrorHost &&
-@@ -930,7 +930,7 @@ base::RefCountedMemory* ChromeWebUIContr
+@@ -967,7 +967,7 @@ base::RefCountedMemory* ChromeWebUIContr
          .LoadDataResourceBytesForScale(IDR_HISTORY_FAVICON, scale_factor);
    }
  
@@ -7581,10 +7383,10 @@
  
    return path;
  }
-@@ -97,7 +97,7 @@ base::FilePath GetLegacyDefaultProfilePa
- } // namespace
+@@ -54,7 +54,7 @@ base::FilePath GetProfilePath(const base
  
- base::FilePath GetFirefoxProfilePath(const std::string& firefox_install_id) {
+ std::vector<FirefoxDetail> GetFirefoxDetails(
+     const std::string& firefox_install_id) {
 -  base::FilePath ini_file = GetProfilesINI();
 +  base::FilePath ini_file = base::FilePath();
    std::string content;
@@ -7592,7 +7394,7 @@
    DictionaryValueINIParser ini_parser;
 --- a/content/public/browser/content_browser_client.cc
 +++ b/content/public/browser/content_browser_client.cc
-@@ -850,7 +850,7 @@ void ContentBrowserClient::CreateWebUsbS
+@@ -857,7 +857,7 @@ void ContentBrowserClient::CreateWebUsbS
      RenderFrameHost* render_frame_host,
      mojo::PendingReceiver<blink::mojom::WebUsbService> receiver) {}
  
@@ -7603,7 +7405,7 @@
  }
 --- a/content/public/browser/content_browser_client.h
 +++ b/content/public/browser/content_browser_client.h
-@@ -1525,7 +1525,7 @@ class CONTENT_EXPORT ContentBrowserClien
+@@ -1527,7 +1527,7 @@ class CONTENT_EXPORT ContentBrowserClien
        RenderFrameHost* render_frame_host,
        mojo::PendingReceiver<blink::mojom::WebUsbService> receiver);
  
@@ -7685,7 +7487,7 @@
  }  // namespace settings
 --- a/services/network/network_context.cc
 +++ b/services/network/network_context.cc
-@@ -825,7 +825,6 @@ void NetworkContext::QueueReport(const s
+@@ -850,7 +850,6 @@ void NetworkContext::QueueReport(const s
  
  void NetworkContext::QueueSignedExchangeReport(
      mojom::SignedExchangeReportPtr report) {
@@ -7709,7 +7511,7 @@
  import androidx.annotation.VisibleForTesting;
  
  import org.chromium.base.ContentUriUtils;
-@@ -39,6 +42,8 @@ import org.chromium.ui.UiUtils;
+@@ -40,6 +43,8 @@ import org.chromium.ui.UiUtils;
  
  import java.io.File;
  import java.io.IOException;
@@ -7718,7 +7520,7 @@
  import java.util.ArrayList;
  import java.util.Arrays;
  import java.util.List;
-@@ -95,6 +100,7 @@ public class SelectFileDialog implements
+@@ -96,6 +101,7 @@ public class SelectFileDialog implements
  
      private final long mNativeSelectFileDialog;
      private List<String> mFileTypes;
@@ -7726,7 +7528,7 @@
      private boolean mCapture;
      private boolean mAllowMultiple;
      private Uri mCameraOutputUri;
-@@ -142,9 +148,10 @@ public class SelectFileDialog implements
+@@ -143,9 +149,10 @@ public class SelectFileDialog implements
      @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
      @CalledByNative
      private void selectFile(
@@ -7738,7 +7540,7 @@
          mAllowMultiple = multiple;
          mWindowAndroid = (sOverrideWindowAndroid == null) ? window : sOverrideWindowAndroid;
  
-@@ -236,6 +243,12 @@ public class SelectFileDialog implements
+@@ -237,6 +244,12 @@ public class SelectFileDialog implements
          RecordHistogram.recordEnumeratedHistogram("Android.SelectFileDialogScope",
                  determineSelectFileDialogScope(), SELECT_FILE_DIALOG_SCOPE_COUNT);
  
@@ -7751,7 +7553,7 @@
          boolean hasCameraPermission = mWindowAndroid.hasPermission(Manifest.permission.CAMERA);
          Intent camcorder = null;
          if (mSupportsVideoCapture && hasCameraPermission) {
-@@ -289,6 +302,9 @@ public class SelectFileDialog implements
+@@ -290,6 +303,9 @@ public class SelectFileDialog implements
              } else if (shouldShowAudioTypes()) {
                  if (soundRecorder != null) extraIntents.add(soundRecorder);
                  getContentIntent.setType(ALL_AUDIO_TYPES);
@@ -7761,7 +7563,7 @@
              }
  
              // If any types are specified, then only accept openable files, as coercing
-@@ -302,6 +318,7 @@ public class SelectFileDialog implements
+@@ -303,6 +319,7 @@ public class SelectFileDialog implements
              if (camera != null) extraIntents.add(camera);
              if (camcorder != null) extraIntents.add(camcorder);
              if (soundRecorder != null) extraIntents.add(soundRecorder);
@@ -7769,7 +7571,7 @@
          }
  
          Intent chooser = new Intent(Intent.ACTION_CHOOSER);
-@@ -697,6 +714,14 @@ public class SelectFileDialog implements
+@@ -701,6 +718,14 @@ public class SelectFileDialog implements
              String[] displayNames = new String[mUris.length];
              try {
                  for (int i = 0; i < mUris.length; i++) {
@@ -7784,7 +7586,7 @@
                      // The selected files must be returned as a list of absolute paths. A MIUI 8.5
                      // device was observed to return a file:// URI instead, so convert if necessary.
                      // See https://crbug.com/752834 for context.
-@@ -705,8 +730,13 @@ public class SelectFileDialog implements
+@@ -709,8 +734,13 @@ public class SelectFileDialog implements
                      } else {
                          mFilePaths[i] = mUris[i].toString();
                      }
@@ -7800,7 +7602,7 @@
                  }
              }  catch (SecurityException e) {
                  // Some third party apps will present themselves as being able
-@@ -803,4 +833,82 @@ public class SelectFileDialog implements
+@@ -807,4 +837,82 @@ public class SelectFileDialog implements
          void onContactsSelected(
                  long nativeSelectFileDialogImpl, SelectFileDialog caller, String contacts);
      }
@@ -7910,3 +7712,349 @@
  #else
    NOTREACHED();
    return std::string();
+--- a/chrome/browser/ui/webui/settings/settings_ui.cc
++++ b/chrome/browser/ui/webui/settings/settings_ui.cc
+@@ -192,7 +192,6 @@ SettingsUI::SettingsUI(content::WebUI* w
+   AddSettingsPageUIHandler(std::make_unique<ExtensionControlHandler>());
+   AddSettingsPageUIHandler(std::make_unique<FontHandler>(web_ui));
+   AddSettingsPageUIHandler(std::make_unique<ImportDataHandler>());
+-  AddSettingsPageUIHandler(std::make_unique<HatsHandler>());
+ 
+ #if defined(OS_WIN) || defined(OS_CHROMEOS)
+   AddSettingsPageUIHandler(std::make_unique<LanguagesHandler>(web_ui));
+@@ -438,13 +437,6 @@ void SettingsUI::AddSettingsPageUIHandle
+ }
+ 
+ void SettingsUI::TryShowHatsSurveyWithTimeout() {
+-  HatsService* hats_service =
+-      HatsServiceFactory::GetForProfile(Profile::FromWebUI(web_ui()),
+-                                        /* create_if_necessary = */ true);
+-  if (hats_service) {
+-    hats_service->LaunchDelayedSurveyForWebContents(
+-        kHatsSurveyTriggerSettings, web_ui()->GetWebContents(), 20000);
+-  }
+ }
+ 
+ }  // namespace settings
+--- a/components/page_info/page_info_ui.cc
++++ b/components/page_info/page_info_ui.cc
+@@ -28,7 +28,6 @@
+ #include "url/gurl.h"
+ #if defined(OS_ANDROID)
+ #include "components/resources/android/theme_resources.h"
+-#else
+ #include "media/base/media_switches.h"
+ #include "ui/gfx/color_palette.h"
+ #include "ui/gfx/color_utils.h"
+@@ -43,7 +42,7 @@ namespace {
+ 
+ const int kInvalidResourceID = -1;
+ 
+-#if !defined(OS_ANDROID)
++#if defined(OS_ANDROID)
+ // The icon size is actually 16, but the vector icons being used generally all
+ // have additional internal padding. Account for this difference by asking for
+ // the vectors in 18x18dip sizes.
+@@ -103,7 +102,7 @@ static_assert(base::size(kPermissionButt
+                   CONTENT_SETTING_NUM_SETTINGS,
+               "kPermissionButtonTextIDDefaultSetting array size is incorrect");
+ 
+-#if !defined(OS_ANDROID)
++#if defined(OS_ANDROID)
+ // The resource IDs for the strings that are displayed on the sound permission
+ // button if the sound permission setting is managed by the user.
+ const int kSoundPermissionButtonTextIDUserManaged[] = {
+@@ -169,7 +168,7 @@ base::span<const PermissionsUIInfo> GetC
+          ? IDS_PAGE_INFO_TYPE_SENSORS
+          : IDS_PAGE_INFO_TYPE_MOTION_SENSORS},
+     {ContentSettingsType::USB_GUARD, IDS_PAGE_INFO_TYPE_USB},
+-#if !defined(OS_ANDROID)
++#if defined(OS_ANDROID)
+     {ContentSettingsType::SERIAL_GUARD, IDS_PAGE_INFO_TYPE_SERIAL},
+ #endif
+     {ContentSettingsType::BLUETOOTH_GUARD, IDS_PAGE_INFO_TYPE_BLUETOOTH},
+@@ -541,7 +540,6 @@ int PageInfoUI::GetConnectionIconID(Page
+   }
+   return resource_id;
+ }
+-#else  // !defined(OS_ANDROID)
+ // static
+ const gfx::ImageSkia PageInfoUI::GetPermissionIcon(const PermissionInfo& info,
+                                                    SkColor related_text_color) {
+--- a/components/page_info/page_info_ui.h
++++ b/components/page_info/page_info_ui.h
+@@ -18,7 +18,7 @@
+ #include "components/safe_browsing/buildflags.h"
+ #include "ui/gfx/native_widget_types.h"
+ 
+-#if !defined(OS_ANDROID)
++#if defined(OS_ANDROID)
+ #include "ui/gfx/image/image_skia.h"
+ #endif
+ 
+@@ -201,7 +201,6 @@ class PageInfoUI {
+ 
+   // Returns the connection icon ID for the given connection |status|.
+   static int GetConnectionIconID(PageInfo::SiteConnectionStatus status);
+-#else  // !defined(OS_ANDROID)
+   // Returns icons for the given PermissionInfo |info|. If |info|'s current
+   // setting is CONTENT_SETTING_DEFAULT, it will return the icon for |info|'s
+   // default setting.
+--- a/chrome/browser/ui/passwords/settings/password_manager_presenter.h
++++ b/chrome/browser/ui/passwords/settings/password_manager_presenter.h
+@@ -92,7 +92,7 @@ class PasswordManagerPresenter
+   // Undoes the last saved password or exception removal.
+   void UndoRemoveSavedPasswordOrException();
+ 
+-#if !defined(OS_ANDROID)
++#if defined(OS_ANDROID)
+   // Requests to reveal the plain text password corresponding to |sort_key|. If
+   // |sort_key| is a valid key into |password_map_|, runs |callback| with the
+   // corresponding value, or nullopt otherwise.
+--- a/chrome/browser/ui/webui/omnibox/omnibox_ui.cc
++++ b/chrome/browser/ui/webui/omnibox/omnibox_ui.cc
+@@ -19,7 +19,7 @@
+ #include "content/public/browser/web_ui_controller.h"
+ #include "content/public/browser/web_ui_data_source.h"
+ 
+-#if !defined(OS_ANDROID)
++#if defined(OS_ANDROID)
+ #include "chrome/browser/ui/webui/omnibox/omnibox_popup_handler.h"
+ #endif
+ 
+@@ -48,7 +48,7 @@ OmniboxUI::OmniboxUI(content::WebUI* web
+       IDR_OMNIBOX_MOJO_JS);
+   source->SetDefaultResource(IDR_OMNIBOX_HTML);
+ 
+-#if !defined(OS_ANDROID)
++#if defined(OS_ANDROID)
+   if (base::FeatureList::IsEnabled(omnibox::kWebUIOmniboxPopup)) {
+     source->AddResourcePath("omnibox_popup.js", IDR_OMNIBOX_POPUP_JS);
+     source->AddResourcePath("omnibox_popup.html", IDR_OMNIBOX_POPUP_HTML);
+--- a/chrome/browser/ui/webui/omnibox/omnibox_ui.h
++++ b/chrome/browser/ui/webui/omnibox/omnibox_ui.h
+@@ -13,7 +13,7 @@
+ 
+ class OmniboxPageHandler;
+ 
+-#if !defined(OS_ANDROID)
++#if defined(OS_ANDROID)
+ class OmniboxPopupHandler;
+ #endif
+ 
+@@ -27,7 +27,7 @@ class OmniboxUI : public ui::MojoWebUICo
+   // interface passing the pending receiver that will be internally bound.
+   void BindInterface(mojo::PendingReceiver<mojom::OmniboxPageHandler> receiver);
+ 
+-#if !defined(OS_ANDROID)
++#if defined(OS_ANDROID)
+   // This is needed for the Views native UI to call into the WebUI code.
+   OmniboxPopupHandler* popup_handler() { return popup_handler_.get(); }
+ #endif
+@@ -35,7 +35,7 @@ class OmniboxUI : public ui::MojoWebUICo
+  private:
+   std::unique_ptr<OmniboxPageHandler> omnibox_handler_;
+ 
+-#if !defined(OS_ANDROID)
++#if defined(OS_ANDROID)
+   std::unique_ptr<OmniboxPopupHandler> popup_handler_;
+ #endif
+ 
+--- a/chrome/browser/ui/native_file_system_dialogs.cc
++++ b/chrome/browser/ui/native_file_system_dialogs.cc
+@@ -6,7 +6,7 @@
+ 
+ #include "components/permissions/permission_util.h"
+ 
+-#if !defined(TOOLKIT_VIEWS)
++#if defined(TOOLKIT_VIEWS)
+ void ShowNativeFileSystemPermissionDialog(
+     const NativeFileSystemPermissionRequestManager::RequestData& request,
+     base::OnceCallback<void(permissions::PermissionAction result)> callback,
+--- a/chrome/browser/ui/views/frame/browser_frame.cc
++++ b/chrome/browser/ui/views/frame/browser_frame.cc
+@@ -208,11 +208,6 @@ const ui::ThemeProvider* BrowserFrame::G
+ }
+ 
+ const ui::NativeTheme* BrowserFrame::GetNativeTheme() const {
+-  if (browser_view_->browser()->profile()->IsIncognitoProfile() &&
+-      ThemeServiceFactory::GetForProfile(browser_view_->browser()->profile())
+-          ->UsingDefaultTheme()) {
+-    return ui::NativeTheme::GetInstanceForDarkUI();
+-  }
+   return views::Widget::GetNativeTheme();
+ }
+ 
+--- a/chrome/browser/devtools/devtools_window.cc
++++ b/chrome/browser/devtools/devtools_window.cc
+@@ -1479,7 +1479,6 @@ void DevToolsWindow::ShowCertificateView
+   if (!FindInspectedBrowserAndTabIndex(inspected_contents, &browser, &tab))
+     return;
+   gfx::NativeWindow parent = browser->window()->GetNativeWindow();
+-  ::ShowCertificateViewer(inspected_contents, parent, cert.get());
+ }
+ 
+ void DevToolsWindow::OnLoadCompleted() {
+--- a/chrome/browser/ui/views/page_info/page_info_bubble_view.cc
++++ b/chrome/browser/ui/views/page_info/page_info_bubble_view.cc
+@@ -1009,7 +1009,6 @@ void PageInfoBubbleView::HandleMoreInfoR
+       if (certificate_ && top_window) {
+         presenter_->RecordPageInfoAction(
+             PageInfo::PAGE_INFO_CERTIFICATE_DIALOG_OPENED);
+-        ShowCertificateViewer(web_contents(), top_window, certificate_.get());
+       }
+       break;
+     }
+--- a/chrome/browser/web_applications/components/web_app_file_handler_registration.cc
++++ b/chrome/browser/web_applications/components/web_app_file_handler_registration.cc
+@@ -12,7 +12,7 @@ namespace web_app {
+ // This block defines stub implementations of OS specific methods for
+ // FileHandling. Currently, Windows, MacOSX and Desktop Linux (but not Chrome
+ // OS) have their own implementations.
+-#if defined(OS_CHROMEOS)
++#if defined(OS_ANDROID)
+ bool ShouldRegisterFileHandlersWithOs() {
+   return false;
+ }
+--- /dev/null
++++ b/chrome/browser/upgrade_detector/get_installed_version_android.cc
+@@ -0,0 +1,33 @@
++// Copyright 2020 The Chromium Authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++#include "chrome/browser/upgrade_detector/get_installed_version.h"
++
++#include <string>
++#include <utility>
++
++#include "base/command_line.h"
++#include "base/logging.h"
++#include "base/process/launch.h"
++#include "base/strings/string_util.h"
++#include "chrome/common/chrome_switches.h"
++
++// On Android, the Chrome binary may have been replaced by an update. Ask it to
++// report its version.
++InstalledAndCriticalVersion GetInstalledVersion() {
++  base::CommandLine command_line(*base::CommandLine::ForCurrentProcess());
++  command_line.AppendSwitch(switches::kProductVersion);
++  base::Version installed_version;
++  std::string reply;
++  if (base::GetAppOutput(command_line, &reply)) {
++    installed_version =
++        base::Version(base::TrimWhitespaceASCII(reply, base::TRIM_ALL));
++  }
++  // Failure may be a result of invoking a Chrome that predates the introduction
++  // of the --product-version switch in https://crrev.com/48795 (6.0.424.0).
++  DLOG_IF(ERROR, !installed_version.IsValid())
++      << "Failed to get current file version";
++
++  return InstalledAndCriticalVersion(std::move(installed_version));
++}
+--- a/chrome/browser/extensions/api/developer_private/developer_private_api.cc
++++ b/chrome/browser/extensions/api/developer_private/developer_private_api.cc
+@@ -1908,12 +1908,14 @@ ExtensionFunction::ResponseAction Develo
+     return RespondNow(Error(kNoOptionsPageForExtensionError));
+ 
+   content::WebContents* web_contents = GetSenderWebContents();
++
+   if (!web_contents)
+     return RespondNow(Error(kCouldNotFindWebContentsError));
+ 
+   ExtensionTabUtil::OpenOptionsPage(
+       extension,
+-      chrome::FindBrowserWithWebContents(web_contents));
++      web_contents);
++
+   return RespondNow(NoArguments());
+ }
+ 
+--- a/chrome/browser/extensions/extension_tab_util.cc
++++ b/chrome/browser/extensions/extension_tab_util.cc
+@@ -864,30 +864,28 @@ bool ExtensionTabUtil::OpenOptionsPageFr
+   // that's the only place it's running.
+   DCHECK(!profile->IsOffTheRecord() || IncognitoInfo::IsSplitMode(extension));
+   Browser* browser = chrome::FindBrowserWithProfile(profile);
++  LOG(ERROR) << "Cannot open new tab here";
+   if (!browser)
+     browser = Browser::Create(Browser::CreateParams(profile, true));
+   if (!browser)
+     return false;
+-  return extensions::ExtensionTabUtil::OpenOptionsPage(extension, browser);
++  return false;
+ }
+ 
+ bool ExtensionTabUtil::OpenOptionsPage(const Extension* extension,
+-                                       Browser* browser) {
++                                       content::WebContents* web_contents) {
+   if (!OptionsPageInfo::HasOptionsPage(extension))
+     return false;
+ 
++  LOG(WARNING) << "extension_tab_util.cc: OpenOptionsPage() entry";
++
+   // Force the options page to open in non-OTR window if the extension is not
+   // running in split mode, because it won't be able to save settings from OTR.
+   // This version of OpenOptionsPage() can be called from an OTR window via e.g.
+   // the action menu, since that's not initiated by the extension.
+-  std::unique_ptr<chrome::ScopedTabbedBrowserDisplayer> displayer;
+-  if (browser->profile()->IsOffTheRecord() &&
+-      !IncognitoInfo::IsSplitMode(extension)) {
+-    displayer.reset(new chrome::ScopedTabbedBrowserDisplayer(
+-        browser->profile()->GetOriginalProfile()));
+-    browser = displayer->browser();
+-  }
+ 
++  // Instead open in native browser, open a new tab through JNI bridge
++  // Incognito Mode not handled yet
+   GURL url_to_navigate;
+   bool open_in_tab = OptionsPageInfo::ShouldOpenInTab(extension);
+   if (open_in_tab) {
+@@ -904,17 +902,14 @@ bool ExtensionTabUtil::OpenOptionsPage(c
+     url_to_navigate = url_to_navigate.ReplaceComponents(replacements);
+   }
+ 
+-  NavigateParams params(
+-      GetSingletonTabNavigateParams(browser, url_to_navigate));
+-  // We need to respect path differences because we don't want opening the
+-  // options page to close a page that might be open to extension content.
+-  // However, if the options page opens inside the chrome://extensions page, we
+-  // can override an existing page.
+-  // Note: ref behavior is to ignore.
+-  params.path_behavior = open_in_tab ? NavigateParams::RESPECT
+-                                     : NavigateParams::IGNORE_AND_NAVIGATE;
+-  params.url = url_to_navigate;
+-  ShowSingletonTabOverwritingNTP(browser, std::move(params));
++  web_contents->OpenURL(
++      content::OpenURLParams(
++          url_to_navigate, content::Referrer(),
++          WindowOpenDisposition::NEW_FOREGROUND_TAB,
++          ui::PAGE_TRANSITION_LINK, false
++    ));
++
++  LOG(WARNING) << "extension_tab_util.cc: return";
+   return true;
+ }
+ 
+--- a/chrome/browser/extensions/extension_tab_util.h
++++ b/chrome/browser/extensions/extension_tab_util.h
+@@ -236,7 +236,7 @@ class ExtensionTabUtil {
+   // Open the extension's options page. Returns true if an options page was
+   // successfully opened (though it may not necessarily *load*, e.g. if the
+   // URL does not exist).
+-  static bool OpenOptionsPage(const Extension* extension, Browser* browser);
++  static bool OpenOptionsPage(const Extension* extension, content::WebContents* web_contents);
+ 
+   // Returns true if the given Browser can report tabs to extensions.
+   // Example of Browsers which don't support tabs include apps and devtools.
+--- a/chrome/browser/extensions/extension_context_menu_model.cc
++++ b/chrome/browser/extensions/extension_context_menu_model.cc
+@@ -327,7 +327,7 @@ void ExtensionContextMenuModel::ExecuteC
+     }
+     case OPTIONS:
+       DCHECK(OptionsPageInfo::HasOptionsPage(extension));
+-      ExtensionTabUtil::OpenOptionsPage(extension, browser_);
++      ExtensionTabUtil::OpenOptionsPage(extension, GetActiveWebContents());
+       break;
+     case TOGGLE_VISIBILITY: {
+       bool currently_visible = button_visibility_ == VISIBLE;

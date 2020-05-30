@@ -10,7 +10,7 @@ Subject: Add flag to disable WebGL
 
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -1605,6 +1605,9 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -1826,6 +1826,9 @@ const FeatureEntry kFeatureEntries[] = {
       flag_descriptions::kAccelerated2dCanvasName,
       flag_descriptions::kAccelerated2dCanvasDescription, kOsAll,
       SINGLE_DISABLE_VALUE_TYPE(switches::kDisableAccelerated2dCanvas)},
@@ -22,9 +22,9 @@ Subject: Add flag to disable WebGL
       SINGLE_VALUE_TYPE(cc::switches::kShowCompositedLayerBorders)},
 --- a/chrome/browser/flag_descriptions.cc
 +++ b/chrome/browser/flag_descriptions.cc
-@@ -414,6 +414,10 @@ const char kDevtoolsExperimentsDescripti
-     "Enables Developer Tools experiments. Use Settings panel in Developer "
-     "Tools to toggle individual experiments.";
+@@ -401,6 +401,10 @@ const char kDeviceDiscoveryNotifications
+ const char kDeviceDiscoveryNotificationsDescription[] =
+     "Device discovery notifications on local network.";
  
 +const char kDisableWebGLName[] = "Disable all versions of WebGL";
 +
@@ -35,9 +35,9 @@ Subject: Add flag to disable WebGL
      "With this flag on, tasks of the lowest priority will not be executed "
 --- a/chrome/browser/flag_descriptions.h
 +++ b/chrome/browser/flag_descriptions.h
-@@ -264,6 +264,9 @@ extern const char kDeviceDiscoveryNotifi
- extern const char kDevtoolsExperimentsName[];
- extern const char kDevtoolsExperimentsDescription[];
+@@ -255,6 +255,9 @@ extern const char kDebugShortcutsDescrip
+ extern const char kDeviceDiscoveryNotificationsName[];
+ extern const char kDeviceDiscoveryNotificationsDescription[];
  
 +extern const char kDisableWebGLName[];
 +extern const char kDisableWebGLDescription[];

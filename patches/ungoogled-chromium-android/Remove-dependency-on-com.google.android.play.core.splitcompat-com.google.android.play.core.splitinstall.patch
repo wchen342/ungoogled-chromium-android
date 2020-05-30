@@ -301,9 +301,9 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
 -import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus;
 -
  import org.chromium.base.ContextUtils;
- import org.chromium.base.metrics.CachedMetrics.EnumeratedHistogramSample;
  import org.chromium.base.metrics.RecordHistogram;
-@@ -55,19 +51,6 @@ public class SplitAvailabilityLogger {
+ 
+@@ -54,19 +50,6 @@ public class SplitAvailabilityLogger {
          requestedModules.addAll(prefs.getStringSet(DEFERRED_REQ_PREV, new HashSet<>()));
  
          Context context = ContextUtils.getApplicationContext();
@@ -323,7 +323,7 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
      }
  
      private static void recordAvailabilityStatus(String moduleName, int status) {
-@@ -82,14 +65,6 @@ public class SplitAvailabilityLogger {
+@@ -80,14 +63,6 @@ public class SplitAvailabilityLogger {
       * @param moduleName The module name.
       */
      public void logInstallTimes(String moduleName) {
@@ -338,7 +338,7 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
      }
  
      /**
-@@ -169,7 +144,7 @@ public class SplitAvailabilityLogger {
+@@ -167,7 +142,7 @@ public class SplitAvailabilityLogger {
  
          public InstallTimes(boolean isCached) {
              mIsCached = isCached;
@@ -355,7 +355,7 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
  
 -import com.google.android.play.core.splitinstall.model.SplitInstallErrorCode;
 -
- import org.chromium.base.metrics.CachedMetrics.EnumeratedHistogramSample;
+ import org.chromium.base.metrics.RecordHistogram;
  
  class SplitInstallFailureLogger {
 @@ -38,40 +36,7 @@ class SplitInstallFailureLogger {
@@ -423,7 +423,7 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
  
 -import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus;
 -
- import org.chromium.base.metrics.CachedMetrics.EnumeratedHistogramSample;
+ import org.chromium.base.metrics.RecordHistogram;
  
  class SplitInstallStatusLogger {
 @@ -28,32 +26,11 @@ class SplitInstallStatusLogger {

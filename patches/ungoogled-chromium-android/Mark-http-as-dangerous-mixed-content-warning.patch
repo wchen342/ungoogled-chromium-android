@@ -1,0 +1,31 @@
+From: Wengling Chen <feiyu2817@gmail.com>
+Date: Thu, 28 May 2020 01:13:08 -0400
+Subject: Enable legacy TLS warnings and mark-http-as-dangerous by default
+
+---
+ components/security_state/core/features.cc       |    2 +-
+ components/security_state/core/security_state.cc |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+--- a/components/security_state/core/features.cc
++++ b/components/security_state/core/features.cc
+@@ -16,7 +16,7 @@ const char kMarkHttpAsParameterWarningAn
+ const char kMarkHttpAsParameterDangerWarning[] = "danger-warning";
+ 
+ const base::Feature kLegacyTLSWarnings{"LegacyTLSWarnings",
+-                                       base::FEATURE_DISABLED_BY_DEFAULT};
++                                       base::FEATURE_ENABLED_BY_DEFAULT};
+ 
+ const base::Feature kSafetyTipUI{"SafetyTip",
+                                  base::FEATURE_DISABLED_BY_DEFAULT};
+--- a/components/security_state/core/security_state.cc
++++ b/components/security_state/core/security_state.cc
+@@ -42,7 +42,7 @@ SecurityLevel GetSecurityLevelForNonSecu
+ 
+   // Default to dangerous on editing form fields and otherwise
+   // warning.
+-  return input_events.insecure_field_edited ? DANGEROUS : WARNING;
++  return DANGEROUS;
+ }
+ 
+ SecurityLevel GetSecurityLevelForDisplayedMixedContent(bool suppress_warning) {

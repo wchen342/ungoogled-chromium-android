@@ -4,19 +4,21 @@ Subject: Remove dependency on com.google.android.gms.auth
 
 ---
  chrome/android/BUILD.gn                                                                                          |    1 
+ components/background_task_scheduler/BUILD.gn                                                                    |    1 
  components/signin/core/browser/android/BUILD.gn                                                                  |    1 
- components/signin/core/browser/android/java/src/org/chromium/components/signin/AccountIdProvider.java            |    7 -
- components/signin/core/browser/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java |   12 --
+ components/signin/core/browser/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java |   34 -------
  content/public/android/BUILD.gn                                                                                  |    1 
- content/public/android/java/src/org/chromium/content/browser/sms/SmsReceiver.java                                |   38 --------
- content/public/android/java/src/org/chromium/content/browser/sms/Wrappers.java                                   |   10 --
- third_party/android_deps/BUILD.gn                                                                                |   44 ----------
+ content/public/android/java/src/org/chromium/content/browser/sms/SmsUserConsentReceiver.java                     |   45 ---------
+ content/public/android/java/src/org/chromium/content/browser/sms/SmsVerificationReceiver.java                    |   34 -------
+ content/public/android/java/src/org/chromium/content/browser/sms/Wrappers.java                                   |   14 --
+ content/test/BUILD.gn                                                                                            |    1 
+ third_party/android_deps/BUILD.gn                                                                                |   47 ----------
  third_party/robolectric/BUILD.gn                                                                                 |    1 
- 9 files changed, 4 insertions(+), 111 deletions(-)
+ 11 files changed, 6 insertions(+), 174 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -222,7 +222,6 @@ android_library("chrome_java") {
+@@ -262,7 +262,6 @@ android_library("chrome_java") {
      ":partner_location_descriptor_proto_java",
      ":update_proto_java",
      ":usage_stats_proto_java",
@@ -34,25 +36,9 @@ Subject: Remove dependency on com.google.android.gms.auth
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
      "//base:base_java",
---- a/components/signin/core/browser/android/java/src/org/chromium/components/signin/AccountIdProvider.java
-+++ b/components/signin/core/browser/android/java/src/org/chromium/components/signin/AccountIdProvider.java
-@@ -48,12 +48,7 @@ public class AccountIdProvider {
-      * Google Play services is available.
-      */
-     public boolean canBeUsed() {
--        // TODO(http://crbug.com/577190): Remove StrictMode override.
--        try (StrictModeContext ignored = StrictModeContext.allowDiskWrites()) {
--            int resultCode = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(
--                    ContextUtils.getApplicationContext());
--            return resultCode == ConnectionResult.SUCCESS;
--        }
-+        return false;
-     }
- 
-     /**
 --- a/components/signin/core/browser/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java
 +++ b/components/signin/core/browser/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java
-@@ -82,17 +82,7 @@ public class SystemAccountManagerDelegat
+@@ -83,17 +83,7 @@ public class SystemAccountManagerDelegat
      }
  
      protected void checkCanUseGooglePlayServices() throws AccountManagerDelegateException {
@@ -71,9 +57,50 @@ Subject: Remove dependency on com.google.android.gms.auth
      }
  
      @Override
+@@ -127,15 +117,6 @@ public class SystemAccountManagerDelegat
+ 
+     @Override
+     public void invalidateAuthToken(String authToken) throws AuthException {
+-        try {
+-            GoogleAuthUtil.clearToken(ContextUtils.getApplicationContext(), authToken);
+-        } catch (GooglePlayServicesAvailabilityException ex) {
+-            throw new AuthException(AuthException.NONTRANSIENT, ex);
+-        } catch (GoogleAuthException ex) {
+-            throw new AuthException(AuthException.NONTRANSIENT, ex);
+-        } catch (IOException ex) {
+-            throw new AuthException(AuthException.TRANSIENT, ex);
+-        }
+     }
+ 
+     @Override
+@@ -214,22 +195,13 @@ public class SystemAccountManagerDelegat
+     @Nullable
+     @Override
+     public String getAccountGaiaId(String accountEmail) {
+-        try {
+-            return GoogleAuthUtil.getAccountId(ContextUtils.getApplicationContext(), accountEmail);
+-        } catch (IOException | GoogleAuthException ex) {
+-            Log.e(TAG, "SystemAccountManagerDelegate.getAccountGaiaId", ex);
+-            return null;
+-        }
++        return null;
+     }
+ 
+     @Override
+     public boolean isGooglePlayServicesAvailable() {
+         // TODO(http://crbug.com/577190): Remove StrictMode override.
+-        try (StrictModeContext ignored = StrictModeContext.allowDiskWrites()) {
+-            int resultCode = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(
+-                    ContextUtils.getApplicationContext());
+-            return resultCode == ConnectionResult.SUCCESS;
+-        }
++        return false;
+     }
+ 
+     protected boolean hasGetAccountsPermission() {
 --- a/content/public/android/BUILD.gn
 +++ b/content/public/android/BUILD.gn
-@@ -49,7 +49,6 @@ action("generate_sandboxed_service_srcja
+@@ -75,7 +75,6 @@ action("generate_sandboxed_service_srcja
  android_library("content_java") {
    deps = [
      ":content_java_resources",
@@ -81,89 +108,18 @@ Subject: Remove dependency on com.google.android.gms.auth
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
      "$google_play_services_package:google_play_services_tasks_java",
---- a/content/public/android/java/src/org/chromium/content/browser/sms/SmsReceiver.java
-+++ b/content/public/android/java/src/org/chromium/content/browser/sms/SmsReceiver.java
-@@ -11,11 +11,6 @@ import android.content.IntentFilter;
- 
- import androidx.annotation.VisibleForTesting;
- 
--import com.google.android.gms.auth.api.phone.SmsRetriever;
--import com.google.android.gms.common.api.CommonStatusCodes;
--import com.google.android.gms.common.api.Status;
--import com.google.android.gms.tasks.Task;
--
- import org.chromium.base.ContextUtils;
- import org.chromium.base.Log;
- import org.chromium.base.annotations.CalledByNative;
-@@ -52,7 +47,6 @@ public class SmsReceiver extends Broadca
-         // this registration expire after the SMS message is received.
-         if (DEBUG) Log.d(TAG, "Registering intent filters.");
-         IntentFilter filter = new IntentFilter();
--        filter.addAction(SmsRetriever.SMS_RETRIEVED_ACTION);
-         mContext.registerReceiver(this, filter);
-     }
- 
-@@ -77,49 +71,19 @@ public class SmsReceiver extends Broadca
-             return;
-         }
- 
--        if (!SmsRetriever.SMS_RETRIEVED_ACTION.equals(intent.getAction())) {
--            return;
--        }
--
-         if (intent.getExtras() == null) {
-             return;
-         }
- 
--        final Status status;
--
--        try {
--            status = (Status) intent.getParcelableExtra(SmsRetriever.EXTRA_STATUS);
--        } catch (Throwable e) {
--            if (DEBUG) Log.d(TAG, "Error getting parceable");
--            return;
--        }
--
--        switch (status.getStatusCode()) {
--            case CommonStatusCodes.SUCCESS:
--                String message = intent.getExtras().getString(SmsRetriever.EXTRA_SMS_MESSAGE);
--                if (DEBUG) Log.d(TAG, "Got message: %s!", message);
--                SmsReceiverJni.get().onReceive(mSmsProviderAndroid, message);
--                break;
--            case CommonStatusCodes.TIMEOUT:
--                if (DEBUG) Log.d(TAG, "Timeout");
--                SmsReceiverJni.get().onTimeout(mSmsProviderAndroid);
--                break;
--        }
-+        if (DEBUG) Log.d(TAG, "Error getting parceable");
-     }
- 
-     @CalledByNative
-     private void listen() {
--        Wrappers.SmsRetrieverClientWrapper client = getClient();
--        Task<Void> task = client.startSmsRetriever();
--
-         if (DEBUG) Log.d(TAG, "Installed task");
-     }
- 
-     private Wrappers.SmsRetrieverClientWrapper getClient() {
--        if (mClient != null) {
--            return mClient;
--        }
--        mClient = new Wrappers.SmsRetrieverClientWrapper(SmsRetriever.getClient(mContext));
-         return mClient;
-     }
- 
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -851,50 +851,6 @@ java_prebuilt("com_android_tools_build_j
+@@ -1134,53 +1134,6 @@ java_prebuilt("com_android_tools_build_j
  }
  
  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
 -android_aar_prebuilt("google_play_services_auth_java") {
--  aar_path = "libs/com_google_android_gms_play_services_auth/play-services-auth-15.0.1.aar"
+-  aar_path = "libs/com_google_android_gms_play_services_auth/play-services-auth-17.0.0.aar"
 -  info_path = "libs/com_google_android_gms_play_services_auth/com_google_android_gms_play_services_auth.info"
 -  deps = [
+-    ":androidx_fragment_fragment_java",
+-    ":androidx_loader_loader_java",
 -    ":google_play_services_auth_api_phone_java",
 -    ":google_play_services_auth_base_java",
 -    ":google_play_services_base_java",
@@ -177,7 +133,7 @@ Subject: Remove dependency on com.google.android.gms.auth
 -
 -# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
 -android_aar_prebuilt("google_play_services_auth_api_phone_java") {
--  aar_path = "libs/com_google_android_gms_play_services_auth_api_phone/play-services-auth-api-phone-15.0.1.aar"
+-  aar_path = "libs/com_google_android_gms_play_services_auth_api_phone/play-services-auth-api-phone-17.1.0.aar"
 -  info_path = "libs/com_google_android_gms_play_services_auth_api_phone/com_google_android_gms_play_services_auth_api_phone.info"
 -  deps = [
 -    ":google_play_services_base_java",
@@ -191,9 +147,10 @@ Subject: Remove dependency on com.google.android.gms.auth
 -
 -# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
 -android_aar_prebuilt("google_play_services_auth_base_java") {
--  aar_path = "libs/com_google_android_gms_play_services_auth_base/play-services-auth-base-15.0.1.aar"
+-  aar_path = "libs/com_google_android_gms_play_services_auth_base/play-services-auth-base-17.0.0.aar"
 -  info_path = "libs/com_google_android_gms_play_services_auth_base/com_google_android_gms_play_services_auth_base.info"
 -  deps = [
+-    ":androidx_collection_collection_java",
 -    ":google_play_services_base_java",
 -    ":google_play_services_basement_java",
 -    ":google_play_services_tasks_java",
@@ -205,11 +162,11 @@ Subject: Remove dependency on com.google.android.gms.auth
 -
 -# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
  android_aar_prebuilt("google_play_services_base_java") {
-   aar_path = "libs/com_google_android_gms_play_services_base/play-services-base-15.0.1.aar"
+   aar_path = "libs/com_google_android_gms_play_services_base/play-services-base-17.0.0.aar"
    info_path = "libs/com_google_android_gms_play_services_base/com_google_android_gms_play_services_base.info"
 --- a/third_party/robolectric/BUILD.gn
 +++ b/third_party/robolectric/BUILD.gn
-@@ -939,7 +939,6 @@ java_library("shadows_play_services_java
+@@ -1162,7 +1162,6 @@ java_library("shadows_play_services_java
      ":robolectric_shadowapi_java",
      ":robolectric_utils_java",
      ":shadows_core_java",
@@ -241,7 +198,7 @@ Subject: Remove dependency on com.google.android.gms.auth
          }
  
          public void setContext(SmsReceiverContext context) {
-@@ -35,10 +31,6 @@ class Wrappers {
+@@ -35,14 +31,6 @@ class Wrappers {
          public SmsReceiverContext getContext() {
              return mContext;
          }
@@ -249,6 +206,188 @@ Subject: Remove dependency on com.google.android.gms.auth
 -        public Task<Void> startSmsRetriever() {
 -            return mSmsRetrieverClient.startSmsRetriever();
 -        }
+-
+-        public Task<Void> startSmsUserConsent(String senderAddress) {
+-            return mSmsRetrieverClient.startSmsUserConsent(senderAddress);
+-        }
      }
  
      /**
+--- a/components/background_task_scheduler/BUILD.gn
++++ b/components/background_task_scheduler/BUILD.gn
+@@ -117,7 +117,6 @@ if (is_android) {
+     ]
+ 
+     deps = [
+-      "$google_play_services_package:google_play_services_auth_base_java",
+       "$google_play_services_package:google_play_services_base_java",
+       "$google_play_services_package:google_play_services_basement_java",
+       "$google_play_services_package:google_play_services_tasks_java",
+--- a/content/public/android/java/src/org/chromium/content/browser/sms/SmsUserConsentReceiver.java
++++ b/content/public/android/java/src/org/chromium/content/browser/sms/SmsUserConsentReceiver.java
+@@ -12,11 +12,6 @@ import android.content.IntentFilter;
+ 
+ import androidx.annotation.VisibleForTesting;
+ 
+-import com.google.android.gms.auth.api.phone.SmsRetriever;
+-import com.google.android.gms.common.api.CommonStatusCodes;
+-import com.google.android.gms.common.api.Status;
+-import com.google.android.gms.tasks.Task;
+-
+ import org.chromium.base.ContextUtils;
+ import org.chromium.base.Log;
+ import org.chromium.base.annotations.CalledByNative;
+@@ -55,7 +50,6 @@ public class SmsUserConsentReceiver exte
+         // this registration expire after the SMS message is received.
+         if (DEBUG) Log.d(TAG, "Registering intent filters.");
+         IntentFilter filter = new IntentFilter();
+-        filter.addAction(SmsRetriever.SMS_RETRIEVED_ACTION);
+         mContext.registerReceiver(this, filter);
+     }
+ 
+@@ -82,61 +76,24 @@ public class SmsUserConsentReceiver exte
+             return;
+         }
+ 
+-        if (!SmsRetriever.SMS_RETRIEVED_ACTION.equals(intent.getAction())) {
+-            return;
+-        }
+-
+         if (intent.getExtras() == null) {
+             return;
+         }
+ 
+-        final Status status;
+-
+-        try {
+-            status = (Status) intent.getParcelableExtra(SmsRetriever.EXTRA_STATUS);
+-        } catch (Throwable e) {
+-            if (DEBUG) Log.d(TAG, "Error getting parceable.");
+-            return;
+-        }
+-
+-        switch (status.getStatusCode()) {
+-            case CommonStatusCodes.SUCCESS:
+-                Intent consentIntent =
+-                        intent.getExtras().getParcelable(SmsRetriever.EXTRA_CONSENT_INTENT);
+-                try {
+-                    mWindowAndroid.showIntent(consentIntent,
+-                            (window, resultCode, data) -> onConsentResult(resultCode, data), null);
+-                } catch (android.content.ActivityNotFoundException e) {
+-                    if (DEBUG) Log.d(TAG, "Error starting activity for result.");
+-                }
+-                break;
+-            case CommonStatusCodes.TIMEOUT:
+-                if (DEBUG) Log.d(TAG, "Timeout");
+-                SmsUserConsentReceiverJni.get().onTimeout(mSmsProviderAndroid);
+-                break;
+-        }
+     }
+ 
+     void onConsentResult(int resultCode, Intent data) {
+-        if (resultCode == Activity.RESULT_OK) {
+-            String message = data.getStringExtra(SmsRetriever.EXTRA_SMS_MESSAGE);
+-            SmsUserConsentReceiverJni.get().onReceive(mSmsProviderAndroid, message);
+-        } else if (resultCode == Activity.RESULT_CANCELED) {
+             if (DEBUG) Log.d(TAG, "Activity result cancelled.");
+-        }
+     }
+ 
+     @CalledByNative
+     private void listen(WindowAndroid windowAndroid) {
+         mWindowAndroid = windowAndroid;
+-        Task<Void> task = getClient().startSmsUserConsent(null);
+         if (DEBUG) Log.d(TAG, "Installed task");
+     }
+ 
+     private Wrappers.SmsRetrieverClientWrapper getClient() {
+-        if (mClient != null) return mClient;
+-        mClient = new Wrappers.SmsRetrieverClientWrapper(SmsRetriever.getClient(mContext));
+-        return mClient;
++        return null;
+     }
+ 
+     @VisibleForTesting
+--- a/content/public/android/java/src/org/chromium/content/browser/sms/SmsVerificationReceiver.java
++++ b/content/public/android/java/src/org/chromium/content/browser/sms/SmsVerificationReceiver.java
+@@ -11,11 +11,6 @@ import android.content.IntentFilter;
+ 
+ import androidx.annotation.VisibleForTesting;
+ 
+-import com.google.android.gms.auth.api.phone.SmsRetriever;
+-import com.google.android.gms.common.api.CommonStatusCodes;
+-import com.google.android.gms.common.api.Status;
+-import com.google.android.gms.tasks.Task;
+-
+ import org.chromium.base.ContextUtils;
+ import org.chromium.base.Log;
+ import org.chromium.base.annotations.CalledByNative;
+@@ -52,7 +47,6 @@ public class SmsVerificationReceiver ext
+         // this registration expire after the SMS message is received.
+         if (DEBUG) Log.d(TAG, "Registering intent filters.");
+         IntentFilter filter = new IntentFilter();
+-        filter.addAction(SmsRetriever.SMS_RETRIEVED_ACTION);
+         mContext.registerReceiver(this, filter);
+     }
+ 
+@@ -77,40 +71,15 @@ public class SmsVerificationReceiver ext
+             return;
+         }
+ 
+-        if (!SmsRetriever.SMS_RETRIEVED_ACTION.equals(intent.getAction())) {
+-            return;
+-        }
+-
+         if (intent.getExtras() == null) {
+             return;
+         }
+ 
+-        final Status status;
+-
+-        try {
+-            status = (Status) intent.getParcelableExtra(SmsRetriever.EXTRA_STATUS);
+-        } catch (Throwable e) {
+-            if (DEBUG) Log.d(TAG, "Error getting parceable");
+-            return;
+-        }
+-
+-        switch (status.getStatusCode()) {
+-            case CommonStatusCodes.SUCCESS:
+-                String message = intent.getExtras().getString(SmsRetriever.EXTRA_SMS_MESSAGE);
+-                if (DEBUG) Log.d(TAG, "Got message: %s!", message);
+-                SmsVerificationReceiverJni.get().onReceive(mSmsProviderAndroid, message);
+-                break;
+-            case CommonStatusCodes.TIMEOUT:
+-                if (DEBUG) Log.d(TAG, "Timeout");
+-                SmsVerificationReceiverJni.get().onTimeout(mSmsProviderAndroid);
+-                break;
+-        }
+     }
+ 
+     @CalledByNative
+     private void listen() {
+         Wrappers.SmsRetrieverClientWrapper client = getClient();
+-        Task<Void> task = client.startSmsRetriever();
+ 
+         if (DEBUG) Log.d(TAG, "Installed task");
+     }
+@@ -119,8 +88,7 @@ public class SmsVerificationReceiver ext
+         if (mClient != null) {
+             return mClient;
+         }
+-        mClient = new Wrappers.SmsRetrieverClientWrapper(SmsRetriever.getClient(mContext));
+-        return mClient;
++        return null;
+     }
+ 
+     @VisibleForTesting
+--- a/content/test/BUILD.gn
++++ b/content/test/BUILD.gn
+@@ -2418,7 +2418,6 @@ if (is_android) {
+     testonly = true
+     sources = content_java_sources_needing_jni
+     deps = [
+-      "$google_play_services_package:google_play_services_auth_api_phone_java",
+       "$google_play_services_package:google_play_services_base_java",
+       "$google_play_services_package:google_play_services_basement_java",
+       "$google_play_services_package:google_play_services_tasks_java",

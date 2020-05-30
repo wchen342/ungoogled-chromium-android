@@ -4,6 +4,7 @@ disable_autofill_assistant_dfm=true
 disable_tab_ui_dfm=true
 enable_iterator_debugging=false
 enable_swiftshader=false
+exclude_unwind_tables=true
 fatal_linker_warnings=false
 is_component_build=false
 is_debug=false

@@ -5,29 +5,30 @@ Subject: Add new folder button to bookmark activity
 ---
  chrome/android/java/res/menu/bookmark_action_bar_menu.xml                                        |    7 +++
  chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkActionBar.java             |    6 ++
- chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkAddEditFolderActivity.java |   21 +++++++++-
- chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkFolderSelectActivity.java  |   15 +++++++
+ chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkAddEditFolderActivity.java |   21 ++++++++-
+ chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkBridge.java                |    5 +-
+ chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkFolderSelectActivity.java  |   22 +++++++++-
  chrome/browser/ui/android/strings/android_chrome_strings.grd                                     |    3 +
- 5 files changed, 50 insertions(+), 2 deletions(-)
+ 6 files changed, 59 insertions(+), 5 deletions(-)
 --- a/chrome/android/java/res/menu/bookmark_action_bar_menu.xml
 +++ b/chrome/android/java/res/menu/bookmark_action_bar_menu.xml
 @@ -15,6 +15,13 @@
              app:showAsAction="ifRoom"
-             app:iconTint="@color/standard_mode_tint" />
+             app:iconTint="@color/default_icon_color_tint_list" />
          <item
 +            android:id="@+id/add_folder_menu_id"
 +            android:icon="@drawable/ic_add_outline_white_24dp"
 +            android:title="@string/bookmark_action_bar_add_folder"
 +            android:visible="false"
 +            app:showAsAction="ifRoom"
-+            app:iconTint="@color/standard_mode_tint" />
++            app:iconTint="@color/default_icon_color_tint_list" />
 +        <item
              android:id="@+id/search_menu_id"
              android:icon="@drawable/ic_search"
              android:title="@string/search"
 --- a/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkActionBar.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkActionBar.java
-@@ -79,6 +79,9 @@ public class BookmarkActionBar extends S
+@@ -80,6 +80,9 @@ public class BookmarkActionBar extends S
          } else if (menuItem.getItemId() == R.id.close_menu_id) {
              BookmarkUtils.finishActivityOnPhone(getContext());
              return true;
@@ -37,7 +38,7 @@ Subject: Add new folder button to bookmark activity
          } else if (menuItem.getItemId() == R.id.search_menu_id) {
              mDelegate.openSearchUI();
              return true;
-@@ -135,6 +138,7 @@ public class BookmarkActionBar extends S
+@@ -136,6 +139,7 @@ public class BookmarkActionBar extends S
          setNavigationButton(NAVIGATION_BUTTON_NONE);
          getMenu().findItem(R.id.search_menu_id).setVisible(false);
          getMenu().findItem(R.id.edit_menu_id).setVisible(false);
@@ -45,7 +46,7 @@ Subject: Add new folder button to bookmark activity
      }
  
      @Override
-@@ -144,6 +148,7 @@ public class BookmarkActionBar extends S
+@@ -145,6 +149,7 @@ public class BookmarkActionBar extends S
          if (mDelegate == null) {
              getMenu().findItem(R.id.search_menu_id).setVisible(false);
              getMenu().findItem(R.id.edit_menu_id).setVisible(false);
@@ -53,7 +54,7 @@ Subject: Add new folder button to bookmark activity
          }
      }
  
-@@ -173,6 +178,7 @@ public class BookmarkActionBar extends S
+@@ -174,6 +179,7 @@ public class BookmarkActionBar extends S
          mCurrentFolder = mDelegate.getModel().getBookmarkById(folder);
  
          getMenu().findItem(R.id.search_menu_id).setVisible(true);
@@ -63,7 +64,7 @@ Subject: Add new folder button to bookmark activity
          // If this is the root folder, we can't go up anymore.
 --- a/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkAddEditFolderActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkAddEditFolderActivity.java
-@@ -34,12 +34,14 @@ import java.util.List;
+@@ -35,12 +35,14 @@ import java.util.List;
  public class BookmarkAddEditFolderActivity extends SynchronousInitializationActivity
          implements OnClickListener {
      static final String INTENT_IS_ADD_MODE = "BookmarkAddEditFolderActivity.isAddMode";
@@ -78,7 +79,7 @@ Subject: Add new folder button to bookmark activity
      private BookmarkId mParentId;
      private BookmarkModel mModel;
      private TextView mParentTextView;
-@@ -98,6 +100,17 @@ public class BookmarkAddEditFolderActivi
+@@ -99,6 +101,17 @@ public class BookmarkAddEditFolderActivi
      }
  
      /**
@@ -96,7 +97,7 @@ Subject: Add new folder button to bookmark activity
       * Starts an add folder activity. This method should only be called by
       * {@link BookmarkFolderSelectActivity}.
       */
-@@ -122,7 +135,9 @@ public class BookmarkAddEditFolderActivi
+@@ -123,7 +136,9 @@ public class BookmarkAddEditFolderActivi
          mModel = new BookmarkModel();
          mModel.addObserver(mBookmarkModelObserver);
          mIsAddMode = getIntent().getBooleanExtra(INTENT_IS_ADD_MODE, false);
@@ -107,7 +108,7 @@ Subject: Add new folder button to bookmark activity
              List<String> stringList = getIntent().getStringArrayListExtra(
                      BookmarkFolderSelectActivity.INTENT_BOOKMARKS_TO_MOVE);
              mBookmarksToMove = new ArrayList<>(stringList.size());
-@@ -171,7 +186,9 @@ public class BookmarkAddEditFolderActivi
+@@ -172,7 +187,9 @@ public class BookmarkAddEditFolderActivi
      public void onClick(View v) {
          assert v == mParentTextView;
  
@@ -120,7 +121,22 @@ Subject: Add new folder button to bookmark activity
          } else {
 --- a/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkFolderSelectActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkFolderSelectActivity.java
-@@ -97,6 +97,21 @@ public class BookmarkFolderSelectActivit
+@@ -52,11 +52,14 @@ public class BookmarkFolderSelectActivit
+     static final String
+             INTENT_IS_CREATING_FOLDER = "BookmarkFolderSelectActivity.isCreatingFolder";
+     static final String
++            INTENT_IS_SIMPLE_CREATING_FOLDER = "BookmarkFolderSelectActivity.isSimpleCreatingFolder";
++    static final String
+             INTENT_BOOKMARKS_TO_MOVE = "BookmarkFolderSelectActivity.bookmarksToMove";
+     static final int CREATE_FOLDER_REQUEST_CODE = 13;
+ 
+     private BookmarkModel mModel;
+     private boolean mIsCreatingFolder;
++    private boolean mIsSimpleCreatingFolder;
+     private List<BookmarkId> mBookmarksToMove;
+     private BookmarkId mParentId;
+     private FolderListAdapter mBookmarkIdsAdapter;
+@@ -99,6 +102,22 @@ public class BookmarkFolderSelectActivit
      }
  
      /**
@@ -131,6 +147,7 @@ Subject: Add new folder button to bookmark activity
 +            BookmarkAddEditFolderActivity activity, BookmarkId folderId) {
 +        Intent intent = new Intent(activity, BookmarkFolderSelectActivity.class);
 +        intent.putExtra(INTENT_IS_CREATING_FOLDER, true);
++        intent.putExtra(INTENT_IS_SIMPLE_CREATING_FOLDER, true);
 +        ArrayList<String> bookmarkStrings = new ArrayList<>(1);
 +        bookmarkStrings.add(folderId.toString());
 +        intent.putStringArrayListExtra(INTENT_BOOKMARKS_TO_MOVE, bookmarkStrings);
@@ -142,9 +159,26 @@ Subject: Add new folder button to bookmark activity
       * Starts a select folder activity for the new folder that is about to be created. This method
       * is only supposed to be called by {@link BookmarkAddEditFolderActivity}
       */
+@@ -149,6 +168,7 @@ public class BookmarkFolderSelectActivit
+         }
+ 
+         mIsCreatingFolder = getIntent().getBooleanExtra(INTENT_IS_CREATING_FOLDER, false);
++        mIsSimpleCreatingFolder = getIntent().getBooleanExtra(INTENT_IS_SIMPLE_CREATING_FOLDER, false);
+         if (mIsCreatingFolder) {
+             mParentId = mModel.getMobileFolderId();
+         } else {
+@@ -183,7 +203,7 @@ public class BookmarkFolderSelectActivit
+     private void updateFolderList() {
+         List<BookmarkId> folderList = new ArrayList<>();
+         List<Integer> depthList = new ArrayList<>();
+-        mModel.getMoveDestinations(folderList, depthList, mBookmarksToMove);
++        mModel.getMoveDestinations(folderList, depthList, mBookmarksToMove, mIsSimpleCreatingFolder);
+         List<FolderListEntry> entryList = new ArrayList<>(folderList.size() + 3);
+ 
+         if (!mIsCreatingFolder) {
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -2918,6 +2918,9 @@ To change this setting, <ph name="BEGIN_
+@@ -2940,6 +2940,9 @@ To change this setting, <ph name="BEGIN_
        <message name="IDS_BOOKMARK_ACTION_BAR_EDIT_FOLDER" desc="Button text for editing current folder action on the bookmark action bar [CHAR-LIMIT=32]">
          Edit folder
        </message>
@@ -154,3 +188,24 @@ Subject: Add new folder button to bookmark activity
        <message name="IDS_BOOKMARK_ACTION_BAR_MOVE" desc="Button text for bookmark move action on the bookmark action bar [CHAR-LIMIT=32]">
          Move bookmarks
        </message>
+--- a/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkBridge.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkBridge.java
+@@ -435,7 +435,8 @@ public class BookmarkBridge {
+      * moving some folders (a folder cannot be moved to its own children).
+      */
+     public void getMoveDestinations(List<BookmarkId> folderList,
+-            List<Integer> depthList, List<BookmarkId> bookmarksToMove) {
++            List<Integer> depthList, List<BookmarkId> bookmarksToMove,
++            boolean isSimpleCreatingFolder) {
+         ThreadUtils.assertOnUiThread();
+         assert mIsNativeBookmarkModelLoaded;
+         BookmarkBridgeJni.get().getAllFoldersWithDepths(
+@@ -460,7 +461,7 @@ public class BookmarkBridge {
+             // statement.
+             if (!shouldTrim) {
+                 BookmarkId folder = folderList.get(i);
+-                if (bookmarksToMove.contains(folder)) {
++                if (!isSimpleCreatingFolder && bookmarksToMove.contains(folder)) {
+                     shouldTrim = true;
+                     trimThreshold = depth;
+                     folderList.remove(i);

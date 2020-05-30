@@ -20,7 +20,7 @@ Subject: kill TOS and metrics opt-out
                          android:id="@+id/send_report_checkbox"
 --- a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivityBase.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivityBase.java
-@@ -38,7 +38,7 @@ public abstract class FirstRunActivityBa
+@@ -36,7 +36,7 @@ public abstract class FirstRunActivityBa
      static final String SHOW_SEARCH_ENGINE_PAGE = "ShowSearchEnginePage";
      static final String SHOW_SIGNIN_PAGE = "ShowSignIn";
  

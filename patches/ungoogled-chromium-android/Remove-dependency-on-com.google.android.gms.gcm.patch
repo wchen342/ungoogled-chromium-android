@@ -5,23 +5,23 @@ Subject: Remove dependency on com.google.android.gms.gcm
 It also disalbes Snippets, auto-update of offline pages and launching browser from background service.
 The snippets are already disabled in native codes, this will disable it on Java level.
 ---
- chrome/android/BUILD.gn                                                                                                                   |    3 
- chrome/android/java/src/org/chromium/chrome/browser/ChromeBackgroundService.java                                                          |   60 ------
- chrome/android/java/src/org/chromium/chrome/browser/ntp/snippets/SnippetsLauncher.java                                                    |    2 
- chrome/android/java/src/org/chromium/chrome/browser/services/gcm/ChromeGcmListenerService.java                                            |   57 ------
- components/background_task_scheduler/BUILD.gn                                                                                             |    3 
- components/background_task_scheduler/android/java/src/org/chromium/components/background_task_scheduler/BackgroundTaskGcmTaskService.java |   63 -------
- third_party/android_deps/BUILD.gn                                                                                                         |   15 -
- third_party/cacheinvalidation/BUILD.gn                                                                                                    |    1 
- third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/android2/AndroidManifestUpdatedGcm.xml                 |   20 --
- third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidGcmController.java                        |   42 ----
- third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidInstanceIDListenerService.java            |   13 -
- third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/GcmRegistrationTaskService.java                  |   89 ----------
- 12 files changed, 9 insertions(+), 359 deletions(-)
+ chrome/android/BUILD.gn                                                                                                        |    3 
+ chrome/android/java/src/org/chromium/chrome/browser/ChromeBackgroundService.java                                               |   60 ------
+ chrome/android/java/src/org/chromium/chrome/browser/ntp/snippets/SnippetsLauncher.java                                         |    2 
+ chrome/android/java/src/org/chromium/chrome/browser/services/gcm/ChromeGcmListenerService.java                                 |   57 ------
+ components/background_task_scheduler/BUILD.gn                                                                                  |    1 
+ components/background_task_scheduler/internal/BUILD.gn                                                                         |    2 
+ third_party/android_deps/BUILD.gn                                                                                              |   18 --
+ third_party/cacheinvalidation/BUILD.gn                                                                                         |    1 
+ third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/android2/AndroidManifestUpdatedGcm.xml      |   20 --
+ third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidGcmController.java             |   42 ----
+ third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidInstanceIDListenerService.java |   13 -
+ third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/GcmRegistrationTaskService.java       |   89 ----------
+ 12 files changed, 8 insertions(+), 300 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -228,7 +228,6 @@ android_library("chrome_java") {
+@@ -268,7 +268,6 @@ android_library("chrome_java") {
      "$google_play_services_package:google_play_services_cast_framework_java",
      "$google_play_services_package:google_play_services_cast_java",
      "$google_play_services_package:google_play_services_fido_java",
@@ -29,7 +29,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
      "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
      "$google_play_services_package:google_play_services_vision_common_java",
-@@ -747,7 +746,6 @@ android_library("chrome_test_java") {
+@@ -823,7 +822,6 @@ android_library("chrome_test_java") {
      "$google_play_services_package:google_play_services_cast_framework_java",
      "$google_play_services_package:google_play_services_cast_java",
      "$google_play_services_package:google_play_services_fido_java",
@@ -37,14 +37,14 @@ The snippets are already disabled in native codes, this will disable it on Java 
      "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
      "//base:base_java",
-@@ -1530,7 +1528,6 @@ android_library("browser_java_test_suppo
+@@ -1663,7 +1661,6 @@ android_library("browser_java_test_suppo
    ]
    deps = [
      ":chrome_java",
 -    "$google_play_services_package:google_play_services_gcm_java",
      "//base:base_java",
      "//base:base_java_test_support",
-     "//chrome/android/public/profiles:java",
+     "//chrome/browser/profiles/android:java",
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeBackgroundService.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeBackgroundService.java
 @@ -8,10 +8,6 @@ import android.content.Context;
@@ -230,126 +230,27 @@ The snippets are already disabled in native codes, this will disable it on Java 
      private static boolean isFullBrowserLoaded() {
 --- a/components/background_task_scheduler/BUILD.gn
 +++ b/components/background_task_scheduler/BUILD.gn
-@@ -54,7 +54,6 @@ if (is_android) {
-       ":scheduled_task_java",
-       "$google_play_services_package:google_play_services_base_java",
-       "$google_play_services_package:google_play_services_basement_java",
--      "$google_play_services_package:google_play_services_gcm_java",
-       "$google_play_services_package:google_play_services_tasks_java",
-       "//base:base_java",
-       "//content/public/android:content_java",
-@@ -78,7 +77,6 @@ if (is_android) {
-       ":background_task_scheduler_task_ids_java",
-       "$google_play_services_package:google_play_services_base_java",
-       "$google_play_services_package:google_play_services_basement_java",
--      "$google_play_services_package:google_play_services_gcm_java",
-       "$google_play_services_package:google_play_services_tasks_java",
-       "//base:base_java",
-       "//base:base_java_test_support",
-@@ -110,7 +108,6 @@ if (is_android) {
+@@ -120,7 +120,6 @@ if (is_android) {
        "$google_play_services_package:google_play_services_auth_base_java",
        "$google_play_services_package:google_play_services_base_java",
        "$google_play_services_package:google_play_services_basement_java",
 -      "$google_play_services_package:google_play_services_gcm_java",
        "$google_play_services_package:google_play_services_tasks_java",
-       "//base:base_java",
-       "//base:base_java_test_support",
---- a/components/background_task_scheduler/android/java/src/org/chromium/components/background_task_scheduler/BackgroundTaskGcmTaskService.java
-+++ b/components/background_task_scheduler/android/java/src/org/chromium/components/background_task_scheduler/BackgroundTaskGcmTaskService.java
-@@ -8,10 +8,6 @@ import android.os.Build;
- 
- import androidx.annotation.VisibleForTesting;
- 
--import com.google.android.gms.gcm.GcmNetworkManager;
--import com.google.android.gms.gcm.GcmTaskService;
--import com.google.android.gms.gcm.TaskParams;
--
- import org.chromium.base.ContextUtils;
- import org.chromium.base.Log;
- import org.chromium.base.ThreadUtils;
-@@ -21,7 +17,7 @@ import java.util.concurrent.TimeUnit;
- import java.util.concurrent.atomic.AtomicBoolean;
- 
- /** Delegates calls out to various tasks that need to run in the background. */
--public class BackgroundTaskGcmTaskService extends GcmTaskService {
-+public class BackgroundTaskGcmTaskService {
-     private static final String TAG = "BkgrdTaskGcmTS";
- 
-     private BackgroundTaskSchedulerGcmNetworkManager.Clock mClock = System::currentTimeMillis;
-@@ -91,63 +87,6 @@ public class BackgroundTaskGcmTaskServic
-     }
- 
-     @Override
--    public int onRunTask(TaskParams params) {
--        final TaskParameters taskParams =
--                BackgroundTaskSchedulerGcmNetworkManager.getTaskParametersFromTaskParams(params);
--
--        final BackgroundTask backgroundTask =
--                BackgroundTaskSchedulerFactory.getBackgroundTaskFromTaskId(taskParams.getTaskId());
--        if (backgroundTask == null) {
--            Log.w(TAG, "Failed to start task. Could not instantiate BackgroundTask class.");
--            // Cancel task if the BackgroundTask class is not found anymore. We assume this means
--            // that the task has been deprecated.
--            BackgroundTaskSchedulerFactory.getScheduler().cancel(
--                    ContextUtils.getApplicationContext(), taskParams.getTaskId());
--            return GcmNetworkManager.RESULT_FAILURE;
--        }
--
--        if (BackgroundTaskSchedulerGcmNetworkManager.didTaskExpire(
--                    params, mClock.currentTimeMillis())) {
--            BackgroundTaskSchedulerUma.getInstance().reportTaskExpired(taskParams.getTaskId());
--            return GcmNetworkManager.RESULT_FAILURE;
--        }
--
--        final Waiter waiter = new Waiter(Waiter.MAX_TIMEOUT_SECONDS);
--
--        final AtomicBoolean taskNeedsBackgroundProcessing = new AtomicBoolean();
--        ThreadUtils.runOnUiThreadBlocking(new Runnable() {
--            @Override
--            public void run() {
--                BackgroundTaskSchedulerUma.getInstance().reportTaskStarted(taskParams.getTaskId());
--                taskNeedsBackgroundProcessing.set(
--                        backgroundTask.onStartTask(ContextUtils.getApplicationContext(), taskParams,
--                                new TaskFinishedCallbackGcmTaskService(waiter)));
--            }
--        });
--
--        if (!taskNeedsBackgroundProcessing.get()) return GcmNetworkManager.RESULT_SUCCESS;
--
--        waiter.startWaiting();
--
--        if (waiter.isRescheduleNeeded()) return GcmNetworkManager.RESULT_RESCHEDULE;
--        if (!waiter.hasTaskTimedOut()) return GcmNetworkManager.RESULT_SUCCESS;
--
--        final AtomicBoolean taskNeedsRescheduling = new AtomicBoolean();
--        ThreadUtils.runOnUiThreadBlocking(new Runnable() {
--            @Override
--            public void run() {
--                BackgroundTaskSchedulerUma.getInstance().reportTaskStopped(taskParams.getTaskId());
--                taskNeedsRescheduling.set(backgroundTask.onStopTask(
--                        ContextUtils.getApplicationContext(), taskParams));
--            }
--        });
--
--        if (taskNeedsRescheduling.get()) return GcmNetworkManager.RESULT_RESCHEDULE;
--
--        return GcmNetworkManager.RESULT_SUCCESS;
--    }
--
--    @Override
-     public void onInitializeTasks() {
-         // Ignore the event on OSs supporting JobScheduler.
-         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) return;
+       "internal:internal_java",
+       "internal:proto_java",
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -966,21 +966,6 @@ android_aar_prebuilt("google_play_servic
+@@ -1265,24 +1265,6 @@ android_aar_prebuilt("google_play_servic
  }
  
  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
 -android_aar_prebuilt("google_play_services_gcm_java") {
--  aar_path = "libs/com_google_android_gms_play_services_gcm/play-services-gcm-15.0.1.aar"
+-  aar_path = "libs/com_google_android_gms_play_services_gcm/play-services-gcm-17.0.0.aar"
 -  info_path = "libs/com_google_android_gms_play_services_gcm/com_google_android_gms_play_services_gcm.info"
 -  deps = [
+-    ":androidx_collection_collection_java",
+-    ":androidx_core_core_java",
+-    ":androidx_legacy_legacy_support_core_utils_java",
 -    ":google_play_services_base_java",
 -    ":google_play_services_basement_java",
 -    ":google_play_services_iid_java",
@@ -362,7 +263,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
 -
 -# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
  android_aar_prebuilt("google_play_services_iid_java") {
-   aar_path = "libs/com_google_android_gms_play_services_iid/play-services-iid-15.0.1.aar"
+   aar_path = "libs/com_google_android_gms_play_services_iid/play-services-iid-17.0.0.aar"
    info_path = "libs/com_google_android_gms_play_services_iid/com_google_android_gms_play_services_iid.info"
 --- a/third_party/cacheinvalidation/BUILD.gn
 +++ b/third_party/cacheinvalidation/BUILD.gn
@@ -619,3 +520,21 @@ The snippets are already disabled in native codes, this will disable it on Java 
 -    }
 -  }
  }
+--- a/components/background_task_scheduler/internal/BUILD.gn
++++ b/components/background_task_scheduler/internal/BUILD.gn
+@@ -29,7 +29,6 @@ if (is_android) {
+       ":proto_java",
+       "$google_play_services_package:google_play_services_base_java",
+       "$google_play_services_package:google_play_services_basement_java",
+-      "$google_play_services_package:google_play_services_gcm_java",
+       "$google_play_services_package:google_play_services_tasks_java",
+       "//base:base_java",
+       "//components/background_task_scheduler:background_task_scheduler_task_ids_java",
+@@ -100,7 +99,6 @@ if (is_android) {
+       ":internal_java",
+       "$google_play_services_package:google_play_services_base_java",
+       "$google_play_services_package:google_play_services_basement_java",
+-      "$google_play_services_package:google_play_services_gcm_java",
+       "$google_play_services_package:google_play_services_tasks_java",
+       "//base:base_java",
+       "//base:base_java_test_support",

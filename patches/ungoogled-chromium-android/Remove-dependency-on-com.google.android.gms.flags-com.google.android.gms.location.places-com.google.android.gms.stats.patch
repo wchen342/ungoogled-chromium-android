@@ -4,17 +4,17 @@ Subject: Remove dependency on com.google.android.gms.flags,
  com.google.android.gms.location.places, com.google.android.gms.stats
 
 ---
- third_party/android_deps/BUILD.gn |   45 --------------------------------------
- 1 file changed, 45 deletions(-)
+ third_party/android_deps/BUILD.gn |   48 --------------------------------------
+ 1 file changed, 48 deletions(-)
 
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -1619,51 +1619,6 @@ java_prebuilt("com_github_kevinstern_sof
+@@ -1951,54 +1951,6 @@ java_prebuilt("com_github_kevinstern_sof
  }
  
  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
 -android_aar_prebuilt("google_play_services_flags_java") {
--  aar_path = "libs/com_google_android_gms_play_services_flags/play-services-flags-15.0.1.aar"
+-  aar_path = "libs/com_google_android_gms_play_services_flags/play-services-flags-17.0.0.aar"
 -  info_path = "libs/com_google_android_gms_play_services_flags/com_google_android_gms_play_services_flags.info"
 -
 -  # To remove visibility constraint, add this dependency to
@@ -31,7 +31,7 @@ Subject: Remove dependency on com.google.android.gms.flags,
 -
 -# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
 -android_aar_prebuilt("google_play_services_places_placereport_java") {
--  aar_path = "libs/com_google_android_gms_play_services_places_placereport/play-services-places-placereport-15.0.1.aar"
+-  aar_path = "libs/com_google_android_gms_play_services_places_placereport/play-services-places-placereport-17.0.0.aar"
 -  info_path = "libs/com_google_android_gms_play_services_places_placereport/com_google_android_gms_play_services_places_placereport.info"
 -
 -  # To remove visibility constraint, add this dependency to
@@ -45,13 +45,16 @@ Subject: Remove dependency on com.google.android.gms.flags,
 -
 -# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
 -android_aar_prebuilt("google_play_services_stats_java") {
--  aar_path = "libs/com_google_android_gms_play_services_stats/play-services-stats-15.0.1.aar"
+-  aar_path = "libs/com_google_android_gms_play_services_stats/play-services-stats-17.0.0.aar"
 -  info_path = "libs/com_google_android_gms_play_services_stats/com_google_android_gms_play_services_stats.info"
 -
 -  # To remove visibility constraint, add this dependency to
 -  # //third_party/android_deps/build.gradle.
 -  visibility = [ ":*" ]
--  deps = [ ":google_play_services_basement_java" ]
+-  deps = [
+-    ":androidx_legacy_legacy_support_core_utils_java",
+-    ":google_play_services_basement_java",
+-  ]
 -
 -  # Removing drawables from GMS .aars as they are unused bloat.
 -  strip_drawables = true

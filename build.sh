@@ -8,7 +8,7 @@ chrome_target=chrome_public_apk
 mono_target=monochrome_public_apk
 webview_target=system_webview_apk
 
-chromium_version=81.0.4044.138
+chromium_version=83.0.4103.61
 ungoogled_chromium_revision=1
 
 # Argument parser from https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash/29754866#29754866
@@ -195,6 +195,7 @@ mkdir platforms
 ln -s ../../../../../android-sdk/${SDK_DIR}/platforms/android-10 platforms/android-29
 ln -s ../../../../android-sdk/${SDK_DIR}/platform-tools platform-tools
 ln -s ../../../../android-sdk/${SDK_DIR}/tools tools
+#TODO: Regression: third_party/android_sdk/public/cmdline-tools doesn't yet have a rebuilt counterpart, so the folder needs to be copied manually from the synced source
 popd
 
 # remove ndk folders
@@ -275,6 +276,11 @@ export AR=${AR:=llvm-ar}
 export NM=${NM:=llvm-nm}
 export CC=${CC:=clang}
 export CXX=${CXX:=clang++}
+
+# Link to system clang tools
+pushd src/buildtools/linux64
+ln -s /usr/bin/clang-format
+popd
 
 ## Build
 pushd src
