@@ -79,7 +79,7 @@ To install extensions:
 
 I have set up an experimental f-droid repository. Because of the limitation of its server tools, only arm64 version is hosted.
 
-You can use f-Droid client and add [this repository](https://www.droidware.info/fdroid/repo).
+You can use f-Droid client and add [this repository](https://www.droidware.info/fdroid/repo?fingerprint=2144449AB1DD270EC31B6087409B5D0EA39A75A9F290DA62AC1B238A0EAAF851).
 
 
 ## Credits
