@@ -1,3 +1,7 @@
+From: Wengling Chen <feiyu2817@gmail.com>
+Date: Sat, 30 May 2020 18:25:38 -0400
+Subject: source code fixes for enable_extensions=true
+
 ---
  android_webview/browser/aw_browser_context.cc                                                      |    6 
  android_webview/browser/aw_browser_context.h                                                       |    2 
@@ -8058,3 +8062,13 @@
        break;
      case TOGGLE_VISIBILITY: {
        bool currently_visible = button_visibility_ == VISIBLE;
+--- a/chrome/browser/ui/webui/settings/people_handler.cc
++++ b/chrome/browser/ui/webui/settings/people_handler.cc
+@@ -711,7 +711,6 @@ void PeopleHandler::HandleSignout(const
+ }
+ 
+ void PeopleHandler::HandlePauseSync(const base::ListValue* args) {
+-  DCHECK(AccountConsistencyModeManager::IsDiceEnabledForProfile(profile_));
+   auto* identity_manager = IdentityManagerFactory::GetForProfile(profile_);
+   DCHECK(identity_manager->HasPrimaryAccount());
+ 

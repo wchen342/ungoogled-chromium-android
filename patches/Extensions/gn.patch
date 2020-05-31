@@ -1,3 +1,7 @@
+From: Wengling Chen <feiyu2817@gmail.com>
+Date: Sat, 30 May 2020 18:25:38 -0400
+Subject: gn fixes for enable_extensions=true
+
 ---
  apps/BUILD.gn                                                        |    2 
  build/config/locales.gni                                             |    2 

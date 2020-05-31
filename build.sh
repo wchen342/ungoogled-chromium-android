@@ -266,7 +266,9 @@ else
     cat ../android_flags.gn ../android_flags.debug.gn > out/Default/args.gn
 fi
 printf '\ntarget_cpu="'"$ARCH"'"\n' >> out/Default/args.gn
-printf '\nenable_extensions=true\n' >> out/Default/args.gn
+# Only used for extensions
+#printf '\nenable_extensions=true\n' >> out/Default/args.gn
+#printf '\nenable_supervised_users=false\n' >> out/Default/args.gn
 gn gen out/Default --fail-on-unused-args
 popd
 

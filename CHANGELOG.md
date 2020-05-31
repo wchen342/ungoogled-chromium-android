@@ -1,3 +1,11 @@
+# 83.0.4103.61-1
+* Add extension-support version
+  * This version is highly experimental and is not intended for daily usage yet! See [README#Extensions](https://github.com/wchen342/ungoogled-chromium-android#extensions)
+  * Extension removal is not implemented yet
+  * The package will have a name `org.ungoogled.chromium.extensions`
+* Resolve [#20](https://github.com/wchen342/ungoogled-chromium-android/issues/20), [#23](https://github.com/wchen342/ungoogled-chromium-android/issues/23)
+* Partially resolve [#19](https://github.com/wchen342/ungoogled-chromium-android/issues/19), [#21](https://github.com/wchen342/ungoogled-chromium-android/issues/21)
+
 # 81.0.4044.138-1
 * Fix a crash with incognito tab
 * Minor fix for extension patches. From next release, `chrome`/`arm` target will include a beta version with extension support.

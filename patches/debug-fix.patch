@@ -3,24 +3,21 @@ Date: Tue, 26 May 2020 22:31:34 -0400
 Subject: Remove DCHECK and other lines causing Debug builds to fail
 
 ---
- build/android/gyp/compile_java.py                                                   |    2 
- build/config/compiler/BUILD.gn                                                      |    7 --
- cc/trees/layer_tree_host_impl.cc                                                    |    3 
- chrome/browser/extensions/api/developer_private/developer_private_api.cc            |    4 -
- chrome/browser/extensions/extension_context_menu_model.cc                           |    2 
- chrome/browser/extensions/extension_tab_util.cc                                     |   35 ++++------
- chrome/browser/extensions/extension_tab_util.h                                      |    2 
- chrome/browser/ui/webui/settings/people_handler.cc                                  |    1 
- components/omnibox/browser/autocomplete_controller.cc                               |    3 
- components/omnibox/browser/autocomplete_match.cc                                    |   10 --
- components/omnibox/browser/autocomplete_result.cc                                   |    7 --
- components/omnibox/browser/shortcuts_backend.cc                                     |    3 
- components/policy/core/browser/configuration_policy_handler.cc                      |    1 
- components/signin/internal/identity_manager/primary_account_manager.cc              |   12 ---
- components/signin/internal/identity_manager/profile_oauth2_token_service_builder.cc |    1 
- content/common/input/input_event_stream_validator.cc                                |    3 
- services/network/network_context.cc                                                 |    1 
- 17 files changed, 23 insertions(+), 74 deletions(-)
+ build/android/gyp/compile_java.py                                                          |    2 -
+ build/config/compiler/BUILD.gn                                                             |    7 +----
+ cc/trees/layer_tree_host_impl.cc                                                           |    3 --
+ chrome/android/BUILD.gn                                                                    |    1 
+ chrome/android/java/src/org/chromium/chrome/browser/childaccounts/ChildAccountService.java |   14 ----------
+ components/omnibox/browser/autocomplete_controller.cc                                      |    3 --
+ components/omnibox/browser/autocomplete_match.cc                                           |   10 -------
+ components/omnibox/browser/autocomplete_result.cc                                          |    7 -----
+ components/omnibox/browser/shortcuts_backend.cc                                            |    3 --
+ components/policy/core/browser/configuration_policy_handler.cc                             |    1 
+ components/signin/internal/identity_manager/primary_account_manager.cc                     |   12 --------
+ components/signin/internal/identity_manager/profile_oauth2_token_service_builder.cc        |    1 
+ content/common/input/input_event_stream_validator.cc                                       |    3 --
+ services/network/network_context.cc                                                        |    1 
+ 14 files changed, 3 insertions(+), 65 deletions(-)
 
 --- a/components/signin/internal/identity_manager/primary_account_manager.cc
 +++ b/components/signin/internal/identity_manager/primary_account_manager.cc
@@ -111,16 +108,6 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  #endif
  
    return std::make_unique<ProfileOAuth2TokenService>(
---- a/chrome/browser/ui/webui/settings/people_handler.cc
-+++ b/chrome/browser/ui/webui/settings/people_handler.cc
-@@ -711,7 +711,6 @@ void PeopleHandler::HandleSignout(const
- }
- 
- void PeopleHandler::HandlePauseSync(const base::ListValue* args) {
--  DCHECK(AccountConsistencyModeManager::IsDiceEnabledForProfile(profile_));
-   auto* identity_manager = IdentityManagerFactory::GetForProfile(profile_);
-   DCHECK(identity_manager->HasPrimaryAccount());
- 
 --- a/components/omnibox/browser/autocomplete_match.cc
 +++ b/components/omnibox/browser/autocomplete_match.cc
 @@ -1213,16 +1213,6 @@ void AutocompleteMatch::TryAutocompleteW

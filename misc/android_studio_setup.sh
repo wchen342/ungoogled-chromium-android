@@ -56,7 +56,7 @@ pushd src
 output_folder=out/Debug_apk
 mkdir -p ${output_folder}
 cat ../android_flags.debug.gn ../android_flags.gn > ${output_folder}/args.gn
-printf '\ntarget_cpu="arm64"\n' >> ${output_folder}/args.gn
+printf '\ntarget_cpu="arm"\n' >> ${output_folder}/args.gn
 popd
 
 # Run gn first

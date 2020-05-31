@@ -8,7 +8,6 @@ clang_base_path="/usr"
 disable_android_lint=true
 enable_gvr_services=false
 enable_resource_whitelist_generation=false
-enable_supervised_users=false
 ffmpeg_branding="Chrome"
 is_clang=true
 rtc_build_examples=false
