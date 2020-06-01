@@ -70,14 +70,16 @@ Currently only `Android 5.1+` is supported. More will come in the future.
 
 To install extensions:
 1. Download extension following the instructions [here](https://ungoogled-software.github.io/ungoogled-chromium-wiki/faq#downloading-the-crx-file).
-2. Extract the `crx` file into a folder with`unzip`/`7z` and copy the folder to your device. Make sure you have read access to that folder.
+2. Extract the `crx` file into a folder with`unzip`/`7z` and copy the folder to your device.
+3. Notice for Android 10: as a workaround for a [permission issue](https://github.com/wchen342/ungoogled-chromium-android/issues/27), you need to enable "Allow from unknown source" for `Ungoogled Chromium Extensions".
+4. Make sure you also give storage access.
 3. Open "chrome://extensions/" and enable Developer mode, refresh.
 4. Click `Load unpacked` and select the folder you copied. Notice that Android has two file selections, one for selecting files and one for selecting folders. Make sure you use the right one.
 5. Refresh and you shall see the extension in the list.
 
 ## F-droid Repository
 
-I have set up an experimental f-droid repository. Because of the limitation of its server tools, only arm64 version is hosted.
+I have set up an experimental f-droid repository. Because of the limitation of its server tools, only the `arm` version is hosted.
 
 You can use f-Droid client and add [this repository](https://www.droidware.info/fdroid/repo?fingerprint=2144449AB1DD270EC31B6087409B5D0EA39A75A9F290DA62AC1B238A0EAAF851).
 
