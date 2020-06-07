@@ -1,13 +1,12 @@
-blink_symbol_level=0
+blink_symbol_level=1
 dfmify_dev_ui=false
 disable_autofill_assistant_dfm=true
 disable_tab_ui_dfm=true
 enable_iterator_debugging=false
 enable_swiftshader=false
-exclude_unwind_tables=true
 fatal_linker_warnings=false
 is_component_build=false
 is_debug=false
 is_official_build=true
 proprietary_codecs=true
-symbol_level=0
+symbol_level=1

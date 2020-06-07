@@ -8,7 +8,7 @@ Subject: Ignore assertion error on aidl.srcjar
 
 diff --git a/src/build/android/gyp/javac b/src/build/android/gyp/javac
 --- a/src/build/android/gyp/javac
-+++ b/src/build/android/gyp/javac
++++ b/src/build/android/gyp/javac.py
 @@ -236,7 +236,7 @@ def _ProcessInfo(java_file, package_name, class_names, source, chromium_code):
    for class_name in class_names:
      yield '{}.{}'.format(package_name, class_name)

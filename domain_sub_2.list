@@ -5872,6 +5872,7 @@
 ./ui/android/delegated_frame_host_android.cc
 ./ui/android/edge_effect.cc
 ./ui/android/edge_effect_l.cc
+./ui/android/java/src/org/chromium/ui/base/Clipboard.java
 ./ui/android/overscroll_glow.cc
 ./ui/android/window_android.cc
 ./ui/aura_extra/BUILD.gn

@@ -3,21 +3,19 @@ Date: Tue, 26 May 2020 22:31:34 -0400
 Subject: Remove DCHECK and other lines causing Debug builds to fail
 
 ---
- build/android/gyp/compile_java.py                                                          |    2 -
- build/config/compiler/BUILD.gn                                                             |    7 +----
- cc/trees/layer_tree_host_impl.cc                                                           |    3 --
- chrome/android/BUILD.gn                                                                    |    1 
- chrome/android/java/src/org/chromium/chrome/browser/childaccounts/ChildAccountService.java |   14 ----------
- components/omnibox/browser/autocomplete_controller.cc                                      |    3 --
- components/omnibox/browser/autocomplete_match.cc                                           |   10 -------
- components/omnibox/browser/autocomplete_result.cc                                          |    7 -----
- components/omnibox/browser/shortcuts_backend.cc                                            |    3 --
- components/policy/core/browser/configuration_policy_handler.cc                             |    1 
- components/signin/internal/identity_manager/primary_account_manager.cc                     |   12 --------
- components/signin/internal/identity_manager/profile_oauth2_token_service_builder.cc        |    1 
- content/common/input/input_event_stream_validator.cc                                       |    3 --
- services/network/network_context.cc                                                        |    1 
- 14 files changed, 3 insertions(+), 65 deletions(-)
+ build/android/gyp/compile_java.py                                                   |    2 -
+ build/config/compiler/BUILD.gn                                                      |    7 +----
+ cc/trees/layer_tree_host_impl.cc                                                    |    3 --
+ components/omnibox/browser/autocomplete_controller.cc                               |    3 --
+ components/omnibox/browser/autocomplete_match.cc                                    |   10 --------
+ components/omnibox/browser/autocomplete_result.cc                                   |    7 -----
+ components/omnibox/browser/shortcuts_backend.cc                                     |    3 --
+ components/policy/core/browser/configuration_policy_handler.cc                      |    1 
+ components/signin/internal/identity_manager/primary_account_manager.cc              |   12 ----------
+ components/signin/internal/identity_manager/profile_oauth2_token_service_builder.cc |    1 
+ content/common/input/input_event_stream_validator.cc                                |    3 --
+ services/network/network_context.cc                                                 |    1 
+ 12 files changed, 3 insertions(+), 50 deletions(-)
 
 --- a/components/signin/internal/identity_manager/primary_account_manager.cc
 +++ b/components/signin/internal/identity_manager/primary_account_manager.cc
@@ -42,7 +40,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  
 --- a/build/config/compiler/BUILD.gn
 +++ b/build/config/compiler/BUILD.gn
-@@ -231,7 +231,7 @@ config("compiler") {
+@@ -240,7 +240,7 @@ config("compiler") {
    cflags_cc = []
    cflags_objc = []
    cflags_objcc = []
@@ -51,7 +49,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
    defines = []
    configs = []
  
-@@ -1934,8 +1934,6 @@ if (is_win) {
+@@ -1949,8 +1949,6 @@ if (is_win) {
  
        # Put data and code in their own sections, so that unused symbols
        # can be removed at link time with --gc-sections.
@@ -60,7 +58,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
      ]
  
      common_optimize_on_ldflags += [
-@@ -1943,7 +1941,6 @@ if (is_win) {
+@@ -1958,7 +1956,6 @@ if (is_win) {
        # See http://lwn.net/Articles/192624/ .
        # -O2 enables string tail merge optimization in gold and lld.
        "-Wl,-O2",
@@ -68,7 +66,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
      ]
    }
  }
-@@ -2301,7 +2298,7 @@ config("symbols") {
+@@ -2316,7 +2313,7 @@ config("symbols") {
          # sections (llvm.org/PR34820).
          cflags += [ "-ggnu-pubnames" ]
        }

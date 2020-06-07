@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eux -o pipefail
 
-chromium_version=83.0.4103.61
+chromium_version=83.0.4103.97
 chrome_target=chrome_public_apk
 mono_target=monochrome_public_apk
 webview_target=system_webview_apk
@@ -54,6 +54,7 @@ popd
 # Need different GN flags than a release build
 pushd src
 output_folder=out/Debug_apk
+#output_folder=out/Debug_apk_x86
 mkdir -p ${output_folder}
 cat ../android_flags.debug.gn ../android_flags.gn > ${output_folder}/args.gn
 printf '\ntarget_cpu="arm"\n' >> ${output_folder}/args.gn
@@ -83,7 +84,7 @@ gn gen ${output_folder} --fail-on-unused-args
 # Generate gradle files
 # patch generate_gradle.py to use system ninja instead of depot_tools
 pushd ..
-patch -p1 --ignore-whitespace -i patches/generate_gradle.patch --no-backup-if-mismatch
+patch -p1 --ignore-whitespace -i patches/Other/generate_gradle.patch --no-backup-if-mismatch
 popd
 # patch -p1 --ignore-whitespace -i ../patches/src-fix/fix-unkown-warning-clang-9.patch --no-backup-if-mismatch
 python build/android/gradle/generate_gradle.py --target //chrome/android:${mono_target} --output-directory ${output_folder}

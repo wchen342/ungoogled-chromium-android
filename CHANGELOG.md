@@ -1,3 +1,8 @@
+# 83.0.4103.97-1
+* Extension version:
+  * Add direct install through url
+* Update [README#Limitations](https://github.com/wchen342/ungoogled-chromium-android#limitations), [README#Reporting and Contributing](https://github.com/wchen342/ungoogled-chromium-android#reporting-and-contributing), [README#Extensions](https://github.com/wchen342/ungoogled-chromium-android#extensions) and [SUPPORT](https://github.com/wchen342/ungoogled-chromium-android/blob/master/SUPPORT.md).
+
 # 83.0.4103.61-1
 * Add extension-support version
   * This version is highly experimental and is not intended for daily usage yet! See [README#Extensions](https://github.com/wchen342/ungoogled-chromium-android#extensions)
@@ -5,6 +10,7 @@
   * The package will have a name `org.ungoogled.chromium.extensions`
 * Resolve [#20](https://github.com/wchen342/ungoogled-chromium-android/issues/20), [#23](https://github.com/wchen342/ungoogled-chromium-android/issues/23)
 * Partially resolve [#19](https://github.com/wchen342/ungoogled-chromium-android/issues/19), [#21](https://github.com/wchen342/ungoogled-chromium-android/issues/21)
+* Add migration for WebRTC
 
 # 81.0.4044.138-1
 * Fix a crash with incognito tab

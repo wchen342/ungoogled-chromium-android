@@ -8,7 +8,7 @@ chrome_target=chrome_public_apk
 mono_target=monochrome_public_apk
 webview_target=system_webview_apk
 
-chromium_version=83.0.4103.61
+chromium_version=83.0.4103.97
 ungoogled_chromium_revision=1
 
 # Argument parser from https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash/29754866#29754866
@@ -137,7 +137,7 @@ ln -s /usr/bin/node src/third_party/node/linux/node-linux-x64/bin/
 src/third_party/node/update_npm_deps
 # Remove bundled jdk
 # java8 bundled with Arch seems to be a little outdated, so actually need to use java and javac from java10
-pushd src && patch -p1 --ignore-whitespace -i ../patches/remove-jdk.patch --no-backup-if-mismatch && popd
+pushd src && patch -p1 --ignore-whitespace -i ../patches/Other/remove-jdk.patch --no-backup-if-mismatch && popd
 rm -rf src/third_party/jdk
 mkdir -p src/third_party/jdk/current/bin
 ln -s /usr/bin/java src/third_party/jdk/current/bin/
@@ -146,6 +146,11 @@ ln -s /usr/bin/javap src/third_party/jdk/current/bin/
 # jre
 mkdir -p src/third_party/jdk/extras/java_8
 ln -s /usr/lib/jvm/java-8-openjdk/jre src/third_party/jdk/extras/java_8
+
+# Link to system clang tools
+pushd src/buildtools/linux64
+ln -s /usr/bin/clang-format
+popd
 
 ## Hooks
 python src/build/util/lastchange.py -o src/build/util/LASTCHANGE
@@ -157,7 +162,7 @@ python src/build/util/lastchange.py -m SKIA_COMMIT_HASH -s src/third_party/skia 
 ## Run ungoogled-chromium scripts
 # Patch prune list and domain substitution
 # TODO some pruned binaries are excluded since they will cause android build to fail
-patch -p1 --ignore-whitespace -i patches/ungoogled-main-repo-fix.patch --no-backup-if-mismatch
+patch -p1 --ignore-whitespace -i patches/Other/ungoogled-main-repo-fix.patch --no-backup-if-mismatch
 # Remove the cache file if exists
 cache_file="domsubcache.tar.gz"
 if [[ -f ${cache_file} ]] ; then
@@ -232,7 +237,7 @@ rm -rf "ndk_temp"
 
 ## Compile third-party binaries
 # eu-strip is re-compiled with -Wno-error
-patch -p1 --ignore-whitespace -i patches/eu-strip-build-script.patch --no-backup-if-mismatch
+patch -p1 --ignore-whitespace -i patches/Other/eu-strip-build-script.patch --no-backup-if-mismatch
 pushd src/buildtools/third_party/eu-strip
 ./build.sh
 popd
@@ -266,9 +271,6 @@ else
     cat ../android_flags.gn ../android_flags.debug.gn > out/Default/args.gn
 fi
 printf '\ntarget_cpu="'"$ARCH"'"\n' >> out/Default/args.gn
-# Only used for extensions
-#printf '\nenable_extensions=true\n' >> out/Default/args.gn
-#printf '\nenable_supervised_users=false\n' >> out/Default/args.gn
 gn gen out/Default --fail-on-unused-args
 popd
 
@@ -278,11 +280,6 @@ export AR=${AR:=llvm-ar}
 export NM=${NM:=llvm-nm}
 export CC=${CC:=clang}
 export CXX=${CXX:=clang++}
-
-# Link to system clang tools
-pushd src/buildtools/linux64
-ln -s /usr/bin/clang-format
-popd
 
 ## Build
 pushd src
