@@ -62,7 +62,7 @@ For a more customized building process, see building instructions from [the orig
 ## Reporting and Contributing
 
 * For reporting issues and contacting, see [SUPPORT](SUPPORT.md)
-* This project is still in its early stage, so contributions are welcomed. Please see [this issue](https://github.com/wchen342/ungoogled-chromium-android/issues/35) for a list of pending tasks.
+* This project is still in its early stage, so contributions are welcomed. Please see [Projects](https://github.com/wchen342/ungoogled-chromium-android/projects/1) for a list of pending tasks.
 
 ## Extensions
 
