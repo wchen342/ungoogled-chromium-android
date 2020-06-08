@@ -6,7 +6,7 @@ src-fix/fix-prefs.patch
 src-fix/fix-base-feature.patch
 src-fix/webview-extra-deps.patch
 src-fix/fix-local-modifications.patch
-src-fix/fix-disabled-supervised-user.patch
+Extensions/base/fix-disabled-supervised-user.patch
 Extensions/base/gn.patch
 Extensions/base/src.patch
 Extensions/base/res.patch
