@@ -62,7 +62,7 @@ For a more customized building process, see building instructions from [the orig
 ## Reporting and Contributing
 
 * For reporting issues and contacting, see [SUPPORT](SUPPORT.md)
-* This project is still in its early stage, so contributions are welcomed. Please see [Projects](https://github.com/wchen342/ungoogled-chromium-android/projects/1) for a list of pending tasks.
+* This project is still in its early stage, so contributions are welcomed.
 
 ## Extensions
 
@@ -94,16 +94,16 @@ You can use f-Droid client and add [this repository](https://www.droidware.info/
 
 ## Credits
 
-* [The Chromium Project](//www.chromium.org/)
-* [ungoogled-chromium](//github.com/Eloston/ungoogled-chromium)
-* [xsmile's fork](//github.com/xsmile/ungoogled-chromium/tree/android)
-* [Bromite](//github.com/bromite/bromite)
-* [Kiwi Browser](//github.com/kiwibrowser)
-* [dvalter's patches](//github.com/dvalter/chromium-android-ext-dev)
+* [The Chromium Project](https://www.chromium.org/)
+* [ungoogled-chromium](https://github.com/Eloston/ungoogled-chromium)
+* [xsmile's fork](https://github.com/xsmile/ungoogled-chromium/tree/android)
+* [Bromite](https://github.com/bromite/bromite)
+* [Kiwi Browser](https://github.com/kiwibrowser)
+* [dvalter's patches](https://github.com/dvalter/chromium-android-ext-dev)
 
 ## Related Projects
 
-* [Bromite](//github.com/bromite/bromite) (Another build for Android. Has some own features.)
+* [Bromite](https://github.com/bromite/bromite) (Another build for Android. Has some own features.)
 
 ## License
 

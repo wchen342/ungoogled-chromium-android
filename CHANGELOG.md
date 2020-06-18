@@ -1,11 +1,11 @@
 # 83.0.4103.97-1
 * Extension version:
   * Add direct install through url
-* Update [README#Limitations](https://github.com/wchen342/ungoogled-chromium-android#limitations), [README#Reporting and Contributing](https://github.com/wchen342/ungoogled-chromium-android#reporting-and-contributing), [README#Extensions](https://github.com/wchen342/ungoogled-chromium-android#extensions) and [SUPPORT](https://github.com/wchen342/ungoogled-chromium-android/blob/master/SUPPORT.md).
+* Update [README#Limitations](https://git.droidware.info/wchen342/ungoogled-chromium-android#user-content-limitations), [README#Reporting and Contributing](https://git.droidware.info/wchen342/ungoogled-chromium-android#user-content-reporting-and-contributing), [README#Extensions](https://git.droidware.info/wchen342/ungoogled-chromium-android#user-content-extensions) and [SUPPORT](https://git.droidware.info/wchen342/ungoogled-chromium-android/src/branch/master/SUPPORT.md).
 
 # 83.0.4103.61-1
 * Add extension-support version
-  * This version is highly experimental and is not intended for daily usage yet! See [README#Extensions](https://github.com/wchen342/ungoogled-chromium-android#extensions)
+  * This version is highly experimental and is not intended for daily usage yet! See [README#Extensions](https://git.droidware.info/wchen342/ungoogled-chromium-android#user-content-extensions)
   * Extension removal is not implemented yet
   * The package will have a name `org.ungoogled.chromium.extensions`
 * Resolve [#20](https://github.com/wchen342/ungoogled-chromium-android/issues/20), [#23](https://github.com/wchen342/ungoogled-chromium-android/issues/23)
