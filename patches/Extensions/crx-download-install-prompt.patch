@@ -19,10 +19,10 @@
  chrome/browser/ui/views/extensions/extension_install_dialog_view.cc                                  |    2 
  chrome/browser/ui/views/extensions/extension_install_dialog_view_android.cc                          |  264 ++++++++++
  chrome/browser/ui/views/extensions/extension_install_dialog_view_android.h                           |   89 +++
- components/crx_file/crx_verifier.cc                                                                  |    7 
+ components/crx_file/crx_verifier.cc                                                                  |   10 
  extensions/browser/sandboxed_unpacker.cc                                                             |   19 
  extensions/common/file_util.cc                                                                       |   22 
- 23 files changed, 883 insertions(+), 23 deletions(-)
+ 23 files changed, 886 insertions(+), 23 deletions(-)
 
 --- a/base/files/file_util_posix.cc
 +++ b/base/files/file_util_posix.cc
@@ -302,14 +302,18 @@
  #include "base/base64.h"
  #include "base/bind.h"
  #include "base/callback.h"
-@@ -211,7 +212,11 @@ VerifierResult Verify(
+@@ -211,7 +212,15 @@ VerifierResult Verify(
      std::string* crx_id) {
    std::string public_key_local;
    std::string crx_id_local;
 -  base::File file(crx_path, base::File::FLAG_OPEN | base::File::FLAG_READ);
 +  LOG(INFO) << "crx_verifier.cc: Verify: crx_path: " << crx_path;
-+  //base::File file(crx_path, base::File::FLAG_OPEN | base::File::FLAG_READ);
-+  base::File file = base::OpenContentUriForRead(crx_path);
++  base::File file;
++  if (crx_path.IsContentUri()) {
++      file = base::OpenContentUriForRead(crx_path);
++  } else {
++      file = base::File(crx_path, base::File::FLAG_OPEN | base::File::FLAG_READ);
++  }
 +  LOG(INFO) << "crx_verifier.cc: Verify: file.IsValid(): " << (file.IsValid());
 +
    if (!file.IsValid())
