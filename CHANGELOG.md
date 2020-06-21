@@ -1,3 +1,8 @@
+# 83.0.4103.106-1
+* Extension version:
+  * Fix a bug preventing non Android 10 phones from installing extensions from url
+* Website for `ungoogled-chromium-android` is now online at [https://uc.droidware.info](https://uc.droidware.info).
+
 # 83.0.4103.97-1
 * Extension version:
   * Add direct install through url
