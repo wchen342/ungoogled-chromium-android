@@ -1040,7 +1040,7 @@ Subject: gn fixes for enable_extensions=true
    if (is_chromeos) {
 --- a/chrome/common/BUILD.gn
 +++ b/chrome/common/BUILD.gn
-@@ -424,7 +424,6 @@ static_library("common") {
+@@ -425,7 +425,6 @@ static_library("common") {
        "media/chrome_media_drm_bridge_client.cc",
        "media/chrome_media_drm_bridge_client.h",
      ]
