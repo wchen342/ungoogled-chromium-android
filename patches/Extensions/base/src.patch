@@ -7255,7 +7255,7 @@ Subject: source code fixes for enable_extensions=true
      }
 --- a/components/policy/resources/policy_templates.json
 +++ b/components/policy/resources/policy_templates.json
-@@ -4082,7 +4082,7 @@
+@@ -4081,7 +4081,7 @@
          'items': { 'type': 'string' },
          'id': 'ExtensionInstallSources',
        },
@@ -7264,7 +7264,7 @@ Subject: source code fixes for enable_extensions=true
        'features': {
          'dynamic_refresh': True,
          'per_profile': True,
-@@ -4141,7 +4141,7 @@
+@@ -4140,7 +4140,7 @@
          },
          'id': 'ExtensionAllowedTypes',
        },
@@ -7273,7 +7273,7 @@ Subject: source code fixes for enable_extensions=true
        'features': {
          'dynamic_refresh': True,
          'per_profile': True,
-@@ -4256,7 +4256,7 @@
+@@ -4255,7 +4255,7 @@
          },
        },
        'url_schema': 'https://www.ch40m1um.qjz9zk/administrators/policy-list-3/extension-settings-full',
@@ -7282,7 +7282,7 @@ Subject: source code fixes for enable_extensions=true
        'features': {
          'dynamic_refresh': True,
          'per_profile': True,
-@@ -4433,7 +4433,7 @@
+@@ -4432,7 +4432,7 @@
            'caption': '''Disallow usage of the Developer Tools''',
          },
        ],
