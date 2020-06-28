@@ -1,5 +1,6 @@
 # 83.0.4103.116-1
 * Add update notification (resolve [#22](https://git.droidware.info/wchen342/ungoogled-chromium-android/issues/22)). Note: this is disabled by default since it will ping my server at [uc.droidware.info](https://uc.droidware.info). To enable, change `#enable-inline-update-flow` to `Enabled`.
+  * Update: the functionality currently has a bug that will make it send continuous bursts of requests to my server. Please DO NOT enable it for now. This will be fixed in the next version.
 * Reverse the removal of flags `#enable-process-sharing-with-default-site-instances` and `#enable-process-sharing-with-strict-site-instances`.
 * Extension version:
   * [`chromium-webstore`](https://github.com/NeverDecaf/chromium-web-store) is now bundled with extension version
