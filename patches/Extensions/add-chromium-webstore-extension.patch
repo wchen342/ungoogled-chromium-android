@@ -1,0 +1,71 @@
+From: Wengling Chen <feiyu2817@gmail.com>
+Sun, 28 Jun 2020 03:51:18 -0400
+Subject: bundle chromium-web-store
+
+
+---
+ chrome/browser/browser_resources.grd                                  |    1 
+ chrome/browser/extensions/component_extensions_whitelist/whitelist.cc |    1 
+ chrome/browser/extensions/component_loader.cc                         |    3 +
+ chrome/browser/resources/component_extension_resources.grd            |   18 ++++++++++
+ 4 files changed, 23 insertions(+)
+
+--- a/chrome/browser/browser_resources.grd
++++ b/chrome/browser/browser_resources.grd
+@@ -203,6 +203,7 @@
+       <include name="IDR_WEB_FOOTER_EXPERIMENT_HTML" file="resources\web_footer_experiment\index.html" type="BINDATA" />
+       <include name="IDR_WEBSTORE_MANIFEST" file="resources\webstore_app\manifest.json" type="BINDATA" />
+       <include name="IDR_CRYPTOTOKEN_MANIFEST" file="resources\cryptotoken\manifest.json" type="BINDATA" />
++      <include name="IDR_CHROMIUM_WEB_STORE_MANIFEST" file="resources\chromium_web_store\manifest.json" type="BINDATA" />
+       <if expr="chromeos">
+         <if expr="optimize_webui">
+           <then>
+--- a/chrome/browser/extensions/component_extensions_whitelist/whitelist.cc
++++ b/chrome/browser/extensions/component_extensions_whitelist/whitelist.cc
+@@ -65,6 +65,7 @@ bool IsComponentExtensionWhitelisted(int
+     case IDR_CLOUDPRINT_MANIFEST:
+ #endif
+     case IDR_CRYPTOTOKEN_MANIFEST:
++    case IDR_CHROMIUM_WEB_STORE_MANIFEST:
+     case IDR_FEEDBACK_MANIFEST:
+ #if BUILDFLAG(ENABLE_HANGOUT_SERVICES_EXTENSION)
+     case IDR_HANGOUT_SERVICES_MANIFEST:
+--- a/chrome/browser/extensions/component_loader.cc
++++ b/chrome/browser/extensions/component_loader.cc
+@@ -579,6 +579,9 @@ void ComponentLoader::AddDefaultComponen
+ 
+   Add(IDR_CRYPTOTOKEN_MANIFEST,
+       base::FilePath(FILE_PATH_LITERAL("cryptotoken")));
++
++  Add(IDR_CHROMIUM_WEB_STORE_MANIFEST,
++      base::FilePath(FILE_PATH_LITERAL("chromium_web_store")));
+ }
+ 
+ void ComponentLoader::
+--- a/chrome/browser/resources/component_extension_resources.grd
++++ b/chrome/browser/resources/component_extension_resources.grd
+@@ -165,6 +165,24 @@
+       <include name="IDR_CRYPTOTOKEN_CRYPTOTOKENAPPROVEDORIGIN_JS" file="cryptotoken/cryptotokenapprovedorigins.js" type="BINDATA" />
+       <include name="IDR_CRYPTOTOKEN_CRYPTOTOKENORIGINCHECK_JS" file="cryptotoken/cryptotokenorigincheck.js" type="BINDATA" />
+       <include name="IDR_CRYPTOTOKEN_CRYPTOTOKENBACKGROUND_JS" file="cryptotoken/cryptotokenbackground.js" type="BINDATA" />
++      <include name="IDR_CHROMIUM_WEB_STORE_ASSETS_ICON_ICON_16_PNG" file="chromium_web_store/assets/icon/icon_16.png" type="BINDATA" />
++      <include name="IDR_CHROMIUM_WEB_STORE_ASSETS_ICON_ICON_24_PNG" file="chromium_web_store/assets/icon/icon_24.png" type="BINDATA" />
++      <include name="IDR_CHROMIUM_WEB_STORE_ASSETS_ICON_ICON_32_PNG" file="chromium_web_store/assets/icon/icon_32.png" type="BINDATA" />
++      <include name="IDR_CHROMIUM_WEB_STORE_ASSETS_ICON_ICON_48_PNG" file="chromium_web_store/assets/icon/icon_48.png" type="BINDATA" />
++      <include name="IDR_CHROMIUM_WEB_STORE_ASSETS_ICON_ICON_64_PNG" file="chromium_web_store/assets/icon/icon_64.png" type="BINDATA" />
++      <include name="IDR_CHROMIUM_WEB_STORE_ASSETS_ICON_ICON_128_PNG" file="chromium_web_store/assets/icon/icon_128.png" type="BINDATA" />
++      <include name="IDR_CHROMIUM_WEB_STORE_SCRIPTS_BACKGROUND_JS" file="chromium_web_store/scripts/background.js" type="BINDATA" />
++      <include name="IDR_CHROMIUM_WEB_STORE_SCRIPTS_INJECT_JS" file="chromium_web_store/scripts/inject.js" type="BINDATA" />
++      <include name="IDR_CHROMIUM_WEB_STORE_SCRIPTS_OPTIONS_JS" file="chromium_web_store/scripts/options.js" type="BINDATA" />
++      <include name="IDR_CHROMIUM_WEB_STORE_SCRIPTS_POPUP_JS" file="chromium_web_store/scripts/popup.js" type="BINDATA" />
++      <include name="IDR_CHROMIUM_WEB_STORE_SCRIPTS_STORE_JS" file="chromium_web_store/scripts/store.js" type="BINDATA" />
++      <include name="IDR_CHROMIUM_WEB_STORE_SCRIPTS_UTIL_JS" file="chromium_web_store/scripts/util.js" type="BINDATA" />
++      <include name="IDR_CHROMIUM_WEB_STORE_SHEETS_BASE_CSS" file="chromium_web_store/sheets/base.css" type="BINDATA" />
++      <include name="IDR_CHROMIUM_WEB_STORE_SHEETS_OPTIONS_CSS" file="chromium_web_store/sheets/options.css" type="BINDATA" />
++      <include name="IDR_CHROMIUM_WEB_STORE_SHEETS_POPUP_CSS" file="chromium_web_store/sheets/popup.css" type="BINDATA" />
++      <include name="IDR_CHROMIUM_WEB_STORE_SHEETS_SCROLLBAR_CSS" file="chromium_web_store/sheets/scrollbar.css" type="BINDATA" />
++      <include name="IDR_CHROMIUM_WEB_STORE_OPTIONS_HTML" file="chromium_web_store/options.html" flattenhtml="true" allowexternalscript="true" type="BINDATA" />
++      <include name="IDR_CHROMIUM_WEB_STORE_POPUP_HTML" file="chromium_web_store/popup.html" flattenhtml="true" allowexternalscript="true" type="BINDATA" />
+     </includes>
+   </release>
+ </grit>
