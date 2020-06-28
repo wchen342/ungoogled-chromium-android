@@ -260,6 +260,10 @@ if [[ -f ${cache_file} ]] ; then
 fi
 python3 ungoogled-chromium/utils/domain_substitution.py apply -r ungoogled-chromium/domain_regex.list -f ${substitution_list_2} -c ${cache_file} src
 
+# chromium-web-store, extension version only
+# git clone https://github.com/NeverDecaf/chromium-web-store
+# cp -ar chromium-web-store/src src/chrome/browser/resources/chromium_web_store
+
 
 ## Configure output folder
 export PATH=$OLD_PATH  # remove depot_tools from PATH
