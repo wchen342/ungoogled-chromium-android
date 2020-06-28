@@ -3,251 +3,253 @@ Date: Sat, 30 May 2020 18:25:38 -0400
 Subject: source code fixes for enable_extensions=true
 
 ---
- android_webview/browser/aw_browser_context.cc                                                      |    6 
- android_webview/browser/aw_browser_context.h                                                       |    2 
- chrome/android/java/src/org/chromium/chrome/browser/payments/PaymentRequestFactory.java            |    3 
- chrome/android/java/src/org/chromium/chrome/browser/payments/PaymentRequestImpl.java               |   12 
- chrome/browser/apps/platform_apps/api/music_manager_private/device_id_android.cc                   |  188 +++
- chrome/browser/chrome_browser_main_posix.cc                                                        |    2 
- chrome/browser/chrome_content_browser_client.cc                                                    |    3 
- chrome/browser/content_settings/host_content_settings_map_factory.cc                               |    1 
- chrome/browser/custom_handlers/register_protocol_handler_permission_request.cc                     |    8 
- chrome/browser/custom_handlers/register_protocol_handler_permission_request.h                      |    1 
- chrome/browser/devtools/chrome_devtools_manager_delegate.h                                         |    2 
- chrome/browser/devtools/devtools_window.cc                                                         |    1 
- chrome/browser/download/download_commands.cc                                                       |    6 
- chrome/browser/download/download_commands.h                                                        |    4 
- chrome/browser/download/download_ui_model.cc                                                       |    4 
- chrome/browser/download/download_ui_model.h                                                        |    4 
- chrome/browser/download/drag_download_item_android.cc                                              |   32 
- chrome/browser/engagement/important_sites_util.cc                                                  |    5 
- chrome/browser/engagement/important_sites_util.h                                                   |    2 
- chrome/browser/extensions/api/downloads/downloads_api.cc                                           |    1 
- chrome/browser/extensions/api/enterprise_reporting_private/chrome_desktop_report_request_helper.cc |    5 
- chrome/browser/extensions/api/image_writer_private/removable_storage_provider_android.cc           |   19 
- chrome/browser/extensions/api/messaging/native_messaging_host_manifest.cc                          |   13 
- chrome/browser/extensions/api/safe_browsing_private/safe_browsing_private_event_router.cc          |   43 
- chrome/browser/extensions/api/tabs/windows_event_router.cc                                         |    2 
- chrome/browser/extensions/extension_system_factory.cc                                              |    3 
- chrome/browser/extensions/global_shortcut_listener_android.cc                                      |   50 +
- chrome/browser/extensions/global_shortcut_listener_android.h                                       |   36 
- chrome/browser/extensions/system_display/display_info_provider_android.cc                          |   17 
- chrome/browser/extensions/system_display/display_info_provider_android.h                           |   24 
- chrome/browser/first_run/first_run_internal_posix.cc                                               |    2 
- chrome/browser/first_run/upgrade_util.h                                                            |    2 
- chrome/browser/hid/hid_chooser_context.cc                                                          |    5 
- chrome/browser/lifetime/application_lifetime.cc                                                    |   22 
- chrome/browser/lifetime/application_lifetime.h                                                     |    4 
- chrome/browser/lifetime/browser_shutdown.cc                                                        |    6 
- chrome/browser/lifetime/browser_shutdown.h                                                         |    4 
- chrome/browser/media/router/media_router.h                                                         |    4 
- chrome/browser/media/router/media_router_base.cc                                                   |    2 
- chrome/browser/media/router/media_router_base.h                                                    |    4 
- chrome/browser/media/router/media_router_feature.cc                                                |    7 
- chrome/browser/media/router/media_router_feature.h                                                 |    3 
- chrome/browser/media/webrtc/media_capture_devices_dispatcher.cc                                    |    9 
- chrome/browser/metrics/thread_watcher.cc                                                           |    8 
- chrome/browser/metrics/thread_watcher.h                                                            |    2 
- chrome/browser/metrics/thread_watcher_report_hang.cc                                               |    2 
- chrome/browser/metrics/thread_watcher_report_hang.h                                                |    2 
- chrome/browser/obsolete_system/obsolete_system_android.cc                                          |   25 
- chrome/browser/performance_manager/graph/policies/policy_features.cc                               |    2 
- chrome/browser/performance_manager/graph/policies/policy_features.h                                |    2 
- chrome/browser/permissions/attestation_permission_request.cc                                       |    7 
- chrome/browser/platform_util.cc                                                                    |   18 
- chrome/browser/platform_util_android.cc                                                            |    6 
- chrome/browser/policy/browser_dm_token_storage_android.cc                                          |  181 +++
- chrome/browser/policy/browser_dm_token_storage_android.h                                           |   55 +
- chrome/browser/policy/chrome_browser_policy_connector.cc                                           |   19 
- chrome/browser/policy/chrome_browser_policy_connector.h                                            |    6 
- chrome/browser/prefs/browser_prefs.cc                                                              |   15 
- chrome/browser/profiles/chrome_browser_main_extra_parts_profiles.cc                                |   28 
- chrome/browser/profiles/chrome_browser_main_extra_parts_profiles.h                                 |    2 
- chrome/browser/profiles/off_the_record_profile_impl.cc                                             |    9 
- chrome/browser/profiles/off_the_record_profile_impl.h                                              |   10 
- chrome/browser/profiles/profile.cc                                                                 |   10 
- chrome/browser/profiles/profile.h                                                                  |    6 
- chrome/browser/profiles/profile_impl.cc                                                            |    5 
- chrome/browser/profiles/profile_impl.h                                                             |    6 
- chrome/browser/profiles/profile_manager.cc                                                         |   21 
- chrome/browser/profiles/profile_manager.h                                                          |    8 
- chrome/browser/profiles/profile_metrics.cc                                                         |    6 
- chrome/browser/profiles/profile_window.cc                                                          |    4 
- chrome/browser/profiles/profile_window.h                                                           |    3 
- chrome/browser/profiles/profiles_state.cc                                                          |    4 
- chrome/browser/profiles/profiles_state.h                                                           |    2 
- chrome/browser/resource_coordinator/resource_coordinator_parts.cc                                  |    4 
- chrome/browser/resource_coordinator/resource_coordinator_parts.h                                   |    8 
- chrome/browser/search/instant_service.h                                                            |    2 
- chrome/browser/search/instant_service_factory.h                                                    |    2 
- chrome/browser/search/instant_service_observer.h                                                   |    2 
- chrome/browser/search/local_ntp_source.h                                                           |    2 
- chrome/browser/search/most_visited_iframe_source.h                                                 |    2 
- chrome/browser/sessions/session_restore.cc                                                         |   25 
- chrome/browser/sharing/shared_clipboard/feature_flags.cc                                           |    2 
- chrome/browser/sharing/shared_clipboard/feature_flags.h                                            |    2 
- chrome/browser/startup_data.cc                                                                     |    5 
- chrome/browser/storage/storage_notification_service_impl.cc                                        |    2 
- chrome/browser/supervised_user/supervised_user_service_factory.cc                                  |    1 
- chrome/browser/sync/profile_sync_service_factory.cc                                                |    2 
- chrome/browser/ui/bookmarks/bookmark_utils_desktop.cc                                              |    6 
- chrome/browser/ui/browser.h                                                                        |    4 
- chrome/browser/ui/browser_commands.cc                                                              |    1 
- chrome/browser/ui/browser_content_setting_bubble_model_delegate.cc                                 |    3 
- chrome/browser/ui/browser_dialogs.cc                                                               |    2 
- chrome/browser/ui/browser_instant_controller.h                                                     |    2 
- chrome/browser/ui/browser_navigator_params.cc                                                      |    2 
- chrome/browser/ui/browser_navigator_params.h                                                       |    6 
- chrome/browser/ui/browser_ui_prefs.cc                                                              |    2 
- chrome/browser/ui/browser_window.h                                                                 |    2 
- chrome/browser/ui/chrome_pages.cc                                                                  |    4 
- chrome/browser/ui/chrome_pages.h                                                                   |    4 
- chrome/browser/ui/content_settings/content_setting_bubble_model.cc                                 |   11 
- chrome/browser/ui/content_settings/content_setting_bubble_model.h                                  |    2 
- chrome/browser/ui/content_settings/content_setting_image_model.cc                                  |    2 
- chrome/browser/ui/native_file_system_dialogs.cc                                                    |    2 
- chrome/browser/ui/native_window_tracker_android.cc                                                 |   26 
- chrome/browser/ui/native_window_tracker_android.h                                                  |   27 
- chrome/browser/ui/passwords/manage_passwords_view_utils.cc                                         |    4 
- chrome/browser/ui/passwords/password_generation_popup_controller_impl.cc                           |    2 
- chrome/browser/ui/passwords/password_generation_popup_controller_impl.h                            |    6 
- chrome/browser/ui/passwords/settings/password_manager_presenter.cc                                 |    6 
- chrome/browser/ui/passwords/settings/password_manager_presenter.h                                  |    2 
- chrome/browser/ui/search/instant_controller.h                                                      |    2 
- chrome/browser/ui/search/ntp_user_data_logger.h                                                    |    2 
- chrome/browser/ui/search/search_ipc_router.h                                                       |    2 
- chrome/browser/ui/search/search_ipc_router_policy_impl.h                                           |    2 
- chrome/browser/ui/search/search_tab_helper.h                                                       |    2 
- chrome/browser/ui/signin_view_controller.h                                                         |    4 
- chrome/browser/ui/tabs/tab_strip_model.h                                                           |    4 
- chrome/browser/ui/views/accelerator_utils_android.cc                                               |   23 
- chrome/browser/ui/views/autofill/payments/save_card_manage_cards_bubble_views.cc                   |   17 
- chrome/browser/ui/views/autofill/payments/save_card_sign_in_promo_bubble_views.cc                  |    2 
- chrome/browser/ui/views/bookmarks/bookmark_bubble_view.cc                                          |    9 
- chrome/browser/ui/views/browser_dialogs_views.cc                                                   |    9 
- chrome/browser/ui/views/desktop_capture/desktop_media_list_view.cc                                 |    2 
- chrome/browser/ui/views/dropdown_bar_host_android.cc                                               |   11 
- chrome/browser/ui/views/extensions/extension_installed_bubble_view.cc                              |    6 
- chrome/browser/ui/views/frame/browser_frame.cc                                                     |    5 
- chrome/browser/ui/views/frame/browser_view.cc                                                      |    3 
- chrome/browser/ui/views/frame/desktop_browser_frame_android.cc                                     |   76 +
- chrome/browser/ui/views/frame/desktop_browser_frame_android.h                                      |   63 +
- chrome/browser/ui/views/frame/native_browser_frame_factory_android.cc                              |   13 
- chrome/browser/ui/views/intent_picker_bubble_view.cc                                               |    2 
- chrome/browser/ui/views/location_bar/location_bar_view.cc                                          |    2 
- chrome/browser/ui/views/page_action/page_action_icon_controller.cc                                 |   22 
- chrome/browser/ui/views/page_info/page_info_bubble_view.cc                                         |    1 
- chrome/browser/ui/views/permission_bubble/permission_prompt_bubble_view.cc                         |    3 
- chrome/browser/ui/views/profiles/profile_menu_view.cc                                              |    9 
- chrome/browser/ui/views/tabs/tab_strip.cc                                                          |   12 
- chrome/browser/ui/views/tabs/window_finder_android.cc                                              |   19 
- chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc                                        |   18 
- chrome/browser/ui/webui/history/foreign_session_handler.cc                                         |    1 
- chrome/browser/ui/webui/omnibox/omnibox_ui.cc                                                      |    4 
- chrome/browser/ui/webui/omnibox/omnibox_ui.h                                                       |    6 
- chrome/browser/ui/webui/settings/printing_handler.cc                                               |    2 
- chrome/browser/ui/webui/settings/settings_ui.cc                                                    |    8 
- chrome/browser/ui/webui/settings/system_handler.cc                                                 |    1 
- chrome/browser/ui/webui/signin/inline_login_handler_impl.cc                                        |   34 
- chrome/browser/ui/webui/signin/login_ui_service.cc                                                 |   11 
- chrome/browser/ui/webui/welcome/welcome_handler.cc                                                 |    3 
- chrome/browser/ui/window_sizer/window_sizer_android.cc                                             |   16 
- chrome/browser/upgrade_detector/get_installed_version_android.cc                                   |   33 
- chrome/browser/web_applications/components/web_app_file_handler_registration.cc                    |    2 
- chrome/browser/web_applications/components/web_app_shortcut_android.cc                             |  116 ++
- chrome/browser/web_applications/components/web_app_shortcut_android.h                              |   62 +
- chrome/browser/web_applications/web_app_provider_factory.cc                                        |    1 
- chrome/common/chrome_features.cc                                                                   |    4 
- chrome/common/chrome_features.h                                                                    |    6 
- chrome/common/chrome_paths.cc                                                                      |    2 
- chrome/common/chrome_paths.h                                                                       |    2 
- chrome/common/chrome_switches.cc                                                                   |    4 
- chrome/common/chrome_switches.h                                                                    |    4 
- chrome/common/importer/firefox_importer_utils.cc                                                   |    4 
- chrome/common/pref_names.cc                                                                        |   21 
- chrome/common/pref_names.h                                                                         |   21 
- chrome/common/webui_url_constants.cc                                                               |    2 
- chrome/common/webui_url_constants.h                                                                |    2 
- chromecast/browser/cast_browser_context.cc                                                         |    2 
- chromecast/browser/cast_browser_context.h                                                          |    2 
- components/bookmarks/browser/bookmark_node_data.h                                                  |    8 
- components/feature_engagement/public/event_constants.cc                                            |    2 
- components/feature_engagement/public/event_constants.h                                             |    2 
- components/feature_engagement/public/feature_constants.cc                                          |    2 
- components/feature_engagement/public/feature_constants.h                                           |    2 
- components/omnibox/browser/autocomplete_match.cc                                                   |    4 
- components/omnibox/browser/autocomplete_match.h                                                    |    2 
- components/omnibox/browser/omnibox_pedal.cc                                                        |    4 
- components/omnibox/browser/omnibox_pedal.h                                                         |    4 
- components/omnibox/browser/omnibox_pedal_implementations.cc                                        |    4 
- components/omnibox/browser/omnibox_pedal_implementations.h                                         |    2 
- components/omnibox/browser/omnibox_popup_model.cc                                                  |    4 
- components/omnibox/browser/omnibox_popup_model.h                                                   |    2 
- components/page_info/page_info_ui.cc                                                               |    8 
- components/page_info/page_info_ui.h                                                                |    3 
- components/policy/resources/policy_templates.json                                                  |    8 
- components/search/search.cc                                                                        |    2 
- components/ui_devtools/views/overlay_agent_views.cc                                                |   34 
- components/url_formatter/elide_url.cc                                                              |    4 
- components/url_formatter/elide_url.h                                                               |    2 
- content/browser/renderer_host/native_web_keyboard_event_android.cc                                 |    2 
- content/browser/storage_partition_impl.cc                                                          |    4 
- content/browser/storage_partition_impl.h                                                           |    6 
- content/browser/web_contents/web_contents_impl.cc                                                  |    3 
- content/browser/web_contents/web_contents_impl.h                                                   |    2 
- content/public/browser/browser_context.h                                                           |    4 
- content/public/browser/content_browser_client.cc                                                   |    2 
- content/public/browser/content_browser_client.h                                                    |    2 
- content/public/browser/desktop_media_id.cc                                                         |    6 
- content/public/browser/desktop_media_id.h                                                          |    2 
- content/public/browser/native_web_keyboard_event.h                                                 |    1 
- content/public/browser/storage_partition.h                                                         |    4 
- content/shell/browser/shell_browser_context.cc                                                     |    2 
- content/shell/browser/shell_browser_context.h                                                      |    4 
- extensions/browser/api/device_permissions_prompt.cc                                                |    2 
- extensions/browser/api/hid/hid_device_manager.cc                                                   |    2 
- extensions/browser/api/system_cpu/cpu_info_provider_android.cc                                     |   77 +
- extensions/browser/guest_view/web_view/web_view_guest.cc                                           |    1 
- extensions/renderer/bindings/api_binding_util.cc                                                   |    2 
- services/network/network_context.cc                                                                |    1 
- third_party/blink/public/mojom/payments/payment_request.mojom                                      |    3 
- third_party/blink/renderer/modules/payments/payment_request.cc                                     |    2 
- third_party/skia/src/gpu/ops/GrSimpleMeshDrawOpHelper.cpp                                          |    1 
- tools/grit/grit/tool/build.py                                                                      |    2 
- ui/android/window_android.cc                                                                       |   28 
- ui/android/window_android.h                                                                        |   17 
- ui/base/dragdrop/os_exchange_data.h                                                                |    8 
- ui/base/dragdrop/os_exchange_data_provider_android.cc                                              |  220 ++++
- ui/base/dragdrop/os_exchange_data_provider_android.h                                               |  101 ++
- ui/base/dragdrop/os_exchange_data_provider_factory.cc                                              |    4 
- ui/events/event.h                                                                                  |    1 
- ui/native_theme/native_theme_android.cc                                                            |    3 
- ui/native_theme/native_theme_android.h                                                             |    2 
- ui/views/controls/menu/menu_config_android.cc                                                      |   11 
- ui/views/controls/menu/menu_controller.h                                                           |    1 
- ui/views/controls/menu/menu_host.cc                                                                |    8 
- ui/views/controls/menu/menu_host.h                                                                 |    2 
- ui/views/controls/menu/menu_pre_target_handler_android.cc                                          |   48 
- ui/views/controls/menu/menu_pre_target_handler_android.h                                           |   44 
- ui/views/controls/native/native_view_host_android.cc                                               |  122 ++
- ui/views/controls/native/native_view_host_android.h                                                |   98 +
- ui/views/controls/webview/unhandled_keyboard_event_handler_default.cc                              |    2 
- ui/views/drag_utils_android.cc                                                                     |   18 
- ui/views/event_monitor_android.cc                                                                  |   76 +
- ui/views/event_monitor_android.h                                                                   |   41 
- ui/views/metrics_android.cc                                                                        |   20 
- ui/views/native_cursor_android.cc                                                                  |   31 
- ui/views/painter.cc                                                                                |    1 
- ui/views/touchui/touch_selection_controller_impl.cc                                                |   43 
- ui/views/views_touch_selection_controller_factory_android.cc                                       |   21 
- ui/views/widget/native_widget_android.cc                                                           |  496 ++++++++++
- ui/views/widget/native_widget_android.h                                                            |  194 +++
- ui/views/widget/tooltip_manager_android.cc                                                         |   72 +
- ui/views/widget/tooltip_manager_android.h                                                          |   65 +
- ui/views/widget/widget.cc                                                                          |    5 
- weblayer/browser/browser_context_impl.cc                                                           |    2 
- weblayer/browser/browser_context_impl.h                                                            |    2 
- 244 files changed, 3268 insertions(+), 736 deletions(-)
+ android_webview/browser/aw_browser_context.cc                                                                |    6 
+ android_webview/browser/aw_browser_context.h                                                                 |    2 
+ chrome/android/java/src/org/chromium/chrome/browser/payments/PaymentRequestFactory.java                      |    3 
+ chrome/android/java/src/org/chromium/chrome/browser/payments/PaymentRequestImpl.java                         |   12 
+ chrome/browser/apps/platform_apps/api/music_manager_private/device_id_android.cc                             |  188 +++
+ chrome/browser/chrome_browser_main_posix.cc                                                                  |    2 
+ chrome/browser/chrome_content_browser_client.cc                                                              |    3 
+ chrome/browser/content_settings/host_content_settings_map_factory.cc                                         |    1 
+ chrome/browser/custom_handlers/register_protocol_handler_permission_request.cc                               |    8 
+ chrome/browser/custom_handlers/register_protocol_handler_permission_request.h                                |    1 
+ chrome/browser/devtools/chrome_devtools_manager_delegate.h                                                   |    2 
+ chrome/browser/devtools/devtools_window.cc                                                                   |    1 
+ chrome/browser/download/download_commands.cc                                                                 |    6 
+ chrome/browser/download/download_commands.h                                                                  |    4 
+ chrome/browser/download/download_ui_model.cc                                                                 |    4 
+ chrome/browser/download/download_ui_model.h                                                                  |    4 
+ chrome/browser/download/drag_download_item_android.cc                                                        |   32 
+ chrome/browser/engagement/important_sites_util.cc                                                            |    5 
+ chrome/browser/engagement/important_sites_util.h                                                             |    2 
+ chrome/browser/extensions/api/downloads/downloads_api.cc                                                     |    1 
+ chrome/browser/extensions/api/enterprise_reporting_private/chrome_desktop_report_request_helper.cc           |    5 
+ chrome/browser/extensions/api/image_writer_private/removable_storage_provider_android.cc                     |   19 
+ chrome/browser/extensions/api/messaging/native_messaging_host_manifest.cc                                    |   13 
+ chrome/browser/extensions/api/safe_browsing_private/safe_browsing_private_event_router.cc                    |   43 
+ chrome/browser/extensions/api/tabs/windows_event_router.cc                                                   |    2 
+ chrome/browser/extensions/extension_system_factory.cc                                                        |    3 
+ chrome/browser/extensions/global_shortcut_listener_android.cc                                                |   50 +
+ chrome/browser/extensions/global_shortcut_listener_android.h                                                 |   36 
+ chrome/browser/extensions/system_display/display_info_provider_android.cc                                    |   17 
+ chrome/browser/extensions/system_display/display_info_provider_android.h                                     |   24 
+ chrome/browser/first_run/first_run_internal_posix.cc                                                         |    2 
+ chrome/browser/first_run/upgrade_util.h                                                                      |    2 
+ chrome/browser/hid/hid_chooser_context.cc                                                                    |    5 
+ chrome/browser/lifetime/application_lifetime.cc                                                              |   22 
+ chrome/browser/lifetime/application_lifetime.h                                                               |    4 
+ chrome/browser/lifetime/browser_shutdown.cc                                                                  |    6 
+ chrome/browser/lifetime/browser_shutdown.h                                                                   |    4 
+ chrome/browser/media/router/media_router.h                                                                   |    4 
+ chrome/browser/media/router/media_router_base.cc                                                             |    2 
+ chrome/browser/media/router/media_router_base.h                                                              |    4 
+ chrome/browser/media/router/media_router_feature.cc                                                          |    7 
+ chrome/browser/media/router/media_router_feature.h                                                           |    3 
+ chrome/browser/media/webrtc/media_capture_devices_dispatcher.cc                                              |    9 
+ chrome/browser/metrics/thread_watcher.cc                                                                     |    8 
+ chrome/browser/metrics/thread_watcher.h                                                                      |    2 
+ chrome/browser/metrics/thread_watcher_report_hang.cc                                                         |    2 
+ chrome/browser/metrics/thread_watcher_report_hang.h                                                          |    2 
+ chrome/browser/obsolete_system/obsolete_system_android.cc                                                    |   25 
+ chrome/browser/performance_manager/graph/policies/policy_features.cc                                         |    2 
+ chrome/browser/performance_manager/graph/policies/policy_features.h                                          |    2 
+ chrome/browser/permissions/attestation_permission_request.cc                                                 |    7 
+ chrome/browser/platform_util.cc                                                                              |   18 
+ chrome/browser/platform_util_android.cc                                                                      |    6 
+ chrome/browser/policy/browser_dm_token_storage_android.cc                                                    |  181 +++
+ chrome/browser/policy/browser_dm_token_storage_android.h                                                     |   55 +
+ chrome/browser/policy/chrome_browser_policy_connector.cc                                                     |   19 
+ chrome/browser/policy/chrome_browser_policy_connector.h                                                      |    6 
+ chrome/browser/prefs/browser_prefs.cc                                                                        |   15 
+ chrome/browser/profiles/chrome_browser_main_extra_parts_profiles.cc                                          |   28 
+ chrome/browser/profiles/chrome_browser_main_extra_parts_profiles.h                                           |    2 
+ chrome/browser/profiles/off_the_record_profile_impl.cc                                                       |    9 
+ chrome/browser/profiles/off_the_record_profile_impl.h                                                        |   10 
+ chrome/browser/profiles/profile.cc                                                                           |   10 
+ chrome/browser/profiles/profile.h                                                                            |    6 
+ chrome/browser/profiles/profile_impl.cc                                                                      |    5 
+ chrome/browser/profiles/profile_impl.h                                                                       |    6 
+ chrome/browser/profiles/profile_manager.cc                                                                   |   21 
+ chrome/browser/profiles/profile_manager.h                                                                    |    8 
+ chrome/browser/profiles/profile_metrics.cc                                                                   |    6 
+ chrome/browser/profiles/profile_window.cc                                                                    |    4 
+ chrome/browser/profiles/profile_window.h                                                                     |    3 
+ chrome/browser/profiles/profiles_state.cc                                                                    |    4 
+ chrome/browser/profiles/profiles_state.h                                                                     |    2 
+ chrome/browser/resource_coordinator/resource_coordinator_parts.cc                                            |    4 
+ chrome/browser/resource_coordinator/resource_coordinator_parts.h                                             |    8 
+ chrome/browser/search/instant_service.h                                                                      |    2 
+ chrome/browser/search/instant_service_factory.h                                                              |    2 
+ chrome/browser/search/instant_service_observer.h                                                             |    2 
+ chrome/browser/search/local_ntp_source.h                                                                     |    2 
+ chrome/browser/search/most_visited_iframe_source.h                                                           |    2 
+ chrome/browser/sessions/session_restore.cc                                                                   |   25 
+ chrome/browser/sharing/shared_clipboard/feature_flags.cc                                                     |    2 
+ chrome/browser/sharing/shared_clipboard/feature_flags.h                                                      |    2 
+ chrome/browser/startup_data.cc                                                                               |    5 
+ chrome/browser/storage/storage_notification_service_impl.cc                                                  |    2 
+ chrome/browser/supervised_user/supervised_user_service_factory.cc                                            |    1 
+ chrome/browser/sync/profile_sync_service_factory.cc                                                          |    2 
+ chrome/browser/ui/bookmarks/bookmark_utils_desktop.cc                                                        |    6 
+ chrome/browser/ui/browser.h                                                                                  |    4 
+ chrome/browser/ui/browser_commands.cc                                                                        |    1 
+ chrome/browser/ui/browser_content_setting_bubble_model_delegate.cc                                           |    3 
+ chrome/browser/ui/browser_dialogs.cc                                                                         |    2 
+ chrome/browser/ui/browser_instant_controller.h                                                               |    2 
+ chrome/browser/ui/browser_navigator_params.cc                                                                |    2 
+ chrome/browser/ui/browser_navigator_params.h                                                                 |    6 
+ chrome/browser/ui/browser_ui_prefs.cc                                                                        |    2 
+ chrome/browser/ui/browser_window.h                                                                           |    2 
+ chrome/browser/ui/chrome_pages.cc                                                                            |    4 
+ chrome/browser/ui/chrome_pages.h                                                                             |    4 
+ chrome/browser/ui/content_settings/content_setting_bubble_model.cc                                           |   11 
+ chrome/browser/ui/content_settings/content_setting_bubble_model.h                                            |    2 
+ chrome/browser/ui/content_settings/content_setting_image_model.cc                                            |    2 
+ chrome/browser/ui/native_file_system_dialogs.cc                                                              |    2 
+ chrome/browser/ui/native_window_tracker_android.cc                                                           |   26 
+ chrome/browser/ui/native_window_tracker_android.h                                                            |   27 
+ chrome/browser/ui/passwords/manage_passwords_view_utils.cc                                                   |    4 
+ chrome/browser/ui/passwords/password_generation_popup_controller_impl.cc                                     |    2 
+ chrome/browser/ui/passwords/password_generation_popup_controller_impl.h                                      |    6 
+ chrome/browser/ui/passwords/settings/password_manager_presenter.cc                                           |    6 
+ chrome/browser/ui/passwords/settings/password_manager_presenter.h                                            |    2 
+ chrome/browser/ui/search/instant_controller.h                                                                |    2 
+ chrome/browser/ui/search/ntp_user_data_logger.h                                                              |    2 
+ chrome/browser/ui/search/search_ipc_router.h                                                                 |    2 
+ chrome/browser/ui/search/search_ipc_router_policy_impl.h                                                     |    2 
+ chrome/browser/ui/search/search_tab_helper.h                                                                 |    2 
+ chrome/browser/ui/signin_view_controller.h                                                                   |    4 
+ chrome/browser/ui/tabs/tab_strip_model.h                                                                     |    4 
+ chrome/browser/ui/views/accelerator_utils_android.cc                                                         |   23 
+ chrome/browser/ui/views/autofill/payments/save_card_manage_cards_bubble_views.cc                             |   17 
+ chrome/browser/ui/views/autofill/payments/save_card_sign_in_promo_bubble_views.cc                            |    2 
+ chrome/browser/ui/views/bookmarks/bookmark_bubble_view.cc                                                    |    9 
+ chrome/browser/ui/views/browser_dialogs_views.cc                                                             |    9 
+ chrome/browser/ui/views/desktop_capture/desktop_media_list_view.cc                                           |    2 
+ chrome/browser/ui/views/dropdown_bar_host_android.cc                                                         |   11 
+ chrome/browser/ui/views/extensions/extension_installed_bubble_view.cc                                        |    6 
+ chrome/browser/ui/views/frame/browser_frame.cc                                                               |    5 
+ chrome/browser/ui/views/frame/browser_view.cc                                                                |    3 
+ chrome/browser/ui/views/frame/desktop_browser_frame_android.cc                                               |   76 +
+ chrome/browser/ui/views/frame/desktop_browser_frame_android.h                                                |   63 +
+ chrome/browser/ui/views/frame/native_browser_frame_factory_android.cc                                        |   13 
+ chrome/browser/ui/views/intent_picker_bubble_view.cc                                                         |    2 
+ chrome/browser/ui/views/location_bar/location_bar_view.cc                                                    |    2 
+ chrome/browser/ui/views/page_action/page_action_icon_controller.cc                                           |   22 
+ chrome/browser/ui/views/page_info/page_info_bubble_view.cc                                                   |    1 
+ chrome/browser/ui/views/permission_bubble/permission_prompt_bubble_view.cc                                   |    3 
+ chrome/browser/ui/views/profiles/profile_menu_view.cc                                                        |    9 
+ chrome/browser/ui/views/tabs/tab_strip.cc                                                                    |   12 
+ chrome/browser/ui/views/tabs/window_finder_android.cc                                                        |   19 
+ chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc                                                  |   18 
+ chrome/browser/ui/webui/history/foreign_session_handler.cc                                                   |    1 
+ chrome/browser/ui/webui/omnibox/omnibox_ui.cc                                                                |    4 
+ chrome/browser/ui/webui/omnibox/omnibox_ui.h                                                                 |    6 
+ chrome/browser/ui/webui/settings/printing_handler.cc                                                         |    2 
+ chrome/browser/ui/webui/settings/settings_ui.cc                                                              |    8 
+ chrome/browser/ui/webui/settings/system_handler.cc                                                           |    1 
+ chrome/browser/ui/webui/signin/inline_login_handler_impl.cc                                                  |   34 
+ chrome/browser/ui/webui/signin/login_ui_service.cc                                                           |   11 
+ chrome/browser/ui/webui/welcome/welcome_handler.cc                                                           |    3 
+ chrome/browser/ui/window_sizer/window_sizer_android.cc                                                       |   16 
+ chrome/browser/upgrade_detector/get_installed_version_android.cc                                             |   33 
+ chrome/browser/web_applications/components/web_app_file_handler_registration.cc                              |    2 
+ chrome/browser/web_applications/components/web_app_shortcut_android.cc                                       |  116 ++
+ chrome/browser/web_applications/components/web_app_shortcut_android.h                                        |   62 +
+ chrome/browser/web_applications/web_app_provider_factory.cc                                                  |    1 
+ chrome/common/chrome_features.cc                                                                             |    4 
+ chrome/common/chrome_features.h                                                                              |    6 
+ chrome/common/chrome_paths.cc                                                                                |    2 
+ chrome/common/chrome_paths.h                                                                                 |    2 
+ chrome/common/chrome_switches.cc                                                                             |    4 
+ chrome/common/chrome_switches.h                                                                              |    4 
+ chrome/common/importer/firefox_importer_utils.cc                                                             |    4 
+ chrome/common/pref_names.cc                                                                                  |   21 
+ chrome/common/pref_names.h                                                                                   |   21 
+ chrome/common/webui_url_constants.cc                                                                         |    2 
+ chrome/common/webui_url_constants.h                                                                          |    2 
+ chromecast/browser/cast_browser_context.cc                                                                   |    2 
+ chromecast/browser/cast_browser_context.h                                                                    |    2 
+ components/bookmarks/browser/bookmark_node_data.h                                                            |    8 
+ components/embedder_support/android/java/src/org/chromium/components/embedder_support/util/Origin.java       |   13 
+ components/embedder_support/android/java/src/org/chromium/components/embedder_support/util/UrlConstants.java |    1 
+ components/feature_engagement/public/event_constants.cc                                                      |    2 
+ components/feature_engagement/public/event_constants.h                                                       |    2 
+ components/feature_engagement/public/feature_constants.cc                                                    |    2 
+ components/feature_engagement/public/feature_constants.h                                                     |    2 
+ components/omnibox/browser/autocomplete_match.cc                                                             |    4 
+ components/omnibox/browser/autocomplete_match.h                                                              |    2 
+ components/omnibox/browser/omnibox_pedal.cc                                                                  |    4 
+ components/omnibox/browser/omnibox_pedal.h                                                                   |    4 
+ components/omnibox/browser/omnibox_pedal_implementations.cc                                                  |    4 
+ components/omnibox/browser/omnibox_pedal_implementations.h                                                   |    2 
+ components/omnibox/browser/omnibox_popup_model.cc                                                            |    4 
+ components/omnibox/browser/omnibox_popup_model.h                                                             |    2 
+ components/page_info/page_info_ui.cc                                                                         |    8 
+ components/page_info/page_info_ui.h                                                                          |    3 
+ components/policy/resources/policy_templates.json                                                            |    8 
+ components/search/search.cc                                                                                  |    2 
+ components/ui_devtools/views/overlay_agent_views.cc                                                          |   34 
+ components/url_formatter/elide_url.cc                                                                        |    4 
+ components/url_formatter/elide_url.h                                                                         |    2 
+ content/browser/renderer_host/native_web_keyboard_event_android.cc                                           |    2 
+ content/browser/storage_partition_impl.cc                                                                    |    4 
+ content/browser/storage_partition_impl.h                                                                     |    6 
+ content/browser/web_contents/web_contents_impl.cc                                                            |    3 
+ content/browser/web_contents/web_contents_impl.h                                                             |    2 
+ content/public/browser/browser_context.h                                                                     |    4 
+ content/public/browser/content_browser_client.cc                                                             |    2 
+ content/public/browser/content_browser_client.h                                                              |    2 
+ content/public/browser/desktop_media_id.cc                                                                   |    6 
+ content/public/browser/desktop_media_id.h                                                                    |    2 
+ content/public/browser/native_web_keyboard_event.h                                                           |    1 
+ content/public/browser/storage_partition.h                                                                   |    4 
+ content/shell/browser/shell_browser_context.cc                                                               |    2 
+ content/shell/browser/shell_browser_context.h                                                                |    4 
+ extensions/browser/api/device_permissions_prompt.cc                                                          |    2 
+ extensions/browser/api/hid/hid_device_manager.cc                                                             |    2 
+ extensions/browser/api/system_cpu/cpu_info_provider_android.cc                                               |   77 +
+ extensions/browser/guest_view/web_view/web_view_guest.cc                                                     |    1 
+ extensions/renderer/bindings/api_binding_util.cc                                                             |    2 
+ services/network/network_context.cc                                                                          |    1 
+ third_party/blink/public/mojom/payments/payment_request.mojom                                                |    3 
+ third_party/blink/renderer/modules/payments/payment_request.cc                                               |    2 
+ third_party/skia/src/gpu/ops/GrSimpleMeshDrawOpHelper.cpp                                                    |    1 
+ tools/grit/grit/tool/build.py                                                                                |    2 
+ ui/android/window_android.cc                                                                                 |   28 
+ ui/android/window_android.h                                                                                  |   17 
+ ui/base/dragdrop/os_exchange_data.h                                                                          |    8 
+ ui/base/dragdrop/os_exchange_data_provider_android.cc                                                        |  220 ++++
+ ui/base/dragdrop/os_exchange_data_provider_android.h                                                         |  101 ++
+ ui/base/dragdrop/os_exchange_data_provider_factory.cc                                                        |    4 
+ ui/events/event.h                                                                                            |    1 
+ ui/native_theme/native_theme_android.cc                                                                      |    3 
+ ui/native_theme/native_theme_android.h                                                                       |    2 
+ ui/views/controls/menu/menu_config_android.cc                                                                |   11 
+ ui/views/controls/menu/menu_controller.h                                                                     |    1 
+ ui/views/controls/menu/menu_host.cc                                                                          |    8 
+ ui/views/controls/menu/menu_host.h                                                                           |    2 
+ ui/views/controls/menu/menu_pre_target_handler_android.cc                                                    |   48 
+ ui/views/controls/menu/menu_pre_target_handler_android.h                                                     |   44 
+ ui/views/controls/native/native_view_host_android.cc                                                         |  122 ++
+ ui/views/controls/native/native_view_host_android.h                                                          |   98 +
+ ui/views/controls/webview/unhandled_keyboard_event_handler_default.cc                                        |    2 
+ ui/views/drag_utils_android.cc                                                                               |   18 
+ ui/views/event_monitor_android.cc                                                                            |   76 +
+ ui/views/event_monitor_android.h                                                                             |   41 
+ ui/views/metrics_android.cc                                                                                  |   20 
+ ui/views/native_cursor_android.cc                                                                            |   31 
+ ui/views/painter.cc                                                                                          |    1 
+ ui/views/touchui/touch_selection_controller_impl.cc                                                          |   43 
+ ui/views/views_touch_selection_controller_factory_android.cc                                                 |   21 
+ ui/views/widget/native_widget_android.cc                                                                     |  496 ++++++++++
+ ui/views/widget/native_widget_android.h                                                                      |  194 +++
+ ui/views/widget/tooltip_manager_android.cc                                                                   |   72 +
+ ui/views/widget/tooltip_manager_android.h                                                                    |   65 +
+ ui/views/widget/widget.cc                                                                                    |    5 
+ weblayer/browser/browser_context_impl.cc                                                                     |    2 
+ weblayer/browser/browser_context_impl.h                                                                      |    2 
+ 246 files changed, 3281 insertions(+), 737 deletions(-)
 
 --- /dev/null
 +++ b/chrome/browser/web_applications/components/web_app_shortcut_android.cc
@@ -7748,3 +7750,66 @@ Subject: source code fixes for enable_extensions=true
 +
 +  return InstalledAndCriticalVersion(std::move(installed_version));
 +}
+--- a/components/embedder_support/android/java/src/org/chromium/components/embedder_support/util/Origin.java
++++ b/components/embedder_support/android/java/src/org/chromium/components/embedder_support/util/Origin.java
+@@ -5,6 +5,7 @@
+ package org.chromium.components.embedder_support.util;
+ 
+ import android.net.Uri;
++import org.chromium.base.Log;
+ 
+ import androidx.annotation.Nullable;
+ 
+@@ -44,24 +45,33 @@ public class Origin {
+      */
+     @Nullable
+     public static Origin create(Uri uri) {
++        Log.d("Origin.java", "create: %s", uri);
+         if (uri == null || uri.getScheme() == null || uri.getAuthority() == null) {
++            Log.d("Origin.java", "create 1");
+             return null;
+         }
+ 
+         // This class can only correctly handle certain origins, see https://crbug.com/1019244.
+         String scheme = uri.getScheme();
+-        if (!scheme.equals(UrlConstants.HTTP_SCHEME) && !scheme.equals(UrlConstants.HTTPS_SCHEME)) {
++        Log.d("Origin.java", "create: scheme: %s", scheme);
++        if (!scheme.equals(UrlConstants.HTTP_SCHEME) && !scheme.equals(UrlConstants.HTTPS_SCHEME) && !scheme.equals(UrlConstants.CHROME_EXTENSION_SCHEME)) {
++            Log.d("Origin.java", "create 2");
+             return null;
+         }
+ 
+         // Make explicit ports implicit and remove any user:password.
+         int port = uri.getPort();
++        Log.d("Origin.java", "create: port: %d", port);
+         if (scheme.equals(UrlConstants.HTTP_SCHEME) && port == HTTP_DEFAULT_PORT) port = -1;
+         if (scheme.equals(UrlConstants.HTTPS_SCHEME) && port == HTTPS_DEFAULT_PORT) port = -1;
++        Log.d("Origin.java", "create: port2: %d", port);
+ 
+         String authority = uri.getHost();
++        Log.d("Origin.java", "create: authority: %s", authority);
+         if (port != -1) authority += ":" + port;
+ 
++        Log.d("Origin.java", "create: new Origin: %s", uri.normalizeScheme().toString());
++
+         try {
+             return new Origin(uri.normalizeScheme()
+                                       .buildUpon()
+@@ -87,6 +97,7 @@ public class Origin {
+      * Constructs a canonical Origin from an Uri, throwing an exception if parsing fails.
+      */
+     public static Origin createOrThrow(Uri uri) {
++        Log.d("Origin.java", "Uri: %s", uri.toString());
+         Origin origin = Origin.create(uri);
+         if (origin == null) throw new IllegalArgumentException("Could not parse: " + uri);
+         return origin;
+--- a/components/embedder_support/android/java/src/org/chromium/components/embedder_support/util/UrlConstants.java
++++ b/components/embedder_support/android/java/src/org/chromium/components/embedder_support/util/UrlConstants.java
+@@ -9,6 +9,7 @@ package org.chromium.components.embedder
+  */
+ public class UrlConstants {
+     public static final String CHROME_SCHEME = "chrome";
++    public static final String CHROME_EXTENSION_SCHEME = "chrome-extension";
+     public static final String CHROME_NATIVE_SCHEME = "chrome-native";
+     public static final String CONTENT_SCHEME = "content";
+     public static final String CUSTOM_TAB_SCHEME = "customtab";
