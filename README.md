@@ -70,8 +70,21 @@ For a more customized building process, see building instructions from [the orig
 
 The extensions are likely not fully functional yet.
 
-There are two methods to install extensions:
- - Method 1 (Developer Mode Folder Loading. This method only supports `Android 5.1+`):
+There are three methods to install extensions:
+ - Method 1 (the easiest way):
+   1. Go to `chrome://flags/` and change `#extension-mime-request-handling` to `Always prompt for install` and relaunch your browser.
+   2. Go to chrome webstore page
+   3. Switch to desktop site
+   4. Search for the extension you want to install and click `Add to Chromium`
+   5. The browser should prompt for installation after finishing downloading
+   6. Check `chrome://extensions/` and you should see the extension there.
+ - Method 2 (Direct Download):
+   1. Go to `chrome://flags/` and change `#extension-mime-request-handling` to `Always prompt for install` and relaunch your browser.
+   2. Get direct link to `crx` file following the instructions [here](https://ungoogled-software.github.io/ungoogled-chromium-wiki/faq#downloading-the-crx-file).
+   3. Paste the link into omnibox and go to that link.
+   4. The browser should prompt for installation after finishing downloading
+   5. Check `chrome://extensions/` and you should see the extension there.
+ - Method 3 (Developer Mode Folder Loading. This method only supports `Android 5.1+`):
    1. Download extension following the instructions [here](https://ungoogled-software.github.io/ungoogled-chromium-wiki/faq#downloading-the-crx-file).
    2. Extract the `crx` file into a folder with`unzip`/`7z` and copy the folder to your device.
    3. Notice for Android 10: as a workaround for a [permission issue](https://github.com/wchen342/ungoogled-chromium-android/issues/27), you need to enable "Allow from unknown source" for `Ungoogled Chromium Extensions".
@@ -79,12 +92,6 @@ There are two methods to install extensions:
    5. Open `chrome://extensions/` and enable Developer mode, refresh.
    6. Click `Load unpacked` and select the folder you copied. Notice that Android has two file selections, one for selecting files and one for selecting folders. Make sure you use the right one.
    7. Refresh and you shall see the extension in the list.
- - Method 2 (Direct Download):
-   1. Go to `chrome://flags/` and change `#extension-mime-request-handling` to `Always prompt for install` and relaunch your browser.
-   2. Get direct link to `crx` file following the instructions [here](https://ungoogled-software.github.io/ungoogled-chromium-wiki/faq#downloading-the-crx-file).
-   3. Paste the link into omnibox and go to that link.
-   4. The browser should prompt for installation after finishing downloading
-   5. Check `chrome://extensions/` and you should see the extension there.
 
 ## F-droid Repository
 

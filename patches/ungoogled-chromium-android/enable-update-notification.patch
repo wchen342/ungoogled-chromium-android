@@ -1,0 +1,562 @@
+--- /dev/null
++++ b/chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/UCInlineUpdateController.java
+@@ -0,0 +1,211 @@
++// Copyright 2020 The Ungoogled-Chromium Authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++package org.chromium.chrome.browser.omaha.inline;
++
++import static org.chromium.chrome.browser.omaha.UpdateConfigs.getUpdateNotificationInterval;
++import static org.chromium.chrome.browser.omaha.notification.UpdateNotificationControllerImpl.PREF_LAST_TIME_UPDATE_NOTIFICATION_KEY;
++
++import android.Manifest;
++import android.app.Activity;
++import android.content.SharedPreferences;
++import android.content.pm.PackageManager;
++import android.net.Uri;
++import android.os.Build;
++import android.os.Environment;
++import android.text.TextUtils;
++import android.util.Pair;
++import android.webkit.MimeTypeMap;
++import android.webkit.URLUtil;
++
++import androidx.annotation.Nullable;
++
++import org.chromium.base.Callback;
++import org.chromium.base.Log;
++import org.chromium.base.task.AsyncTask;
++import org.chromium.base.task.PostTask;
++import org.chromium.chrome.browser.ChromeActivity;
++import org.chromium.chrome.browser.ChromeVersionInfo;
++import org.chromium.chrome.browser.download.ChromeUpdateDownloadDelegate;
++import org.chromium.chrome.browser.omaha.OmahaBase;
++import org.chromium.chrome.browser.omaha.UpdateStatusProvider;
++import org.chromium.chrome.browser.omaha.VersionNumber;
++import org.chromium.chrome.browser.tab.TabLaunchType;
++import org.chromium.chrome.browser.tabmodel.TabCreatorManager;
++import org.chromium.content_public.browser.LoadUrlParams;
++import org.chromium.content_public.browser.UiThreadTaskTraits;
++import org.chromium.ui.base.PageTransition;
++
++import java.io.BufferedReader;
++import java.io.IOException;
++import java.io.InputStreamReader;
++import java.net.MalformedURLException;
++import java.net.URL;
++
++/**
++ * An update controller that does nothing. This is used if the inline update experiment has
++ * not been enabled.
++ */
++class UCInlineUpdateController implements InlineUpdateController {
++
++    private static final String TAG = "UCInlineUpdateController";
++    private final URL UPDATE_VERSION_URL = makeURL("https://uc.droidware.info/release.txt");
++
++    private @Nullable URL makeURL(String url) {
++        try {
++            return new URL(url);
++        } catch (MalformedURLException e) {
++            Log.e(TAG, "URL is malformed!");
++        }
++        return null;
++    }
++
++    private boolean mEnabled;
++    private Runnable mCallback;
++    private @Nullable @UpdateStatusProvider.UpdateState Integer mUpdateState;
++    private VersionNumber mCurrentProductVersion;
++//    private String mLatestVersionString;
++
++    UCInlineUpdateController(Runnable callback) {
++        mCallback = callback;
++    }
++
++    @Override
++    public void setEnabled(boolean enabled) {
++        if (mEnabled == enabled) return;
++        mEnabled = enabled;
++
++        if (mEnabled) {
++            mUpdateState = UpdateStatusProvider.UpdateState.NONE;
++            pullCurrentState();
++        } else {
++        }
++    }
++
++    @Override
++    public @Nullable @UpdateStatusProvider.UpdateState Integer getStatus() {
++        if (mEnabled) {
++            pullCurrentState();
++        } else {
++        }
++        Log.d(TAG, "getStatus: mUpdateState: %d", mUpdateState);
++        return mUpdateState;
++    }
++
++    @Override
++    public void startUpdate(Activity activity) {
++        assert ChromeActivity.class.isInstance(activity);
++        ChromeActivity thisActivity = (ChromeActivity) activity;
++        String downloadUrl = getDownloadUrl();
++// Always open in new normal tab
++        TabCreatorManager.TabCreator tabCreator = thisActivity.getTabCreator(false);
++        tabCreator.createNewTab(new LoadUrlParams(downloadUrl, PageTransition.AUTO_BOOKMARK),
++                TabLaunchType.FROM_LINK, thisActivity.getActivityTab());
++        Log.d(TAG, "startUpdate: New tab opened");
++    }
++
++    @Override
++    public void completeUpdate() {
++
++    }
++
++    private void pullCurrentState() {
++        int currentApiVersion = Build.VERSION.SDK_INT;
++        assert currentApiVersion > Build.VERSION_CODES.KITKAT;
++        mCurrentProductVersion = VersionNumber.fromString(ChromeVersionInfo.getProductVersion());
++        Log.d(TAG, "mCurrentProductVersion: %s", mCurrentProductVersion.toString());
++        switch (mUpdateState) {
++            case UpdateStatusProvider.UpdateState.INLINE_UPDATE_AVAILABLE:
++                long currentTime = System.currentTimeMillis();
++                SharedPreferences preferences = OmahaBase.getSharedPreferences();
++                long lastPushedTimeStamp = preferences.getLong(PREF_LAST_TIME_UPDATE_NOTIFICATION_KEY, 0);
++                if (!(currentTime - lastPushedTimeStamp >= getUpdateNotificationInterval())) {
++                    Log.d(TAG, "pullCurrentState: !UpdateNotificationInterval: %b",
++                            !(currentTime - lastPushedTimeStamp >= getUpdateNotificationInterval()));
++                    break;
++                }
++                //Intentional fall through.
++            case UpdateStatusProvider.UpdateState.NONE:
++                checkLatestVersion((result) -> {
++                    // Compare version strings if not null
++                    if (result == null) return;
++
++                    if (isNewVersionAvailable(result)) {
++                        postStatus(UpdateStatusProvider.UpdateState.INLINE_UPDATE_AVAILABLE);
++                    } else {
++                        postStatus(UpdateStatusProvider.UpdateState.NONE);
++                    }
++                });
++                break;
++            case UpdateStatusProvider.UpdateState.INLINE_UPDATE_READY:
++                // Intentional fall through.
++            case UpdateStatusProvider.UpdateState.INLINE_UPDATE_FAILED:
++                // Intentional fall through.
++            case UpdateStatusProvider.UpdateState.INLINE_UPDATE_DOWNLOADING:
++                // Intentional fall through.
++            case UpdateStatusProvider.UpdateState.UNSUPPORTED_OS_VERSION:
++                // Intentional fall through.
++            default:
++                return;
++        }
++    }
++
++    private void checkLatestVersion(final Callback<String> callback) {
++        assert UPDATE_VERSION_URL != null;
++        new AsyncTask<String>() {
++            @Override
++            protected String doInBackground() {
++                try {
++                    String inputLine;
++                    StringBuilder content = new StringBuilder();
++                    BufferedReader bufferedReader = new BufferedReader(
++                            new InputStreamReader(UPDATE_VERSION_URL.openStream()));
++                    while ((inputLine = bufferedReader.readLine()) != null)
++                        content.append(inputLine);
++                    bufferedReader.close();
++
++                    Log.d(TAG, "Obtained version: %s", content.toString());
++                    return content.toString();
++                } catch (IOException e) {
++                    Log.d(TAG, "Obtain version info failed");
++                    return null;
++                }
++            }
++
++            @Override
++            protected void onPostExecute(String result) {
++                callback.onResult(result);
++            }
++        }
++                .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
++    }
++
++    private boolean isNewVersionAvailable(String latestVersionString) {
++        if (mCurrentProductVersion == null || latestVersionString == null)
++            return false;
++        VersionNumber latestVersion = VersionNumber.fromString(latestVersionString);
++        Log.d(TAG, "isNewVersionAvailable: mCurrentProductVersion: %s",
++                mCurrentProductVersion.toString());
++        Log.d(TAG, "isNewVersionAvailable: latestVersion: %s",
++                latestVersion.toString());
++
++        return mCurrentProductVersion.isSmallerThan(latestVersion);
++    }
++
++    private String getDownloadUrl() {
++        return "https://uc.droidware.info/";
++    }
++
++    private void postStatus(@UpdateStatusProvider.UpdateState int status) {
++        mUpdateState = status;
++        PostTask.postTask(UiThreadTaskTraits.DEFAULT, mCallback);
++    }
++
++    private static @UpdateStatusProvider.UpdateState int toUpdateState(
++            int updateAvailability, int installStatus) {
++        @UpdateStatusProvider.UpdateState int newStatus = UpdateStatusProvider.UpdateState.NONE;
++
++        return newStatus;
++    }
++}
+--- a/chrome/android/chrome_java_sources.gni
++++ b/chrome/android/chrome_java_sources.gni
+@@ -519,6 +519,7 @@ chrome_java_sources = [
+   "java/src/org/chromium/chrome/browser/dom_distiller/ReaderModeTabInfo.java",
+   "java/src/org/chromium/chrome/browser/dom_distiller/TabDistillabilityProvider.java",
+   "java/src/org/chromium/chrome/browser/download/ChromeDownloadDelegate.java",
++  "java/src/org/chromium/chrome/browser/download/ChromeUpdateDownloadDelegate.java",
+   "java/src/org/chromium/chrome/browser/download/DownloadActivity.java",
+   "java/src/org/chromium/chrome/browser/download/DownloadBroadcastManager.java",
+   "java/src/org/chromium/chrome/browser/download/DownloadController.java",
+@@ -1124,6 +1125,7 @@ chrome_java_sources = [
+   "java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateController.java",
+   "java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateControllerFactory.java",
+   "java/src/org/chromium/chrome/browser/omaha/inline/NoopInlineUpdateController.java",
++  "java/src/org/chromium/chrome/browser/omaha/inline/UCInlineUpdateController.java",
+   "java/src/org/chromium/chrome/browser/omaha/inline/PlayInlineUpdateController.java",
+   "java/src/org/chromium/chrome/browser/omaha/metrics/HistogramUtils.java",
+   "java/src/org/chromium/chrome/browser/omaha/metrics/TrackingProvider.java",
+--- a/chrome/android/java/src/org/chromium/chrome/browser/omaha/UpdateConfigs.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/omaha/UpdateConfigs.java
+@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
+ 
+ import org.chromium.base.CommandLine;
+ import org.chromium.base.ContextUtils;
++import org.chromium.base.Log;
+ import org.chromium.chrome.R;
+ import org.chromium.chrome.browser.flags.ChromeFeatureList;
+ import org.chromium.chrome.browser.flags.ChromeSwitches;
+@@ -235,7 +236,7 @@ public class UpdateConfigs {
+      */
+     public static boolean isUpdateNotificationEnabled() {
+         return ChromeFeatureList.getFieldTrialParamByFeatureAsBoolean(
+-                ChromeFeatureList.INLINE_UPDATE_FLOW, UPDATE_NOTIFICATION_STATE_PARAM_NAME, false);
++                ChromeFeatureList.INLINE_UPDATE_FLOW, UPDATE_NOTIFICATION_STATE_PARAM_NAME, true);
+     }
+ 
+     /**
+@@ -301,6 +302,8 @@ public class UpdateConfigs {
+      */
+     @UpdateFlowConfiguration
+     static int getConfiguration() {
++        Log.d("UpdateConfigs", "INLINE_UPDATE_FLOW enabled: %b",
++                ChromeFeatureList.isEnabled(ChromeFeatureList.INLINE_UPDATE_FLOW));
+         if (!ChromeFeatureList.isEnabled(ChromeFeatureList.INLINE_UPDATE_FLOW)) {
+             // Always use the the old flow if the inline update flow feature is not enabled.
+             return UpdateFlowConfiguration.INTENT_ONLY;
+@@ -326,6 +329,8 @@ public class UpdateConfigs {
+         String configuration = ChromeFeatureList.getFieldTrialParamByFeature(
+                 ChromeFeatureList.INLINE_UPDATE_FLOW, UPDATE_FLOW_PARAM_NAME);
+         if (configuration == null) return "";
++        Log.d("UpdateConfigs", "configuration: %s",
++                configuration.toLowerCase(Locale.US));
+         return configuration.toLowerCase(Locale.US);
+     }
+ }
+\ No newline at end of file
+--- a/chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateControllerFactory.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateControllerFactory.java
+@@ -21,6 +21,6 @@ public class InlineUpdateControllerFacto
+ 
+         // No test scenario was in place, and the inline flow has not been enabled, so use a
+         // controller with no functionality.
+-        return new NoopInlineUpdateController(callback);
++        return new UCInlineUpdateController(callback);
+     }
+ }
+--- a/chrome/android/java/src/org/chromium/chrome/browser/omaha/UpdateStatusProvider.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/omaha/UpdateStatusProvider.java
+@@ -27,6 +27,7 @@ import org.chromium.base.ApplicationStat
+ import org.chromium.base.BuildInfo;
+ import org.chromium.base.Callback;
+ import org.chromium.base.ContextUtils;
++import org.chromium.base.Log;
+ import org.chromium.base.ObserverList;
+ import org.chromium.base.ThreadUtils;
+ import org.chromium.base.metrics.RecordHistogram;
+@@ -297,13 +298,19 @@ public class UpdateStatusProvider implem
+ 
+     private void resolveStatus() {
+         if (mOmahaQuery.getStatus() != Status.FINISHED || mInlineController.getStatus() == null) {
++            Log.d("UpdateStatusProvider",
++                    "resolveStatus: mOmahaQuery.getStatus() != Status.FINISHED");
+             return;
+         }
+ 
+         // We pull the Omaha result once as it will never change.
+-        if (mStatus == null) mStatus = new UpdateStatus(mOmahaQuery.getResult());
++        if (mStatus == null) {
++            Log.d("UpdateStatusProvider", "resolveStatus: mStatus == null");
++            mStatus = new UpdateStatus(mOmahaQuery.getResult());
++        }
+ 
+         if (mStatus.mIsSimulated) {
++            Log.d("UpdateStatusProvider", "resolveStatus: mStatus.mIsSimulated");
+             if (mStatus.mIsInlineSimulated) {
+                 @UpdateState
+                 int inlineState = mInlineController.getStatus();
+@@ -319,8 +326,13 @@ public class UpdateStatusProvider implem
+             int omahaState = mOmahaQuery.getResult().updateState;
+             @UpdateState
+             int inlineState = mInlineController.getStatus();
++            Log.d("UpdateStatusProvider",
++        "configuration: %d, omahaState: %d, inlineState: %d",
++                    UpdateConfigs.getConfiguration(), omahaState, inlineState);
+             mStatus.updateState = resolveOmahaAndInlineStatus(
+                     UpdateConfigs.getConfiguration(), omahaState, inlineState);
++            Log.d("UpdateStatusProvider", "mStatus.updateState: %d",
++                    mStatus.updateState);
+         }
+ 
+         if (!mRecordedInitialStatus) {
+@@ -341,11 +353,11 @@ public class UpdateStatusProvider implem
+             case UpdateConfigs.UpdateFlowConfiguration.NEVER_SHOW:
+                 return UpdateState.NONE;
+             case UpdateConfigs.UpdateFlowConfiguration.INLINE_ONLY:
+-                if (omahaState != UpdateState.UPDATE_AVAILABLE) return omahaState;
++//                if (omahaState != UpdateState.UPDATE_AVAILABLE) return omahaState;
+                 if (inlineState == UpdateState.NONE) return UpdateState.NONE;
+                 return inlineState;
+             case UpdateConfigs.UpdateFlowConfiguration.BEST_EFFORT:
+-                if (omahaState != UpdateState.UPDATE_AVAILABLE) return omahaState;
++//                if (omahaState != UpdateState.UPDATE_AVAILABLE) return omahaState;
+                 if (inlineState == UpdateState.NONE) return omahaState;
+                 return inlineState;
+             case UpdateConfigs.UpdateFlowConfiguration.INTENT_ONLY: // Intentional fall through.
+@@ -376,6 +388,8 @@ public class UpdateStatusProvider implem
+         @Override
+         protected UpdateStatus doInBackground() {
+             UpdateStatus testStatus = getTestStatus();
++            Log.d("UpdateStatusProvider", "getTestStatus: null: %b",
++                    testStatus == null);
+             if (testStatus != null) return testStatus;
+             return getRealStatus(mContext);
+         }
+--- a/chrome/browser/flags/android/chrome_feature_list.cc
++++ b/chrome/browser/flags/android/chrome_feature_list.cc
+@@ -453,6 +453,7 @@ const base::Feature kImmersiveUiMode{"Im
+ 
+ const base::Feature kInlineUpdateFlow{"InlineUpdateFlow",
+                                       base::FEATURE_DISABLED_BY_DEFAULT};
++                                      //base::FEATURE_ENABLED_BY_DEFAULT};
+ 
+ const base::Feature kInstantStart{"InstantStart",
+                                   base::FEATURE_DISABLED_BY_DEFAULT};
+--- a/chrome/browser/updates/update_notification_config.cc
++++ b/chrome/browser/updates/update_notification_config.cc
+@@ -51,7 +51,7 @@ constexpr double kDefaultThrottleInterva
+ constexpr double kDefaultThrottleIntervalOffset = 0.0;
+ 
+ // Default update notification state.
+-constexpr bool kDefaultUpdateNotificationState = false;
++constexpr bool kDefaultUpdateNotificationState = true;
+ 
+ std::unique_ptr<UpdateNotificationConfig> UpdateNotificationConfig::Create() {
+   return std::make_unique<UpdateNotificationConfig>();
+--- a/chrome/android/java/AndroidManifest.xml
++++ b/chrome/android/java/AndroidManifest.xml
+@@ -1163,7 +1163,7 @@ android:value="true" />
+         <service android:name="org.chromium.chrome.browser.tracing.TracingNotificationService"
+             android:exported="false"/>
+ 
+-        <receiver android:name="org.chromium.chrome.browser.omaha.UpdateNotificationController$UpdateNotificationReceiver"
++        <receiver android:name="org.chromium.chrome.browser.omaha.notification.UpdateNotificationControllerImpl$UpdateNotificationReceiver"
+             android:exported="false"/>
+ 
+         <meta-data android:name="org.chromium.content.browser.SMART_CLIP_PROVIDER"
+--- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
++++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
+@@ -1956,7 +1956,7 @@ To change this setting, <ph name="BEGIN_
+         Update Chrome
+       </message>
+       <message name="IDS_UPDATE_NOTIFICATION_TEXT_BODY_DEFAULT" desc="Default text showing in the update notification body, kindly telling user to update to the latest version of Chrome.">
+-        For the best browsing experience, open to update Chrome
++        For the best browsing experience, open to update Ungoogled-Chromium
+       </message>
+       <message name="IDS_UPDATE_NOTIFICATION_TITLE_EXPERIMENTAL_UPDATE_CHROME" desc="Experimental version A title of update notification to remind user to update Chrome.">
+         Update Chrome
+--- /dev/null
++++ b/chrome/android/java/src/org/chromium/chrome/browser/download/ChromeUpdateDownloadDelegate.java
+@@ -0,0 +1,153 @@
++// Copyright 2015 The Chromium Authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++package org.chromium.chrome.browser.download;
++
++import android.Manifest.permission;
++import android.app.DownloadManager;
++import android.content.pm.PackageManager;
++import android.net.Uri;
++import android.os.Environment;
++import android.text.TextUtils;
++import android.util.Pair;
++import android.webkit.MimeTypeMap;
++import android.webkit.URLUtil;
++
++import androidx.annotation.VisibleForTesting;
++
++import org.chromium.base.Log;
++import org.chromium.base.ThreadUtils;
++import org.chromium.base.UserData;
++import org.chromium.base.UserDataHost;
++import org.chromium.base.task.AsyncTask;
++import org.chromium.chrome.browser.tab.Tab;
++import org.chromium.components.embedder_support.util.UrlConstants;
++import org.chromium.ui.base.PermissionCallback;
++import org.chromium.ui.base.WindowAndroid;
++
++import java.io.File;
++
++/**
++ * Chrome implementation of the ContentViewDownloadDelegate interface.
++ * Extends from the Context Menu Download Delegate.
++ *
++ * Listens to POST and GET download events. GET download requests are passed along to the
++ * Android Download Manager. POST downloads are expected to be handled natively and listener
++ * is responsible for adding the completed download to the download manager.
++ */
++public class ChromeUpdateDownloadDelegate  extends ChromeDownloadDelegate
++        implements DownloadController.Observer {
++    private static final String TAG = "UpdateDownload";
++
++    private static final Class<ChromeUpdateDownloadDelegate> USER_DATA_KEY = ChromeUpdateDownloadDelegate.class;
++    private Tab mTab;
++
++    public static ChromeUpdateDownloadDelegate from(Tab tab) {
++        UserDataHost host = tab.getUserDataHost();
++        ChromeUpdateDownloadDelegate controller = host.getUserData(USER_DATA_KEY);
++        return controller == null ? host.setUserData(USER_DATA_KEY,
++                new ChromeUpdateDownloadDelegate(tab))
++                : controller;
++    }
++
++    /**
++     * Creates ChromeUpdateDownloadDelegate.
++     * @param tab The corresponding tab instance.
++     */
++    @VisibleForTesting
++    ChromeUpdateDownloadDelegate(Tab tab) {
++        super(tab);
++        mTab = tab;
++        DownloadController.setDownloadNotificationService(this);
++    }
++
++    @Override
++    public void destroy() {
++        mTab = null;
++        super.destroy();
++    }
++
++    /**
++     * Call this function to send download to android DownloadManager.
++     *
++     * @param url URL to be downloaded.
++     * @return whether the download is successfully started
++     */
++    public boolean startDownload(String url) {
++        Uri uri = Uri.parse(url);
++        String scheme = uri.normalizeScheme().getScheme();
++        if (!UrlConstants.HTTP_SCHEME.equals(scheme) && !UrlConstants.HTTPS_SCHEME.equals(scheme)) {
++            return false;
++        }
++        if (mTab == null) return false;
++        String fileExtenstion = MimeTypeMap.getFileExtensionFromUrl(url);
++        String fileName = URLUtil.guessFileName(url, null, fileExtenstion);
++        final DownloadInfo downloadInfo =
++                new DownloadInfo.Builder().setUrl(url).setFileName(fileName).build();
++        WindowAndroid window = mTab.getWindowAndroid();
++        if (window.hasPermission(permission.WRITE_EXTERNAL_STORAGE)) {
++            onDownloadStartNoStream(downloadInfo);
++        } else if (window.canRequestPermission(permission.WRITE_EXTERNAL_STORAGE)) {
++            PermissionCallback permissionCallback = (permissions, grantResults) -> {
++                if (grantResults.length > 0
++                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
++                    onDownloadStartNoStream(downloadInfo);
++                }
++            };
++            window.requestPermissions(
++                    new String[] {permission.WRITE_EXTERNAL_STORAGE}, permissionCallback);
++        }
++        return true;
++    }
++
++    /**
++     * Should not be called.
++     */
++    @Override
++    public boolean shouldInterceptContextMenuDownload(String url) {
++        return false;
++    }
++
++    /**
++     * Notify the host application that a download is finished.
++     *
++     * @param downloadInfo Information about the completed download.
++     */
++    @Override
++    public void onDownloadCompleted(DownloadInfo downloadInfo) {
++        Log.d(TAG, "onDownloadCompleted");
++    }
++
++    /**
++     * Notify the host application that a download is in progress.
++     *
++     * @param downloadInfo Information about the in-progress download.
++     */
++    @Override
++    public void onDownloadUpdated(DownloadInfo downloadInfo) {
++        Log.d(TAG, "onDownloadUpdated");
++
++    }
++
++    /**
++     * Notify the host application that a download is cancelled.
++     *
++     * @param downloadInfo Information about the cancelled download.
++     */
++    @Override
++    public void onDownloadCancelled(DownloadInfo downloadInfo) {
++        Log.d(TAG, "onDownloadCancelled");
++    }
++
++    /**
++     * Notify the host application that a download is interrupted.
++     *
++     * @param downloadInfo Information about the completed download.
++     * @param isAutoResumable Download can be auto resumed when network becomes available.
++     */
++    @Override
++    public void onDownloadInterrupted(DownloadInfo downloadInfo, boolean isAutoResumable) {
++        Log.d(TAG, "onDownloadInterrupted");
++    }
++}
+--- a/chrome/browser/flag_descriptions.cc
++++ b/chrome/browser/flag_descriptions.cc
+@@ -2708,10 +2708,9 @@ const char kUsageStatsDescription[] =
+     "to websites in order to enforce user-defined time limits.";
+ const char kUsageStatsName[] = "Share Usage Stats with Digital Wellbeing";
+ 
+-const char kInlineUpdateFlowName[] = "Enable Google Play inline update flow";
++const char kInlineUpdateFlowName[] = "Enable inline update flow";
+ const char kInlineUpdateFlowDescription[] =
+-    "When this flag is set, instead of taking the user to the Google Play "
+-    "Store when an update is available, the user is presented with an inline "
++    "When this flag is set,  the user is presented with an inline "
+     "flow where they do not have to leave Chrome until the update is ready "
+     "to install.";
+ 

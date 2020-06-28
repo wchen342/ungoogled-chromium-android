@@ -1,3 +1,10 @@
+# 83.0.4103.116-1
+* Add update notification (resolve [#22](https://git.droidware.info/wchen342/ungoogled-chromium-android/issues/22)). Note: this is disabled by default since it will ping my server at [uc.droidware.info](https://uc.droidware.info). To enable, change `#enable-inline-update-flow` to `Enabled`.
+* Reverse the removal of flags `#enable-process-sharing-with-default-site-instances` and `#enable-process-sharing-with-strict-site-instances`.
+* Extension version:
+  * [`chromium-webstore`](https://github.com/NeverDecaf/chromium-web-store) is now bundled with extension version
+  * Resolve [#45](https://git.droidware.info/wchen342/ungoogled-chromium-android/issues/45)
+
 # 83.0.4103.106-1
 * Extension version:
   * Fix a bug preventing non Android 10 phones from installing extensions from url
