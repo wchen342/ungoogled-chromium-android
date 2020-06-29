@@ -1,6 +1,6 @@
 --- /dev/null
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/UCInlineUpdateController.java
-@@ -0,0 +1,211 @@
+@@ -0,0 +1,213 @@
 +// Copyright 2020 The Ungoogled-Chromium Authors. All rights reserved.
 +// Use of this source code is governed by a BSD-style license that can be
 +// found in the LICENSE file.
@@ -137,7 +137,9 @@
 +                    if (isNewVersionAvailable(result)) {
 +                        postStatus(UpdateStatusProvider.UpdateState.INLINE_UPDATE_AVAILABLE);
 +                    } else {
-+                        postStatus(UpdateStatusProvider.UpdateState.NONE);
++                        if (mUpdateState != UpdateStatusProvider.UpdateState.NONE) {
++                            postStatus(UpdateStatusProvider.UpdateState.NONE);
++                        }
 +                    }
 +                });
 +                break;

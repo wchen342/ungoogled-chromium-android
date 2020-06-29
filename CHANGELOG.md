@@ -1,3 +1,6 @@
+# 83.0.4103.116-2
+* Fix bug with update notification keeps sending pings
+
 # 83.0.4103.116-1
 * Add update notification (resolve [#22](https://git.droidware.info/wchen342/ungoogled-chromium-android/issues/22)). Note: this is disabled by default since it will ping my server at [uc.droidware.info](https://uc.droidware.info). To enable, change `#enable-inline-update-flow` to `Enabled`.
   * Update: the functionality currently has a bug that will make it send continuous bursts of requests to my server. Please DO NOT enable it for now. This will be fixed in the next version.
