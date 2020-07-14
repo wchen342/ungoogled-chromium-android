@@ -1,3 +1,8 @@
+From: Wengling Chen <feiyu2817@gmail.com>
+Date: Mon, 13 Jul 2020 23:37:25 -0400
+Subject: add download prompt for installing extensions
+
+
 ---
  base/android/java/src/org/chromium/base/ContentUriUtils.java                                         |    1 
  base/files/file_path.cc                                                                              |    8 
