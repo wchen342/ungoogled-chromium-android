@@ -1,0 +1,667 @@
+From: Wengling Chen <feiyu2817@gmail.com>
+Date: Mon, 13 Jul 2020 23:37:25 -0400
+Subject: fix remove button for extensions
+
+
+---
+--- a/chrome/browser/extensions/chrome_extension_function_details.cc
++++ b/chrome/browser/extensions/chrome_extension_function_details.cc
+@@ -76,15 +76,18 @@ gfx::NativeWindow ChromeExtensionFunctio
+   extensions::WindowController* controller =
+       extensions::WindowControllerList::GetInstance()->CurrentWindowForFunction(
+           function_);
+-  if (controller)
++  LOG(INFO) << "chrome_extension_function_details.cc: GetNativeWindowForUI: controller == NULL: " << (controller == NULL);
++  if (controller) {
++    LOG(INFO) << "chrome_extension_function_details.cc: GetNativeWindowForUI: controller->window()->GetNativeWindow() == NULL: " << (controller->window()->GetNativeWindow() == NULL);
+     return controller->window()->GetNativeWindow();
++  }
+ 
+   // Next, check the sender web contents for if it supports modal dialogs.
+   // TODO(devlin): This seems weird. Why wouldn't we check this first?
+   content::WebContents* sender_web_contents = function_->GetSenderWebContents();
++  LOG(INFO) << "chrome_extension_function_details.cc: GetNativeWindowForUI: sender_web_contents->GetTopLevelNativeWindow() == NULL: " << (sender_web_contents->GetTopLevelNativeWindow() == NULL);
+   if (sender_web_contents &&
+-      web_modal::WebContentsModalDialogManager::FromWebContents(
+-           sender_web_contents)) {
++      sender_web_contents->GetTopLevelNativeWindow()) {
+     return sender_web_contents->GetTopLevelNativeWindow();
+   }
+ 
+@@ -94,16 +97,22 @@ gfx::NativeWindow ChromeExtensionFunctio
+     extensions::AppWindow* window =
+         extensions::AppWindowRegistry::Get(function_->browser_context())
+             ->GetCurrentAppWindowForApp(function_->extension()->id());
+-    if (window)
++    LOG(INFO) << "chrome_extension_function_details.cc: GetNativeWindowForUI: extensions::AppWindow* window == NULL: " << (window == NULL);
++    if (window) {
++      LOG(INFO) << "chrome_extension_function_details.cc: GetNativeWindowForUI: window->web_contents()->GetTopLevelNativeWindow() == NULL: " << (window->web_contents()->GetTopLevelNativeWindow() == NULL);
+       return window->web_contents()->GetTopLevelNativeWindow();
++    }
+   }
+ 
+   // As a last resort, find a browser.
+   Browser* browser = chrome::FindBrowserWithProfile(GetProfile());
++  LOG(INFO) << "chrome_extension_function_details.cc: GetNativeWindowForUI: browser == NULL: " << (browser == NULL);
+   // If there are no browser windows open, no window is available.
+   // This could happen e.g. if extension launches a long process or simple
+   // sleep() in the background script, during which browser is closed.
+   if (!browser)
+     return nullptr;
++
++  LOG(INFO) << "chrome_extension_function_details.cc: GetNativeWindowForUI: browser->window()->GetNativeWindow() == NULL: " << (browser->window()->GetNativeWindow() == NULL);
+   return browser->window()->GetNativeWindow();
+ }
+--- a/chrome/browser/ui/views/extensions/extension_uninstall_dialog_view.cc
++++ b/chrome/browser/ui/views/extensions/extension_uninstall_dialog_view.cc
+@@ -127,13 +127,16 @@ ExtensionUninstallDialogViews::~Extensio
+ }
+ 
+ void ExtensionUninstallDialogViews::Show() {
++  LOG(INFO) << "extension_uninstall_dialog_view.cc: Show(): parent() == NULL: " << (parent() == NULL);
+   BrowserView* const browser_view =
+       parent() ? BrowserView::GetBrowserViewForNativeWindow(parent()) : nullptr;
++  LOG(INFO) << "extension_uninstall_dialog_view.cc: Show(): browser_view == NULL: " << (browser_view == NULL);
+   ToolbarActionView* anchor_view = nullptr;
+   ExtensionsToolbarContainer* const container =
+       browser_view ? browser_view->toolbar_button_provider()
+                          ->GetExtensionsToolbarContainer()
+                    : nullptr;
++  LOG(INFO) << "extension_uninstall_dialog_view.cc: Show(): container == NULL: " << (container == NULL);
+   if (container) {
+     anchor_view = container->GetViewForId(extension()->id());
+   } else if (browser_view &&
+@@ -147,6 +150,7 @@ void ExtensionUninstallDialogViews::Show
+     if (reference_view && reference_view->GetVisible())
+       anchor_view = reference_view;
+   }
++  LOG(INFO) << "extension_uninstall_dialog_view.cc: Show(): anchor_view == NULL: " << (anchor_view == NULL);
+   view_ = new ExtensionUninstallDialogDelegateView(
+       this, anchor_view, extension(), triggering_extension(), &icon());
+   if (anchor_view) {
+--- /dev/null
++++ b/chrome/android/java/src/org/chromium/chrome/browser/extensions/ExtensionUninstallCustomScrollView.java
+@@ -0,0 +1,63 @@
++// Copyright 2020 The Ungoogled-Chromium Authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++package org.chromium.chrome.browser.extensions;
++
++import android.content.Context;
++import android.util.AttributeSet;
++import android.view.View;
++import android.widget.CheckBox;
++import android.widget.CompoundButton;
++import android.widget.CompoundButton.OnCheckedChangeListener;
++import android.widget.ScrollView;
++import android.widget.TextView;
++
++import org.chromium.chrome.extensions.R;
++
++/**
++ * Dialog that is displayed to ask user whether they want to remove the extension.
++ */
++public class ExtensionUninstallCustomScrollView
++        extends ScrollView implements OnCheckedChangeListener {
++    private TextView mSubtitleView;
++    private CheckBox mCheckbox;
++
++    private boolean mCheckboxChecked;
++
++    public ExtensionUninstallCustomScrollView(Context context, AttributeSet attrs) {
++        super(context, attrs);
++        mCheckboxChecked = false;
++    }
++
++    @Override
++    protected void onFinishInflate() {
++        super.onFinishInflate();
++
++        mSubtitleView = findViewById(R.id.subtitle);
++        mCheckbox = findViewById(R.id.checkbox);
++    }
++
++    void initialize(String extension_name,
++            String windowTitle, String heading,
++            boolean checkbox, String checkboxLabel) {
++
++        if (checkbox) {
++            mCheckbox.setVisibility(View.VISIBLE);
++            mCheckbox.setText(checkboxLabel);
++            mCheckbox.setChecked(false);
++        }
++        mCheckbox.setOnCheckedChangeListener(this);
++
++        mSubtitleView.setText(heading);
++    }
++
++    protected boolean getcheckboxChecked() {
++        return mCheckboxChecked;
++    }
++
++    @Override
++    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
++        mCheckboxChecked = isChecked;
++    }
++}
+\ No newline at end of file
+--- /dev/null
++++ b/chrome/android/java/src/org/chromium/chrome/browser/extensions/ExtensionUninstallDialogBridge.java
+@@ -0,0 +1,146 @@
++// Copyright 2020 The Ungoogled-Chromium Authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++package org.chromium.chrome.browser.extensions;
++
++import android.content.Context;
++import android.content.res.Resources;
++import android.view.LayoutInflater;
++
++import org.chromium.base.annotations.CalledByNative;
++import org.chromium.base.annotations.NativeMethods;
++import org.chromium.chrome.browser.ChromeActivity;
++import org.chromium.chrome.extensions.R;
++import org.chromium.ui.base.WindowAndroid;
++import org.chromium.ui.modaldialog.DialogDismissalCause;
++import org.chromium.ui.modaldialog.ModalDialogManager;
++import org.chromium.ui.modaldialog.ModalDialogProperties;
++import org.chromium.ui.modelutil.PropertyModel;
++
++
++/**
++* Helper class to handle communication between extension uninstall dialog and native.
++*/
++
++public class ExtensionUninstallDialogBridge implements ModalDialogProperties.Controller {
++    private long mNativeExtensionUninstallDialogDelegateView;
++    private PropertyModel mDialogModel;
++    private ExtensionUninstallCustomScrollView mCustomView;
++    private ModalDialogManager mModalDialogManager;
++    private Context mContext;
++
++    private ExtensionUninstallDialogBridge(long nativeExtensionUninstallDialogDelegateView) {
++        mNativeExtensionUninstallDialogDelegateView = nativeExtensionUninstallDialogDelegateView;
++    }
++
++    @CalledByNative
++    public static ExtensionUninstallDialogBridge create(
++            long nativeExtensionUninstallDialogDelegateView) {
++        return new ExtensionUninstallDialogBridge(nativeExtensionUninstallDialogDelegateView);
++    }
++
++    @CalledByNative
++    private void destroy() {
++        mNativeExtensionUninstallDialogDelegateView = 0;
++        if (mModalDialogManager != null) {
++            mModalDialogManager.dismissDialog(
++                    mDialogModel, DialogDismissalCause.DISMISSED_BY_NATIVE);
++        }
++    }
++
++    @CalledByNative
++    public void show(WindowAndroid windowAndroid,
++            String extension_name, String windowTitle, String heading,
++            boolean checkbox, String checkboxLabel) {
++        ChromeActivity activity = (ChromeActivity) windowAndroid.getActivity().get();
++        // If the activity has gone away, just clean up the native pointer.
++        if (activity == null) {
++            onDismiss(null, DialogDismissalCause.ACTIVITY_DESTROYED);
++            return;
++        }
++
++        mModalDialogManager = activity.getModalDialogManager();
++        mContext = activity;
++
++        // Already showing the dialog.
++        if (mDialogModel != null) return;
++
++        // Actually show the dialog.
++        mCustomView = (ExtensionUninstallCustomScrollView) LayoutInflater.from(mContext).inflate(
++                R.layout.extension_uninstall_dialog, null);
++        mCustomView.initialize(extension_name, windowTitle, heading,
++                checkbox, checkboxLabel);
++
++        Resources resources = mContext.getResources();
++        mDialogModel =
++                new PropertyModel.Builder(ModalDialogProperties.ALL_KEYS)
++                        .with(ModalDialogProperties.CONTROLLER, this)
++                        .with(ModalDialogProperties.TITLE, windowTitle)
++                        .with(ModalDialogProperties.CUSTOM_VIEW, mCustomView)
++                        .with(ModalDialogProperties.POSITIVE_BUTTON_TEXT, resources,
++                                R.string.extension_prompt_uninstall_button)
++                        .with(ModalDialogProperties.NEGATIVE_BUTTON_TEXT, resources,
++                                R.string.cancel)
++                        .build();
++
++        mModalDialogManager.showDialog(mDialogModel, ModalDialogManager.ModalDialogType.APP);
++    }
++
++    @Override
++    public void onClick(PropertyModel model, int buttonType) {
++        switch (buttonType) {
++            case ModalDialogProperties.ButtonType.POSITIVE:
++                mModalDialogManager.dismissDialog(
++                        model, DialogDismissalCause.POSITIVE_BUTTON_CLICKED);
++                break;
++            case ModalDialogProperties.ButtonType.NEGATIVE:
++                mModalDialogManager.dismissDialog(
++                        model, DialogDismissalCause.NEGATIVE_BUTTON_CLICKED);
++                break;
++            default:
++        }
++    }
++
++    @Override
++    public void onDismiss(PropertyModel model, int dismissalCause) {
++        switch (dismissalCause) {
++            case DialogDismissalCause.POSITIVE_BUTTON_CLICKED:
++                accept((mCustomView != null && mCustomView.getcheckboxChecked()));
++                break;
++            default:
++                cancel();
++                break;
++        }
++        mDialogModel = null;
++        mCustomView = null;
++    }
++
++    private void accept(boolean checkboxChecked) {
++        if (mNativeExtensionUninstallDialogDelegateView != 0) {
++            ExtensionUninstallDialogBridgeJni.get().Accept(
++                    mNativeExtensionUninstallDialogDelegateView,
++                    ExtensionUninstallDialogBridge.this,
++                    checkboxChecked);
++        }
++    }
++
++    private void cancel() {
++        if (mNativeExtensionUninstallDialogDelegateView != 0) {
++            ExtensionUninstallDialogBridgeJni.get().Cancel(
++                    mNativeExtensionUninstallDialogDelegateView,
++                    ExtensionUninstallDialogBridge.this);
++        }
++    }
++
++    @NativeMethods
++    interface Natives {
++        void Cancel(
++                long nativeExtensionUninstallDialogDelegateView,
++                ExtensionUninstallDialogBridge caller);
++        void Accept(
++                long nativeExtensionUninstallDialogDelegateView,
++                ExtensionUninstallDialogBridge caller,
++                boolean checkboxChecked);
++    }
++}
+--- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
++++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
+@@ -1457,11 +1457,12 @@ Your Google account may have other forms
+       <message name="IDS_RENAME_EXTENSION_MESSAGE" desc="Message to warn users the danger of changing file extension.">
+         If you change the file extension, the file may open in a different application and potentially be a hazard to your device.
+       </message>
+-
+-      <!-- About Chrome preferences -->
+       <message name="IDS_EXTENSION_INSTALL_PROMPT_OK_BUTTON" desc="OK button for extension install dialog [CHAR-LIMIT=16]">
+         Install
+       </message>
++      <message name="IDS_EXTENSION_PROMPT_UNINSTALL_BUTTON" desc="Text for the uninstall button on the extension uninstall prompt">
++        Remove
++      </message>
+ 
+       <!-- About Chrome preferences -->
+       <message name="IDS_PREFS_ABOUT_CHROME" desc="Title for the About Chrome page. [CHAR-LIMIT=32]">
+--- /dev/null
++++ b/chrome/browser/extensions/android/java/res/layout/extension_uninstall_dialog.xml
+@@ -0,0 +1,38 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Copyright 2020 The Ungoogled-Chromium Authors. All rights reserved.
++     Use of this source code is governed by a BSD-style license that can be
++     found in the LICENSE file. -->
++
++<org.chromium.chrome.browser.extensions.ExtensionUninstallCustomScrollView
++    xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:app="http://schemas.android.com/apk/res-auto"
++    android:layout_width="match_parent"
++    android:layout_height="wrap_content" >
++
++    <LinearLayout
++        android:orientation="vertical"
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        style="@style/AlertDialogContent">
++
++        <TextView
++            android:layout_width="match_parent"
++            android:layout_height="wrap_content"
++            android:id="@+id/subtitle"
++            android:textAppearance="@style/TextAppearance.TextMedium.Secondary"
++            android:visibility="visible"
++            android:layout_marginBottom="16dp" />
++
++        <CheckBox
++            style="@style/TextAppearance.TextMedium.Tertiary"
++            android:id="@+id/checkbox"
++            android:visibility="gone"
++            android:layout_width="match_parent"
++            android:layout_height="wrap_content"
++            android:layout_marginTop="16dp"
++            android:layout_marginStart="-5dp"/>
++
++    </LinearLayout>
++
++</org.chromium.chrome.browser.extensions.ExtensionUninstallCustomScrollView>
++
+--- a/chrome/android/BUILD.gn
++++ b/chrome/android/BUILD.gn
+@@ -2743,6 +2743,7 @@ generate_jni("chrome_jni_headers") {
+     "java/src/org/chromium/chrome/browser/explore_sites/ExploreSitesCategoryTile.java",
+     "java/src/org/chromium/chrome/browser/explore_sites/ExploreSitesSite.java",
+     "java/src/org/chromium/chrome/browser/extensions/ExtensionInstallDialogViewBridge.java",
++    "java/src/org/chromium/chrome/browser/extensions/ExtensionUninstallDialogBridge.java",
+     "java/src/org/chromium/chrome/browser/feature_engagement/TrackerFactory.java",
+     "java/src/org/chromium/chrome/browser/feedback/ConnectivityChecker.java",
+     "java/src/org/chromium/chrome/browser/feedback/ProcessIdFeedbackSource.java",
+--- a/chrome/android/chrome_java_sources.gni
++++ b/chrome/android/chrome_java_sources.gni
+@@ -690,6 +690,8 @@ chrome_java_sources = [
+   "java/src/org/chromium/chrome/browser/explore_sites/StableScrollLayoutManager.java",
+   "java/src/org/chromium/chrome/browser/extensions/ExtensionInstallDialogViewBridge.java",
+   "java/src/org/chromium/chrome/browser/extensions/ExtensionInstallCustomScrollView.java",
++  "java/src/org/chromium/chrome/browser/extensions/ExtensionUninstallDialogBridge.java",
++  "java/src/org/chromium/chrome/browser/extensions/ExtensionUninstallCustomScrollView.java",
+   "java/src/org/chromium/chrome/browser/externalauth/ExternalAuthUtils.java",
+   "java/src/org/chromium/chrome/browser/externalauth/UserRecoverableErrorHandler.java",
+   "java/src/org/chromium/chrome/browser/externalauth/VerifiedHandler.java",
+--- /dev/null
++++ b/chrome/browser/ui/views/extensions/extension_uninstall_dialog_view_android.cc
+@@ -0,0 +1,176 @@
++// Copyright (c) 2012 The Chromium Authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++#include <memory>
++
++#include "chrome/browser/ui/views/extensions/extension_uninstall_dialog_view_android.h"
++
++#include "base/android/jni_android.h"
++#include "base/android/jni_string.h"
++#include "base/compiler_specific.h"
++#include "base/macros.h"
++#include "base/strings/string16.h"
++#include "base/strings/string_util.h"
++#include "base/strings/utf_string_conversions.h"
++#include "build/build_config.h"
++#include "chrome/android/chrome_jni_headers/ExtensionUninstallDialogBridge_jni.h"
++#include "chrome/browser/extensions/extension_uninstall_dialog.h"
++#include "chrome/browser/ui/browser_dialogs.h"
++#include "chrome/browser/ui/ui_features.h"
++#include "chrome/grit/generated_resources.h"
++#include "components/strings/grit/components_strings.h"
++#include "extensions/common/constants.h"
++#include "extensions/common/extension.h"
++#include "ui/base/l10n/l10n_util.h"
++#include "ui/android/window_android.h"
++
++ExtensionUninstallDialogViews::ExtensionUninstallDialogViews(
++    Profile* profile,
++    gfx::NativeWindow parent,
++    extensions::ExtensionUninstallDialog::Delegate* delegate)
++    : extensions::ExtensionUninstallDialog(profile, parent, delegate) {}
++
++ExtensionUninstallDialogViews::~ExtensionUninstallDialogViews() {
++  // Close the widget (the views framework will delete view_).
++  if (view_) {
++    view_->DialogDestroyed();
++  }
++}
++
++void ExtensionUninstallDialogViews::Show() {
++  view_ = new ExtensionUninstallDialogDelegateView(
++      this, extension(), triggering_extension());
++  view_->Show(parent());
++}
++
++void ExtensionUninstallDialogViews::DialogDelegateDestroyed() {
++  // Checks view_ to ensure OnDialogClosed() will not be called twice.
++  if (view_) {
++    view_ = nullptr;
++    OnDialogClosed(CLOSE_ACTION_CANCELED);
++  }
++}
++
++void ExtensionUninstallDialogViews::DialogAccepted(bool checkbox_checked) {
++  // The widget gets destroyed when the dialog is accepted.
++  DCHECK(view_);
++  view_->DialogDestroyed();
++  view_ = nullptr;
++
++  OnDialogClosed(checkbox_checked ? CLOSE_ACTION_UNINSTALL_AND_CHECKBOX_CHECKED
++                                  : CLOSE_ACTION_UNINSTALL);
++}
++
++void ExtensionUninstallDialogViews::DialogCanceled() {
++  // The widget gets destroyed when the dialog is canceled.
++  DCHECK(view_);
++  view_->DialogDestroyed();
++  view_ = nullptr;
++  OnDialogClosed(CLOSE_ACTION_CANCELED);
++}
++
++ExtensionUninstallDialogDelegateView::ExtensionUninstallDialogDelegateView(
++    ExtensionUninstallDialogViews* dialog_view,
++    const extensions::Extension* extension,
++    const extensions::Extension* triggering_extension)
++    : dialog_(dialog_view),
++      extension_name_(base::UTF8ToUTF16(extension->name())),
++      checkbox_(false) {
++  JNIEnv* env = base::android::AttachCurrentThread();
++  java_obj_.Reset(env, Java_ExtensionUninstallDialogBridge_create(
++    env, reinterpret_cast<intptr_t>(this)).obj());
++  DCHECK(!java_obj_.is_null());
++
++  if (triggering_extension) {
++    heading_ = l10n_util::GetStringFUTF16(
++            IDS_EXTENSION_PROMPT_UNINSTALL_TRIGGERED_BY_EXTENSION,
++            base::UTF8ToUTF16(triggering_extension->name()));
++  }
++
++  if (dialog_->ShouldShowCheckbox()) {
++    checkbox_ = true;
++  }
++
++  chrome::RecordDialogCreation(chrome::DialogIdentifier::EXTENSION_UNINSTALL);
++}
++
++ExtensionUninstallDialogDelegateView::~ExtensionUninstallDialogDelegateView() {
++  // If we're here, 2 things could have happened. Either the user closed the
++  // dialog nicely and one of the installed/canceled methods has been called
++  // (in which case dialog_ will be null), *or* neither of them have been
++  // called and we are being forced closed by our parent widget. In this case,
++  // we need to make sure to notify dialog_ not to call us again, since we're
++  // about to be freed by the Widget framework.
++  JNIEnv* env = base::android::AttachCurrentThread();
++  Java_ExtensionUninstallDialogBridge_destroy(env, java_obj_);
++  if (dialog_)
++    dialog_->DialogDelegateDestroyed();
++}
++
++const char* ExtensionUninstallDialogDelegateView::GetClassName() const {
++  return "ExtensionUninstallDialogDelegateView";
++}
++
++void ExtensionUninstallDialogDelegateView::Accept(
++      JNIEnv* env,
++      const base::android::JavaParamRef<jobject>& obj,
++      const jboolean jcheckbox_checked) {
++  bool checkbox_checked =
++    static_cast<bool>(jcheckbox_checked != JNI_FALSE);
++  if (dialog_)
++    dialog_->DialogAccepted(checkbox_ && checkbox_checked);
++}
++
++void ExtensionUninstallDialogDelegateView::Cancel(
++      JNIEnv* env,
++      const base::android::JavaParamRef<jobject>& obj) {
++  if (dialog_)
++    dialog_->DialogCanceled();
++}
++
++void ExtensionUninstallDialogDelegateView::Show(
++      gfx::NativeWindow native_window) const {
++  if (!native_window) {
++    LOG(ERROR) << "extension_uninstall_dialog_view_android.cc: Failed to get native window";
++    return;
++  }
++
++  // Call java method to create the dialog
++  base::string16 checkbox_label = base::UTF8ToUTF16("");
++  if (dialog_->ShouldShowCheckbox()) {
++    checkbox_label = dialog_->GetCheckboxLabel();
++  }
++  JNIEnv* env = base::android::AttachCurrentThread();
++  Java_ExtensionUninstallDialogBridge_show(
++    env, java_obj_,
++    native_window->GetJavaObject(),
++    base::android::ConvertUTF16ToJavaString(env, extension_name_),
++    base::android::ConvertUTF16ToJavaString(env, GetWindowTitle()),
++    base::android::ConvertUTF16ToJavaString(env, heading_),
++    static_cast<bool>(checkbox_),
++    base::android::ConvertUTF16ToJavaString(env, checkbox_label)
++  );
++}
++
++base::string16 ExtensionUninstallDialogDelegateView::GetWindowTitle() const {
++  return l10n_util::GetStringFUTF16(IDS_EXTENSION_PROMPT_UNINSTALL_TITLE,
++                                    extension_name_);
++}
++
++// static
++std::unique_ptr<extensions::ExtensionUninstallDialog>
++extensions::ExtensionUninstallDialog::Create(Profile* profile,
++                                             gfx::NativeWindow parent,
++                                             Delegate* delegate) {
++  return CreateViews(profile, parent, delegate);
++}
++
++// static
++std::unique_ptr<extensions::ExtensionUninstallDialog>
++extensions::ExtensionUninstallDialog::CreateViews(Profile* profile,
++                                                  gfx::NativeWindow parent,
++                                                  Delegate* delegate) {
++  return std::make_unique<ExtensionUninstallDialogViews>(profile, parent,
++                                                         delegate);
++}
+--- a/chrome/browser/ui/BUILD.gn
++++ b/chrome/browser/ui/BUILD.gn
+@@ -2903,7 +2903,8 @@ jumbo_static_library("ui") {
+       "views/extensions/extension_keybinding_registry_views.h",
+       "views/extensions/extension_permissions_view.cc",
+       "views/extensions/extension_permissions_view.h",
+-      "views/extensions/extension_uninstall_dialog_view.cc",
++      "views/extensions/extension_uninstall_dialog_view_android.cc",
++      "views/extensions/extension_uninstall_dialog_view_android.h",
+       "views/extensions/extensions_menu_button.cc",
+       "views/extensions/extensions_menu_button.h",
+       "views/extensions/extensions_menu_item_view.cc",
+--- a/chrome/browser/extensions/android/BUILD.gn
++++ b/chrome/browser/extensions/android/BUILD.gn
+@@ -7,6 +7,7 @@ import("//build/config/android/rules.gni
+ android_resources("java_resources") {
+   sources = [
+     "java/res/layout/extension_install_dialog.xml",
++    "java/res/layout/extension_uninstall_dialog.xml",
+   ]
+   deps = [
+     "//chrome/browser/ui/android/strings:ui_strings_grd",
+--- /dev/null
++++ b/chrome/browser/ui/views/extensions/extension_uninstall_dialog_view_android.h
+@@ -0,0 +1,87 @@
++// Copyright (c) 2012 The Chromium Authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++#ifndef CHROME_BROWSER_UI_VIEWS_EXTENSIONS_EXTENSION_UNINSTALL_DIALOG_VIEW_ANDROID_H_
++#define CHROME_BROWSER_UI_VIEWS_EXTENSIONS_EXTENSION_UNINSTALL_DIALOG_VIEW_ANDROID_H_
++
++#include "base/android/jni_android.h"
++#include "base/android/scoped_java_ref.h"
++#include "base/macros.h"
++#include "base/strings/string16.h"
++#include "chrome/browser/extensions/extension_uninstall_dialog.h"
++#include "extensions/common/constants.h"
++#include "extensions/common/extension.h"
++#include "ui/gfx/native_widget_types.h"
++
++namespace {
++class ExtensionUninstallDialogDelegateView;
++
++// Views implementation of the uninstall dialog.
++class ExtensionUninstallDialogViews
++    : public extensions::ExtensionUninstallDialog {
++ public:
++  ExtensionUninstallDialogViews(
++      Profile* profile,
++      gfx::NativeWindow parent,
++      extensions::ExtensionUninstallDialog::Delegate* delegate);
++  ~ExtensionUninstallDialogViews() override;
++
++  // Called when the ExtensionUninstallDialogDelegate has been destroyed to make
++  // sure we invalidate pointers. This object will also be freed.
++  void DialogDelegateDestroyed();
++
++  // Forwards the accept and cancels to the delegate.
++  void DialogAccepted(bool checkbox_checked);
++  void DialogCanceled();
++
++ private:
++  void Show() override;
++
++  ExtensionUninstallDialogDelegateView* view_ = nullptr;
++
++  DISALLOW_COPY_AND_ASSIGN(ExtensionUninstallDialogViews);
++};
++
++// The dialog's view, owned by the views framework.
++class ExtensionUninstallDialogDelegateView {
++ public:
++  // Constructor for view component of dialog. triggering_extension may be null
++  // if the uninstall dialog was manually triggered (from chrome://extensions).
++  ExtensionUninstallDialogDelegateView(
++      ExtensionUninstallDialogViews* dialog_view,
++      const extensions::Extension* extension,
++      const extensions::Extension* triggering_extension);
++  ~ExtensionUninstallDialogDelegateView();
++
++  void Accept(
++      JNIEnv* env,
++      const base::android::JavaParamRef<jobject>& obj,
++      const jboolean jcheckbox_checked);
++  void Cancel(
++      JNIEnv* env,
++      const base::android::JavaParamRef<jobject>& obj);
++  void Show(gfx::NativeWindow native_window) const;
++  // Called when the ExtensionUninstallDialog has been destroyed to make sure
++  // we invalidate pointers.
++  void DialogDestroyed() { dialog_ = NULL; }
++
++ private:
++  // views::View:
++  const char* GetClassName() const;
++
++  // views::DialogDelegateView:
++  base::string16 GetWindowTitle() const;
++
++  ExtensionUninstallDialogViews* dialog_;
++  const base::string16 extension_name_;
++  bool checkbox_;
++  base::string16 heading_;
++
++  base::android::ScopedJavaGlobalRef<jobject> java_obj_;
++
++  DISALLOW_COPY_AND_ASSIGN(ExtensionUninstallDialogDelegateView);
++};
++}
++
++#endif  // CHROME_BROWSER_UI_VIEWS_EXTENSIONS_EXTENSION_UNINSTALL_DIALOG_VIEW_ANDROID_H_
