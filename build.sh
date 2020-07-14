@@ -243,6 +243,9 @@ pushd src/buildtools/third_party/eu-strip
 popd
 # Some of the support libraries can be grabbed from maven https://android.googlesource.com/platform/prebuilts/maven_repo/android/+/master/com/android/support/
 
+# chromium-web-store, extension version only
+# git clone https://github.com/NeverDecaf/chromium-web-store
+# cp -ar chromium-web-store/src src/chrome/browser/resources/chromium_web_store
 
 # Additional Source Patches
 ## Extra fixes for Chromium source
@@ -259,10 +262,6 @@ if [[ -f ${cache_file} ]] ; then
     rm ${cache_file}
 fi
 python3 ungoogled-chromium/utils/domain_substitution.py apply -r ungoogled-chromium/domain_regex.list -f ${substitution_list_2} -c ${cache_file} src
-
-# chromium-web-store, extension version only
-# git clone https://github.com/NeverDecaf/chromium-web-store
-# cp -ar chromium-web-store/src src/chrome/browser/resources/chromium_web_store
 
 
 ## Configure output folder
