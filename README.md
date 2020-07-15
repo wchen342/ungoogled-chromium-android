@@ -66,7 +66,9 @@ For a more customized building process, see building instructions from [the orig
 
 ## Extensions
 
-*Note: the Extension-support version is highly experimental and unstable. Only use it if you want to help testing, or you know what you are doing! I will not be responsible for any loss or damage caused.*
+*Note: the extension-support version is highly experimental. It is not officially a part of `Ungoogled-Chromium`. Only use it if you want to help testing, or you know what you are doing! I will not be responsible for any loss or damage caused.*
+
+Users coming from Kiwi Browser: the extension-support version is *NOT* a successor of Kiwi, nor will it have the same functionalities as Kiwi.
 
 The extensions are likely not fully functional yet.
 
