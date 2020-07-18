@@ -12,7 +12,7 @@ Subject: add download prompt for installing extensions
  chrome/android/chrome_java_sources.gni                                                               |    2 
  chrome/android/java/src/org/chromium/chrome/browser/extensions/ExtensionInstallCustomScrollView.java |  130 ++++
  chrome/android/java/src/org/chromium/chrome/browser/extensions/ExtensionInstallDialogViewBridge.java |  156 +++++
- chrome/browser/download/download_crx_util.cc                                                         |   14 
+ chrome/browser/download/download_crx_util.cc                                                         |    5 
  chrome/browser/extensions/android/BUILD.gn                                                           |   20 
  chrome/browser/extensions/android/java/res/layout/extension_install_dialog.xml                       |  103 +++
  chrome/browser/extensions/crx_installer.cc                                                           |    7 
@@ -25,9 +25,9 @@ Subject: add download prompt for installing extensions
  chrome/browser/ui/views/extensions/extension_install_dialog_view_android.cc                          |  264 ++++++++++
  chrome/browser/ui/views/extensions/extension_install_dialog_view_android.h                           |   89 +++
  components/crx_file/crx_verifier.cc                                                                  |   11 
- extensions/browser/sandboxed_unpacker.cc                                                             |   19 
+ extensions/browser/sandboxed_unpacker.cc                                                             |   18 
  extensions/common/file_util.cc                                                                       |   22 
- 23 files changed, 894 insertions(+), 28 deletions(-)
+ 23 files changed, 885 insertions(+), 27 deletions(-)
 
 --- a/base/files/file_util_posix.cc
 +++ b/base/files/file_util_posix.cc
@@ -46,7 +46,7 @@ Subject: add download prompt for installing extensions
    return FilePath(full_path);
  }
  
-@@ -791,6 +796,7 @@ FILE* OpenFile(const FilePath& filename,
+@@ -788,6 +793,7 @@ FILE* OpenFile(const FilePath& filename,
    DCHECK(
        strchr(mode, 'e') == nullptr ||
        (strchr(mode, ',') != nullptr && strchr(mode, 'e') > strchr(mode, ',')));
@@ -54,7 +54,7 @@ Subject: add download prompt for installing extensions
    ScopedBlockingCall scoped_blocking_call(FROM_HERE, BlockingType::MAY_BLOCK);
    FILE* result = nullptr;
  #if defined(OS_MACOSX)
-@@ -800,9 +806,11 @@ FILE* OpenFile(const FilePath& filename,
+@@ -797,9 +803,11 @@ FILE* OpenFile(const FilePath& filename,
  #else
    std::string mode_with_e(AppendModeCharacter(mode, 'e'));
    const char* the_mode = mode_with_e.c_str();
@@ -68,7 +68,7 @@ Subject: add download prompt for installing extensions
    // Mark the descriptor as close-on-exec.
 --- a/chrome/browser/extensions/unpacked_installer.cc
 +++ b/chrome/browser/extensions/unpacked_installer.cc
-@@ -64,12 +64,19 @@ const char kImportNotSharedModule[] = "'
+@@ -63,12 +63,19 @@ const char kImportNotSharedModule[] = "'
  void MaybeCleanupMetadataFolder(const base::FilePath& extension_path) {
    const std::vector<base::FilePath> reserved_filepaths =
        file_util::GetReservedMetadataFilePaths(extension_path);
@@ -91,7 +91,7 @@ Subject: add download prompt for installing extensions
  }
  
  }  // namespace
-@@ -94,6 +101,7 @@ UnpackedInstaller::~UnpackedInstaller()
+@@ -93,6 +100,7 @@ UnpackedInstaller::~UnpackedInstaller()
  }
  
  void UnpackedInstaller::Load(const base::FilePath& path_in) {
@@ -99,7 +99,7 @@ Subject: add download prompt for installing extensions
    DCHECK(extension_path_.empty());
    extension_path_ = path_in;
    GetExtensionFileTaskRunner()->PostTask(
-@@ -111,17 +119,21 @@ bool UnpackedInstaller::LoadFromCommandL
+@@ -110,17 +118,21 @@ bool UnpackedInstaller::LoadFromCommandL
    // Load extensions from the command line synchronously to avoid a race
    // between extension loading and loading an URL from the command line.
    base::ThreadRestrictions::ScopedAllowIO allow_io;
@@ -121,7 +121,7 @@ Subject: add download prompt for installing extensions
      ReportExtensionLoadError(error);
      return false;
    }
-@@ -132,6 +144,8 @@ bool UnpackedInstaller::LoadFromCommandL
+@@ -131,6 +143,8 @@ bool UnpackedInstaller::LoadFromCommandL
      return true;
  #else
      // Defined here to avoid unused variable errors in official builds.
@@ -130,7 +130,7 @@ Subject: add download prompt for installing extensions
      const char extension_instead_of_app_error[] =
          "App loading flags cannot be used to load extensions. Please use "
          "--load-extension instead.";
-@@ -141,12 +155,16 @@ bool UnpackedInstaller::LoadFromCommandL
+@@ -140,12 +154,16 @@ bool UnpackedInstaller::LoadFromCommandL
    }
  
    extension()->permissions_data()->BindToCurrentThread();
@@ -147,7 +147,7 @@ Subject: add download prompt for installing extensions
    return true;
  }
  
-@@ -247,18 +265,22 @@ bool UnpackedInstaller::LoadExtension(Ma
+@@ -246,18 +264,22 @@ bool UnpackedInstaller::LoadExtension(Ma
    // warnings/errors and ensures we don't treat a user provided file as one by
    // the Extension system.
    MaybeCleanupMetadataFolder(extension_path_);
@@ -170,7 +170,7 @@ Subject: add download prompt for installing extensions
    return extension() &&
           extension_l10n_util::ValidateExtensionLocales(
               extension_path_, extension()->manifest()->value(), error) &&
-@@ -309,7 +331,9 @@ bool UnpackedInstaller::IsLoadingUnpacke
+@@ -295,7 +317,9 @@ bool UnpackedInstaller::IsLoadingUnpacke
  }
  
  void UnpackedInstaller::GetAbsolutePath() {
@@ -271,7 +271,7 @@ Subject: add download prompt for installing extensions
  
 --- a/base/files/file_util.cc
 +++ b/base/files/file_util.cc
-@@ -130,10 +130,13 @@ bool ReadFileToStringWithMaxSize(const F
+@@ -215,11 +215,15 @@ bool ReadFileToStringWithMaxSize(const F
                                   size_t max_size) {
    if (contents)
      contents->clear();
@@ -280,23 +280,15 @@ Subject: add download prompt for installing extensions
 +    LOG(INFO) << "base/files/file_util.cc: ReferencesParent";
      return false;
 +  }
-   FILE* file = OpenFile(path, "rb");
-   if (!file) {
-+    LOG(INFO) << "base/files/file_util.cc: !file";
+   ScopedFILE file_stream(OpenFile(path, "rb"));
+-  if (!file_stream)
++  if (!file_stream) {
++    LOG(INFO) << "base/files/file_util.cc: !file_stream";
      return false;
-   }
++  }
+   return ReadStreamToStringWithMaxSize(file_stream.get(), max_size, contents);
+ }
  
-@@ -174,8 +177,9 @@ bool ReadFileToStringWithMaxSize(const F
-     bytes_read_so_far += bytes_read_this_pass;
-     // Last fread syscall (after EOF) can be avoided via feof, which is just a
-     // flag check.
--    if (feof(file))
-+    if (feof(file)) {
-       break;
-+    }
-     local_contents.resize(bytes_read_so_far + chunk_size);
-   }
-   read_status = read_status && !ferror(file);
 --- a/components/crx_file/crx_verifier.cc
 +++ b/components/crx_file/crx_verifier.cc
 @@ -10,6 +10,7 @@
@@ -326,11 +318,9 @@ Subject: add download prompt for installing extensions
  
 --- a/extensions/browser/sandboxed_unpacker.cc
 +++ b/extensions/browser/sandboxed_unpacker.cc
-@@ -295,32 +295,44 @@ void SandboxedUnpacker::StartWithCrx(con
+@@ -224,27 +224,38 @@ void SandboxedUnpacker::StartWithCrx(con
    DCHECK(unpacker_io_task_runner_->RunsTasksInCurrentSequence());
  
-   crx_unpack_start_time_ = base::TimeTicks::Now();
-+  LOG(INFO) << "sandboxed_unpacker.cc: StartWithCrx: crx_unpack_start_time_: " << crx_unpack_start_time_;
    std::string expected_hash;
 +  LOG(INFO) << "sandboxed_unpacker.cc: StartWithCrx: expected_hash: " << crx_info.expected_hash;
    if (!crx_info.expected_hash.empty() &&
@@ -341,8 +331,6 @@ Subject: add download prompt for installing extensions
      expected_hash = base::ToLowerASCII(crx_info.expected_hash);
    }
  
-   PATH_LENGTH_HISTOGRAM("Extensions.SandboxUnpackInitialCrxPathLength",
-                         crx_info.path);
 -  if (!CreateTempDirectory())
 +  if (!CreateTempDirectory()) {
 +    LOG(INFO) << "sandboxed_unpacker.cc: StartWithCrx: CreateTempDirectory: " << (CreateTempDirectory());
@@ -352,8 +340,6 @@ Subject: add download prompt for installing extensions
    // Initialize the path that will eventually contain the unpacked extension.
    extension_root_ = temp_dir_.GetPath().AppendASCII(kTempExtensionName);
 +  LOG(INFO) << "sandboxed_unpacker.cc: StartWithCrx: extension_root_: " << extension_root_;
-   PATH_LENGTH_HISTOGRAM("Extensions.SandboxUnpackUnpackedCrxPathLength",
-                         extension_root_);
  
    // Extract the public key and validate the package.
    if (!ValidateSignature(crx_info.path, expected_hash,
@@ -370,10 +356,10 @@ Subject: add download prompt for installing extensions
    base::FilePath temp_crx_path =
        temp_dir_.GetPath().Append(crx_info.path.BaseName());
 +  LOG(INFO) << "sandboxed_unpacker.cc: StartWithCrx: temp_crx_path: " << temp_crx_path;
-   PATH_LENGTH_HISTOGRAM("Extensions.SandboxUnpackTempCrxPathLength",
-                         temp_crx_path);
  
-@@ -367,6 +379,7 @@ void SandboxedUnpacker::StartWithCrx(con
+   if (!base::CopyFile(crx_info.path, temp_crx_path)) {
+     // Failed to copy extension file to temporary directory.
+@@ -286,6 +297,7 @@ void SandboxedUnpacker::StartWithCrx(con
    }
  
    Unzip(link_free_crx_path, unzipped_dir);
@@ -381,7 +367,7 @@ Subject: add download prompt for installing extensions
  }
  
  void SandboxedUnpacker::StartWithDirectory(const std::string& extension_id,
-@@ -910,7 +923,9 @@ bool SandboxedUnpacker::ValidateSignatur
+@@ -807,7 +819,9 @@ bool SandboxedUnpacker::ValidateSignatur
      const crx_file::VerifierFormat required_format) {
    std::vector<uint8_t> hash;
    if (!expected_hash.empty()) {
@@ -451,46 +437,24 @@ Subject: add download prompt for installing extensions
    } else {
 --- a/chrome/browser/download/download_crx_util.cc
 +++ b/chrome/browser/download/download_crx_util.cc
-@@ -7,6 +7,9 @@
- #include "chrome/browser/download/download_crx_util.h"
+@@ -140,13 +140,10 @@ bool ShouldDownloadAsRegularFile() {
+ }
  
- #include "base/command_line.h"
-+#include "chrome/browser/android/tab_android.h"
-+#include "chrome/browser/ui/android/tab_model/tab_model.h"
-+#include "chrome/browser/ui/android/tab_model/tab_model_list.h"
- #include "chrome/browser/chrome_notification_types.h"
- #include "chrome/browser/extensions/crx_installer.h"
- #include "chrome/browser/extensions/extension_install_prompt.h"
-@@ -42,6 +45,7 @@ ExtensionInstallPrompt* mock_install_pro
- std::unique_ptr<ExtensionInstallPrompt> CreateExtensionInstallPrompt(
-     Profile* profile,
-     const DownloadItem& download_item) {
-+  LOG(INFO) << "download_crx_util.cc: CreateExtensionInstallPrompt: download_item";
-   // Use a mock if one is present.  Otherwise, create a real extensions
-   // install UI.
-   if (mock_install_prompt_for_testing) {
-@@ -53,13 +57,13 @@ std::unique_ptr<ExtensionInstallPrompt>
-         content::DownloadItemUtils::GetWebContents(
-             const_cast<DownloadItem*>(&download_item));
-     if (!web_contents) {
--      Browser* browser = chrome::FindLastActiveWithProfile(profile);
--      if (!browser) {
--        browser = new Browser(
--            Browser::CreateParams(Browser::TYPE_NORMAL, profile, true));
-+      LOG(INFO) << "download_crx_util.cc: CreateExtensionInstallPrompt: !web_contents";
-+      for (size_t i = 0; i < TabModelList::size(); ++i) {
-+        if (TabModelList::get(i)->IsCurrentModel())
-+          web_contents = TabModelList::get(i)->GetActiveWebContents();
-       }
--      web_contents = browser->tab_strip_model()->GetActiveWebContents();
-     }
-+    LOG(INFO) << "download_crx_util.cc: CreateExtensionInstallPrompt: on_return";
-     return std::unique_ptr<ExtensionInstallPrompt>(
-         new ExtensionInstallPrompt(web_contents));
-   }
+ bool IsExtensionDownload(const DownloadItem& download_item) {
+-  if (download_item.GetTargetDisposition() ==
+-      DownloadItem::TARGET_DISPOSITION_PROMPT)
+-    return false;
+-
+   if (download_item.GetMimeType() == extensions::Extension::kMimeType ||
+       extensions::UserScript::IsURLUserScript(download_item.GetURL(),
+                                               download_item.GetMimeType())) {
++    LOG(INFO) << "download_crx_util.cc: !ShouldDownloadAsRegularFile(): " << (!ShouldDownloadAsRegularFile());
+     return !ShouldDownloadAsRegularFile();
+   } else {
+     return false;
 --- a/chrome/browser/extensions/extension_install_prompt.cc
 +++ b/chrome/browser/extensions/extension_install_prompt.cc
-@@ -629,6 +629,7 @@ void ExtensionInstallPrompt::ShowConfirm
+@@ -663,6 +663,7 @@ void ExtensionInstallPrompt::ShowConfirm
      show_dialog_callback_ = GetDefaultShowDialogCallback();
    // TODO(https://crbug.com/957713): Use OnceCallback and eliminate the need for
    // a callback on the stack.
@@ -765,7 +729,7 @@ Subject: add download prompt for installing extensions
 +
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -1448,6 +1448,11 @@ Your Google account may have other forms
+@@ -1073,6 +1073,11 @@ Your Google account may have other forms
        </message>
  
        <!-- About Chrome preferences -->
@@ -1138,15 +1102,15 @@ Subject: add download prompt for installing extensions
 +#endif  // CHROME_BROWSER_UI_VIEWS_EXTENSIONS_EXTENSION_INSTALL_DIALOG_VIEW_H_
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -291,6 +291,7 @@ android_library("chrome_java") {
-     "//chrome/browser/android/thin_webview:java",
+@@ -307,6 +307,7 @@ android_library("chrome_java") {
      "//chrome/browser/download/android:java",
      "//chrome/browser/download/android:java_resources",
+     "//chrome/browser/enterprise/util:java",
 +    "//chrome/browser/extensions/android:java_resources",
      "//chrome/browser/flags:java",
      "//chrome/browser/image_editor/public:java",
      "//chrome/browser/image_fetcher:java",
-@@ -2768,6 +2769,7 @@ generate_jni("chrome_jni_headers") {
+@@ -2784,6 +2785,7 @@ generate_jni("chrome_jni_headers") {
      "java/src/org/chromium/chrome/browser/explore_sites/ExploreSitesCategory.java",
      "java/src/org/chromium/chrome/browser/explore_sites/ExploreSitesCategoryTile.java",
      "java/src/org/chromium/chrome/browser/explore_sites/ExploreSitesSite.java",
@@ -1156,7 +1120,7 @@ Subject: add download prompt for installing extensions
      "java/src/org/chromium/chrome/browser/feedback/ProcessIdFeedbackSource.java",
 --- a/chrome/android/chrome_java_sources.gni
 +++ b/chrome/android/chrome_java_sources.gni
-@@ -689,6 +689,8 @@ chrome_java_sources = [
+@@ -668,6 +668,8 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/explore_sites/ExploreSitesSite.java",
    "java/src/org/chromium/chrome/browser/explore_sites/ExploreSitesTileView.java",
    "java/src/org/chromium/chrome/browser/explore_sites/StableScrollLayoutManager.java",
@@ -1167,7 +1131,7 @@ Subject: add download prompt for installing extensions
    "java/src/org/chromium/chrome/browser/externalauth/VerifiedHandler.java",
 --- a/chrome/browser/ui/BUILD.gn
 +++ b/chrome/browser/ui/BUILD.gn
-@@ -2896,8 +2896,8 @@ jumbo_static_library("ui") {
+@@ -2953,8 +2953,8 @@ static_library("ui") {
        "views/extensions/extension_context_menu_controller.h",
        "views/extensions/extension_install_blocked_dialog_view.cc",
        "views/extensions/extension_install_blocked_dialog_view.h",
@@ -1433,4 +1397,3 @@ Subject: add download prompt for installing extensions
 +        mWithholdPermissionChecked = isChecked;
 +    }
 +}
-\ No newline at end of file
