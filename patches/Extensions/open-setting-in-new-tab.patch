@@ -31,7 +31,7 @@ Subject: make settings of extensions open in new tab
  
 --- a/chrome/browser/extensions/extension_tab_util.cc
 +++ b/chrome/browser/extensions/extension_tab_util.cc
-@@ -864,30 +864,28 @@ bool ExtensionTabUtil::OpenOptionsPageFr
+@@ -877,30 +877,28 @@ bool ExtensionTabUtil::OpenOptionsPageFr
    // that's the only place it's running.
    DCHECK(!profile->IsOffTheRecord() || IncognitoInfo::IsSplitMode(extension));
    Browser* browser = chrome::FindBrowserWithProfile(profile);
@@ -69,7 +69,7 @@ Subject: make settings of extensions open in new tab
    GURL url_to_navigate;
    bool open_in_tab = OptionsPageInfo::ShouldOpenInTab(extension);
    if (open_in_tab) {
-@@ -904,17 +902,14 @@ bool ExtensionTabUtil::OpenOptionsPage(c
+@@ -917,17 +915,14 @@ bool ExtensionTabUtil::OpenOptionsPage(c
      url_to_navigate = url_to_navigate.ReplaceComponents(replacements);
    }
  
@@ -97,7 +97,7 @@ Subject: make settings of extensions open in new tab
  
 --- a/chrome/browser/extensions/extension_tab_util.h
 +++ b/chrome/browser/extensions/extension_tab_util.h
-@@ -236,7 +236,7 @@ class ExtensionTabUtil {
+@@ -244,7 +244,7 @@ class ExtensionTabUtil {
    // Open the extension's options page. Returns true if an options page was
    // successfully opened (though it may not necessarily *load*, e.g. if the
    // URL does not exist).
@@ -108,7 +108,7 @@ Subject: make settings of extensions open in new tab
    // Example of Browsers which don't support tabs include apps and devtools.
 --- a/chrome/browser/extensions/extension_context_menu_model.cc
 +++ b/chrome/browser/extensions/extension_context_menu_model.cc
-@@ -327,7 +327,7 @@ void ExtensionContextMenuModel::ExecuteC
+@@ -331,7 +331,7 @@ void ExtensionContextMenuModel::ExecuteC
      }
      case OPTIONS:
        DCHECK(OptionsPageInfo::HasOptionsPage(extension));
@@ -119,7 +119,7 @@ Subject: make settings of extensions open in new tab
        bool currently_visible = button_visibility_ == VISIBLE;
 --- a/chrome/browser/ui/webui/settings/people_handler.cc
 +++ b/chrome/browser/ui/webui/settings/people_handler.cc
-@@ -711,7 +711,6 @@ void PeopleHandler::HandleSignout(const
+@@ -719,7 +719,6 @@ void PeopleHandler::HandleSignout(const
  }
  
  void PeopleHandler::HandlePauseSync(const base::ListValue* args) {
