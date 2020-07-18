@@ -641,7 +641,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
 @@ -8,9 +8,6 @@ import android.content.Context;
  import android.content.pm.PackageInfo;
  import android.content.pm.PackageManager.NameNotFoundException;
-
+ 
 -import com.google.android.gms.common.ConnectionResult;
 -import com.google.android.gms.common.GoogleApiAvailability;
 -
@@ -649,7 +649,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
  import org.chromium.base.Log;
  import org.chromium.mojo.bindings.InterfaceRequest;
 @@ -55,23 +52,6 @@ public class BarcodeDetectionProviderImp
-
+ 
      public static BarcodeDetectionProvider create() {
          Context ctx = ContextUtils.getApplicationContext();
 -        if (GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(ctx)
