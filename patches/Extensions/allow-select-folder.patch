@@ -249,7 +249,7 @@ Subject: add folder selection mode picker
  }
 --- a/ui/shell_dialogs/select_file_dialog_android.cc
 +++ b/ui/shell_dialogs/select_file_dialog_android.cc
-@@ -134,8 +134,12 @@ void SelectFileDialogImpl::SelectFileImp
+@@ -135,8 +135,12 @@ void SelectFileDialogImpl::SelectFileImp
  
    bool accept_multiple_files = SelectFileDialog::SELECT_OPEN_MULTI_FILE == type;
  
