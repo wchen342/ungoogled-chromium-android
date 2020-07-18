@@ -178,7 +178,7 @@ Subject: Add new folder button to bookmark activity
          if (!mIsCreatingFolder) {
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -2940,6 +2940,9 @@ To change this setting, <ph name="BEGIN_
+@@ -2511,6 +2511,9 @@ To change this setting, <ph name="BEGIN_
        <message name="IDS_BOOKMARK_ACTION_BAR_EDIT_FOLDER" desc="Button text for editing current folder action on the bookmark action bar [CHAR-LIMIT=32]">
          Edit folder
        </message>
@@ -190,7 +190,7 @@ Subject: Add new folder button to bookmark activity
        </message>
 --- a/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkBridge.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkBridge.java
-@@ -435,7 +435,8 @@ public class BookmarkBridge {
+@@ -437,7 +437,8 @@ public class BookmarkBridge {
       * moving some folders (a folder cannot be moved to its own children).
       */
      public void getMoveDestinations(List<BookmarkId> folderList,
@@ -200,7 +200,7 @@ Subject: Add new folder button to bookmark activity
          ThreadUtils.assertOnUiThread();
          assert mIsNativeBookmarkModelLoaded;
          BookmarkBridgeJni.get().getAllFoldersWithDepths(
-@@ -460,7 +461,7 @@ public class BookmarkBridge {
+@@ -462,7 +463,7 @@ public class BookmarkBridge {
              // statement.
              if (!shouldTrim) {
                  BookmarkId folder = folderList.get(i);

@@ -5,7 +5,7 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
 ---
  components/module_installer/android/java/src/org/chromium/components/module_installer/engine/FakeEngine.java                |   13 --
  components/module_installer/android/java/src/org/chromium/components/module_installer/engine/SplitCompatEngine.java         |   49 ----------
- components/module_installer/android/java/src/org/chromium/components/module_installer/engine/SplitCompatEngineFacade.java   |   21 ----
+ components/module_installer/android/java/src/org/chromium/components/module_installer/engine/SplitCompatEngineFacade.java   |   20 ----
  components/module_installer/android/java/src/org/chromium/components/module_installer/logger/Logger.java                    |    9 -
  components/module_installer/android/java/src/org/chromium/components/module_installer/logger/PlayCoreLogger.java            |   23 ----
  components/module_installer/android/java/src/org/chromium/components/module_installer/logger/SplitAvailabilityLogger.java   |   27 -----
@@ -13,7 +13,7 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
  components/module_installer/android/java/src/org/chromium/components/module_installer/logger/SplitInstallStatusLogger.java  |   27 -----
  components/module_installer/android/java/src/org/chromium/components/module_installer/util/CrashKeyRecorder.java            |    6 -
  components/module_installer/android/java/src/org/chromium/components/module_installer/util/SplitCompatInitializer.java      |    5 -
- 10 files changed, 17 insertions(+), 204 deletions(-)
+ 10 files changed, 17 insertions(+), 203 deletions(-)
 
 --- a/components/module_installer/android/java/src/org/chromium/components/module_installer/engine/FakeEngine.java
 +++ b/components/module_installer/android/java/src/org/chromium/components/module_installer/engine/FakeEngine.java
@@ -68,7 +68,7 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
      private static final Map<String, List<InstallListener>> sSessions = new HashMap<>();
  
      public SplitCompatEngine() {
-@@ -47,13 +41,11 @@ class SplitCompatEngine implements Insta
+@@ -46,13 +40,11 @@ class SplitCompatEngine implements Insta
  
      @Override
      public boolean isInstalled(String moduleName) {
@@ -83,7 +83,7 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
          mFacade.getLogger().logRequestDeferredStart(moduleName);
      }
  
-@@ -72,46 +64,9 @@ class SplitCompatEngine implements Insta
+@@ -71,46 +63,9 @@ class SplitCompatEngine implements Insta
              { add(listener); }
          });
  
@@ -130,7 +130,7 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
      private void notifyListeners(String moduleName, Boolean success) {
          for (InstallListener listener : sSessions.get(moduleName)) {
              notifyListener(listener, success);
-@@ -131,13 +86,11 @@ class SplitCompatEngine implements Insta
+@@ -130,13 +85,11 @@ class SplitCompatEngine implements Insta
  
      private void registerUpdateListener() {
          if (sSessions.size() == 0) {
@@ -155,13 +155,13 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
 -import com.google.android.play.core.splitinstall.SplitInstallManagerFactory;
 -import com.google.android.play.core.splitinstall.SplitInstallRequest;
 -
- import org.chromium.base.ApplicationStatus;
  import org.chromium.base.ContextUtils;
  import org.chromium.components.module_installer.logger.Logger;
-@@ -26,16 +21,13 @@ import org.chromium.components.module_in
+ import org.chromium.components.module_installer.logger.PlayCoreLogger;
+@@ -21,16 +16,13 @@ import org.chromium.components.module_in
+  * cannot be easily mocked and simplify the engine's design.
+  */
  class SplitCompatEngineFacade {
-     private InstallerObserver mObserver;
- 
 -    private final SplitInstallManager mSplitManager;
      private final Logger mLogger;
  
@@ -177,7 +177,7 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
          mLogger = umaLogger;
      }
  
-@@ -43,10 +35,6 @@ class SplitCompatEngineFacade {
+@@ -38,21 +30,13 @@ class SplitCompatEngineFacade {
          return mLogger;
      }
  
@@ -185,10 +185,6 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
 -        return mSplitManager;
 -    }
 -
-     public void initApplicationContext(InstallEngine engine) {
-         ModuleUtil.initApplication();
- 
-@@ -59,14 +47,9 @@ class SplitCompatEngineFacade {
      public void installActivity(Activity activity) {
          // Note that SplitCompat (install) needs to be called on the Application Context prior
          // to calling this method - this is guaranteed by the behavior of SplitCompatEngine.
@@ -196,9 +192,9 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
      }
  
      public void notifyObservers() {
-         mObserver.onModuleInstalled();
+         ModuleUtil.notifyModuleInstalled();
      }
--
+ 
 -    public SplitInstallRequest createSplitInstallRequest(String moduleName) {
 -        return SplitInstallRequest.newBuilder().addModule(moduleName).build();
 -    }

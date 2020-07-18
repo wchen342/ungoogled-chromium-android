@@ -8,7 +8,7 @@ chrome_target=chrome_public_apk
 mono_target=monochrome_public_apk
 webview_target=system_webview_apk
 
-chromium_version=83.0.4103.116
+chromium_version=84.0.4147.89
 ungoogled_chromium_revision=1
 
 # Argument parser from https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash/29754866#29754866
@@ -154,7 +154,7 @@ popd
 
 ## Hooks
 python src/build/util/lastchange.py -o src/build/util/LASTCHANGE
-python src/tools/download_cros_provided_profile.py --newest_state=src/chrome/android/profiles/newest.txt --local_state=src/chrome/android/profiles/local.txt --output_name=src/chrome/android/profiles/afdo.prof --gs_url_base=chromeos-prebuilt/afdo-job/llvm
+python src/tools/download_optimization_profile.py --newest_state=src/chrome/android/profiles/newest.txt --local_state=src/chrome/android/profiles/local.txt --output_name=src/chrome/android/profiles/afdo.prof --gs_url_base=chromeos-prebuilt/afdo-job/llvm
 python src/build/util/lastchange.py -m GPU_LISTS_VERSION --revision-id-only --header src/gpu/config/gpu_lists_version.h
 python src/build/util/lastchange.py -m SKIA_COMMIT_HASH -s src/third_party/skia --header src/skia/ext/skia_commit_hash.h
 

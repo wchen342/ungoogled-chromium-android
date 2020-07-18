@@ -36,7 +36,7 @@ Subject: fix build error with prefs.h
      prefs::kHomePage,
 --- a/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninFragmentBase.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninFragmentBase.java
-@@ -437,7 +437,7 @@ public abstract class SigninFragmentBase
+@@ -428,7 +428,7 @@ public abstract class SigninFragmentBase
      private void runStateMachineAndSignin(boolean settingsClicked) {
          mConfirmSyncDataStateMachine = new ConfirmSyncDataStateMachine(
                  new ConfirmSyncDataStateMachineDelegate(getChildFragmentManager()),
@@ -47,13 +47,13 @@ Subject: fix build error with prefs.h
                      public void onConfirm(boolean wipeData) {
 --- a/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninPromoUtil.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninPromoUtil.java
-@@ -38,8 +38,7 @@ public class SigninPromoUtil {
+@@ -39,8 +39,7 @@ public class SigninPromoUtil {
      public static boolean launchSigninPromoIfNeeded(final Activity activity) {
          SigninPreferencesManager preferencesManager = SigninPreferencesManager.getInstance();
          int currentMajorVersion = ChromeVersionInfo.getProductMajorVersion();
 -        boolean wasSignedIn = TextUtils.isEmpty(
 -                PrefServiceBridge.getInstance().getString(Pref.SYNC_LAST_ACCOUNT_NAME));
-+        boolean wasSignedIn = TextUtils.isEmpty("");
- 
-         Supplier<Set<String>> accountNamesSupplier = ()
-                 -> new ArraySet<>(
++        boolean wasSignedIn = true;
+         List<String> accountNames = AccountUtils.toAccountNames(
+                 AccountManagerFacadeProvider.getInstance().tryGetGoogleAccounts());
+         Supplier<Set<String>> accountNamesSupplier = () -> new ArraySet<>(accountNames);

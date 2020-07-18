@@ -38,7 +38,7 @@ Subject: Add option to not persist tabs across sessions
          android:key="do_not_track"
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-@@ -1092,8 +1092,10 @@ public class ChromeTabbedActivity
+@@ -1149,8 +1149,10 @@ public class ChromeTabbedActivity
              boolean hadCipherData =
                      CipherFactory.getInstance().restoreFromBundle(getSavedInstanceState());
  
@@ -68,7 +68,7 @@ Subject: Add option to not persist tabs across sessions
  import org.chromium.base.BuildInfo;
  import org.chromium.chrome.R;
  import org.chromium.chrome.browser.help.HelpAndFeedback;
-@@ -37,6 +39,7 @@ public class PrivacySettings
+@@ -38,6 +40,7 @@ public class PrivacySettings
          extends PreferenceFragmentCompat implements Preference.OnPreferenceChangeListener {
      private static final String PREF_CAN_MAKE_PAYMENT = "can_make_payment";
      private static final String PREF_NETWORK_PREDICTIONS = "preload_pages";
@@ -76,7 +76,7 @@ Subject: Add option to not persist tabs across sessions
      private static final String PREF_USAGE_STATS = "usage_stats_reporting";
      private static final String PREF_DO_NOT_TRACK = "do_not_track";
      private static final String PREF_SYNC_AND_SERVICES_LINK = "sync_and_services_link";
-@@ -84,7 +87,11 @@ public class PrivacySettings
+@@ -86,7 +89,11 @@ public class PrivacySettings
                      Pref.CAN_MAKE_PAYMENT_ENABLED, (boolean) newValue);
          } else if (PREF_NETWORK_PREDICTIONS.equals(key)) {
              PrivacyPreferencesManager.getInstance().setNetworkPredictionEnabled((boolean) newValue);
@@ -89,7 +89,7 @@ Subject: Add option to not persist tabs across sessions
  
          return true;
      }
-@@ -132,6 +139,11 @@ public class PrivacySettings
+@@ -134,6 +141,11 @@ public class PrivacySettings
              } else {
                  getPreferenceScreen().removePreference(usageStatsPref);
              }
@@ -103,7 +103,7 @@ Subject: Add option to not persist tabs across sessions
  
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -3674,6 +3674,12 @@ Only you can see what your camera is loo
+@@ -3220,6 +3220,12 @@ Only you can see what your camera is loo
        <message name="IDS_CONTEXTMENU_IMAGE_TITLE" desc="The title of a context menu tab when the item pressed contains more than one type. This indicates that all the actions are related to the image.">
          IMAGE
        </message>

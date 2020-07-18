@@ -5,40 +5,39 @@ Subject: Remove dependency on
  com.google.android.gms.tasks
 
 ---
- chrome/android/BUILD.gn                                                                                          |    8 
- chrome/android/features/cablev2_authenticator/internal/BUILD.gn                                                  |    2 
- chrome/android/features/media_router/BUILD.gn                                                                    |    2 
- chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/ChromeMediaRouter.java    |    7 
- chrome/android/java/AndroidManifest.xml                                                                          |    9 -
- chrome/android/java/src/org/chromium/chrome/browser/AppHooks.java                                                |   14 -
- chrome/android/java/src/org/chromium/chrome/browser/ChromeVersionInfo.java                                       |   12 -
- chrome/android/java/src/org/chromium/chrome/browser/component_updater/UpdateScheduler.java                       |    8 
- chrome/android/java/src/org/chromium/chrome/browser/externalauth/ExternalAuthUtils.java                          |   14 -
- chrome/android/java/src/org/chromium/chrome/browser/externalauth/UserRecoverableErrorHandler.java                |    7 
- chrome/android/java/src/org/chromium/chrome/browser/gcore/ChromeGoogleApiClientImpl.java                         |   25 ---
- chrome/android/java/src/org/chromium/chrome/browser/gcore/GoogleApiClientHelper.java                             |   82 ----------
- chrome/android/java/src/org/chromium/chrome/browser/omaha/UpdateStatusProvider.java                              |   10 -
- chrome/android/java/src/org/chromium/chrome/browser/password_manager/PasswordManagerLauncher.java                |    4 
- chrome/test/android/BUILD.gn                                                                                     |    2 
- components/background_task_scheduler/BUILD.gn                                                                    |    3 
- components/background_task_scheduler/internal/BUILD.gn                                                           |    6 
- components/signin/core/browser/android/BUILD.gn                                                                  |    2 
- components/signin/core/browser/android/java/src/org/chromium/components/signin/GmsAvailabilityException.java     |    4 
- components/signin/core/browser/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java |    3 
- content/public/android/BUILD.gn                                                                                  |    3 
- content/test/BUILD.gn                                                                                            |    3 
- device/BUILD.gn                                                                                                  |    2 
- remoting/android/client_java_tmpl.gni                                                                            |    3 
- services/BUILD.gn                                                                                                |    4 
- services/device/geolocation/BUILD.gn                                                                             |    2 
- services/shape_detection/BUILD.gn                                                                                |    2 
- third_party/cacheinvalidation/BUILD.gn                                                                           |    1 
- third_party/robolectric/BUILD.gn                                                                                 |    2 
- 29 files changed, 17 insertions(+), 229 deletions(-)
+ chrome/android/BUILD.gn                                                                                       |    8 
+ chrome/android/features/cablev2_authenticator/BUILD.gn                                                        |    2 
+ chrome/android/features/media_router/BUILD.gn                                                                 |    2 
+ chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/ChromeMediaRouter.java |    7 
+ chrome/android/java/AndroidManifest.xml                                                                       |    9 -
+ chrome/android/java/src/org/chromium/chrome/browser/AppHooks.java                                             |   14 -
+ chrome/android/java/src/org/chromium/chrome/browser/ChromeVersionInfo.java                                    |   12 -
+ chrome/android/java/src/org/chromium/chrome/browser/component_updater/UpdateScheduler.java                    |    8 
+ chrome/android/java/src/org/chromium/chrome/browser/externalauth/ExternalAuthUtils.java                       |   14 -
+ chrome/android/java/src/org/chromium/chrome/browser/externalauth/UserRecoverableErrorHandler.java             |    7 
+ chrome/android/java/src/org/chromium/chrome/browser/gcore/ChromeGoogleApiClientImpl.java                      |   25 ---
+ chrome/android/java/src/org/chromium/chrome/browser/gcore/GoogleApiClientHelper.java                          |   82 ----------
+ chrome/android/java/src/org/chromium/chrome/browser/omaha/UpdateStatusProvider.java                           |   10 -
+ chrome/android/java/src/org/chromium/chrome/browser/password_manager/PasswordManagerLauncher.java             |    4 
+ chrome/test/android/BUILD.gn                                                                                  |    2 
+ components/background_task_scheduler/BUILD.gn                                                                 |    3 
+ components/background_task_scheduler/internal/BUILD.gn                                                        |    6 
+ components/signin/core/browser/android/BUILD.gn                                                               |    2 
+ components/signin/core/browser/android/java/src/org/chromium/components/signin/GmsAvailabilityException.java  |    4 
+ content/public/android/BUILD.gn                                                                               |    3 
+ content/test/BUILD.gn                                                                                         |    3 
+ device/BUILD.gn                                                                                               |    2 
+ remoting/android/client_java_tmpl.gni                                                                         |    3 
+ services/BUILD.gn                                                                                             |    4 
+ services/device/geolocation/BUILD.gn                                                                          |    2 
+ services/shape_detection/BUILD.gn                                                                             |    2 
+ third_party/cacheinvalidation/BUILD.gn                                                                        |    1 
+ third_party/robolectric/BUILD.gn                                                                              |    2 
+ 28 files changed, 17 insertions(+), 226 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -262,9 +262,6 @@ android_library("chrome_java") {
+@@ -275,9 +275,6 @@ android_library("chrome_java") {
      ":partner_location_descriptor_proto_java",
      ":update_proto_java",
      ":usage_stats_proto_java",
@@ -47,8 +46,8 @@ Subject: Remove dependency on
 -    "$google_play_services_package:google_play_services_tasks_java",
      "//base:base_java",
      "//base:jni_java",
-     "//chrome/android/features/cablev2_authenticator:public_java",
-@@ -695,8 +692,6 @@ junit_binary("chrome_junit_tests") {
+     "//chrome/android/features/keyboard_accessory:public_java",
+@@ -706,8 +703,6 @@ junit_binary("chrome_junit_tests") {
      ":chrome_app_java_resources",
      ":chrome_java",
      ":partner_location_descriptor_proto_java",
@@ -57,16 +56,16 @@ Subject: Remove dependency on
      "//base:base_java",
      "//base:base_java_test_support",
      "//base:base_junit_test_support",
-@@ -807,9 +802,6 @@ android_library("chrome_test_java") {
-     ":chrome_app_java_resources",
+@@ -820,9 +815,6 @@ android_library("chrome_test_java") {
      ":chrome_test_util_java",
+     ":native_java_unittests_java",
      ":partner_location_descriptor_proto_java",
 -    "$google_play_services_package:google_play_services_base_java",
 -    "$google_play_services_package:google_play_services_basement_java",
 -    "$google_play_services_package:google_play_services_tasks_java",
      "//base:base_java",
      "//base:base_java_test_support",
-     "//base/test:test_support_java",
+     "//base:jni_java",
 --- a/chrome/android/features/media_router/BUILD.gn
 +++ b/chrome/android/features/media_router/BUILD.gn
 @@ -10,8 +10,6 @@ import("//chrome/common/features.gni")
@@ -103,7 +102,7 @@ Subject: Remove dependency on
                      MediaRouteProvider cafProvider = CafMediaRouteProvider.create(manager);
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
-@@ -851,15 +851,6 @@ by a child template that "extends" this
+@@ -775,15 +775,6 @@ by a child template that "extends" this
              </intent-filter>
            </activity>
  
@@ -121,7 +120,7 @@ Subject: Remove dependency on
              android:exported="false"
 --- a/chrome/android/java/src/org/chromium/chrome/browser/AppHooks.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/AppHooks.java
-@@ -11,9 +11,6 @@ import android.view.View;
+@@ -10,9 +10,6 @@ import android.content.pm.PackageManager
  import androidx.annotation.Nullable;
  import androidx.annotation.VisibleForTesting;
  
@@ -131,7 +130,7 @@ Subject: Remove dependency on
  import org.chromium.base.Callback;
  import org.chromium.base.ContextUtils;
  import org.chromium.base.annotations.CalledByNative;
-@@ -335,16 +332,7 @@ public abstract class AppHooks {
+@@ -333,16 +330,7 @@ public abstract class AppHooks {
       * same as {@link GoogleApiAvailability#isGooglePlayServicesAvailable()}.
       */
      public int isGoogleApiAvailableWithMinApkVersion(int minApkVersion) {
@@ -169,10 +168,10 @@ Subject: Remove dependency on
          final long installedGmsVersion = getPlayServicesApkVersionNumber(context);
  
          final String accessType;
-@@ -112,12 +110,6 @@ public class ChromeVersionInfo {
-     }
- 
-     private static long getPlayServicesApkVersionNumber(Context context) {
+@@ -118,12 +116,6 @@ public class ChromeVersionInfo {
+      *         package is not found.
+      */
+     public static int getPlayServicesApkVersionNumber(Context context) {
 -        try {
 -            return context.getPackageManager()
 -                    .getPackageInfo(GoogleApiAvailability.GOOGLE_PLAY_SERVICES_PACKAGE, 0)
@@ -530,7 +529,7 @@ Subject: Remove dependency on
          @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 --- a/chrome/test/android/BUILD.gn
 +++ b/chrome/test/android/BUILD.gn
-@@ -200,8 +200,6 @@ android_library("chrome_java_test_suppor
+@@ -197,8 +197,6 @@ android_library("chrome_java_test_suppor
      "javatests/src/org/chromium/chrome/test/util/browser/webapps/WebappTestPage.java",
    ]
    deps = [
@@ -541,7 +540,7 @@ Subject: Remove dependency on
      "//chrome/android:chrome_java",
 --- a/components/background_task_scheduler/BUILD.gn
 +++ b/components/background_task_scheduler/BUILD.gn
-@@ -117,9 +117,6 @@ if (is_android) {
+@@ -119,9 +119,6 @@ if (is_android) {
      ]
  
      deps = [
@@ -595,7 +594,7 @@ Subject: Remove dependency on
      "//components/download/public/common:public_java",
 --- a/content/test/BUILD.gn
 +++ b/content/test/BUILD.gn
-@@ -2418,9 +2418,6 @@ if (is_android) {
+@@ -2424,9 +2424,6 @@ if (is_android) {
      testonly = true
      sources = content_java_sources_needing_jni
      deps = [
@@ -607,7 +606,7 @@ Subject: Remove dependency on
        "//ui/android:ui_full_java",
 --- a/device/BUILD.gn
 +++ b/device/BUILD.gn
-@@ -385,8 +385,6 @@ if (is_android) {
+@@ -384,8 +384,6 @@ if (is_android) {
    junit_binary("device_junit_tests") {
      sources = [ "gamepad/android/junit/src/org/chromium/device/gamepad/GamepadMappingsTest.java" ]
      deps = [
@@ -630,7 +629,7 @@ Subject: Remove dependency on
  
 --- a/services/BUILD.gn
 +++ b/services/BUILD.gn
-@@ -102,8 +102,6 @@ if (is_android) {
+@@ -103,8 +103,6 @@ if (is_android) {
        "shape_detection/android/junit/src/org/chromium/shape_detection/BitmapUtilsTest.java",
      ]
      deps = [
@@ -639,7 +638,7 @@ Subject: Remove dependency on
        "//base:base_java",
        "//base:base_java_test_support",
        "//base:base_junit_test_support",
-@@ -131,8 +129,6 @@ if (is_android) {
+@@ -132,8 +130,6 @@ if (is_android) {
        "shape_detection/android/javatests/src/org/chromium/shape_detection/TextDetectionImplTest.java",
      ]
      deps = [
@@ -650,7 +649,7 @@ Subject: Remove dependency on
        "//mojo/public/java:base_java",
 --- a/services/device/geolocation/BUILD.gn
 +++ b/services/device/geolocation/BUILD.gn
-@@ -149,8 +149,6 @@ if (is_android) {
+@@ -156,8 +156,6 @@ if (is_android) {
  
      deps = [
        ":geolocation_jni_headers",
@@ -690,19 +689,19 @@ Subject: Remove dependency on
 -    "$google_play_services_package:google_play_services_basement_java",
      "//third_party/android_deps:android_support_v4_java",
      "//third_party/android_deps:com_android_support_support_annotations_java",
-     "//third_party/android_deps:com_google_code_gson_gson_java",
+     "//third_party/android_deps:com_android_support_support_fragment_java",
 --- a/chrome/android/java/src/org/chromium/chrome/browser/password_manager/PasswordManagerLauncher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/password_manager/PasswordManagerLauncher.java
-@@ -7,8 +7,6 @@ package org.chromium.chrome.browser.pass
+@@ -6,8 +6,6 @@ package org.chromium.chrome.browser.pass
+ 
  import android.app.Activity;
- import android.os.Build;
  
 -import com.google.android.gms.common.ConnectionResult;
 -
  import org.chromium.base.annotations.CalledByNative;
  import org.chromium.base.metrics.RecordHistogram;
  import org.chromium.chrome.browser.AppHooks;
-@@ -98,7 +96,7 @@ public class PasswordManagerLauncher {
+@@ -97,7 +95,7 @@ public class PasswordManagerLauncher {
                  GOOGLE_ACCOUNT_PWM_UI, MIN_GOOGLE_PLAY_SERVICES_VERSION_PARAM,
                  DEFAULT_MIN_GOOGLE_PLAY_SERVICES_APK_VERSION);
          if (AppHooks.get().isGoogleApiAvailableWithMinApkVersion(minGooglePlayServicesVersion)
@@ -711,17 +710,6 @@ Subject: Remove dependency on
              return false;
          }
  
---- a/chrome/android/features/cablev2_authenticator/internal/BUILD.gn
-+++ b/chrome/android/features/cablev2_authenticator/internal/BUILD.gn
-@@ -16,8 +16,6 @@ if (enable_android_cablev2_authenticator
-     ]
- 
-     deps = [
--      "$google_play_services_package:google_play_services_base_java",
--      "$google_play_services_package:google_play_services_tasks_java",
-       "//base:base_java",
-       "//base:jni_java",
-       "//chrome/android:chrome_java",
 --- a/components/background_task_scheduler/internal/BUILD.gn
 +++ b/components/background_task_scheduler/internal/BUILD.gn
 @@ -27,9 +27,6 @@ if (is_android) {
@@ -744,3 +732,14 @@ Subject: Remove dependency on
        "//base:base_java",
        "//base:base_java_test_support",
        "//components/background_task_scheduler:background_task_scheduler_task_ids_java",
+--- a/chrome/android/features/cablev2_authenticator/BUILD.gn
++++ b/chrome/android/features/cablev2_authenticator/BUILD.gn
+@@ -14,8 +14,6 @@ android_library("java") {
+   ]
+ 
+   deps = [
+-    "$google_play_services_package:google_play_services_base_java",
+-    "$google_play_services_package:google_play_services_tasks_java",
+     "//base:base_java",
+     "//base:jni_java",
+     "//chrome/android:chrome_java",

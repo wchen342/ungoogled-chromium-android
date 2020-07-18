@@ -23,7 +23,7 @@ Subject: kill GCM
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -428,7 +428,6 @@ android_library("chrome_java") {
+@@ -450,7 +450,6 @@ android_library("chrome_java") {
      "//third_party/android_deps:com_google_protobuf_protobuf_javalite_java",
      "//third_party/android_deps:javax_inject_javax_inject_java",
      "//third_party/android_media:android_media_java",
@@ -41,7 +41,7 @@ Subject: kill GCM
    "java/src/org/chromium/chrome/browser/ChromeBackupAgent.java",
    "java/src/org/chromium/chrome/browser/ChromeBackupWatcher.java",
    "java/src/org/chromium/chrome/browser/ChromeBaseAppCompatActivity.java",
-@@ -1414,11 +1413,6 @@ chrome_java_sources = [
+@@ -1383,11 +1382,6 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/services/AndroidChildAccountHelper.java",
    "java/src/org/chromium/chrome/browser/services/AndroidEduOwnerCheckCallback.java",
    "java/src/org/chromium/chrome/browser/services/GoogleServicesManager.java",
@@ -51,8 +51,8 @@ Subject: kill GCM
 -  "java/src/org/chromium/chrome/browser/services/gcm/GcmUma.java",
 -  "java/src/org/chromium/chrome/browser/services/gcm/InvalidationGcmUpstreamSender.java",
    "java/src/org/chromium/chrome/browser/settings/HyperlinkPreference.java",
-   "java/src/org/chromium/chrome/browser/settings/LearnMorePreference.java",
    "java/src/org/chromium/chrome/browser/settings/MainSettings.java",
+   "java/src/org/chromium/chrome/browser/settings/SettingsActivity.java",
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
 @@ -82,22 +82,17 @@ by a child template that "extends" this
@@ -78,7 +78,7 @@ Subject: kill GCM
      <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT"/>
  
      <uses-permission android:name="com.google.android.apps.now.CURRENT_ACCOUNT_ACCESS" />
-@@ -1040,50 +1035,9 @@ by a child template that "extends" this
+@@ -968,50 +963,9 @@ by a child template that "extends" this
              android:configChanges="orientation|keyboardHidden|keyboard|screenSize|mcc|mnc|screenLayout|smallestScreenSize"
              android:hardwareAccelerated="false" />
  
@@ -129,7 +129,7 @@ Subject: kill GCM
          <receiver android:name="com.google.ipc.invalidation.ticl.android2.AndroidInternalScheduler$AlarmReceiver"
              android:exported="false"/>
          <receiver android:name="com.google.ipc.invalidation.external.client.contrib.AndroidListener$AlarmReceiver"
-@@ -1110,28 +1064,10 @@ by a child template that "extends" this
+@@ -1038,28 +992,10 @@ by a child template that "extends" this
              android:exported="false"
              android:permission="android.permission.BIND_JOB_SERVICE"/>
  
@@ -328,14 +328,14 @@ Subject: kill GCM
      private boolean isMessageWithinLimit(Bundle data) {
 --- a/components/gcm_driver/android/BUILD.gn
 +++ b/components/gcm_driver/android/BUILD.gn
-@@ -13,7 +13,6 @@ android_library("gcm_driver_java") {
-     "//base:base_java",
+@@ -14,7 +14,6 @@ android_library("gcm_driver_java") {
      "//base:jni_java",
      "//content/public/android:content_java",
+     "//third_party/android_deps:com_google_code_findbugs_jsr305_java",
 -    "//third_party/android_sdk:android_gcm_java",
-     "//third_party/jsr-305:jsr_305_javalib",
    ]
    annotation_processor_deps = [ "//base/android/jni_generator:jni_processor" ]
+ 
 --- a/components/gcm_driver/instance_id/android/BUILD.gn
 +++ b/components/gcm_driver/instance_id/android/BUILD.gn
 @@ -27,7 +27,6 @@ android_library("instance_id_driver_java
@@ -451,14 +451,14 @@ Subject: kill GCM
                  @Override
 --- a/components/sync/android/BUILD.gn
 +++ b/components/sync/android/BUILD.gn
-@@ -12,7 +12,6 @@ android_library("sync_java") {
-     "//components/signin/core/browser/android:java",
+@@ -13,7 +13,6 @@ android_library("sync_java") {
      "//net/android:net_java",
      "//third_party/android_deps:androidx_annotation_annotation_java",
+     "//third_party/android_deps:com_google_code_findbugs_jsr305_java",
 -    "//third_party/android_sdk:android_gcm_java",
      "//third_party/cacheinvalidation:cacheinvalidation_javalib",
      "//third_party/cacheinvalidation:cacheinvalidation_proto_java",
-     "//third_party/jsr-305:jsr_305_javalib",
+   ]
 --- a/third_party/cacheinvalidation/BUILD.gn
 +++ b/third_party/cacheinvalidation/BUILD.gn
 @@ -138,7 +138,6 @@ if (is_android) {

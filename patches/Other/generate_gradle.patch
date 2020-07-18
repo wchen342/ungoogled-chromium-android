@@ -13,7 +13,7 @@ diff --git a/src/build/android/gradle/generate_gradle.py b/src/build/android/gra
  
  def _RunNinja(output_dir, args):
    cmd = [
--      os.path.join(_DEPOT_TOOLS_PATH, 'autoninja'),
+-      'autoninja',
 +      'ninja',
        '-C',
        output_dir,

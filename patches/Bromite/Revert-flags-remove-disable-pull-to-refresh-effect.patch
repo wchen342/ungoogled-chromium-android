@@ -12,7 +12,7 @@ This reverts commit 4e598f38a0e6dd3dbede009c6a99b2a520a94e1f.
 
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -2385,6 +2385,10 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -2619,6 +2619,10 @@ const FeatureEntry kFeatureEntries[] = {
       SINGLE_VALUE_TYPE(switches::kHostedAppQuitNotification)},
  #endif  // OS_MACOSX
  #if defined(OS_ANDROID)
@@ -25,7 +25,7 @@ This reverts commit 4e598f38a0e6dd3dbede009c6a99b2a520a94e1f.
       flag_descriptions::kTranslateForceTriggerOnEnglishDescription, kOsAndroid,
 --- a/chrome/browser/flag-metadata.json
 +++ b/chrome/browser/flag-metadata.json
-@@ -65,6 +65,11 @@
+@@ -70,6 +70,11 @@
      "expiry_milestone": 88
    },
    {
@@ -39,9 +39,9 @@ This reverts commit 4e598f38a0e6dd3dbede009c6a99b2a520a94e1f.
      // This flag is used for frequent manual testing and should not be removed.
 --- a/chrome/browser/flag_descriptions.cc
 +++ b/chrome/browser/flag_descriptions.cc
-@@ -2575,6 +2575,10 @@ const char kProcessSharingWithStrictSite
- const char kQueryTilesName[] = "Show query tiles";
- const char kQueryTilesDescription[] = "Shows query tiles in Chrome";
+@@ -2707,6 +2707,10 @@ const char kQueryTilesInstantFetchName[]
+ const char kQueryTilesInstantFetchDescription[] =
+     "Immediately schedule background task to fetch query tiles";
  
 +const char kPullToRefreshEffectName[] = "The pull-to-refresh effect";
 +const char kPullToRefreshEffectDescription[] =
@@ -52,9 +52,9 @@ This reverts commit 4e598f38a0e6dd3dbede009c6a99b2a520a94e1f.
      "Determines what pages the Reader Mode infobar is shown on.";
 --- a/chrome/browser/flag_descriptions.h
 +++ b/chrome/browser/flag_descriptions.h
-@@ -1484,6 +1484,9 @@ extern const char kProcessSharingWithStr
- extern const char kQueryTilesName[];
- extern const char kQueryTilesDescription[];
+@@ -1578,6 +1578,9 @@ extern const char kQueryTilesCountryCode
+ extern const char kQueryTilesInstantFetchName[];
+ extern const char kQueryTilesInstantFetchDescription[];
  
 +extern const char kPullToRefreshEffectName[];
 +extern const char kPullToRefreshEffectDescription[];

@@ -20,7 +20,7 @@ Subject: Enable legacy TLS warnings and mark-http-as-dangerous by default
                                   base::FEATURE_DISABLED_BY_DEFAULT};
 --- a/components/security_state/core/security_state.cc
 +++ b/components/security_state/core/security_state.cc
-@@ -42,7 +42,7 @@ SecurityLevel GetSecurityLevelForNonSecu
+@@ -43,7 +43,7 @@ SecurityLevel GetSecurityLevelForNonSecu
  
    // Default to dangerous on editing form fields and otherwise
    // warning.

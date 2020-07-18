@@ -1,6 +1,20 @@
+---
+ chrome/android/chrome_java_sources.gni                                                              |    2 
+ chrome/android/java/AndroidManifest.xml                                                             |    2 
+ chrome/android/java/src/org/chromium/chrome/browser/download/ChromeUpdateDownloadDelegate.java      |  153 ++++++
+ chrome/android/java/src/org/chromium/chrome/browser/omaha/UpdateConfigs.java                        |    9 
+ chrome/android/java/src/org/chromium/chrome/browser/omaha/UpdateStatusProvider.java                 |   20 
+ chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateControllerFactory.java |    2 
+ chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/UCInlineUpdateController.java      |  222 ++++++++++
+ chrome/browser/flag_descriptions.cc                                                                 |    5 
+ chrome/browser/flags/android/chrome_feature_list.cc                                                 |    1 
+ chrome/browser/ui/android/strings/android_chrome_strings.grd                                        |    2 
+ chrome/browser/updates/update_notification_config.cc                                                |    4 
+ 11 files changed, 409 insertions(+), 13 deletions(-)
+
 --- /dev/null
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/UCInlineUpdateController.java
-@@ -0,0 +1,213 @@
+@@ -0,0 +1,222 @@
 +// Copyright 2020 The Ungoogled-Chromium Authors. All rights reserved.
 +// Use of this source code is governed by a BSD-style license that can be
 +// found in the LICENSE file.
@@ -10,17 +24,9 @@
 +import static org.chromium.chrome.browser.omaha.UpdateConfigs.getUpdateNotificationInterval;
 +import static org.chromium.chrome.browser.omaha.notification.UpdateNotificationControllerImpl.PREF_LAST_TIME_UPDATE_NOTIFICATION_KEY;
 +
-+import android.Manifest;
 +import android.app.Activity;
 +import android.content.SharedPreferences;
-+import android.content.pm.PackageManager;
-+import android.net.Uri;
 +import android.os.Build;
-+import android.os.Environment;
-+import android.text.TextUtils;
-+import android.util.Pair;
-+import android.webkit.MimeTypeMap;
-+import android.webkit.URLUtil;
 +
 +import androidx.annotation.Nullable;
 +
@@ -30,7 +36,6 @@
 +import org.chromium.base.task.PostTask;
 +import org.chromium.chrome.browser.ChromeActivity;
 +import org.chromium.chrome.browser.ChromeVersionInfo;
-+import org.chromium.chrome.browser.download.ChromeUpdateDownloadDelegate;
 +import org.chromium.chrome.browser.omaha.OmahaBase;
 +import org.chromium.chrome.browser.omaha.UpdateStatusProvider;
 +import org.chromium.chrome.browser.omaha.VersionNumber;
@@ -118,18 +123,20 @@
 +        assert currentApiVersion > Build.VERSION_CODES.KITKAT;
 +        mCurrentProductVersion = VersionNumber.fromString(ChromeVersionInfo.getProductVersion());
 +        Log.d(TAG, "mCurrentProductVersion: %s", mCurrentProductVersion.toString());
++
++        boolean shallUpdate = shallUpdate();
 +        switch (mUpdateState) {
 +            case UpdateStatusProvider.UpdateState.INLINE_UPDATE_AVAILABLE:
-+                long currentTime = System.currentTimeMillis();
-+                SharedPreferences preferences = OmahaBase.getSharedPreferences();
-+                long lastPushedTimeStamp = preferences.getLong(PREF_LAST_TIME_UPDATE_NOTIFICATION_KEY, 0);
-+                if (!(currentTime - lastPushedTimeStamp >= getUpdateNotificationInterval())) {
-+                    Log.d(TAG, "pullCurrentState: !UpdateNotificationInterval: %b",
-+                            !(currentTime - lastPushedTimeStamp >= getUpdateNotificationInterval()));
++                if (!shallUpdate) {
++                    Log.d(TAG, "pullCurrentState: INLINE_UPDATE_AVAILABLE: !shallUpdate");
 +                    break;
 +                }
 +                //Intentional fall through.
 +            case UpdateStatusProvider.UpdateState.NONE:
++                if (!shallUpdate) {
++                    Log.d(TAG, "pullCurrentState: NONE: !shallUpdate");
++                    break;
++                }
 +                checkLatestVersion((result) -> {
 +                    // Compare version strings if not null
 +                    if (result == null) return;
@@ -154,6 +161,13 @@
 +            default:
 +                return;
 +        }
++    }
++
++    private boolean shallUpdate() {
++        long currentTime = System.currentTimeMillis();
++        SharedPreferences preferences = OmahaBase.getSharedPreferences();
++        long lastPushedTimeStamp = preferences.getLong(PREF_LAST_TIME_UPDATE_NOTIFICATION_KEY, 0);
++        return currentTime - lastPushedTimeStamp >= getUpdateNotificationInterval();
 +    }
 +
 +    private void checkLatestVersion(final Callback<String> callback) {
@@ -181,6 +195,7 @@
 +            @Override
 +            protected void onPostExecute(String result) {
 +                callback.onResult(result);
++                updateLastPushedTimeStamp();
 +            }
 +        }
 +                .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -213,18 +228,26 @@
 +
 +        return newStatus;
 +    }
++
++    private static void updateLastPushedTimeStamp() {
++        SharedPreferences preferences = OmahaBase.getSharedPreferences();
++        SharedPreferences.Editor editor = preferences.edit();
++        editor.putLong(PREF_LAST_TIME_UPDATE_NOTIFICATION_KEY, System.currentTimeMillis());
++        editor.apply();
++    }
++
 +}
 --- a/chrome/android/chrome_java_sources.gni
 +++ b/chrome/android/chrome_java_sources.gni
-@@ -519,6 +519,7 @@ chrome_java_sources = [
-   "java/src/org/chromium/chrome/browser/dom_distiller/ReaderModeTabInfo.java",
+@@ -510,6 +510,7 @@ chrome_java_sources = [
+   "java/src/org/chromium/chrome/browser/dom_distiller/ReaderModeManager.java",
    "java/src/org/chromium/chrome/browser/dom_distiller/TabDistillabilityProvider.java",
    "java/src/org/chromium/chrome/browser/download/ChromeDownloadDelegate.java",
 +  "java/src/org/chromium/chrome/browser/download/ChromeUpdateDownloadDelegate.java",
    "java/src/org/chromium/chrome/browser/download/DownloadActivity.java",
    "java/src/org/chromium/chrome/browser/download/DownloadBroadcastManager.java",
    "java/src/org/chromium/chrome/browser/download/DownloadController.java",
-@@ -1124,6 +1125,7 @@ chrome_java_sources = [
+@@ -1079,6 +1080,7 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateController.java",
    "java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateControllerFactory.java",
    "java/src/org/chromium/chrome/browser/omaha/inline/NoopInlineUpdateController.java",
@@ -242,6 +265,15 @@
  import org.chromium.chrome.R;
  import org.chromium.chrome.browser.flags.ChromeFeatureList;
  import org.chromium.chrome.browser.flags.ChromeSwitches;
+@@ -65,7 +66,7 @@ public class UpdateConfigs {
+     private static final String UPDATE_NOTIFICATION_EXPERIMENTAL_PARAM_NAME =
+             "update_notification_experimental_context";
+ 
+-    private static final long DEFAULT_UPDATE_NOTIFICATION_INTERVAL = 21 * DateUtils.DAY_IN_MILLIS;
++    private static final long DEFAULT_UPDATE_NOTIFICATION_INTERVAL = 2 * DateUtils.DAY_IN_MILLIS;
+     private static final long DEFAULT_UPDATE_ATTRIBUTION_WINDOW_MS = 2 * DateUtils.DAY_IN_MILLIS;
+ 
+     /** Possible update flow configurations. */
 @@ -235,7 +236,7 @@ public class UpdateConfigs {
       */
      public static boolean isUpdateNotificationEnabled() {
@@ -350,7 +382,7 @@
          }
 --- a/chrome/browser/flags/android/chrome_feature_list.cc
 +++ b/chrome/browser/flags/android/chrome_feature_list.cc
-@@ -453,6 +453,7 @@ const base::Feature kImmersiveUiMode{"Im
+@@ -489,6 +489,7 @@ const base::Feature kImmersiveUiMode{"Im
  
  const base::Feature kInlineUpdateFlow{"InlineUpdateFlow",
                                        base::FEATURE_DISABLED_BY_DEFAULT};
@@ -360,6 +392,15 @@
                                    base::FEATURE_DISABLED_BY_DEFAULT};
 --- a/chrome/browser/updates/update_notification_config.cc
 +++ b/chrome/browser/updates/update_notification_config.cc
+@@ -30,7 +30,7 @@ bool GetFinchConfigBool(const std::strin
+ }  // namespace
+ 
+ // Default update notification schedule interval in days.
+-constexpr int kDefaultUpdateNotificationInterval = 21;
++constexpr int kDefaultUpdateNotificationInterval = 2;
+ 
+ // Default start clock of deliver window in the morning.
+ constexpr int kDefaultDeliverWindowMorningStart = 5;
 @@ -51,7 +51,7 @@ constexpr double kDefaultThrottleInterva
  constexpr double kDefaultThrottleIntervalOffset = 0.0;
  
@@ -371,7 +412,7 @@
    return std::make_unique<UpdateNotificationConfig>();
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
-@@ -1163,7 +1163,7 @@ android:value="true" />
+@@ -1114,7 +1114,7 @@ by a child template that "extends" this
          <service android:name="org.chromium.chrome.browser.tracing.TracingNotificationService"
              android:exported="false"/>
  
@@ -382,7 +423,7 @@
          <meta-data android:name="org.chromium.content.browser.SMART_CLIP_PROVIDER"
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -1956,7 +1956,7 @@ To change this setting, <ph name="BEGIN_
+@@ -1570,7 +1570,7 @@ To change this setting, <ph name="BEGIN_
          Update Chrome
        </message>
        <message name="IDS_UPDATE_NOTIFICATION_TEXT_BODY_DEFAULT" desc="Default text showing in the update notification body, kindly telling user to update to the latest version of Chrome.">
@@ -549,7 +590,7 @@
 +}
 --- a/chrome/browser/flag_descriptions.cc
 +++ b/chrome/browser/flag_descriptions.cc
-@@ -2708,10 +2708,9 @@ const char kUsageStatsDescription[] =
+@@ -2826,10 +2826,9 @@ const char kUsageStatsDescription[] =
      "to websites in order to enforce user-defined time limits.";
  const char kUsageStatsName[] = "Share Usage Stats with Digital Wellbeing";
  
