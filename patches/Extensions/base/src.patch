@@ -26,7 +26,7 @@ Subject: source code fixes for enable_extensions=true
  chrome/browser/extensions/api/enterprise_reporting_private/chrome_desktop_report_request_helper.cc           |    5 
  chrome/browser/extensions/api/image_writer_private/removable_storage_provider_android.cc                     |   19 
  chrome/browser/extensions/api/messaging/native_messaging_host_manifest.cc                                    |   13 
- chrome/browser/extensions/api/safe_browsing_private/safe_browsing_private_event_router.cc                    |   43 
+ chrome/browser/extensions/api/safe_browsing_private/safe_browsing_private_event_router.cc                    |   40 
  chrome/browser/extensions/api/tabs/windows_event_router.cc                                                   |    2 
  chrome/browser/extensions/extension_system_factory.cc                                                        |    3 
  chrome/browser/extensions/global_shortcut_listener_android.cc                                                |   50 +
@@ -51,8 +51,8 @@ Subject: source code fixes for enable_extensions=true
  chrome/browser/metrics/thread_watcher_report_hang.cc                                                         |    2 
  chrome/browser/metrics/thread_watcher_report_hang.h                                                          |    2 
  chrome/browser/obsolete_system/obsolete_system_android.cc                                                    |   25 
- chrome/browser/performance_manager/graph/policies/policy_features.cc                                         |    2 
- chrome/browser/performance_manager/graph/policies/policy_features.h                                          |    2 
+ chrome/browser/performance_manager/policies/policy_features.cc                                               |    2 
+ chrome/browser/performance_manager/policies/policy_features.h                                                |    2 
  chrome/browser/permissions/attestation_permission_request.cc                                                 |    7 
  chrome/browser/platform_util.cc                                                                              |   18 
  chrome/browser/platform_util_android.cc                                                                      |    6 
@@ -61,7 +61,7 @@ Subject: source code fixes for enable_extensions=true
  chrome/browser/policy/chrome_browser_policy_connector.cc                                                     |   19 
  chrome/browser/policy/chrome_browser_policy_connector.h                                                      |    6 
  chrome/browser/prefs/browser_prefs.cc                                                                        |   15 
- chrome/browser/profiles/chrome_browser_main_extra_parts_profiles.cc                                          |   28 
+ chrome/browser/profiles/chrome_browser_main_extra_parts_profiles.cc                                          |   31 
  chrome/browser/profiles/chrome_browser_main_extra_parts_profiles.h                                           |    2 
  chrome/browser/profiles/off_the_record_profile_impl.cc                                                       |    9 
  chrome/browser/profiles/off_the_record_profile_impl.h                                                        |   10 
@@ -140,8 +140,7 @@ Subject: source code fixes for enable_extensions=true
  chrome/browser/ui/views/permission_bubble/permission_prompt_bubble_view.cc                                   |    3 
  chrome/browser/ui/views/profiles/profile_menu_view.cc                                                        |    9 
  chrome/browser/ui/views/tabs/tab_strip.cc                                                                    |   12 
- chrome/browser/ui/views/tabs/window_finder_android.cc                                                        |   19 
- chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc                                                  |   18 
+ chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc                                                  |   16 
  chrome/browser/ui/webui/history/foreign_session_handler.cc                                                   |    1 
  chrome/browser/ui/webui/omnibox/omnibox_ui.cc                                                                |    4 
  chrome/browser/ui/webui/omnibox/omnibox_ui.h                                                                 |    6 
@@ -218,7 +217,7 @@ Subject: source code fixes for enable_extensions=true
  tools/grit/grit/tool/build.py                                                                                |    2 
  ui/android/window_android.cc                                                                                 |   28 
  ui/android/window_android.h                                                                                  |   17 
- ui/base/dragdrop/os_exchange_data.h                                                                          |    8 
+ ui/base/dragdrop/os_exchange_data.h                                                                          |    4 
  ui/base/dragdrop/os_exchange_data_provider_android.cc                                                        |  220 ++++
  ui/base/dragdrop/os_exchange_data_provider_android.h                                                         |  101 ++
  ui/base/dragdrop/os_exchange_data_provider_factory.cc                                                        |    4 
@@ -249,7 +248,7 @@ Subject: source code fixes for enable_extensions=true
  ui/views/widget/widget.cc                                                                                    |    5 
  weblayer/browser/browser_context_impl.cc                                                                     |    2 
  weblayer/browser/browser_context_impl.h                                                                      |    2 
- 246 files changed, 3281 insertions(+), 737 deletions(-)
+ 245 files changed, 3262 insertions(+), 731 deletions(-)
 
 --- /dev/null
 +++ b/chrome/browser/web_applications/components/web_app_shortcut_android.cc
@@ -764,7 +763,7 @@ Subject: source code fixes for enable_extensions=true
 +#endif  // UI_BASE_DRAGDROP_OS_EXCHANGE_DATA_PROVIDER_ANDROID_H_
 --- a/ui/base/dragdrop/os_exchange_data_provider_factory.cc
 +++ b/ui/base/dragdrop/os_exchange_data_provider_factory.cc
-@@ -16,6 +16,8 @@
+@@ -20,6 +20,8 @@
  #include "ui/base/dragdrop/os_exchange_data_provider_win.h"
  #endif
  
@@ -773,7 +772,7 @@ Subject: source code fixes for enable_extensions=true
  namespace ui {
  
  //static
-@@ -33,6 +35,8 @@ OSExchangeDataProviderFactory::CreatePro
+@@ -48,6 +50,8 @@ OSExchangeDataProviderFactory::CreatePro
    // TODO(crbug.com/980371): Implement OSExchangeDataProvider for Fuchsia.
    NOTIMPLEMENTED();
    return nullptr;
@@ -927,7 +926,7 @@ Subject: source code fixes for enable_extensions=true
  class BrowserInstantController;
 --- a/chrome/browser/ui/signin_view_controller.h
 +++ b/chrome/browser/ui/signin_view_controller.h
-@@ -17,10 +17,6 @@
+@@ -21,10 +21,6 @@
  #include "chrome/browser/ui/webui/signin/signin_email_confirmation_dialog.h"
  #endif
  
@@ -936,8 +935,8 @@ Subject: source code fixes for enable_extensions=true
 -#endif
 -
  class Browser;
- class SigninViewControllerDelegate;
  struct CoreAccountId;
+ 
 --- a/chrome/browser/ui/tabs/tab_strip_model.h
 +++ b/chrome/browser/ui/tabs/tab_strip_model.h
 @@ -31,10 +31,6 @@
@@ -985,7 +984,7 @@ Subject: source code fixes for enable_extensions=true
    std::vector<device::mojom::HidDeviceInfoPtr> empty_devices;
 --- a/ui/base/dragdrop/os_exchange_data.h
 +++ b/ui/base/dragdrop/os_exchange_data.h
-@@ -63,7 +63,7 @@ class UI_BASE_EXPORT OSExchangeData {
+@@ -59,7 +59,7 @@ class UI_BASE_EXPORT OSExchangeData {
  #if defined(OS_WIN)
      FILE_CONTENTS  = 1 << 4,
  #endif
@@ -994,23 +993,7 @@ Subject: source code fixes for enable_extensions=true
      HTML           = 1 << 5,
  #endif
    };
-@@ -138,13 +138,13 @@ class UI_BASE_EXPORT OSExchangeData {
-     virtual void SetDownloadFileInfo(DownloadFileInfo* download) = 0;
- #endif
- 
--#if defined(USE_AURA)
-+#if defined(USE_AURA) || defined(OS_ANDROID)
-     virtual void SetHtml(const base::string16& html, const GURL& base_url) = 0;
-     virtual bool GetHtml(base::string16* html, GURL* base_url) const = 0;
-     virtual bool HasHtml() const = 0;
- #endif
- 
--#if defined(USE_AURA) || defined(OS_MACOSX)
-+#if defined(USE_AURA) || defined(OS_MACOSX) || defined(OS_ANDROID)
-     virtual void SetDragImage(const gfx::ImageSkia& image,
-                               const gfx::Vector2d& cursor_offset) = 0;
-     virtual gfx::ImageSkia GetDragImage() const = 0;
-@@ -269,7 +269,7 @@ class UI_BASE_EXPORT OSExchangeData {
+@@ -181,7 +181,7 @@ class UI_BASE_EXPORT OSExchangeData {
    void SetDownloadFileInfo(DownloadFileInfo* download);
  #endif
  
@@ -1021,7 +1004,7 @@ Subject: source code fixes for enable_extensions=true
    void SetHtml(const base::string16& html, const GURL& base_url);
 --- a/ui/views/controls/menu/menu_host.cc
 +++ b/ui/views/controls/menu/menu_host.cc
-@@ -30,7 +30,7 @@ namespace views {
+@@ -31,7 +31,7 @@ namespace views {
  
  namespace internal {
  
@@ -1030,7 +1013,7 @@ Subject: source code fixes for enable_extensions=true
  // This class adds itself as the pre target handler for the |window|
  // passed in. It currently handles touch events and forwards them to the
  // controller. Reason for this approach is views does not get raw touch
-@@ -80,7 +80,7 @@ class PreMenuEventDispatchHandler : publ
+@@ -81,7 +81,7 @@ class PreMenuEventDispatchHandler : publ
  #endif  // OS_MACOSX
  
  void TransferGesture(Widget* source, Widget* target) {
@@ -1039,7 +1022,7 @@ Subject: source code fixes for enable_extensions=true
    NOTIMPLEMENTED();
  #else   // !defined(OS_MACOSX)
    source->GetGestureRecognizer()->TransferEventsTo(
-@@ -136,7 +136,7 @@ void MenuHost::InitMenuHost(Widget* pare
+@@ -137,7 +137,7 @@ void MenuHost::InitMenuHost(Widget* pare
  #endif
    Init(std::move(params));
  
@@ -1048,7 +1031,7 @@ Subject: source code fixes for enable_extensions=true
    pre_dispatch_handler_ =
        std::make_unique<internal::PreMenuEventDispatchHandler>(
            menu_controller, submenu_, GetNativeView());
-@@ -201,7 +201,7 @@ void MenuHost::DestroyMenuHost() {
+@@ -202,7 +202,7 @@ void MenuHost::DestroyMenuHost() {
    HideMenuHost();
    destroying_ = true;
    static_cast<MenuHostRootView*>(GetRootView())->ClearSubmenu();
@@ -1122,7 +1105,7 @@ Subject: source code fixes for enable_extensions=true
    // Compositor callback relay.
    void OnCompositingDidCommit();
  
-@@ -142,6 +151,12 @@ class UI_ANDROID_EXPORT WindowAndroid :
+@@ -136,6 +145,12 @@ class UI_ANDROID_EXPORT WindowAndroid :
    // ViewAndroid overrides.
    WindowAndroid* GetWindowAndroid() const override;
  
@@ -1137,7 +1120,7 @@ Subject: source code fixes for enable_extensions=true
  
 --- a/chrome/browser/chrome_content_browser_client.cc
 +++ b/chrome/browser/chrome_content_browser_client.cc
-@@ -427,7 +427,7 @@
+@@ -437,7 +437,7 @@
  #include "chrome/browser/chrome_browser_main_posix.h"
  #endif
  
@@ -1146,7 +1129,7 @@ Subject: source code fixes for enable_extensions=true
  #include "chrome/browser/badging/badge_manager.h"
  #include "chrome/browser/devtools/chrome_devtools_manager_delegate.h"
  #include "chrome/browser/devtools/devtools_window.h"
-@@ -1232,7 +1232,6 @@ ChromeContentBrowserClient::CreateBrowse
+@@ -1313,7 +1313,6 @@ ChromeContentBrowserClient::CreateBrowse
  #if defined(TOOLKIT_VIEWS)
  #if defined(OS_LINUX) && !defined(OS_CHROMEOS)
    main_parts->AddParts(new ChromeBrowserMainExtraPartsViewsLinux());
@@ -1232,8 +1215,8 @@ Subject: source code fixes for enable_extensions=true
  #include "components/download/public/common/download_item.h"
 --- a/chrome/browser/profiles/profile.cc
 +++ b/chrome/browser/profiles/profile.cc
-@@ -42,8 +42,8 @@
- #include "chromeos/constants/chromeos_switches.h"
+@@ -48,8 +48,8 @@
+ #include "chrome/browser/profiles/android/jni_headers/OTRProfileID_jni.h"
  #endif
  
 -#if !defined(OS_ANDROID)
@@ -1243,7 +1226,7 @@ Subject: source code fixes for enable_extensions=true
  #include "content/public/browser/host_zoom_map.h"
  #endif
  
-@@ -163,7 +163,7 @@ TestingProfile* Profile::AsTestingProfil
+@@ -226,7 +226,7 @@ TestingProfile* Profile::AsTestingProfil
    return nullptr;
  }
  
@@ -1252,16 +1235,16 @@ Subject: source code fixes for enable_extensions=true
  ChromeZoomLevelPrefs* Profile::GetZoomLevelPrefs() {
    return nullptr;
  }
-@@ -220,7 +220,7 @@ void Profile::RegisterProfilePrefs(user_
+@@ -281,7 +281,7 @@ void Profile::RegisterProfilePrefs(user_
                                 std::string());
-   registry->RegisterBooleanPref(prefs::kLiveCaptionEnabled, false);
-   registry->RegisterFilePathPref(prefs::kSODAPath, base::FilePath());
+   registry->RegisterStringPref(prefs::kAccessibilityCaptionsTextShadow,
+                                std::string());
 -#if !defined(OS_ANDROID)
 +#if defined(OS_ANDROID)
    registry->RegisterDictionaryPref(prefs::kPartitionDefaultZoomLevel);
    registry->RegisterDictionaryPref(prefs::kPartitionPerHostZoomLevels);
  #endif  // !defined(OS_ANDROID)
-@@ -384,7 +384,7 @@ bool ProfileCompare::operator()(Profile*
+@@ -457,7 +457,7 @@ bool ProfileCompare::operator()(Profile*
    return a->GetOriginalProfile() < b->GetOriginalProfile();
  }
  
@@ -1272,16 +1255,16 @@ Subject: source code fixes for enable_extensions=true
        ->GetHostZoomMap()
 --- a/chrome/browser/profiles/profile.h
 +++ b/chrome/browser/profiles/profile.h
-@@ -21,7 +21,7 @@
- #include "services/network/public/mojom/network_context.mojom-forward.h"
- #include "url/gurl.h"
+@@ -25,7 +25,7 @@
+ #include "base/android/scoped_java_ref.h"
+ #endif
  
 -#if !defined(OS_ANDROID)
 +#if defined(OS_ANDROID)
  class ChromeZoomLevelPrefs;
  #endif
  
-@@ -213,7 +213,7 @@ class Profile : public content::BrowserC
+@@ -299,7 +299,7 @@ class Profile : public content::BrowserC
    virtual PrefService* GetPrefs() = 0;
    virtual const PrefService* GetPrefs() const = 0;
  
@@ -1290,9 +1273,9 @@ Subject: source code fixes for enable_extensions=true
    // Retrieves a pointer to the PrefService that manages the default zoom
    // level and the per-host zoom levels for this user profile.
    // TODO(wjmaclean): Remove this when HostZoomMap migrates to StoragePartition.
-@@ -412,7 +412,7 @@ class Profile : public content::BrowserC
-   // correctly assigned to its owner.
-   Profile* CreateOffTheRecordProfile();
+@@ -500,7 +500,7 @@ class Profile : public content::BrowserC
+   // ProfileDestroyer, but in tests, some are not.
+   void MaybeSendDestroyedNotification();
  
 -#if !defined(OS_ANDROID)
 +#if defined(OS_ANDROID)
@@ -1312,7 +1295,7 @@ Subject: source code fixes for enable_extensions=true
  #else
 --- a/chrome/browser/ui/browser_navigator_params.h
 +++ b/chrome/browser/ui/browser_navigator_params.h
-@@ -25,7 +25,7 @@
+@@ -26,7 +26,7 @@
  #include "ui/gfx/geometry/rect.h"
  #include "url/gurl.h"
  
@@ -1321,7 +1304,7 @@ Subject: source code fixes for enable_extensions=true
  #include "chrome/browser/ui/tabs/tab_strip_model.h"
  #include "components/tab_groups/tab_group_id.h"
  #endif
-@@ -63,7 +63,7 @@ struct OpenURLParams;
+@@ -64,7 +64,7 @@ struct OpenURLParams;
  
  // TODO(thestig): Split or ifdef out more fields that are not used on Android.
  struct NavigateParams {
@@ -1330,7 +1313,7 @@ Subject: source code fixes for enable_extensions=true
    explicit NavigateParams(
        std::unique_ptr<content::WebContents> contents_to_insert);
  #else
-@@ -215,7 +215,7 @@ struct NavigateParams {
+@@ -222,7 +222,7 @@ struct NavigateParams {
    };
    PathBehavior path_behavior = RESPECT;
  
@@ -1341,70 +1324,68 @@ Subject: source code fixes for enable_extensions=true
    //       it is not compatible with the operation being performed. This can be
 --- a/chrome/browser/extensions/api/safe_browsing_private/safe_browsing_private_event_router.cc
 +++ b/chrome/browser/extensions/api/safe_browsing_private/safe_browsing_private_event_router.cc
-@@ -444,24 +444,9 @@ void SafeBrowsingPrivateEventRouter::OnS
-               triggered_rule.SetIntKey(kKeyTriggeredRuleId, rule.rule_id());
-               triggered_rule.SetStringKey(kKeyTriggeredRuleName,
-                                           rule.rule_name());
--              triggered_rule.SetStringKey(kKeyTriggeredRuleResourceName,
--                                          rule.rule_resource_name());
--              triggered_rule.SetStringKey(kKeyTriggeredRuleSeverity,
--                                          rule.rule_severity());
-               triggered_rule.SetIntKey(kKeyTriggeredRuleAction, rule.action());
+@@ -79,31 +79,11 @@ void AddDlpVerdictToEvent(const safe_bro
+     triggered_rule.SetStringKey(
+         extensions::SafeBrowsingPrivateEventRouter::kKeyTriggeredRuleName,
+         rule.rule_name());
+-    triggered_rule.SetStringKey(extensions::SafeBrowsingPrivateEventRouter::
+-                                    kKeyTriggeredRuleResourceName,
+-                                rule.rule_resource_name());
+-    triggered_rule.SetStringKey(
+-        extensions::SafeBrowsingPrivateEventRouter::kKeyTriggeredRuleSeverity,
+-        rule.rule_severity());
+     triggered_rule.SetIntKey(
+         extensions::SafeBrowsingPrivateEventRouter::kKeyTriggeredRuleAction,
+         rule.action());
  
-               base::ListValue matched_detectors;
--              for (const auto& detector : rule.matched_detectors()) {
--                base::Value matched_detector(base::Value::Type::DICTIONARY);
--                matched_detector.SetStringKey(kKeyMatchedDetectorId,
--                                              detector.detector_id());
--                matched_detector.SetStringKey(kKeyMatchedDetectorName,
--                                              detector.display_name());
--                matched_detector.SetStringKey(kKeyMatchedDetectorType,
--                                              detector.detector_type());
+     base::ListValue matched_detectors;
+-    for (const auto& detector : rule.matched_detectors()) {
+-      base::Value matched_detector(base::Value::Type::DICTIONARY);
+-      matched_detector.SetStringKey(
+-          extensions::SafeBrowsingPrivateEventRouter::kKeyMatchedDetectorId,
+-          detector.detector_id());
+-      matched_detector.SetStringKey(
+-          extensions::SafeBrowsingPrivateEventRouter::kKeyMatchedDetectorName,
+-          detector.display_name());
+-      matched_detector.SetStringKey(
+-          extensions::SafeBrowsingPrivateEventRouter::kKeyMatchedDetectorType,
+-          detector.detector_type());
 -
--                matched_detectors.Append(std::move(matched_detector));
--              }
-               triggered_rule.SetKey(kKeyMatchedDetectors,
-                                     std::move(matched_detectors));
+-      matched_detectors.Append(std::move(matched_detector));
+-    }
+     triggered_rule.SetKey(
+         extensions::SafeBrowsingPrivateEventRouter::kKeyMatchedDetectors,
+         std::move(matched_detectors));
+@@ -215,25 +195,7 @@ void SafeBrowsingPrivateEventRouter::OnP
+     event_router_->BroadcastEvent(std::move(extension_event));
+   }
  
-@@ -482,35 +467,7 @@ void SafeBrowsingPrivateEventRouter::OnS
-     const std::string& mime_type,
-     const std::string& trigger,
-     const int64_t content_size) {
 -  if (!IsRealtimeReportingEnabled())
-     return;
+-    return;
 -
 -  ReportRealtimeEvent(
--      kKeySensitiveDataEvent,
+-      kKeyPasswordReuseEvent,
 -      base::BindOnce(
--          [](const std::string& url, const std::string& file_name,
--             const std::string& download_digest_sha256,
--             const std::string& profile_user_name, const std::string& mime_type,
--             const std::string& trigger, const int64_t content_size) {
--            // Create a real-time event dictionary from the arguments and
--            // report it.
+-          [](const std::string& url, const std::string& user_name,
+-             const bool is_phishing_url, const std::string& profile_user_name) {
+-            // Convert |params| to a real-time event dictionary
+-            // and report it.
 -            base::Value event(base::Value::Type::DICTIONARY);
 -            event.SetStringKey(kKeyUrl, url);
--            event.SetStringKey(kKeyFileName, file_name);
--            event.SetStringKey(kKeyDownloadDigestSha256,
--                               download_digest_sha256);
+-            event.SetStringKey(kKeyUserName, user_name);
+-            event.SetBoolKey(kKeyIsPhishingUrl, is_phishing_url);
 -            event.SetStringKey(kKeyProfileUserName, profile_user_name);
--            event.SetStringKey(kKeyContentType, mime_type);
--            // |content_size| can be set to -1 to indicate an unknown size, in
--            // which case the field is not set.
--            if (content_size >= 0)
--              event.SetIntKey(kKeyContentSize, content_size);
--            event.SetStringKey(kKeyTrigger, trigger);
--            event.SetBoolKey(kKeyClickedThrough, true);
 -            return event;
 -          },
--          url.spec(), file_name, download_digest_sha256, GetProfileUserName(),
--          mime_type, trigger, content_size));
+-          params.url, params.user_name, params.is_phishing_url,
+-          GetProfileUserName()));
++  return;
  }
  
- void SafeBrowsingPrivateEventRouter::OnUnscannedFileEvent(
+ void SafeBrowsingPrivateEventRouter::OnPolicySpecifiedPasswordChanged(
 --- a/chrome/common/pref_names.cc
 +++ b/chrome/common/pref_names.cc
-@@ -1090,7 +1090,7 @@ const char kSpeechRecognitionFilterProfa
+@@ -1058,7 +1058,7 @@ const char kSpeechRecognitionFilterProfa
  // permitted.
  const char kAllowDeletingBrowserHistory[] = "history.deleting_enabled";
  
@@ -1413,7 +1394,7 @@ Subject: source code fixes for enable_extensions=true
  // Whether the "Click here to clear your browsing data" tooltip promo has been
  // shown on the History page.
  const char kHistoryMenuPromoShown[] = "history.menu_promo_shown";
-@@ -1254,7 +1254,7 @@ const char kContentSettingsPluginWhiteli
+@@ -1225,7 +1225,7 @@ const char kContentSettingsPluginWhiteli
      "profile.content_settings.plugin_whitelist";
  #endif
  
@@ -1422,7 +1403,7 @@ Subject: source code fixes for enable_extensions=true
  // Double that indicates the default zoom level.
  const char kPartitionDefaultZoomLevel[] = "partition.default_zoom_level";
  
-@@ -1550,7 +1550,7 @@ const char kWebRtcEventLogCollectionAllo
+@@ -1524,7 +1524,7 @@ const char kWebRtcEventLogCollectionAllo
  // in ICE candidates.
  const char kWebRtcLocalIpsAllowedUrls[] = "webrtc.local_ips_allowed_urls";
  
@@ -1431,7 +1412,7 @@ Subject: source code fixes for enable_extensions=true
  // Whether or not this profile has been shown the Welcome page.
  const char kHasSeenWelcomePage[] = "browser.has_seen_welcome_page";
  #endif
-@@ -1753,7 +1753,7 @@ const char kShutdownNumProcessesSlow[] =
+@@ -1735,7 +1735,7 @@ const char kShutdownNumProcessesSlow[] =
  // before shutting everything down.
  const char kRestartLastSessionOnShutdown[] = "restart.last.session.on.shutdown";
  
@@ -1440,7 +1421,7 @@ Subject: source code fixes for enable_extensions=true
  #if !defined(OS_CHROMEOS)
  // Pref name for the policy controlling presentation of full-tab promotional
  // and/or educational content.
-@@ -1796,7 +1796,6 @@ const char kNtpCollapsedSnapshotDocument
+@@ -1778,7 +1778,6 @@ const char kNtpCollapsedSnapshotDocument
  
  // Keeps track of sync promo collapsed state in the Other Devices menu.
  const char kNtpCollapsedSyncPromo[] = "ntp.collapsed_sync_promo";
@@ -1448,7 +1429,7 @@ Subject: source code fixes for enable_extensions=true
  // Holds info for New Tab Page custom background
  const char kNtpCustomBackgroundDict[] = "ntp.custom_background_dict";
  const char kNtpCustomBackgroundLocalToDevice[] =
-@@ -1863,7 +1862,7 @@ const char kDevToolsTCPDiscoveryConfig[]
+@@ -1845,7 +1844,7 @@ const char kDevToolsTCPDiscoveryConfig[]
  // A dictionary with generic DevTools settings.
  const char kDevToolsPreferences[] = "devtools.preferences";
  
@@ -1457,7 +1438,7 @@ Subject: source code fixes for enable_extensions=true
  // Tracks the number of times the dice signin promo has been shown in the user
  // menu.
  const char kDiceSigninUserMenuPromoCount[] = "sync_promo.user_menu_show_count";
-@@ -2368,13 +2367,13 @@ const char kSystemTimezoneAutomaticDetec
+@@ -2354,13 +2353,13 @@ const char kSystemTimezoneAutomaticDetec
  
  // Pref name for the policy controlling whether to enable Media Router.
  const char kEnableMediaRouter[] = "media_router.enable_media_router";
@@ -1473,7 +1454,7 @@ Subject: source code fixes for enable_extensions=true
  // Pref name for the policy controlling the way in which users are notified of
  // the need to relaunch the browser for a pending update.
  const char kRelaunchNotification[] = "browser.relaunch_notification";
-@@ -2487,7 +2486,7 @@ const char kCustomHandlersEnabled[] = "c
+@@ -2473,7 +2472,7 @@ const char kCustomHandlersEnabled[] = "c
  // by the cloud policy subsystem.
  const char kDevicePolicyRefreshRate[] = "policy.device_refresh_rate";
  
@@ -1482,7 +1463,7 @@ Subject: source code fixes for enable_extensions=true
  // A boolean where true means that the browser has previously attempted to
  // enable autoupdate and failed, so the next out-of-date browser start should
  // not prompt the user to enable autoupdate, it should offer to reinstall Chrome
-@@ -2623,7 +2622,7 @@ const char kRecoveryComponentNeedsElevat
+@@ -2616,7 +2615,7 @@ const char kRecoveryComponentNeedsElevat
  const char kRegisteredSupervisedUserWhitelists[] =
      "supervised_users.whitelists";
  
@@ -1491,7 +1472,7 @@ Subject: source code fixes for enable_extensions=true
  // Boolean that indicates whether Chrome enterprise cloud reporting is enabled
  // or not.
  const char kCloudReportingEnabled[] =
-@@ -2871,7 +2870,7 @@ const char kSitePerProcess[] = "site_iso
+@@ -2863,7 +2862,7 @@ const char kSitePerProcess[] = "site_iso
  const char kUserTriggeredIsolatedOrigins[] =
      "site_isolation.user_triggered_isolated_origins";
  
@@ -1502,7 +1483,7 @@ Subject: source code fixes for enable_extensions=true
  
 --- a/chrome/common/pref_names.h
 +++ b/chrome/common/pref_names.h
-@@ -340,7 +340,7 @@ extern const char kDeviceLoginScreenWebU
+@@ -339,7 +339,7 @@ extern const char kDeviceLoginScreenWebU
  extern const char kShowHomeButton[];
  extern const char kSpeechRecognitionFilterProfanities[];
  extern const char kAllowDeletingBrowserHistory[];
@@ -1511,7 +1492,7 @@ Subject: source code fixes for enable_extensions=true
  extern const char kHistoryMenuPromoShown[];
  #endif
  extern const char kForceGoogleSafeSearch[];
-@@ -383,7 +383,7 @@ extern const char kUseCustomChromeFrame[
+@@ -382,7 +382,7 @@ extern const char kUseCustomChromeFrame[
  #if BUILDFLAG(ENABLE_PLUGINS)
  extern const char kContentSettingsPluginWhitelist[];
  #endif
@@ -1520,7 +1501,7 @@ Subject: source code fixes for enable_extensions=true
  extern const char kPartitionDefaultZoomLevel[];
  extern const char kPartitionPerHostZoomLevels[];
  
-@@ -492,7 +492,7 @@ extern const char kWebRTCUDPPortRange[];
+@@ -495,7 +495,7 @@ extern const char kWebRTCUDPPortRange[];
  extern const char kWebRtcEventLogCollectionAllowed[];
  extern const char kWebRtcLocalIpsAllowedUrls[];
  
@@ -1529,7 +1510,7 @@ Subject: source code fixes for enable_extensions=true
  extern const char kHasSeenWelcomePage[];
  #endif
  
-@@ -578,7 +578,7 @@ extern const char kShutdownNumProcesses[
+@@ -583,7 +583,7 @@ extern const char kShutdownNumProcesses[
  extern const char kShutdownNumProcessesSlow[];
  
  extern const char kRestartLastSessionOnShutdown[];
@@ -1538,7 +1519,7 @@ Subject: source code fixes for enable_extensions=true
  #if !defined(OS_CHROMEOS)
  extern const char kPromotionalTabsEnabled[];
  extern const char kCommandLineFlagSecurityWarningsEnabled[];
-@@ -595,7 +595,6 @@ extern const char kNtpCollapsedForeignSe
+@@ -600,7 +600,6 @@ extern const char kNtpCollapsedForeignSe
  extern const char kNtpCollapsedRecentlyClosedTabs[];
  extern const char kNtpCollapsedSnapshotDocument[];
  extern const char kNtpCollapsedSyncPromo[];
@@ -1546,7 +1527,7 @@ Subject: source code fixes for enable_extensions=true
  extern const char kNtpCustomBackgroundDict[];
  extern const char kNtpCustomBackgroundLocalToDevice[];
  extern const char kNtpPromoBlocklist[];
-@@ -620,7 +619,7 @@ extern const char kDevToolsPreferences[]
+@@ -625,7 +624,7 @@ extern const char kDevToolsPreferences[]
  extern const char kDevToolsDiscoverTCPTargetsEnabled[];
  extern const char kDevToolsTCPDiscoveryConfig[];
  
@@ -1555,7 +1536,7 @@ Subject: source code fixes for enable_extensions=true
  extern const char kDiceSigninUserMenuPromoCount[];
  #endif
  
-@@ -815,11 +814,11 @@ extern const char kSystemTimezoneAutomat
+@@ -821,11 +820,11 @@ extern const char kSystemTimezoneAutomat
  #endif  // defined(OS_CHROMEOS)
  
  extern const char kEnableMediaRouter[];
@@ -1569,7 +1550,7 @@ Subject: source code fixes for enable_extensions=true
  extern const char kRelaunchNotification[];
  extern const char kRelaunchNotificationPeriod[];
  #endif  // !defined(OS_ANDROID)
-@@ -828,7 +827,7 @@ extern const char kRelaunchNotificationP
+@@ -834,7 +833,7 @@ extern const char kRelaunchNotificationP
  extern const char kRelaunchHeadsUpPeriod[];
  #endif  // defined(OS_CHROMEOS)
  
@@ -1578,7 +1559,7 @@ Subject: source code fixes for enable_extensions=true
  extern const char kAttemptedToEnableAutoupdate[];
  
  extern const char kMediaGalleriesUniqueId[];
-@@ -880,7 +879,7 @@ extern const char kRecoveryComponentNeed
+@@ -888,7 +887,7 @@ extern const char kRecoveryComponentNeed
  
  extern const char kRegisteredSupervisedUserWhitelists[];
  
@@ -1587,7 +1568,7 @@ Subject: source code fixes for enable_extensions=true
  extern const char kCloudReportingEnabled[];
  extern const char kCloudExtensionRequestEnabled[];
  extern const char kCloudExtensionRequestIds[];
-@@ -985,7 +984,7 @@ extern const char kIsolateOrigins[];
+@@ -993,7 +992,7 @@ extern const char kIsolateOrigins[];
  extern const char kSitePerProcess[];
  extern const char kUserTriggeredIsolatedOrigins[];
  
@@ -1609,7 +1590,7 @@ Subject: source code fixes for enable_extensions=true
    AppWindowRegistry* registry = AppWindowRegistry::Get(profile_);
 --- a/chrome/common/chrome_features.cc
 +++ b/chrome/common/chrome_features.cc
-@@ -46,7 +46,7 @@ const base::Feature kShow10_9ObsoleteInf
+@@ -48,7 +48,7 @@ const base::Feature kShow10_9ObsoleteInf
                                               base::FEATURE_DISABLED_BY_DEFAULT};
  #endif  // defined(OS_MACOSX)
  
@@ -1618,7 +1599,7 @@ Subject: source code fixes for enable_extensions=true
  // App Service related flags. See chrome/services/app_service/README.md.
  const base::Feature kAppServiceContextMenu{"AppServiceContextMenu",
                                             base::FEATURE_ENABLED_BY_DEFAULT};
-@@ -474,7 +474,7 @@ const base::Feature kAcknowledgeNtpOverr
+@@ -495,7 +495,7 @@ const base::Feature kAcknowledgeNtpOverr
  const base::Feature kMixedContentSiteSetting{"MixedContentSiteSetting",
                                               base::FEATURE_ENABLED_BY_DEFAULT};
  
@@ -1629,7 +1610,7 @@ Subject: source code fixes for enable_extensions=true
  #endif
 --- a/chrome/common/chrome_features.h
 +++ b/chrome/common/chrome_features.h
-@@ -48,7 +48,7 @@ COMPONENT_EXPORT(CHROME_FEATURES)
+@@ -50,7 +50,7 @@ COMPONENT_EXPORT(CHROME_FEATURES)
  extern const base::Feature kShow10_9ObsoleteInfobar;
  #endif  // defined(OS_MACOSX)
  
@@ -1638,7 +1619,7 @@ Subject: source code fixes for enable_extensions=true
  COMPONENT_EXPORT(CHROME_FEATURES)
  extern const base::Feature kAppServiceContextMenu;
  COMPONENT_EXPORT(CHROME_FEATURES)
-@@ -216,7 +216,7 @@ COMPONENT_EXPORT(CHROME_FEATURES)
+@@ -224,7 +224,7 @@ COMPONENT_EXPORT(CHROME_FEATURES)
  extern const base::Feature kHappinessTrackingSystem;
  #endif
  
@@ -1647,7 +1628,7 @@ Subject: source code fixes for enable_extensions=true
  COMPONENT_EXPORT(CHROME_FEATURES)
  extern const base::Feature kHappinessTrackingSurveysForDesktop;
  
-@@ -291,7 +291,7 @@ extern const base::Feature kAcknowledgeN
+@@ -302,7 +302,7 @@ extern const base::Feature kAcknowledgeN
  COMPONENT_EXPORT(CHROME_FEATURES)
  extern const base::Feature kMixedContentSiteSetting;
  
@@ -1829,7 +1810,7 @@ Subject: source code fixes for enable_extensions=true
 +}  // namespace extensions
 --- a/chrome/browser/media/webrtc/media_capture_devices_dispatcher.cc
 +++ b/chrome/browser/media/webrtc/media_capture_devices_dispatcher.cc
-@@ -112,15 +112,6 @@ MediaCaptureDevicesDispatcher::MediaCapt
+@@ -99,15 +99,6 @@ MediaCaptureDevicesDispatcher::MediaCapt
    media_access_handlers_.push_back(
        std::make_unique<ExtensionMediaAccessHandler>());
  #endif
@@ -2038,7 +2019,7 @@ Subject: source code fixes for enable_extensions=true
 +}  // namespace chrome_apps
 --- a/chrome/browser/ui/browser_commands.cc
 +++ b/chrome/browser/ui/browser_commands.cc
-@@ -88,6 +88,7 @@
+@@ -91,6 +91,7 @@
  #include "components/services/app_service/public/mojom/types.mojom.h"
  #include "components/sessions/core/live_tab_context.h"
  #include "components/sessions/core/tab_restore_service.h"
@@ -2075,7 +2056,7 @@ Subject: source code fixes for enable_extensions=true
    void AdjustCheckboxRadioRectForPadding(SkRect* rect) const override;
 --- a/content/browser/storage_partition_impl.h
 +++ b/content/browser/storage_partition_impl.h
-@@ -54,7 +54,7 @@
+@@ -55,7 +55,7 @@
  #include "storage/browser/quota/special_storage_policy.h"
  #include "third_party/blink/public/mojom/dom_storage/dom_storage.mojom.h"
  
@@ -2084,7 +2065,7 @@ Subject: source code fixes for enable_extensions=true
  #include "content/browser/host_zoom_level_context.h"
  #endif
  
-@@ -149,7 +149,7 @@ class CONTENT_EXPORT StoragePartitionImp
+@@ -146,7 +146,7 @@ class CONTENT_EXPORT StoragePartitionImp
    DevToolsBackgroundServicesContextImpl* GetDevToolsBackgroundServicesContext()
        override;
    ContentIndexContextImpl* GetContentIndexContext() override;
@@ -2093,7 +2074,7 @@ Subject: source code fixes for enable_extensions=true
    HostZoomMap* GetHostZoomMap() override;
    HostZoomLevelContext* GetHostZoomLevelContext() override;
    ZoomLevelDelegate* GetZoomLevelDelegate() override;
-@@ -475,7 +475,7 @@ class CONTENT_EXPORT StoragePartitionImp
+@@ -479,7 +479,7 @@ class CONTENT_EXPORT StoragePartitionImp
    std::unique_ptr<SharedWorkerServiceImpl> shared_worker_service_;
    std::unique_ptr<PushMessagingContext> push_messaging_context_;
    scoped_refptr<storage::SpecialStoragePolicy> special_storage_policy_;
@@ -2104,16 +2085,16 @@ Subject: source code fixes for enable_extensions=true
  #endif  // !defined(OS_ANDROID)
 --- a/content/public/browser/storage_partition.h
 +++ b/content/public/browser/storage_partition.h
-@@ -66,7 +66,7 @@ class PlatformNotificationContext;
- class ServiceWorkerContext;
+@@ -68,7 +68,7 @@ class ServiceWorkerContext;
  class SharedWorkerService;
+ class IdleManager;
  
 -#if !defined(OS_ANDROID)
 +#if defined(OS_ANDROID)
  class HostZoomLevelContext;
  class HostZoomMap;
  class ZoomLevelDelegate;
-@@ -136,7 +136,7 @@ class CONTENT_EXPORT StoragePartition {
+@@ -128,7 +128,7 @@ class CONTENT_EXPORT StoragePartition {
    virtual DevToolsBackgroundServicesContext*
    GetDevToolsBackgroundServicesContext() = 0;
    virtual ContentIndexContext* GetContentIndexContext() = 0;
@@ -2124,7 +2105,7 @@ Subject: source code fixes for enable_extensions=true
    virtual ZoomLevelDelegate* GetZoomLevelDelegate() = 0;
 --- a/content/browser/web_contents/web_contents_impl.cc
 +++ b/content/browser/web_contents/web_contents_impl.cc
-@@ -177,7 +177,6 @@
+@@ -178,7 +178,6 @@
  #include "content/browser/android/nfc_host.h"
  #include "content/browser/web_contents/web_contents_android.h"
  #include "services/device/public/mojom/nfc.mojom.h"
@@ -2132,7 +2113,7 @@ Subject: source code fixes for enable_extensions=true
  #include "content/browser/host_zoom_map_impl.h"
  #endif  // OS_ANDROID
  
-@@ -1203,7 +1202,7 @@ FindRequestManager* WebContentsImpl::Get
+@@ -1214,7 +1213,7 @@ FindRequestManager* WebContentsImpl::Get
    return GetFindRequestManager();
  }
  
@@ -2143,7 +2124,7 @@ Subject: source code fixes for enable_extensions=true
    if (rwh->GetView())
 --- a/content/browser/web_contents/web_contents_impl.h
 +++ b/content/browser/web_contents/web_contents_impl.h
-@@ -260,7 +260,7 @@ class CONTENT_EXPORT WebContentsImpl : p
+@@ -270,7 +270,7 @@ class CONTENT_EXPORT WebContentsImpl : p
    // bitmap.
    void AddAccessibilityMode(ui::AXMode mode);
  
@@ -2154,7 +2135,7 @@ Subject: source code fixes for enable_extensions=true
  
 --- a/content/browser/storage_partition_impl.cc
 +++ b/content/browser/storage_partition_impl.cc
-@@ -1490,7 +1490,7 @@ void StoragePartitionImpl::Initialize()
+@@ -1279,7 +1279,7 @@ void StoragePartitionImpl::Initialize()
    push_messaging_context_ = std::make_unique<PushMessagingContext>(
        browser_context_, service_worker_context_);
  
@@ -2163,7 +2144,7 @@ Subject: source code fixes for enable_extensions=true
    host_zoom_level_context_.reset(new HostZoomLevelContext(
        browser_context_->CreateZoomLevelDelegate(partition_path_)));
  #endif  // !defined(OS_ANDROID)
-@@ -1751,7 +1751,7 @@ SharedWorkerServiceImpl* StoragePartitio
+@@ -1536,7 +1536,7 @@ SharedWorkerServiceImpl* StoragePartitio
    return shared_worker_service_.get();
  }
  
@@ -2174,7 +2155,7 @@ Subject: source code fixes for enable_extensions=true
    DCHECK(host_zoom_level_context_.get());
 --- a/content/public/browser/browser_context.h
 +++ b/content/public/browser/browser_context.h
-@@ -28,7 +28,7 @@
+@@ -29,7 +29,7 @@
  #include "third_party/blink/public/mojom/blob/blob.mojom-forward.h"
  #include "third_party/blink/public/mojom/push_messaging/push_messaging_status.mojom-forward.h"
  
@@ -2183,7 +2164,7 @@ Subject: source code fixes for enable_extensions=true
  #include "content/public/browser/zoom_level_delegate.h"
  #endif
  
-@@ -255,7 +255,7 @@ class CONTENT_EXPORT BrowserContext : pu
+@@ -225,7 +225,7 @@ class CONTENT_EXPORT BrowserContext : pu
    // StoragePartition can have time to do necessary cleanups on IO thread.
    void ShutdownStoragePartitions();
  
@@ -2194,7 +2175,7 @@ Subject: source code fixes for enable_extensions=true
    virtual std::unique_ptr<ZoomLevelDelegate> CreateZoomLevelDelegate(
 --- a/chrome/browser/profiles/profile_impl.cc
 +++ b/chrome/browser/profiles/profile_impl.cc
-@@ -188,7 +188,6 @@
+@@ -190,7 +190,6 @@
  
  #if defined(OS_ANDROID)
  #include "chrome/browser/android/profile_key_startup_accessor.h"
@@ -2202,7 +2183,7 @@ Subject: source code fixes for enable_extensions=true
  #include "components/zoom/zoom_event_manager.h"
  #include "content/public/common/page_zoom.h"
  #endif
-@@ -812,7 +811,7 @@ Profile::ProfileType ProfileImpl::GetPro
+@@ -826,7 +825,7 @@ Profile::ProfileType ProfileImpl::GetPro
    return REGULAR_PROFILE;
  }
  
@@ -2211,7 +2192,7 @@ Subject: source code fixes for enable_extensions=true
  std::unique_ptr<content::ZoomLevelDelegate>
  ProfileImpl::CreateZoomLevelDelegate(const base::FilePath& partition_path) {
    return std::make_unique<ChromeZoomLevelPrefs>(
-@@ -1058,7 +1057,7 @@ const PrefService* ProfileImpl::GetPrefs
+@@ -1108,7 +1107,7 @@ const PrefService* ProfileImpl::GetPrefs
    return prefs_.get();
  }
  
@@ -2240,7 +2221,7 @@ Subject: source code fixes for enable_extensions=true
    std::unique_ptr<content::ZoomLevelDelegate> CreateZoomLevelDelegate(
        const base::FilePath& partition_path) override;
  #endif
-@@ -128,7 +128,7 @@ class ProfileImpl : public Profile {
+@@ -134,7 +134,7 @@ class ProfileImpl : public Profile {
    ExtensionSpecialStoragePolicy* GetExtensionSpecialStoragePolicy() override;
    PrefService* GetPrefs() override;
    const PrefService* GetPrefs() const override;
@@ -2251,7 +2232,7 @@ Subject: source code fixes for enable_extensions=true
    PrefService* GetOffTheRecordPrefs() override;
 --- a/content/shell/browser/shell_browser_context.cc
 +++ b/content/shell/browser/shell_browser_context.cc
-@@ -139,7 +139,7 @@ void ShellBrowserContext::FinishInitWhil
+@@ -138,7 +138,7 @@ void ShellBrowserContext::FinishInitWhil
    SimpleKeyMap::GetInstance()->Associate(this, key_.get());
  }
  
@@ -2271,7 +2252,7 @@ Subject: source code fixes for enable_extensions=true
  class ZoomLevelDelegate;
  #endif  // !defined(OS_ANDROID)
  
-@@ -44,7 +44,7 @@ class ShellBrowserContext : public Brows
+@@ -49,7 +49,7 @@ class ShellBrowserContext : public Brows
  
    // BrowserContext implementation.
    base::FilePath GetPath() override;
@@ -2282,8 +2263,8 @@ Subject: source code fixes for enable_extensions=true
  #endif  // !defined(OS_ANDROID)
 --- a/chromecast/browser/cast_browser_context.cc
 +++ b/chromecast/browser/cast_browser_context.cc
-@@ -80,7 +80,7 @@ void CastBrowserContext::InitWhileIOAllo
-   BrowserContext::Initialize(this, path_);
+@@ -79,7 +79,7 @@ void CastBrowserContext::InitWhileIOAllo
+ #endif  // defined(OS_ANDROID)
  }
  
 -#if !defined(OS_ANDROID)
@@ -2304,7 +2285,7 @@ Subject: source code fixes for enable_extensions=true
  #endif  // !defined(OS_ANDROID)
 --- a/chrome/browser/profiles/off_the_record_profile_impl.cc
 +++ b/chrome/browser/profiles/off_the_record_profile_impl.cc
-@@ -75,7 +75,6 @@
+@@ -74,7 +74,6 @@
  
  #if defined(OS_ANDROID)
  #include "components/prefs/scoped_user_pref_update.h"
@@ -2312,7 +2293,7 @@ Subject: source code fixes for enable_extensions=true
  #include "chrome/browser/ui/zoom/chrome_zoom_level_otr_delegate.h"
  #include "components/zoom/zoom_event_manager.h"
  #include "content/public/browser/host_zoom_map.h"
-@@ -109,7 +108,7 @@
+@@ -108,7 +107,7 @@
  
  using content::BrowserThread;
  using content::DownloadManagerDelegate;
@@ -2321,7 +2302,7 @@ Subject: source code fixes for enable_extensions=true
  using content::HostZoomMap;
  #endif
  
-@@ -219,7 +218,7 @@ OffTheRecordProfileImpl::~OffTheRecordPr
+@@ -221,7 +220,7 @@ OffTheRecordProfileImpl::~OffTheRecordPr
    }
  }
  
@@ -2330,7 +2311,7 @@ Subject: source code fixes for enable_extensions=true
  void OffTheRecordProfileImpl::TrackZoomLevelsFromParent() {
    DCHECK(!profile_->IsIncognitoProfile());
  
-@@ -273,7 +272,7 @@ base::Time OffTheRecordProfileImpl::GetC
+@@ -275,7 +274,7 @@ base::Time OffTheRecordProfileImpl::GetC
    return start_time_;
  }
  
@@ -2339,8 +2320,8 @@ Subject: source code fixes for enable_extensions=true
  std::unique_ptr<content::ZoomLevelDelegate>
  OffTheRecordProfileImpl::CreateZoomLevelDelegate(
      const base::FilePath& partition_path) {
-@@ -618,7 +617,7 @@ Profile* Profile::CreateOffTheRecordProf
-   return profile;
+@@ -637,7 +636,7 @@ std::unique_ptr<Profile> Profile::Create
+   return std::move(profile);
  }
  
 -#if !defined(OS_ANDROID)
@@ -2359,7 +2340,7 @@ Subject: source code fixes for enable_extensions=true
  #include "chrome/browser/ui/zoom/chrome_zoom_level_prefs.h"
  #include "content/public/browser/host_zoom_map.h"
  #endif
-@@ -93,7 +93,7 @@ class OffTheRecordProfileImpl : public P
+@@ -99,7 +99,7 @@ class OffTheRecordProfileImpl : public P
    base::FilePath GetPath() override;
    base::FilePath GetPath() const override;
    base::Time GetCreationTime() const override;
@@ -2368,7 +2349,7 @@ Subject: source code fixes for enable_extensions=true
    std::unique_ptr<content::ZoomLevelDelegate> CreateZoomLevelDelegate(
        const base::FilePath& partition_path) override;
  #endif  // !defined(OS_ANDROID)
-@@ -127,12 +127,12 @@ class OffTheRecordProfileImpl : public P
+@@ -134,12 +134,12 @@ class OffTheRecordProfileImpl : public P
    GetNativeFileSystemPermissionContext() override;
  
   private:
@@ -2383,7 +2364,7 @@ Subject: source code fixes for enable_extensions=true
    // Callback function for tracking parent's zoom level changes.
    void OnParentZoomLevelChanged(
        const content::HostZoomMap::ZoomLevelChange& change);
-@@ -144,7 +144,7 @@ class OffTheRecordProfileImpl : public P
+@@ -153,7 +153,7 @@ class OffTheRecordProfileImpl : public P
  
    std::unique_ptr<sync_preferences::PrefServiceSyncable> prefs_;
  
@@ -2394,7 +2375,7 @@ Subject: source code fixes for enable_extensions=true
        parent_default_zoom_level_subscription_;
 --- a/weblayer/browser/browser_context_impl.cc
 +++ b/weblayer/browser/browser_context_impl.cc
-@@ -106,7 +106,7 @@ base::FilePath BrowserContextImpl::GetDe
+@@ -110,7 +110,7 @@ base::FilePath BrowserContextImpl::GetDe
    return download_dir;
  }
  
@@ -2416,7 +2397,7 @@ Subject: source code fixes for enable_extensions=true
  #endif  // !defined(OS_ANDROID)
 --- a/ui/views/widget/widget.cc
 +++ b/ui/views/widget/widget.cc
-@@ -193,6 +193,11 @@ Widget::~Widget() {
+@@ -191,6 +191,11 @@ Widget::~Widget() {
  }
  
  // static
@@ -2496,7 +2477,7 @@ Subject: source code fixes for enable_extensions=true
  
 --- a/chrome/browser/ui/search/search_ipc_router.h
 +++ b/chrome/browser/ui/search/search_ipc_router.h
-@@ -21,7 +21,7 @@
+@@ -22,7 +22,7 @@
  #include "content/public/browser/web_contents_observer.h"
  #include "mojo/public/cpp/bindings/associated_receiver.h"
  
@@ -2507,7 +2488,7 @@ Subject: source code fixes for enable_extensions=true
  
 --- a/chrome/browser/ui/search/search_tab_helper.h
 +++ b/chrome/browser/ui/search/search_tab_helper.h
-@@ -32,7 +32,7 @@
+@@ -31,7 +31,7 @@
  #include "content/public/browser/web_contents_user_data.h"
  #include "ui/shell_dialogs/select_file_dialog.h"
  
@@ -2632,7 +2613,7 @@ Subject: source code fixes for enable_extensions=true
  #include "chrome/browser/ui/browser.h"
  #endif
  
-@@ -531,7 +531,7 @@ bool DownloadUIModel::ShouldPromoteOrigi
+@@ -535,7 +535,7 @@ bool DownloadUIModel::ShouldPromoteOrigi
    return false;
  }
  
@@ -2652,7 +2633,7 @@ Subject: source code fixes for enable_extensions=true
  #include "chrome/browser/download/download_commands.h"
  #endif
  
-@@ -285,7 +285,7 @@ class DownloadUIModel {
+@@ -288,7 +288,7 @@ class DownloadUIModel {
    // security reasons.
    virtual bool ShouldPromoteOrigin() const;
  
@@ -2784,7 +2765,7 @@ Subject: source code fixes for enable_extensions=true
  }  // namespace chrome
 --- a/chrome/browser/ui/chrome_pages.cc
 +++ b/chrome/browser/ui/chrome_pages.cc
-@@ -71,7 +71,7 @@
+@@ -78,7 +78,7 @@
  #include "chrome/browser/ui/signin_view_controller.h"
  #endif
  
@@ -2793,7 +2774,7 @@ Subject: source code fixes for enable_extensions=true
  #include "chrome/browser/signin/identity_manager_factory.h"
  #include "components/signin/public/identity_manager/identity_manager.h"
  #endif
-@@ -490,7 +490,7 @@ GURL GetOSSettingsUrl(const std::string&
+@@ -514,7 +514,7 @@ GURL GetOSSettingsUrl(const std::string&
  }
  #endif
  
@@ -2813,8 +2794,8 @@ Subject: source code fixes for enable_extensions=true
  #include "chrome/browser/signin/signin_promo.h"
  #endif
  
-@@ -138,7 +138,7 @@ void ShowEnterpriseManagementPageInTabbe
- GURL GetOSSettingsUrl(const std::string& sub_page);
+@@ -146,7 +146,7 @@ void ShowAppManagementPage(Profile* prof
+ void ShowPrintManagementApp(Profile* profile);
  #endif
  
 -#if !defined(OS_ANDROID) && !defined(OS_CHROMEOS)
@@ -2873,7 +2854,7 @@ Subject: source code fixes for enable_extensions=true
   public:
 --- a/chrome/browser/lifetime/browser_shutdown.cc
 +++ b/chrome/browser/lifetime/browser_shutdown.cc
-@@ -46,7 +46,7 @@
+@@ -49,7 +49,7 @@
  #include "chrome/browser/win/browser_util.h"
  #endif
  
@@ -2882,7 +2863,7 @@ Subject: source code fixes for enable_extensions=true
  #include "chrome/browser/first_run/upgrade_util.h"
  #endif
  
-@@ -157,7 +157,7 @@ ShutdownType GetShutdownType() {
+@@ -197,7 +197,7 @@ ShutdownType GetShutdownType() {
    return g_shutdown_type;
  }
  
@@ -2891,7 +2872,7 @@ Subject: source code fixes for enable_extensions=true
  bool ShutdownPreThreadsStop() {
  #if defined(OS_CHROMEOS)
    chromeos::BootTimesRecorder::Get()->AddLogoutTimeMarker(
-@@ -380,7 +380,7 @@ void SetTryingToQuit(bool quitting) {
+@@ -420,7 +420,7 @@ void SetTryingToQuit(bool quitting) {
    // attempt is cancelled.
    PrefService* pref_service = g_browser_process->local_state();
    if (pref_service) {
@@ -2955,7 +2936,7 @@ Subject: source code fixes for enable_extensions=true
  
 --- a/chrome/browser/profiles/profile_metrics.cc
 +++ b/chrome/browser/profiles/profile_metrics.cc
-@@ -25,13 +25,13 @@
+@@ -26,13 +26,13 @@
  #include "components/signin/core/browser/signin_header_helper.h"
  #include "content/public/browser/browser_thread.h"
  
@@ -2971,7 +2952,7 @@ Subject: source code fixes for enable_extensions=true
  constexpr base::TimeDelta kProfileActivityThreshold =
      base::TimeDelta::FromDays(28);  // Should be integral number of weeks.
  #endif
-@@ -133,7 +133,7 @@ enum ProfileAvatar {
+@@ -134,7 +134,7 @@ enum ProfileAvatar {
  
  // static
  bool ProfileMetrics::IsProfileActive(const ProfileAttributesEntry* entry) {
@@ -3215,28 +3196,6 @@ Subject: source code fixes for enable_extensions=true
    // Any change to this #ifdef must be reflected as well in
    // chrome/browser/resource_coordinator/tab_manager_browsertest.cc
    //
---- a/chrome/browser/performance_manager/graph/policies/policy_features.cc
-+++ b/chrome/browser/performance_manager/graph/policies/policy_features.cc
-@@ -80,7 +80,7 @@ const base::FeatureParam<int> kDynamicTu
- 
- #endif  // defined(OS_LINUX)
- 
--#if !defined(OS_ANDROID)
-+#if defined(OS_ANDROID)
- const base::Feature kPageFreezingFromPerformanceManager{
-     "PageFreezingFromPerformanceManager", base::FEATURE_DISABLED_BY_DEFAULT};
- 
---- a/chrome/browser/performance_manager/graph/policies/policy_features.h
-+++ b/chrome/browser/performance_manager/graph/policies/policy_features.h
-@@ -76,7 +76,7 @@ extern const base::FeatureParam<int> kDy
- 
- #endif  // defined(OS_LINUX)
- 
--#if !defined(OS_ANDROID)
-+#if defined(OS_ANDROID)
- // Enables freezing pages directly from PerformanceManager rather than via
- // TabManager.
- extern const base::Feature kPageFreezingFromPerformanceManager;
 --- a/chrome/browser/storage/storage_notification_service_impl.cc
 +++ b/chrome/browser/storage/storage_notification_service_impl.cc
 @@ -11,7 +11,7 @@
@@ -3250,7 +3209,7 @@ Subject: source code fixes for enable_extensions=true
  
 --- a/chrome/browser/chrome_browser_main_posix.cc
 +++ b/chrome/browser/chrome_browser_main_posix.cc
-@@ -173,7 +173,5 @@ void ChromeBrowserMainPartsPosix::ShowMi
+@@ -174,7 +174,5 @@ void ChromeBrowserMainPartsPosix::ShowMi
    // TODO(port): We may want a views based message dialog here eventually, but
    // for now, crash.
    NOTREACHED();
@@ -3332,7 +3291,7 @@ Subject: source code fixes for enable_extensions=true
      browsing_data::TimePeriod time_period,
 --- a/chrome/common/chrome_switches.h
 +++ b/chrome/common/chrome_switches.h
-@@ -259,12 +259,12 @@ extern const char kAllowNaClFileHandleAP
+@@ -255,12 +255,12 @@ extern const char kAllowNaClFileHandleAP
  extern const char kAllowNaClSocketAPI[];
  #endif
  
@@ -3349,7 +3308,7 @@ Subject: source code fixes for enable_extensions=true
  extern const char kUseSystemDefaultPrinter[];
 --- a/chrome/common/chrome_switches.cc
 +++ b/chrome/common/chrome_switches.cc
-@@ -850,14 +850,14 @@ const char kAllowNaClFileHandleAPI[]
+@@ -833,14 +833,14 @@ const char kAllowNaClFileHandleAPI[]
  const char kAllowNaClSocketAPI[]            = "allow-nacl-socket-api";
  #endif
  
@@ -3368,7 +3327,7 @@ Subject: source code fixes for enable_extensions=true
  const char kEnableChromeBrowserCloudManagement[] =
 --- a/chrome/common/webui_url_constants.cc
 +++ b/chrome/common/webui_url_constants.cc
-@@ -335,7 +335,7 @@ const char kChromeUILinuxProxyConfigHost
+@@ -334,7 +334,7 @@ const char kChromeUILinuxProxyConfigHost
  const char kChromeUISandboxHost[] = "sandbox";
  #endif
  
@@ -3390,15 +3349,15 @@ Subject: source code fixes for enable_extensions=true
  extern const char kChromeUIBrowserSwitchURL[];
 --- a/chrome/browser/profiles/profile_manager.cc
 +++ b/chrome/browser/profiles/profile_manager.cc
-@@ -126,7 +126,6 @@
+@@ -127,7 +127,6 @@
  #if defined(OS_ANDROID)
  #include "chrome/browser/android/metrics/android_profile_session_durations_service_factory.h"
  #include "chrome/browser/ntp_snippets/content_suggestions_service_factory.h"
 -#else
+ #include "chrome/browser/accessibility/caption_controller.h"
+ #include "chrome/browser/accessibility/caption_controller_factory.h"
  #include "chrome/browser/first_run/first_run.h"
- #include "chrome/browser/ui/browser.h"
- #include "chrome/browser/ui/browser_finder.h"
-@@ -148,7 +147,7 @@
+@@ -151,7 +150,7 @@
  #include "components/user_manager/user_type.h"
  #endif
  
@@ -3407,7 +3366,7 @@ Subject: source code fixes for enable_extensions=true
  #include "chrome/browser/profiles/profile_statistics.h"
  #include "chrome/browser/profiles/profile_statistics_factory.h"
  #endif
-@@ -238,7 +237,7 @@ void ProfileSizeTask(const base::FilePat
+@@ -241,7 +240,7 @@ void ProfileSizeTask(const base::FilePat
      UMA_HISTOGRAM_COUNTS_10000("Profile.AppCount", enabled_app_count);
  }
  
@@ -3416,8 +3375,8 @@ Subject: source code fixes for enable_extensions=true
  // Schedule a profile for deletion if it isn't already scheduled.
  // Returns whether the profile has been newly scheduled.
  bool ScheduleProfileDirectoryForDeletion(const base::FilePath& path) {
-@@ -337,7 +336,7 @@ void OnProfileLoaded(ProfileManager::Pro
-       .Run(incognito ? profile->GetOffTheRecordProfile() : profile);
+@@ -340,7 +339,7 @@ void OnProfileLoaded(ProfileManager::Pro
+       .Run(incognito ? profile->GetPrimaryOTRProfile() : profile);
  }
  
 -#if !defined(OS_ANDROID)
@@ -3425,7 +3384,7 @@ Subject: source code fixes for enable_extensions=true
  // Helper function for ScheduleForcedEphemeralProfileForDeletion.
  bool IsProfileEphemeral(ProfileAttributesStorage* storage,
                          const base::FilePath& profile_dir) {
-@@ -818,7 +817,7 @@ ProfileShortcutManager* ProfileManager::
+@@ -832,7 +831,7 @@ ProfileShortcutManager* ProfileManager::
    return profile_shortcut_manager_.get();
  }
  
@@ -3434,7 +3393,7 @@ Subject: source code fixes for enable_extensions=true
  void ProfileManager::MaybeScheduleProfileForDeletion(
      const base::FilePath& profile_dir,
      ProfileLoadedCallback callback,
-@@ -1035,7 +1034,7 @@ void ProfileManager::InitProfileUserPref
+@@ -1050,7 +1049,7 @@ void ProfileManager::InitProfileUserPref
      } else if (profile->GetPath() ==
                     profiles::GetDefaultProfileDir(user_data_dir())) {
        avatar_index = profiles::GetPlaceholderAvatarIndex();
@@ -3443,7 +3402,7 @@ Subject: source code fixes for enable_extensions=true
        profile_name =
            base::UTF16ToUTF8(storage.ChooseNameForNewProfile(avatar_index));
  #else
-@@ -1259,7 +1258,7 @@ void ProfileManager::DoFinalInitForServi
+@@ -1274,7 +1273,7 @@ void ProfileManager::DoFinalInitForServi
    ChildAccountServiceFactory::GetForProfile(profile)->Init();
    SupervisedUserServiceFactory::GetForProfile(profile)->Init();
  #endif
@@ -3452,7 +3411,7 @@ Subject: source code fixes for enable_extensions=true
    // If the lock enabled algorithm changed, update this profile's lock status.
    // This depends on services which shouldn't be initialized until
    // DoFinalInitForServices.
-@@ -1439,7 +1438,7 @@ Profile* ProfileManager::CreateAndInitia
+@@ -1457,7 +1456,7 @@ Profile* ProfileManager::CreateAndInitia
    return profile_ptr;
  }
  
@@ -3461,7 +3420,7 @@ Subject: source code fixes for enable_extensions=true
  void ProfileManager::EnsureActiveProfileExistsBeforeDeletion(
      ProfileLoadedCallback callback,
      const base::FilePath& profile_dir) {
-@@ -1630,7 +1629,7 @@ void ProfileManager::AddProfileToStorage
+@@ -1648,7 +1647,7 @@ void ProfileManager::AddProfileToStorage
      bool has_entry = storage.GetProfileAttributesWithPath(profile->GetPath(),
                                                            &entry);
      if (has_entry) {
@@ -3470,7 +3429,7 @@ Subject: source code fixes for enable_extensions=true
        bool was_authenticated_status = entry->IsAuthenticated();
  #endif
        // The ProfileAttributesStorage's info must match the Identity Manager.
-@@ -1639,7 +1638,7 @@ void ProfileManager::AddProfileToStorage
+@@ -1657,7 +1656,7 @@ void ProfileManager::AddProfileToStorage
  
        entry->SetSignedInWithCredentialProvider(false);
  
@@ -3479,7 +3438,7 @@ Subject: source code fixes for enable_extensions=true
        // Sign out if force-sign-in policy is enabled and profile is not signed
        // in.
        VLOG(1) << "ForceSigninCheck: " << signin_util::IsForceSigninEnabled()
-@@ -1759,7 +1758,7 @@ void ProfileManager::SaveActiveProfiles(
+@@ -1777,7 +1776,7 @@ void ProfileManager::SaveActiveProfiles(
    }
  }
  
@@ -3902,7 +3861,7 @@ Subject: source code fixes for enable_extensions=true
  const base::char16 kDot = '.';
  
  // Build a path from the first |num_components| elements in |path_elements|.
-@@ -145,7 +145,7 @@ base::string16 HostForDisplay(base::Stri
+@@ -160,7 +160,7 @@ base::string16 HostForDisplay(base::Stri
  
  namespace url_formatter {
  
@@ -3973,7 +3932,7 @@ Subject: source code fixes for enable_extensions=true
    Hide(PopupHidingReason::kContentAreaMoved);
 --- a/chrome/browser/ui/passwords/password_generation_popup_controller_impl.h
 +++ b/chrome/browser/ui/passwords/password_generation_popup_controller_impl.h
-@@ -24,7 +24,7 @@
+@@ -25,7 +25,7 @@
  #include "ui/gfx/geometry/rect_f.h"
  #include "ui/gfx/native_widget_types.h"
  
@@ -3982,7 +3941,7 @@ Subject: source code fixes for enable_extensions=true
  #include "components/zoom/zoom_observer.h"
  #endif  // !defined(OS_ANDROID)
  
-@@ -59,7 +59,7 @@ class PasswordGenerationPopupView;
+@@ -60,7 +60,7 @@ class PasswordGenerationPopupView;
  class PasswordGenerationPopupControllerImpl
      : public PasswordGenerationPopupController,
        public content::WebContentsObserver
@@ -3991,7 +3950,7 @@ Subject: source code fixes for enable_extensions=true
      ,
        public zoom::ZoomObserver
  #endif  // !defined(OS_ANDROID)
-@@ -106,7 +106,7 @@ class PasswordGenerationPopupControllerI
+@@ -107,7 +107,7 @@ class PasswordGenerationPopupControllerI
    void DidFinishNavigation(
        content::NavigationHandle* navigation_handle) override;
  
@@ -4023,7 +3982,7 @@ Subject: source code fixes for enable_extensions=true
  }  // namespace content
 --- a/chrome/browser/ui/views/frame/browser_view.cc
 +++ b/chrome/browser/ui/views/frame/browser_view.cc
-@@ -1699,7 +1699,6 @@ void BrowserView::UserChangedTheme(Brows
+@@ -1712,7 +1712,6 @@ void BrowserView::UserChangedTheme(Brows
    // In Incognito, the usage of dark or normal hinges on the browser theme.
    if (theme_change_type == BrowserThemeChangeType::kBrowserTheme &&
        !IsRegularOrGuestSession()) {
@@ -4031,7 +3990,7 @@ Subject: source code fixes for enable_extensions=true
      ui::NativeTheme::GetInstanceForNativeUi()->NotifyObservers();
  
      // Early exit. A native theme change will update all the
-@@ -3215,7 +3214,7 @@ void BrowserView::ShowAvatarBubbleFromAv
+@@ -3230,7 +3229,7 @@ void BrowserView::ShowAvatarBubbleFromAv
    profiles::BubbleViewMode bubble_view_mode;
    profiles::BubbleViewModeFromAvatarBubbleMode(mode, GetProfile(),
                                                 &bubble_view_mode);
@@ -4053,7 +4012,7 @@ Subject: source code fixes for enable_extensions=true
        params.types_enabled.push_back(PageActionIconType::kQRCodeGenerator);
 --- a/components/omnibox/browser/omnibox_popup_model.cc
 +++ b/components/omnibox/browser/omnibox_popup_model.cc
-@@ -21,7 +21,7 @@
+@@ -22,7 +22,7 @@
  #include "third_party/icu/source/common/unicode/ubidi.h"
  #include "ui/gfx/geometry/rect.h"
  
@@ -4062,7 +4021,7 @@ Subject: source code fixes for enable_extensions=true
  #include "components/omnibox/browser/vector_icons.h"  // nogncheck
  #include "ui/gfx/paint_vector_icon.h"
  #include "ui/gfx/vector_icon_types.h"
-@@ -328,7 +328,7 @@ void OmniboxPopupModel::SetRichSuggestio
+@@ -292,7 +292,7 @@ void OmniboxPopupModel::SetRichSuggestio
  }
  
  // Android and iOS have their own platform-specific icon logic.
@@ -4073,7 +4032,7 @@ Subject: source code fixes for enable_extensions=true
    gfx::Image extension_icon =
 --- a/components/omnibox/browser/omnibox_popup_model.h
 +++ b/components/omnibox/browser/omnibox_popup_model.h
-@@ -188,7 +188,7 @@ class OmniboxPopupModel {
+@@ -201,7 +201,7 @@ class OmniboxPopupModel {
    // Stores the image in a local data member and schedules a repaint.
    void SetRichSuggestionBitmap(int result_index, const SkBitmap& bitmap);
  
@@ -4096,7 +4055,7 @@ Subject: source code fixes for enable_extensions=true
    Show(bool is_user_gesture, bool wait_for_updated_details);
 --- a/third_party/blink/renderer/modules/payments/payment_request.cc
 +++ b/third_party/blink/renderer/modules/payments/payment_request.cc
-@@ -1148,7 +1148,7 @@ PaymentRequest::PaymentRequest(
+@@ -1151,7 +1151,7 @@ PaymentRequest::PaymentRequest(
    UseCounter::Count(execution_context, WebFeature::kPaymentRequestInitialized);
    mojo::PendingRemote<payments::mojom::blink::PaymentRequestClient> client;
    client_receiver_.Bind(client.InitWithNewPipeAndPassReceiver(), task_runner);
@@ -4168,7 +4127,7 @@ Subject: source code fixes for enable_extensions=true
    auto* label = line_container->AddChildView(
 --- a/chrome/browser/ui/views/tabs/tab_strip.cc
 +++ b/chrome/browser/ui/views/tabs/tab_strip.cc
-@@ -136,21 +136,9 @@ class TabHoverCardEventSniffer : public
+@@ -137,21 +137,9 @@ class TabHoverCardEventSniffer : public
        : hover_card_(hover_card),
          tab_strip_(tab_strip),
          widget_(tab_strip->GetWidget()) {
@@ -4192,7 +4151,7 @@ Subject: source code fixes for enable_extensions=true
   protected:
 --- a/components/omnibox/browser/autocomplete_match.cc
 +++ b/components/omnibox/browser/autocomplete_match.cc
-@@ -34,7 +34,7 @@
+@@ -35,7 +35,7 @@
  #include "ui/gfx/vector_icon_types.h"
  #include "url/third_party/mozilla/url_parse.h"
  
@@ -4201,7 +4160,7 @@ Subject: source code fixes for enable_extensions=true
  #include "components/omnibox/browser/vector_icons.h"  // nogncheck
  #include "components/vector_icons/vector_icons.h"     // nogncheck
  #endif
-@@ -228,7 +228,7 @@ AutocompleteMatch& AutocompleteMatch::op
+@@ -231,7 +231,7 @@ AutocompleteMatch& AutocompleteMatch::op
    return *this;
  }
  
@@ -4212,7 +4171,7 @@ Subject: source code fixes for enable_extensions=true
    if (is_bookmark)
 --- a/components/omnibox/browser/autocomplete_match.h
 +++ b/components/omnibox/browser/autocomplete_match.h
-@@ -159,7 +159,7 @@ struct AutocompleteMatch {
+@@ -160,7 +160,7 @@ struct AutocompleteMatch {
  
    AutocompleteMatch& operator=(const AutocompleteMatch& match);
  
@@ -4312,7 +4271,7 @@ Subject: source code fixes for enable_extensions=true
                            const EditDetails& details,
 --- a/chrome/browser/ui/content_settings/content_setting_image_model.cc
 +++ b/chrome/browser/ui/content_settings/content_setting_image_model.cc
-@@ -232,8 +232,6 @@ const ContentSettingsImageDetails kImage
+@@ -234,8 +234,6 @@ const ContentSettingsImageDetails kImage
       IDS_BLOCKED_PLUGINS_MESSAGE, IDS_BLOCKED_PLUGIN_EXPLANATORY_TEXT, 0},
      {ContentSettingsType::MIXEDSCRIPT, kMixedContentIcon,
       IDS_BLOCKED_DISPLAYING_INSECURE_CONTENT, 0, 0},
@@ -4323,7 +4282,7 @@ Subject: source code fixes for enable_extensions=true
       IDS_BLOCKED_ADS_PROMPT_TOOLTIP, IDS_BLOCKED_ADS_PROMPT_TITLE, 0},
 --- a/chrome/browser/ui/content_settings/content_setting_bubble_model.cc
 +++ b/chrome/browser/ui/content_settings/content_setting_bubble_model.cc
-@@ -208,7 +208,6 @@ void ContentSettingSimpleBubbleModel::Se
+@@ -212,7 +212,6 @@ void ContentSettingSimpleBubbleModel::Se
        {ContentSettingsType::PLUGINS, IDS_BLOCKED_PLUGINS_TITLE},
        {ContentSettingsType::MIXEDSCRIPT,
         IDS_BLOCKED_DISPLAYING_INSECURE_CONTENT_TITLE},
@@ -4331,7 +4290,7 @@ Subject: source code fixes for enable_extensions=true
        {ContentSettingsType::SOUND, IDS_BLOCKED_SOUND_TITLE},
        {ContentSettingsType::CLIPBOARD_READ_WRITE, IDS_BLOCKED_CLIPBOARD_TITLE},
        {ContentSettingsType::SENSORS, IDS_BLOCKED_SENSORS_TITLE},
-@@ -216,7 +215,6 @@ void ContentSettingSimpleBubbleModel::Se
+@@ -220,7 +219,6 @@ void ContentSettingSimpleBubbleModel::Se
    // Fields as for kBlockedTitleIDs, above.
    static const ContentSettingsTypeIdEntry kAccessedTitleIDs[] = {
        {ContentSettingsType::COOKIES, IDS_ACCESSED_COOKIES_TITLE},
@@ -4339,7 +4298,7 @@ Subject: source code fixes for enable_extensions=true
        {ContentSettingsType::CLIPBOARD_READ_WRITE, IDS_ALLOWED_CLIPBOARD_TITLE},
        {ContentSettingsType::SENSORS, IDS_ALLOWED_SENSORS_TITLE},
    };
-@@ -245,7 +243,6 @@ void ContentSettingSimpleBubbleModel::Se
+@@ -249,7 +247,6 @@ void ContentSettingSimpleBubbleModel::Se
        // {ContentSettingsType::POPUPS, No message. intentionally left out},
        {ContentSettingsType::MIXEDSCRIPT,
         IDS_BLOCKED_DISPLAYING_INSECURE_CONTENT},
@@ -4347,7 +4306,7 @@ Subject: source code fixes for enable_extensions=true
        {ContentSettingsType::CLIPBOARD_READ_WRITE,
         IDS_BLOCKED_CLIPBOARD_MESSAGE},
        {ContentSettingsType::SENSORS,
-@@ -256,7 +253,6 @@ void ContentSettingSimpleBubbleModel::Se
+@@ -260,7 +257,6 @@ void ContentSettingSimpleBubbleModel::Se
    // Fields as for kBlockedMessageIDs, above.
    const ContentSettingsTypeIdEntry kAccessedMessageIDs[] = {
        {ContentSettingsType::COOKIES, IDS_ACCESSED_COOKIES_MESSAGE},
@@ -4355,7 +4314,7 @@ Subject: source code fixes for enable_extensions=true
        {ContentSettingsType::CLIPBOARD_READ_WRITE,
         IDS_ALLOWED_CLIPBOARD_MESSAGE},
        {ContentSettingsType::SENSORS,
-@@ -689,8 +685,7 @@ ContentSettingPluginBubbleModel::Content
+@@ -693,8 +689,7 @@ ContentSettingPluginBubbleModel::Content
        GetSettingManagedByUser(url, content_type(), GetProfile(), nullptr);
    HostContentSettingsMap* map =
        HostContentSettingsMapFactory::GetForProfile(GetProfile());
@@ -4365,7 +4324,7 @@ Subject: source code fixes for enable_extensions=true
  
    // If the setting is not managed by the user, hide the "Manage" button.
    if (!managed_by_user)
-@@ -794,7 +789,6 @@ void ContentSettingSingleRadioGroup::Set
+@@ -798,7 +793,6 @@ void ContentSettingSingleRadioGroup::Set
        {ContentSettingsType::IMAGES, IDS_BLOCKED_IMAGES_UNBLOCK},
        {ContentSettingsType::JAVASCRIPT, IDS_BLOCKED_JAVASCRIPT_UNBLOCK},
        {ContentSettingsType::POPUPS, IDS_BLOCKED_POPUPS_REDIRECTS_UNBLOCK},
@@ -4373,7 +4332,7 @@ Subject: source code fixes for enable_extensions=true
        {ContentSettingsType::SOUND, IDS_BLOCKED_SOUND_UNBLOCK},
        {ContentSettingsType::CLIPBOARD_READ_WRITE,
         IDS_BLOCKED_CLIPBOARD_UNBLOCK},
-@@ -803,7 +797,6 @@ void ContentSettingSingleRadioGroup::Set
+@@ -807,7 +801,6 @@ void ContentSettingSingleRadioGroup::Set
    // Fields as for kBlockedAllowIDs, above.
    static const ContentSettingsTypeIdEntry kAllowedAllowIDs[] = {
        {ContentSettingsType::COOKIES, IDS_ALLOWED_COOKIES_NO_ACTION},
@@ -4381,7 +4340,7 @@ Subject: source code fixes for enable_extensions=true
        {ContentSettingsType::CLIPBOARD_READ_WRITE,
         IDS_ALLOWED_CLIPBOARD_NO_ACTION},
        {ContentSettingsType::SENSORS, IDS_ALLOWED_SENSORS_NO_ACTION},
-@@ -826,7 +819,6 @@ void ContentSettingSingleRadioGroup::Set
+@@ -830,7 +823,6 @@ void ContentSettingSingleRadioGroup::Set
        {ContentSettingsType::IMAGES, IDS_BLOCKED_IMAGES_NO_ACTION},
        {ContentSettingsType::JAVASCRIPT, IDS_BLOCKED_JAVASCRIPT_NO_ACTION},
        {ContentSettingsType::POPUPS, IDS_BLOCKED_POPUPS_REDIRECTS_NO_ACTION},
@@ -4389,7 +4348,7 @@ Subject: source code fixes for enable_extensions=true
        {ContentSettingsType::SOUND, IDS_BLOCKED_SOUND_NO_ACTION},
        {ContentSettingsType::CLIPBOARD_READ_WRITE,
         IDS_BLOCKED_CLIPBOARD_NO_ACTION},
-@@ -834,7 +826,6 @@ void ContentSettingSingleRadioGroup::Set
+@@ -838,7 +830,6 @@ void ContentSettingSingleRadioGroup::Set
    };
    static const ContentSettingsTypeIdEntry kAllowedBlockIDs[] = {
        {ContentSettingsType::COOKIES, IDS_ALLOWED_COOKIES_BLOCK},
@@ -4399,7 +4358,7 @@ Subject: source code fixes for enable_extensions=true
    };
 --- a/chrome/browser/ui/content_settings/content_setting_bubble_model.h
 +++ b/chrome/browser/ui/content_settings/content_setting_bubble_model.h
-@@ -505,7 +505,7 @@ class ContentSettingSingleRadioGroup : p
+@@ -511,7 +511,7 @@ class ContentSettingSingleRadioGroup : p
    DISALLOW_COPY_AND_ASSIGN(ContentSettingSingleRadioGroup);
  };
  
@@ -4428,7 +4387,7 @@ Subject: source code fixes for enable_extensions=true
  password_manager::metrics_util::AccessPasswordInSettingsEvent
  ConvertPlaintextReason(password_manager::PlaintextReason reason) {
    switch (reason) {
-@@ -357,7 +357,7 @@ void PasswordManagerPresenter::UndoRemov
+@@ -375,7 +375,7 @@ void PasswordManagerPresenter::UndoRemov
    undo_manager_.Undo();
  }
  
@@ -4578,7 +4537,7 @@ Subject: source code fixes for enable_extensions=true
  }
 --- a/chrome/browser/sessions/session_restore.cc
 +++ b/chrome/browser/sessions/session_restore.cc
-@@ -806,31 +806,6 @@ void SessionRestore::OpenStartupPagesAft
+@@ -807,31 +807,6 @@ void SessionRestore::OpenStartupPagesAft
  }
  
  // static
@@ -4714,7 +4673,7 @@ Subject: source code fixes for enable_extensions=true
  
 --- a/chrome/browser/ui/views/bookmarks/bookmark_bubble_view.cc
 +++ b/chrome/browser/ui/views/bookmarks/bookmark_bubble_view.cc
-@@ -299,13 +299,6 @@ std::unique_ptr<views::View> BookmarkBub
+@@ -271,14 +271,7 @@ std::unique_ptr<views::View> BookmarkBub
    // ChromeOS does not show the signin promo.
    return nullptr;
  #else
@@ -4729,6 +4688,7 @@ Subject: source code fixes for enable_extensions=true
 +  return nullptr;
  #endif
  }
+ 
 --- a/components/bookmarks/browser/bookmark_node_data.h
 +++ b/components/bookmarks/browser/bookmark_node_data.h
 @@ -18,20 +18,16 @@
@@ -4780,7 +4740,7 @@ Subject: source code fixes for enable_extensions=true
    // Writes the data for a drag to |pickle|.
 --- a/chrome/browser/ui/browser_content_setting_bubble_model_delegate.cc
 +++ b/chrome/browser/ui/browser_content_setting_bubble_model_delegate.cc
-@@ -48,9 +48,6 @@ void BrowserContentSettingBubbleModelDel
+@@ -53,9 +53,6 @@ void BrowserContentSettingBubbleModelDel
      ContentSettingsType type) {
    GURL learn_more_url;
    switch (type) {
@@ -4792,7 +4752,7 @@ Subject: source code fixes for enable_extensions=true
        break;
 --- a/chrome/browser/ui/views/profiles/profile_menu_view.cc
 +++ b/chrome/browser/ui/views/profiles/profile_menu_view.cc
-@@ -277,16 +277,10 @@ void ProfileMenuView::OnSyncErrorButtonC
+@@ -276,16 +276,10 @@ void ProfileMenuView::OnSyncErrorButtonC
              signin_metrics::USER_CLICKED_SIGNOUT_SETTINGS,
              signin_metrics::SignoutDelete::IGNORE_METRIC);
          Hide();
@@ -4809,7 +4769,7 @@ Subject: source code fixes for enable_extensions=true
        break;
      case sync_ui_util::UPGRADE_CLIENT_ERROR:
        chrome::OpenUpdateChromeDialog(browser());
-@@ -331,9 +325,6 @@ void ProfileMenuView::OnSignoutButtonCli
+@@ -330,9 +324,6 @@ void ProfileMenuView::OnSignoutButtonCli
  void ProfileMenuView::OnSigninButtonClicked() {
    RecordClick(ActionableItem::kSigninButton);
    Hide();
@@ -5942,7 +5902,7 @@ Subject: source code fixes for enable_extensions=true
  void WindowAndroid::AddObserver(WindowAndroidObserver* observer) {
    if (!observer_list_.HasObserver(observer))
      observer_list_.AddObserver(observer);
-@@ -279,6 +291,22 @@ WindowAndroid* WindowAndroid::GetWindowA
+@@ -268,6 +280,22 @@ WindowAndroid* WindowAndroid::GetWindowA
    return const_cast<WindowAndroid*>(this);
  }
  
@@ -6361,7 +6321,7 @@ Subject: source code fixes for enable_extensions=true
 -    defined(OS_CHROMEOS)
 +    defined(OS_CHROMEOS) || defined(OS_ANDROID)
  const base::Feature kRemoteCopyReceiver{"RemoteCopyReceiver",
-                                         base::FEATURE_DISABLED_BY_DEFAULT};
+                                         base::FEATURE_ENABLED_BY_DEFAULT};
  
 --- a/chrome/browser/sharing/shared_clipboard/feature_flags.h
 +++ b/chrome/browser/sharing/shared_clipboard/feature_flags.h
@@ -6606,28 +6566,6 @@ Subject: source code fixes for enable_extensions=true
 +};
 +
 +#endif  // CHROME_BROWSER_UI_VIEWS_FRAME_DESKTOP_BROWSER_FRAME_ANDROID_H_
---- /dev/null
-+++ b/chrome/browser/ui/views/tabs/window_finder_android.cc
-@@ -0,0 +1,19 @@
-+// Copyright 2014 The Chromium Authors. All rights reserved.
-+// Use of this source code is governed by a BSD-style license that can be
-+// found in the LICENSE file.
-+
-+#include "chrome/browser/ui/views/tabs/window_finder.h"
-+
-+#include "base/stl_util.h"
-+#include "ui/android/view_android.h"
-+#include "ui/android/window_android.h"
-+#include "ui/display/screen.h"
-+#include "ui/views/widget/widget.h"
-+
-+gfx::NativeWindow WindowFinder::GetLocalProcessWindowAtPoint(
-+    const gfx::Point& screen_point,
-+    const std::set<gfx::NativeWindow>& ignore) {
-+  gfx::NativeWindow window =
-+      display::Screen::GetScreen()->GetWindowAtScreenPoint(screen_point);
-+  return (window && !base::Contains(ignore, window)) ? window : nullptr;
-+}
 --- a/chrome/browser/platform_util_android.cc
 +++ b/chrome/browser/platform_util_android.cc
 @@ -10,6 +10,7 @@
@@ -6663,7 +6601,7 @@ Subject: source code fixes for enable_extensions=true
        error = '''Asserted file list does not match.
 --- a/android_webview/browser/aw_browser_context.cc
 +++ b/android_webview/browser/aw_browser_context.cc
-@@ -234,6 +234,12 @@ base::FilePath AwBrowserContext::GetCont
+@@ -233,6 +233,12 @@ base::FilePath AwBrowserContext::GetCont
    return user_data_dir;
  }
  
@@ -6776,7 +6714,7 @@ Subject: source code fixes for enable_extensions=true
 +}  // namespace views
 --- a/ui/views/touchui/touch_selection_controller_impl.cc
 +++ b/ui/views/touchui/touch_selection_controller_impl.cc
-@@ -220,10 +220,6 @@ class TouchSelectionControllerImpl::Edit
+@@ -221,10 +221,6 @@ class TouchSelectionControllerImpl::Edit
          draw_invisible_(false) {
      widget_.reset(CreateTouchSelectionPopupWidget(parent, this));
  
@@ -6787,7 +6725,7 @@ Subject: source code fixes for enable_extensions=true
      // We are owned by the TouchSelectionControllerImpl.
      set_owned_by_client();
    }
-@@ -337,18 +333,14 @@ class TouchSelectionControllerImpl::Edit
+@@ -338,18 +334,14 @@ class TouchSelectionControllerImpl::Edit
  
        widget_->SetBounds(GetSelectionWidgetBounds(selection_bound_));
  
@@ -6806,7 +6744,7 @@ Subject: source code fixes for enable_extensions=true
    }
  
    void SetDrawInvisible(bool draw_invisible) {
-@@ -362,12 +354,6 @@ class TouchSelectionControllerImpl::Edit
+@@ -363,12 +355,6 @@ class TouchSelectionControllerImpl::Edit
    std::unique_ptr<Widget> widget_;
    TouchSelectionControllerImpl* controller_;
  
@@ -6819,7 +6757,7 @@ Subject: source code fixes for enable_extensions=true
    // In local coordinates
    gfx::SelectionBound selection_bound_;
    gfx::Image* image_;
-@@ -402,24 +388,17 @@ TouchSelectionControllerImpl::TouchSelec
+@@ -403,24 +389,17 @@ TouchSelectionControllerImpl::TouchSelec
        cursor_handle_(
            new EditingHandleView(this, client_view->GetNativeView(), true)) {
    selection_start_time_ = base::TimeTicks::Now();
@@ -6845,7 +6783,7 @@ Subject: source code fixes for enable_extensions=true
    if (client_widget_)
      client_widget_->RemoveObserver(this);
  }
-@@ -626,19 +605,7 @@ void TouchSelectionControllerImpl::OnWid
+@@ -634,19 +613,7 @@ void TouchSelectionControllerImpl::OnWid
  
  void TouchSelectionControllerImpl::OnEvent(const ui::Event& event) {
    if (event.IsMouseEvent()) {
@@ -6859,14 +6797,14 @@ Subject: source code fixes for enable_extensions=true
 -    // from touch as this can clear an active selection generated by the pen.
 -    if ((event.flags() & (ui::EF_IS_SYNTHESIZED | ui::EF_FROM_TOUCH)) ||
 -        event.AsMouseEvent()->pointer_details().pointer_type ==
--            ui::EventPointerType::POINTER_TYPE_PEN) {
+-            ui::EventPointerType::kPen) {
 -      return;
 -    }
 +    return;
    }
  
    client_view_->DestroyTouchSelection();
-@@ -648,10 +615,6 @@ void TouchSelectionControllerImpl::Quick
+@@ -656,10 +623,6 @@ void TouchSelectionControllerImpl::Quick
    gfx::Rect menu_anchor = GetQuickMenuAnchorRect();
    if (menu_anchor == gfx::Rect())
      return;
@@ -6877,7 +6815,7 @@ Subject: source code fixes for enable_extensions=true
  }
  
  void TouchSelectionControllerImpl::StartQuickMenuTimer() {
-@@ -669,8 +632,6 @@ void TouchSelectionControllerImpl::Updat
+@@ -677,8 +640,6 @@ void TouchSelectionControllerImpl::Updat
  }
  
  void TouchSelectionControllerImpl::HideQuickMenu() {
@@ -6909,7 +6847,7 @@ Subject: source code fixes for enable_extensions=true
  void StartupData::CreateServicesInternal() {
 --- a/chrome/browser/profiles/chrome_browser_main_extra_parts_profiles.cc
 +++ b/chrome/browser/profiles/chrome_browser_main_extra_parts_profiles.cc
-@@ -100,7 +100,7 @@
+@@ -104,7 +104,7 @@
  #include "chrome/browser/android/explore_sites/explore_sites_service_factory.h"
  #include "chrome/browser/android/search_permissions/search_permissions_service.h"
  #include "chrome/browser/media/android/cdm/media_drm_origin_id_manager_factory.h"
@@ -6917,8 +6855,8 @@ Subject: source code fixes for enable_extensions=true
 +
  #include "chrome/browser/apps/app_service/app_service_proxy_factory.h"
  #include "chrome/browser/feedback/feedback_uploader_factory_chrome.h"
- #include "chrome/browser/metrics/desktop_session_duration/desktop_profile_session_durations_service_factory.h"
-@@ -189,16 +189,20 @@ ChromeBrowserMainExtraPartsProfiles::~Ch
+ #include "chrome/browser/media/feeds/media_feeds_service_factory.h"
+@@ -197,15 +197,19 @@ ChromeBrowserMainExtraPartsProfiles::~Ch
  // TODO(erg): This needs to be something else. I don't think putting every
  // FooServiceFactory here will scale or is desirable long term.
  //
@@ -6931,26 +6869,31 @@ Subject: source code fixes for enable_extensions=true
  #if BUILDFLAG(ENABLE_EXTENSIONS)
 +  if (full_init) {
    apps::EnsureBrowserContextKeyedServiceFactoriesBuilt();
-   extensions::EnsureBrowserContextKeyedServiceFactoriesBuilt();
-   extensions::ExtensionManagementFactory::GetInstance();
-   chrome_extensions::EnsureBrowserContextKeyedServiceFactoriesBuilt();
    chrome_apps::EnsureBrowserContextKeyedServiceFactoriesBuilt();
-   chrome_apps::api::EnsureAPIBrowserContextKeyedServiceFactoriesBuilt();
+   chrome_apps::api::EnsureBrowserContextKeyedServiceFactoriesBuilt();
+   chrome_extensions::EnsureBrowserContextKeyedServiceFactoriesBuilt();
+   extensions::EnsureBrowserContextKeyedServiceFactoriesBuilt();
 +  }
  #endif
- 
  #if defined(OS_CHROMEOS)
-@@ -213,7 +217,9 @@ void ChromeBrowserMainExtraPartsProfiles
+   chromeos::cert_provisioning::CertProvisioningSchedulerUserServiceFactory::
+@@ -217,6 +221,7 @@ void ChromeBrowserMainExtraPartsProfiles
    AccountConsistencyModeManagerFactory::GetInstance();
    AccountInvestigatorFactory::GetInstance();
    AccountReconcilorFactory::GetInstance();
 +  if (full_init)
    AdaptiveQuietNotificationPermissionUiEnabler::Factory::GetInstance();
+ #if defined(OS_CHROMEOS)
+   app_list::AppListSyncableServiceFactory::GetInstance();
+@@ -224,6 +229,7 @@ void ChromeBrowserMainExtraPartsProfiles
+ #if !defined(OS_ANDROID)
+   apps::AppServiceProxyFactory::GetInstance();
+ #endif
 +  if (full_init)
    AutocompleteClassifierFactory::GetInstance();
    autofill::PersonalDataManagerFactory::GetInstance();
  #if BUILDFLAG(ENABLE_BACKGROUND_CONTENTS)
-@@ -226,6 +232,7 @@ void ChromeBrowserMainExtraPartsProfiles
+@@ -236,6 +242,7 @@ void ChromeBrowserMainExtraPartsProfiles
  #if BUILDFLAG(ENABLE_CAPTIVE_PORTAL_DETECTION)
    CaptivePortalServiceFactory::GetInstance();
  #endif
@@ -6958,74 +6901,62 @@ Subject: source code fixes for enable_extensions=true
    ChromeBrowsingDataRemoverDelegateFactory::GetInstance();
    ChromeSigninClientFactory::GetInstance();
    ClientHintsFactory::GetInstance();
-@@ -235,6 +242,7 @@ void ChromeBrowserMainExtraPartsProfiles
-   ConsentAuditorFactory::GetInstance();
-   ContentSuggestionsServiceFactory::GetInstance();
-   CookieSettingsFactory::GetInstance();
-+  if (full_init)
-   NotifierStateTrackerFactory::GetInstance();
-   DomainDiversityReporterFactory::GetInstance();
-   dom_distiller::DomDistillerServiceFactory::GetInstance();
-@@ -244,6 +252,7 @@ void ChromeBrowserMainExtraPartsProfiles
-   explore_sites::ExploreSitesServiceFactory::GetInstance();
+@@ -271,13 +278,15 @@ void ChromeBrowserMainExtraPartsProfiles
+   GlobalErrorServiceFactory::GetInstance();
  #endif
-   FaviconServiceFactory::GetInstance();
-+  if (full_init)
+   GoogleSearchDomainMixingMetricsEmitterFactory::GetInstance();
++  if (full_init) {
+   HistoryServiceFactory::GetInstance();
    HistoryUiFaviconRequestHandlerFactory::GetInstance();
- #if BUILDFLAG(ENABLE_LEGACY_DESKTOP_IN_PRODUCT_HELP)
-   feature_engagement::BookmarkTrackerFactory::GetInstance();
-@@ -264,7 +273,7 @@ void ChromeBrowserMainExtraPartsProfiles
++  }
    HostContentSettingsMapFactory::GetInstance();
+   HttpsEngagementServiceFactory::GetInstance();
    IdentityManagerFactory::EnsureFactoryAndDependeeFactoriesBuilt();
    InMemoryURLIndexFactory::GetInstance();
 -#if !defined(OS_ANDROID)
 +#if defined(OS_ANDROID)
    InstantServiceFactory::GetInstance();
  #endif
- #if BUILDFLAG(ENABLE_SERVICE_DISCOVERY)
-@@ -272,6 +281,7 @@ void ChromeBrowserMainExtraPartsProfiles
- #endif
-   RendererUpdaterFactory::GetInstance();
- #if BUILDFLAG(ENABLE_SUPERVISED_USERS)
-+  if (full_init)
-   SupervisedUserServiceFactory::GetInstance();
- #endif
    LanguageModelManagerFactory::GetInstance();
-@@ -279,6 +289,7 @@ void ChromeBrowserMainExtraPartsProfiles
-   LoginUIServiceFactory::GetInstance();
+@@ -288,6 +297,7 @@ void ChromeBrowserMainExtraPartsProfiles
+   MediaDrmOriginIdManagerFactory::GetInstance();
  #endif
    if (MediaEngagementService::IsEnabled())
 +    if (full_init)
      MediaEngagementServiceFactory::GetInstance();
-   media_router::MediaRouterFactory::GetInstance();
  #if !defined(OS_ANDROID)
-@@ -302,8 +313,9 @@ void ChromeBrowserMainExtraPartsProfiles
+   media_feeds::MediaFeedsServiceFactory::GetInstance();
+@@ -307,12 +317,13 @@ void ChromeBrowserMainExtraPartsProfiles
+ #if !defined(OS_ANDROID)
+   NearbySharingServiceFactory::GetInstance();
+ #endif
++  if (full_init)
+   NotifierStateTrackerFactory::GetInstance();
+ #if !defined(OS_ANDROID)
    NTPResourceCacheFactory::GetInstance();
  #endif
    PasswordStoreFactory::GetInstance();
 -#if !defined(OS_ANDROID)
 +#if defined(OS_ANDROID)
    PinnedTabServiceFactory::GetInstance();
-+  if (full_init)
-   ThemeServiceFactory::GetInstance();
  #endif
  #if BUILDFLAG(ENABLE_PLUGINS)
-@@ -314,12 +326,14 @@ void ChromeBrowserMainExtraPartsProfiles
+@@ -324,12 +335,14 @@ void ChromeBrowserMainExtraPartsProfiles
+ #if !defined(OS_CHROMEOS)
    policy::UserPolicySigninServiceFactory::GetInstance();
  #endif
-   policy::UserCloudPolicyInvalidatorFactory::GetInstance();
 +  if (full_init) {
    predictors::AutocompleteActionPredictorFactory::GetInstance();
-   predictors::PredictorDatabaseFactory::GetInstance();
    predictors::LoadingPredictorFactory::GetInstance();
+   predictors::PredictorDatabaseFactory::GetInstance();
    prerender::PrerenderLinkManagerFactory::GetInstance();
    prerender::PrerenderManagerFactory::GetInstance();
    ProfileSyncServiceFactory::GetInstance();
 +  }
    ProtocolHandlerRegistryFactory::GetInstance();
+   RendererUpdaterFactory::GetInstance();
  #if !defined(OS_ANDROID)
-   resource_coordinator::LocalSiteCharacteristicsDataStoreFactory::GetInstance();
-@@ -334,11 +348,13 @@ void ChromeBrowserMainExtraPartsProfiles
+@@ -345,10 +358,12 @@ void ChromeBrowserMainExtraPartsProfiles
  #if BUILDFLAG(ENABLE_SESSION_SERVICE)
    SessionServiceFactory::GetInstance();
  #endif
@@ -7033,32 +6964,44 @@ Subject: source code fixes for enable_extensions=true
    SharingServiceFactory::GetInstance();
    ShortcutsBackendFactory::GetInstance();
    SigninProfileAttributesUpdaterFactory::GetInstance();
- 
    if (SiteEngagementService::IsEnabled())
 +    if (full_init)
      SiteEngagementServiceFactory::GetInstance();
- 
  #if BUILDFLAG(ENABLE_SPELLCHECK)
-@@ -347,10 +363,12 @@ void ChromeBrowserMainExtraPartsProfiles
+   SpellcheckServiceFactory::GetInstance();
+@@ -356,20 +371,24 @@ void ChromeBrowserMainExtraPartsProfiles
  #if !defined(OS_ANDROID)
    StorageNotificationServiceFactory::GetInstance();
  #endif
 +  if (full_init)
    suggestions::SuggestionsServiceFactory::GetInstance();
+ #if BUILDFLAG(ENABLE_SUPERVISED_USERS)
++  if (full_init)
+   SupervisedUserServiceFactory::GetInstance();
+ #endif
    TabRestoreServiceFactory::GetInstance();
+   TabStateDBFactory::GetInstance();
    TemplateURLFetcherFactory::GetInstance();
    TemplateURLServiceFactory::GetInstance();
+-#if !defined(OS_ANDROID)
++#if defined(OS_ANDROID)
++  if (full_init)
+   ThemeServiceFactory::GetInstance();
+ #endif
+ #if BUILDFLAG(ENABLE_EXTENSIONS)
+   ToolbarActionsModelFactory::GetInstance();
+ #endif
 +  if (full_init)
    TopSitesFactory::GetInstance();
    translate::TranslateRankerFactory::GetInstance();
  #if defined(OS_WIN)
-@@ -362,8 +380,10 @@ void ChromeBrowserMainExtraPartsProfiles
+@@ -381,8 +400,10 @@ void ChromeBrowserMainExtraPartsProfiles
    UsbChooserContextFactory::GetInstance();
  #endif
  #if BUILDFLAG(ENABLE_EXTENSIONS)
 +  if (full_init) {
-   web_app::WebAppProviderFactory::GetInstance();
    web_app::WebAppMetricsFactory::GetInstance();
+   web_app::WebAppProviderFactory::GetInstance();
 +  }
  #endif
    WebDataServiceFactory::GetInstance();
@@ -7097,16 +7040,16 @@ Subject: source code fixes for enable_extensions=true
        prefs::kRelaunchNotificationPeriod,
 --- a/chrome/browser/prefs/browser_prefs.cc
 +++ b/chrome/browser/prefs/browser_prefs.cc
-@@ -230,7 +230,7 @@
+@@ -234,7 +234,7 @@
  #if BUILDFLAG(ENABLE_FEED_IN_CHROME)
  #include "components/feed/core/common/pref_names.h"
  #endif  // BUILDFLAG(ENABLE_FEED_IN_CHROME)
 -#else   // defined(OS_ANDROID)
 +
+ #include "chrome/browser/accessibility/caption_controller.h"
  #include "chrome/browser/apps/app_service/app_service_proxy.h"
  #include "chrome/browser/enterprise/reporting/prefs.h"
- #include "chrome/browser/gcm/gcm_product_util.h"
-@@ -493,7 +493,7 @@ const char kNtpActivateHideShortcutsFiel
+@@ -462,7 +462,7 @@ const char kNtpActivateHideShortcutsFiel
      "ntp.activate_hide_shortcuts_field_trial";
  #endif  // !defined(OS_ANDROID)
  
@@ -7115,7 +7058,7 @@ Subject: source code fixes for enable_extensions=true
  // Deprecated 7/2019
  // WebAuthn prefs were being erroneously stored on Android. They are registered
  // on other platforms.
-@@ -615,7 +615,7 @@ void RegisterProfilePrefsForMigration(
+@@ -600,7 +600,7 @@ void RegisterProfilePrefsForMigration(
  
    registry->RegisterInt64Pref(kSignedInTime, 0);
  
@@ -7123,17 +7066,17 @@ Subject: source code fixes for enable_extensions=true
 +#if !defined(OS_ANDROID)
    registry->RegisterStringPref(kWebAuthnLastTransportUsedPrefName,
                                 std::string());
-   registry->RegisterListPref(kWebAuthnBlePairedMacAddressesPrefName);
-@@ -703,7 +703,7 @@ void RegisterLocalState(PrefRegistrySimp
+ #endif  // defined(OS_ANDROID)
+@@ -708,7 +708,7 @@ void RegisterLocalState(PrefRegistrySimp
  
  #if defined(OS_ANDROID)
    ::android::RegisterPrefs(registry);
 -#else
 +
+   enterprise_connectors::RegisterLocalStatePrefs(registry);
    enterprise_reporting::RegisterLocalStatePrefs(registry);
    gcm::RegisterPrefs(registry);
-   media_router::RegisterLocalStatePrefs(registry);
-@@ -983,7 +983,7 @@ void RegisterProfilePrefs(user_prefs::Pr
+@@ -978,7 +978,7 @@ void RegisterProfilePrefs(user_prefs::Pr
  #if BUILDFLAG(ENABLE_FEED_IN_CHROME)
    feed::RegisterProfilePrefs(registry);
  #endif  // BUILDFLAG(ENABLE_FEED_IN_CHROME)
@@ -7142,7 +7085,7 @@ Subject: source code fixes for enable_extensions=true
    apps::AppServiceProxy::RegisterProfilePrefs(registry);
    AppShortcutManager::RegisterProfilePrefs(registry);
    browser_sync::ForeignSessionHandler::RegisterProfilePrefs(registry);
-@@ -994,7 +994,6 @@ void RegisterProfilePrefs(user_prefs::Pr
+@@ -990,7 +990,6 @@ void RegisterProfilePrefs(user_prefs::Pr
    extensions::TabsCaptureVisibleTabFunction::RegisterProfilePrefs(registry);
    first_run::RegisterProfilePrefs(registry);
    gcm::RegisterProfilePrefs(registry);
@@ -7150,7 +7093,7 @@ Subject: source code fixes for enable_extensions=true
    HistoryUI::RegisterProfilePrefs(registry);
    InstantService::RegisterProfilePrefs(registry);
    media_router::RegisterProfilePrefs(registry);
-@@ -1079,7 +1078,7 @@ void RegisterProfilePrefs(user_prefs::Pr
+@@ -1076,7 +1075,7 @@ void RegisterProfilePrefs(user_prefs::Pr
    browser_switcher::BrowserSwitcherPrefs::RegisterProfilePrefs(registry);
  #endif
  
@@ -7159,7 +7102,7 @@ Subject: source code fixes for enable_extensions=true
    default_apps::RegisterProfilePrefs(registry);
  #endif
  
-@@ -1281,7 +1280,7 @@ void MigrateObsoleteProfilePrefs(Profile
+@@ -1221,7 +1220,7 @@ void MigrateObsoleteProfilePrefs(Profile
    profile_prefs->ClearPref(kLastKnownGoogleURL);
    profile_prefs->ClearPref(kLastPromptedGoogleURL);
  
@@ -7167,10 +7110,10 @@ Subject: source code fixes for enable_extensions=true
 +#if !defined(OS_ANDROID)
    // Added 7/2019.
    profile_prefs->ClearPref(kWebAuthnLastTransportUsedPrefName);
-   profile_prefs->ClearPref(kWebAuthnBlePairedMacAddressesPrefName);
+ #endif  // defined(OS_ANDROID)
 --- a/chrome/browser/ui/webui/history/foreign_session_handler.cc
 +++ b/chrome/browser/ui/webui/history/foreign_session_handler.cc
-@@ -144,7 +144,6 @@ ForeignSessionHandler::~ForeignSessionHa
+@@ -142,7 +142,6 @@ ForeignSessionHandler::~ForeignSessionHa
  // static
  void ForeignSessionHandler::RegisterProfilePrefs(
      user_prefs::PrefRegistrySyncable* registry) {
@@ -7180,7 +7123,7 @@ Subject: source code fixes for enable_extensions=true
  // static
 --- a/chrome/browser/content_settings/host_content_settings_map_factory.cc
 +++ b/chrome/browser/content_settings/host_content_settings_map_factory.cc
-@@ -47,6 +47,7 @@ HostContentSettingsMapFactory::HostConte
+@@ -48,6 +48,7 @@ HostContentSettingsMapFactory::HostConte
    DependsOn(SupervisedUserSettingsServiceFactory::GetInstance());
  #endif
  #if BUILDFLAG(ENABLE_EXTENSIONS)
@@ -7226,7 +7169,7 @@ Subject: source code fixes for enable_extensions=true
  
 --- a/chrome/browser/web_applications/web_app_provider_factory.cc
 +++ b/chrome/browser/web_applications/web_app_provider_factory.cc
-@@ -31,6 +31,7 @@ WebAppProviderFactory::WebAppProviderFac
+@@ -32,6 +32,7 @@ WebAppProviderFactory::WebAppProviderFac
            "WebAppProvider",
            BrowserContextDependencyManager::GetInstance()) {
    WebAppProviderBaseFactory::SetInstance(this);
@@ -7257,7 +7200,7 @@ Subject: source code fixes for enable_extensions=true
      }
 --- a/components/policy/resources/policy_templates.json
 +++ b/components/policy/resources/policy_templates.json
-@@ -4081,7 +4081,7 @@
+@@ -4320,7 +4320,7 @@
          'items': { 'type': 'string' },
          'id': 'ExtensionInstallSources',
        },
@@ -7266,7 +7209,7 @@ Subject: source code fixes for enable_extensions=true
        'features': {
          'dynamic_refresh': True,
          'per_profile': True,
-@@ -4140,7 +4140,7 @@
+@@ -4379,7 +4379,7 @@
          },
          'id': 'ExtensionAllowedTypes',
        },
@@ -7275,7 +7218,7 @@ Subject: source code fixes for enable_extensions=true
        'features': {
          'dynamic_refresh': True,
          'per_profile': True,
-@@ -4255,7 +4255,7 @@
+@@ -4494,7 +4494,7 @@
          },
        },
        'url_schema': 'https://www.ch40m1um.qjz9zk/administrators/policy-list-3/extension-settings-full',
@@ -7284,7 +7227,7 @@ Subject: source code fixes for enable_extensions=true
        'features': {
          'dynamic_refresh': True,
          'per_profile': True,
-@@ -4432,7 +4432,7 @@
+@@ -4671,7 +4671,7 @@
            'caption': '''Disallow usage of the Developer Tools''',
          },
        ],
@@ -7295,34 +7238,25 @@ Subject: source code fixes for enable_extensions=true
          'per_profile': True,
 --- a/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
 +++ b/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
-@@ -117,7 +117,7 @@
- #include "chrome/browser/ui/webui/tab_strip/tab_strip_ui.h"
- #endif
- 
--#if !defined(OS_ANDROID)
-+#if defined(OS_ANDROID)
- #include "chrome/browser/media/router/media_router_feature.h"
- #include "chrome/browser/ui/webui/management_ui.h"
- #include "chrome/browser/ui/webui/media_router/media_router_internals_ui.h"
-@@ -137,7 +137,7 @@
+@@ -127,7 +127,7 @@
  #if BUILDFLAG(ENABLE_FEED_IN_CHROME)
  #include "chrome/browser/ui/webui/feed_internals/feed_internals_ui.h"
  #endif  // BUILDFLAG(ENABLE_FEED_IN_CHROME)
 -#else   // defined(OS_ANDROID)
 +
+ #include "chrome/browser/media/feeds/media_feeds_service.h"
+ #include "chrome/browser/media/router/media_router_feature.h"
  #include "chrome/browser/ui/webui/bookmarks/bookmarks_ui.h"
- #include "chrome/browser/ui/webui/devtools_ui.h"
- #include "chrome/browser/ui/webui/downloads/downloads_ui.h"
-@@ -215,7 +215,7 @@
+@@ -210,7 +210,7 @@
  #include "chrome/browser/ui/webui/app_launcher_page_ui.h"
  #endif
  
 -#if !defined(OS_CHROMEOS) && !defined(OS_ANDROID)
 +#if !defined(OS_CHROMEOS) && defined(OS_ANDROID)
  #include "chrome/browser/ui/sync/sync_promo_ui.h"
+ #include "chrome/browser/ui/ui_features.h"
  #include "chrome/browser/ui/webui/browser_switch/browser_switch_ui.h"
- #include "chrome/browser/ui/webui/signin/inline_login_ui.h"
-@@ -283,7 +283,7 @@ WebUIController* NewWebUI(WebUI* web_ui,
+@@ -279,7 +279,7 @@ WebUIController* NewWebUI(WebUI* web_ui,
    return new T(web_ui);
  }
  
@@ -7331,16 +7265,16 @@ Subject: source code fixes for enable_extensions=true
  template <>
  WebUIController* NewWebUI<PageNotAvailableForGuestUI>(WebUI* web_ui,
                                                        const GURL& url) {
-@@ -343,7 +343,7 @@ WebUIController* NewWebUI<chromeos::mult
+@@ -361,7 +361,7 @@ WebUIController* NewWebUI<chromeos::mult
  }
- #endif
+ #endif  // defined(OS_CHROMEOS)
  
 -#if !defined(OS_ANDROID) && !defined(OS_CHROMEOS)
 +#if defined(OS_ANDROID) && !defined(OS_CHROMEOS)
  template <>
  WebUIController* NewWebUI<WelcomeUI>(WebUI* web_ui, const GURL& url) {
    return new WelcomeUI(web_ui, url);
-@@ -461,7 +461,7 @@ WebUIFactoryFunction GetWebUIFactoryFunc
+@@ -483,7 +483,7 @@ WebUIFactoryFunction GetWebUIFactoryFunc
    if (url.host_piece() == chrome::kChromeUIVersionHost)
      return &NewWebUI<VersionUI>;
  
@@ -7349,7 +7283,7 @@ Subject: source code fixes for enable_extensions=true
  #if !defined(OS_CHROMEOS)
    // AppLauncherPage is not needed on Android or ChromeOS.
    if (url.host_piece() == chrome::kChromeUIAppLauncherPageHost && profile &&
-@@ -655,7 +655,7 @@ WebUIFactoryFunction GetWebUIFactoryFunc
+@@ -673,7 +673,7 @@ WebUIFactoryFunction GetWebUIFactoryFunc
    }
    if (url.host_piece() == chrome::kChromeUIWebApksHost)
      return &NewWebUI<WebApksUI>;
@@ -7358,16 +7292,16 @@ Subject: source code fixes for enable_extensions=true
    if (url.SchemeIs(content::kChromeDevToolsScheme)) {
      if (!DevToolsUIBindings::IsValidFrontendURL(url))
        return nullptr;
-@@ -671,7 +671,7 @@ WebUIFactoryFunction GetWebUIFactoryFunc
+@@ -689,7 +689,7 @@ WebUIFactoryFunction GetWebUIFactoryFunc
      return &NewWebUI<SyncConfirmationUI>;
    }
  #endif  // defined(OS_ANDROID)
 -#if !defined(OS_CHROMEOS) && !defined(OS_ANDROID)
 +#if !defined(OS_CHROMEOS) && defined(OS_ANDROID)
-   if (url.host_piece() == chrome::kChromeUIMdUserManagerHost)
-     return &NewWebUI<UserManagerUI>;
-   if (url.host_piece() == chrome::kChromeUISigninErrorHost &&
-@@ -967,7 +967,7 @@ base::RefCountedMemory* ChromeWebUIContr
+   if (url.host_piece() == chrome::kChromeUIProfilePickerHost &&
+       base::FeatureList::IsEnabled(features::kNewProfilePicker)) {
+     return &NewWebUI<ProfilePickerUI>;
+@@ -993,7 +993,7 @@ base::RefCountedMemory* ChromeWebUIContr
          .LoadDataResourceBytesForScale(IDR_HISTORY_FAVICON, scale_factor);
    }
  
@@ -7398,7 +7332,7 @@ Subject: source code fixes for enable_extensions=true
    DictionaryValueINIParser ini_parser;
 --- a/content/public/browser/content_browser_client.cc
 +++ b/content/public/browser/content_browser_client.cc
-@@ -857,7 +857,7 @@ void ContentBrowserClient::CreateWebUsbS
+@@ -863,7 +863,7 @@ void ContentBrowserClient::CreateWebUsbS
      RenderFrameHost* render_frame_host,
      mojo::PendingReceiver<blink::mojom::WebUsbService> receiver) {}
  
@@ -7409,7 +7343,7 @@ Subject: source code fixes for enable_extensions=true
  }
 --- a/content/public/browser/content_browser_client.h
 +++ b/content/public/browser/content_browser_client.h
-@@ -1527,7 +1527,7 @@ class CONTENT_EXPORT ContentBrowserClien
+@@ -1520,7 +1520,7 @@ class CONTENT_EXPORT ContentBrowserClien
        RenderFrameHost* render_frame_host,
        mojo::PendingReceiver<blink::mojom::WebUsbService> receiver);
  
@@ -7491,7 +7425,7 @@ Subject: source code fixes for enable_extensions=true
  }  // namespace settings
 --- a/services/network/network_context.cc
 +++ b/services/network/network_context.cc
-@@ -850,7 +850,6 @@ void NetworkContext::QueueReport(const s
+@@ -855,7 +855,6 @@ void NetworkContext::QueueReport(const s
  
  void NetworkContext::QueueSignedExchangeReport(
      mojom::SignedExchangeReportPtr report) {
@@ -7501,7 +7435,7 @@ Subject: source code fixes for enable_extensions=true
  
 --- a/extensions/renderer/bindings/api_binding_util.cc
 +++ b/extensions/renderer/bindings/api_binding_util.cc
-@@ -129,6 +129,8 @@ std::string GetPlatformString() {
+@@ -130,6 +130,8 @@ std::string GetPlatformString() {
    return "mac";
  #elif defined(OS_WIN)
    return "win";
@@ -7512,15 +7446,15 @@ Subject: source code fixes for enable_extensions=true
    return std::string();
 --- a/chrome/browser/ui/webui/settings/settings_ui.cc
 +++ b/chrome/browser/ui/webui/settings/settings_ui.cc
-@@ -192,7 +192,6 @@ SettingsUI::SettingsUI(content::WebUI* w
+@@ -186,7 +186,6 @@ SettingsUI::SettingsUI(content::WebUI* w
    AddSettingsPageUIHandler(std::make_unique<ExtensionControlHandler>());
-   AddSettingsPageUIHandler(std::make_unique<FontHandler>(web_ui));
+   AddSettingsPageUIHandler(std::make_unique<FontHandler>(profile));
    AddSettingsPageUIHandler(std::make_unique<ImportDataHandler>());
 -  AddSettingsPageUIHandler(std::make_unique<HatsHandler>());
  
- #if defined(OS_WIN) || defined(OS_CHROMEOS)
-   AddSettingsPageUIHandler(std::make_unique<LanguagesHandler>(web_ui));
-@@ -438,13 +437,6 @@ void SettingsUI::AddSettingsPageUIHandle
+ #if defined(OS_WIN)
+   AddSettingsPageUIHandler(std::make_unique<LanguagesHandler>());
+@@ -420,13 +419,6 @@ void SettingsUI::AddSettingsPageUIHandle
  }
  
  void SettingsUI::TryShowHatsSurveyWithTimeout() {
@@ -7571,7 +7505,7 @@ Subject: source code fixes for enable_extensions=true
      {ContentSettingsType::SERIAL_GUARD, IDS_PAGE_INFO_TYPE_SERIAL},
  #endif
      {ContentSettingsType::BLUETOOTH_GUARD, IDS_PAGE_INFO_TYPE_BLUETOOTH},
-@@ -541,7 +540,6 @@ int PageInfoUI::GetConnectionIconID(Page
+@@ -545,7 +544,6 @@ int PageInfoUI::GetConnectionIconID(Page
    }
    return resource_id;
  }
@@ -7600,7 +7534,7 @@ Subject: source code fixes for enable_extensions=true
    // default setting.
 --- a/chrome/browser/ui/passwords/settings/password_manager_presenter.h
 +++ b/chrome/browser/ui/passwords/settings/password_manager_presenter.h
-@@ -92,7 +92,7 @@ class PasswordManagerPresenter
+@@ -94,7 +94,7 @@ class PasswordManagerPresenter
    // Undoes the last saved password or exception removal.
    void UndoRemoveSavedPasswordOrException();
  
@@ -7611,7 +7545,7 @@ Subject: source code fixes for enable_extensions=true
    // corresponding value, or nullopt otherwise.
 --- a/chrome/browser/ui/webui/omnibox/omnibox_ui.cc
 +++ b/chrome/browser/ui/webui/omnibox/omnibox_ui.cc
-@@ -19,7 +19,7 @@
+@@ -20,7 +20,7 @@
  #include "content/public/browser/web_ui_controller.h"
  #include "content/public/browser/web_ui_data_source.h"
  
@@ -7620,8 +7554,8 @@ Subject: source code fixes for enable_extensions=true
  #include "chrome/browser/ui/webui/omnibox/omnibox_popup_handler.h"
  #endif
  
-@@ -48,7 +48,7 @@ OmniboxUI::OmniboxUI(content::WebUI* web
-       IDR_OMNIBOX_MOJO_JS);
+@@ -51,7 +51,7 @@ OmniboxUI::OmniboxUI(content::WebUI* web
+ 
    source->SetDefaultResource(IDR_OMNIBOX_HTML);
  
 -#if !defined(OS_ANDROID)
@@ -7685,7 +7619,7 @@ Subject: source code fixes for enable_extensions=true
  
 --- a/chrome/browser/devtools/devtools_window.cc
 +++ b/chrome/browser/devtools/devtools_window.cc
-@@ -1479,7 +1479,6 @@ void DevToolsWindow::ShowCertificateView
+@@ -1480,7 +1480,6 @@ void DevToolsWindow::ShowCertificateView
    if (!FindInspectedBrowserAndTabIndex(inspected_contents, &browser, &tab))
      return;
    gfx::NativeWindow parent = browser->window()->GetNativeWindow();
@@ -7695,7 +7629,7 @@ Subject: source code fixes for enable_extensions=true
  void DevToolsWindow::OnLoadCompleted() {
 --- a/chrome/browser/ui/views/page_info/page_info_bubble_view.cc
 +++ b/chrome/browser/ui/views/page_info/page_info_bubble_view.cc
-@@ -1009,7 +1009,6 @@ void PageInfoBubbleView::HandleMoreInfoR
+@@ -1008,7 +1008,6 @@ void PageInfoBubbleView::HandleMoreInfoR
        if (certificate_ && top_window) {
          presenter_->RecordPageInfoAction(
              PageInfo::PAGE_INFO_CERTIFICATE_DIALOG_OPENED);
@@ -7813,3 +7747,25 @@ Subject: source code fixes for enable_extensions=true
      public static final String CHROME_NATIVE_SCHEME = "chrome-native";
      public static final String CONTENT_SCHEME = "content";
      public static final String CUSTOM_TAB_SCHEME = "customtab";
+--- a/chrome/browser/performance_manager/policies/policy_features.cc
++++ b/chrome/browser/performance_manager/policies/policy_features.cc
+@@ -80,7 +80,7 @@ const base::FeatureParam<int> kDynamicTu
+ 
+ #endif  // defined(OS_LINUX)
+ 
+-#if !defined(OS_ANDROID)
++#if defined(OS_ANDROID)
+ const base::Feature kPageFreezingFromPerformanceManager{
+     "PageFreezingFromPerformanceManager", base::FEATURE_DISABLED_BY_DEFAULT};
+ 
+--- a/chrome/browser/performance_manager/policies/policy_features.h
++++ b/chrome/browser/performance_manager/policies/policy_features.h
+@@ -76,7 +76,7 @@ extern const base::FeatureParam<int> kDy
+ 
+ #endif  // defined(OS_LINUX)
+ 
+-#if !defined(OS_ANDROID)
++#if defined(OS_ANDROID)
+ // Enables freezing pages directly from PerformanceManager rather than via
+ // TabManager.
+ extern const base::Feature kPageFreezingFromPerformanceManager;
