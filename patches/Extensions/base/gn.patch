@@ -7,13 +7,13 @@ Subject: gn fixes for enable_extensions=true
  build/config/locales.gni                                             |    2 
  chrome/BUILD.gn                                                      |    4 
  chrome/android/BUILD.gn                                              |    1 
- chrome/browser/BUILD.gn                                              |   43 +---
+ chrome/browser/BUILD.gn                                              |   44 +----
  chrome/browser/apps/platform_apps/api/music_manager_private/BUILD.gn |    1 
  chrome/browser/devtools/BUILD.gn                                     |   14 -
  chrome/browser/extensions/BUILD.gn                                   |    7 
  chrome/browser/media/router/discovery/BUILD.gn                       |    4 
  chrome/browser/resources/BUILD.gn                                    |    4 
- chrome/browser/ui/BUILD.gn                                           |   88 +---------
+ chrome/browser/ui/BUILD.gn                                           |   87 +---------
  chrome/browser/ui/views/BUILD.gn                                     |    2 
  chrome/browser/ui/webui/discards/BUILD.gn                            |    2 
  chrome/browser/web_applications/BUILD.gn                             |    3 
@@ -38,12 +38,12 @@ Subject: gn fixes for enable_extensions=true
  extensions/buildflags/buildflags.gni                                 |    2 
  services/device/public/cpp/hid/BUILD.gn                              |    1 
  third_party/blink/public/mojom/BUILD.gn                              |    2 
- ui/base/BUILD.gn                                                     |   19 --
+ ui/base/BUILD.gn                                                     |   18 --
  ui/gfx/BUILD.gn                                                      |    2 
  ui/gfx/animation/BUILD.gn                                            |    2 
  ui/message_center/BUILD.gn                                           |    4 
  ui/views/BUILD.gn                                                    |   20 ++
- 40 files changed, 95 insertions(+), 174 deletions(-)
+ 40 files changed, 95 insertions(+), 173 deletions(-)
 
 --- a/apps/BUILD.gn
 +++ b/apps/BUILD.gn
@@ -78,7 +78,7 @@ Subject: gn fixes for enable_extensions=true
  
 --- a/ui/base/BUILD.gn
 +++ b/ui/base/BUILD.gn
-@@ -452,6 +452,11 @@ jumbo_component("base") {
+@@ -454,6 +454,11 @@ jumbo_component("base") {
      deps += [ "//third_party/re2" ]
    }
  
@@ -105,11 +105,10 @@ Subject: gn fixes for enable_extensions=true
      ]
    }
  
-@@ -629,12 +626,6 @@ jumbo_component("base") {
+@@ -629,11 +626,6 @@ jumbo_component("base") {
      libs += [ "jnigraphics" ]
  
      sources -= [
--      "default_theme_provider.cc",
 -      "l10n/l10n_font_util.cc",
 -      "models/button_menu_item_model.cc",
 -      "pointer/touch_editing_controller.cc",
@@ -120,15 +119,15 @@ Subject: gn fixes for enable_extensions=true
  
 --- a/chrome/browser/web_applications/BUILD.gn
 +++ b/chrome/browser/web_applications/BUILD.gn
-@@ -198,7 +198,6 @@ source_set("web_applications_unit_tests"
+@@ -204,7 +204,6 @@ source_set("web_applications_unit_tests"
      "//chrome/browser",
      "//chrome/browser/web_applications/components",
      "//chrome/common",
 -    "//chrome/test:test_support",
      "//content/public/browser",
      "//content/test:test_support",
-     "//skia",
-@@ -244,8 +243,6 @@ source_set("web_applications_browser_tes
+     "//services/metrics/public/cpp:ukm_builders",
+@@ -252,8 +251,6 @@ source_set("web_applications_browser_tes
      "//chrome/app:command_ids",
      "//chrome/browser/web_applications/components",
      "//chrome/services/app_service/public/cpp:app_update",
@@ -139,7 +138,7 @@ Subject: gn fixes for enable_extensions=true
  
 --- a/chrome/browser/web_applications/components/BUILD.gn
 +++ b/chrome/browser/web_applications/components/BUILD.gn
-@@ -97,6 +97,14 @@ source_set("components") {
+@@ -100,6 +100,14 @@ source_set("components") {
      ]
    }
  
@@ -154,15 +153,15 @@ Subject: gn fixes for enable_extensions=true
    if (is_win) {
      sources += [
        "web_app_file_handler_registration_win.cc",
-@@ -181,7 +189,6 @@ source_set("unit_tests") {
-     "//chrome/app/theme:theme_resources",
-     "//chrome/browser/web_applications:web_app_test_group",
+@@ -188,7 +196,6 @@ source_set("unit_tests") {
+     "//chrome/browser/web_applications:web_applications",
      "//chrome/browser/web_applications:web_applications_test_support",
+     "//chrome/browser/web_applications/extensions:extensions",
 -    "//chrome/test:test_support",
      "//content/public/browser",
      "//skia",
      "//testing/gmock",
-@@ -211,8 +218,6 @@ source_set("browser_tests") {
+@@ -218,8 +225,6 @@ source_set("browser_tests") {
    deps = [
      ":components",
      "//chrome/browser/web_applications:web_applications_test_support",
@@ -279,7 +278,7 @@ Subject: gn fixes for enable_extensions=true
  
  # Reset sources_assignment_filter for the BUILD.gn file to prevent
  # regression during the migration of Chromium away from the feature.
-@@ -153,6 +153,7 @@ jumbo_component("views") {
+@@ -152,6 +152,7 @@ jumbo_component("views") {
      "controls/menu/menu_types.h",
      "controls/menu/submenu_view.h",
      "controls/message_box_view.h",
@@ -287,7 +286,7 @@ Subject: gn fixes for enable_extensions=true
      "controls/native/native_view_host.h",
      "controls/native/native_view_host_mac.h",
      "controls/native/native_view_host_wrapper.h",
-@@ -189,6 +190,7 @@ jumbo_component("views") {
+@@ -188,6 +189,7 @@ jumbo_component("views") {
      "debug_utils.h",
      "drag_controller.h",
      "drag_utils.h",
@@ -295,7 +294,7 @@ Subject: gn fixes for enable_extensions=true
      "event_monitor.h",
      "focus/external_focus_tracker.h",
      "focus/focus_manager.h",
-@@ -255,6 +257,7 @@ jumbo_component("views") {
+@@ -254,6 +256,7 @@ jumbo_component("views") {
      "widget/native_widget_private.h",
      "widget/root_view.h",
      "widget/root_view_targeter.h",
@@ -303,7 +302,7 @@ Subject: gn fixes for enable_extensions=true
      "widget/tooltip_manager.h",
      "widget/widget.h",
      "widget/widget_delegate.h",
-@@ -343,6 +346,7 @@ jumbo_component("views") {
+@@ -342,6 +345,7 @@ jumbo_component("views") {
      "controls/label.cc",
      "controls/link.cc",
      "controls/menu/menu_config.cc",
@@ -311,7 +310,7 @@ Subject: gn fixes for enable_extensions=true
      "controls/menu/menu_controller.cc",
      "controls/menu/menu_delegate.cc",
      "controls/menu/menu_host.cc",
-@@ -350,6 +354,8 @@ jumbo_component("views") {
+@@ -349,6 +353,8 @@ jumbo_component("views") {
      "controls/menu/menu_image_util.cc",
      "controls/menu/menu_item_view.cc",
      "controls/menu/menu_model_adapter.cc",
@@ -320,7 +319,7 @@ Subject: gn fixes for enable_extensions=true
      "controls/menu/menu_runner.cc",
      "controls/menu/menu_runner_impl.cc",
      "controls/menu/menu_runner_impl_adapter.cc",
-@@ -357,6 +363,7 @@ jumbo_component("views") {
+@@ -356,6 +362,7 @@ jumbo_component("views") {
      "controls/menu/menu_separator.cc",
      "controls/menu/submenu_view.cc",
      "controls/message_box_view.cc",
@@ -328,7 +327,7 @@ Subject: gn fixes for enable_extensions=true
      "controls/native/native_view_host.cc",
      "controls/prefix_selector.cc",
      "controls/progress_bar.cc",
-@@ -385,7 +392,9 @@ jumbo_component("views") {
+@@ -384,7 +391,9 @@ jumbo_component("views") {
      "controls/views_text_services_context_menu_base.cc",
      "controls/views_text_services_context_menu_base.h",
      "debug_utils.cc",
@@ -338,7 +337,7 @@ Subject: gn fixes for enable_extensions=true
      "focus/external_focus_tracker.cc",
      "focus/focus_manager.cc",
      "focus/focus_manager_factory.cc",
-@@ -408,9 +417,12 @@ jumbo_component("views") {
+@@ -407,9 +416,12 @@ jumbo_component("views") {
      "metadata/metadata_cache.cc",
      "metadata/metadata_types.cc",
      "metadata/type_conversion.cc",
@@ -351,7 +350,7 @@ Subject: gn fixes for enable_extensions=true
      "paint_info.cc",
      "painter.cc",
      "rect_based_targeting_utils.cc",
-@@ -420,6 +432,7 @@ jumbo_component("views") {
+@@ -419,6 +431,7 @@ jumbo_component("views") {
      "style/platform_style.cc",
      "style/typography.cc",
      "style/typography_provider.cc",
@@ -359,7 +358,7 @@ Subject: gn fixes for enable_extensions=true
      "view.cc",
      "view_class_properties.cc",
      "view_constants.cc",
-@@ -431,12 +444,16 @@ jumbo_component("views") {
+@@ -430,12 +443,16 @@ jumbo_component("views") {
      "views_delegate.cc",
      "views_features.cc",
      "views_switches.cc",
@@ -376,7 +375,7 @@ Subject: gn fixes for enable_extensions=true
      "widget/tooltip_manager.cc",
      "widget/widget.cc",
      "widget/widget_aura_utils.cc",
-@@ -484,6 +501,7 @@ jumbo_component("views") {
+@@ -483,6 +500,7 @@ jumbo_component("views") {
      "//skia",
      "//third_party/icu",
      "//ui/accessibility",
@@ -386,14 +385,14 @@ Subject: gn fixes for enable_extensions=true
      "//ui/latency",
 --- a/chrome/test/BUILD.gn
 +++ b/chrome/test/BUILD.gn
-@@ -4837,7 +4837,6 @@ test("unit_tests") {
+@@ -4917,7 +4917,6 @@ test("unit_tests") {
        "//chrome/common/extensions/api",
        "//components/safe_browsing:buildflags",
        "//components/services/unzip:in_process",
 -      "//extensions:extensions_resources",
        "//extensions/browser:test_support",
+       "//extensions/browser:value_store_test_support",
        "//extensions/common",
-       "//extensions/renderer:unit_test_support",
 --- a/extensions/BUILD.gn
 +++ b/extensions/BUILD.gn
 @@ -220,7 +220,6 @@ test("extensions_unittests") {
@@ -406,7 +405,7 @@ Subject: gn fixes for enable_extensions=true
      "//base/test:test_support",
 --- a/chrome/BUILD.gn
 +++ b/chrome/BUILD.gn
-@@ -1393,7 +1393,7 @@ group("extra_resources") {
+@@ -1286,7 +1286,7 @@ group("extra_resources") {
      "//components/autofill/core/browser:autofill_address_rewriter_resources",
    ]
  
@@ -415,18 +414,18 @@ Subject: gn fixes for enable_extensions=true
      public_deps += [
        "//chrome/browser/resources:bookmarks_resources",
        "//chrome/browser/resources:component_extension_resources",
-@@ -1417,7 +1417,7 @@ group("extra_resources") {
+@@ -1310,7 +1310,7 @@ group("extra_resources") {
      ]
    }
  
 -  if (!is_android && !is_chromeos) {
 +  if (is_android && !is_chromeos) {
-     public_deps += [ "//chrome/browser/resources:welcome_resources" ]
-   }
- 
+     public_deps += [
+       "//chrome/browser/resources:profile_picker_resources",
+       "//chrome/browser/resources:welcome_resources",
 --- a/chrome/browser/resources/BUILD.gn
 +++ b/chrome/browser/resources/BUILD.gn
-@@ -85,7 +85,7 @@ if (closure_compile) {
+@@ -86,7 +86,7 @@ if (closure_compile) {
    }
  }
  
@@ -435,7 +434,7 @@ Subject: gn fixes for enable_extensions=true
    grit("bookmarks_resources") {
      grit_flags = [
        "-E",
-@@ -303,7 +303,7 @@ if (is_chromeos) {
+@@ -307,7 +307,7 @@ if (is_chromeos) {
    }
  }
  
@@ -446,7 +445,7 @@ Subject: gn fixes for enable_extensions=true
  
 --- a/third_party/blink/public/mojom/BUILD.gn
 +++ b/third_party/blink/public/mojom/BUILD.gn
-@@ -180,7 +180,7 @@ mojom("mojom_platform") {
+@@ -176,7 +176,7 @@ mojom("mojom_platform") {
      "worker/worker_options.mojom",
    ]
  
@@ -457,7 +456,7 @@ Subject: gn fixes for enable_extensions=true
  
 --- a/chrome/browser/BUILD.gn
 +++ b/chrome/browser/BUILD.gn
-@@ -414,7 +414,6 @@ jumbo_static_library("browser") {
+@@ -399,7 +399,6 @@ static_library("browser") {
      "download/download_core_service_factory.h",
      "download/download_core_service_impl.cc",
      "download/download_core_service_impl.h",
@@ -465,7 +464,7 @@ Subject: gn fixes for enable_extensions=true
      "download/download_file_picker.cc",
      "download/download_file_picker.h",
      "download/download_history.cc",
-@@ -458,6 +457,7 @@ jumbo_static_library("browser") {
+@@ -443,6 +442,7 @@ static_library("browser") {
      "download/download_ui_controller.h",
      "download/download_ui_model.cc",
      "download/download_ui_model.h",
@@ -473,7 +472,7 @@ Subject: gn fixes for enable_extensions=true
      "download/drag_download_item.h",
      "download/mixed_content_download_blocking.cc",
      "download/mixed_content_download_blocking.h",
-@@ -1224,6 +1224,8 @@ jumbo_static_library("browser") {
+@@ -1199,6 +1199,8 @@ static_library("browser") {
      "plugins/pdf_plugin_placeholder_observer.h",
      "policy/browser_dm_token_storage.cc",
      "policy/browser_dm_token_storage.h",
@@ -482,15 +481,15 @@ Subject: gn fixes for enable_extensions=true
      "policy/browser_dm_token_storage_linux.cc",
      "policy/browser_dm_token_storage_linux.h",
      "policy/browser_dm_token_storage_mac.h",
-@@ -3090,7 +3092,6 @@ jumbo_static_library("browser") {
+@@ -3085,7 +3087,6 @@ static_library("browser") {
  
        defines += [ "ENABLE_PASSWORD_CHANGE" ]
      }
 -  } else {  # !is_android
      sources += [
-       "accessibility/invert_bubble_prefs.cc",
-       "accessibility/invert_bubble_prefs.h",
-@@ -3142,8 +3143,6 @@ jumbo_static_library("browser") {
+       "accessibility/caption_controller.cc",
+       "accessibility/caption_controller.h",
+@@ -3147,8 +3148,6 @@ static_library("browser") {
        "badging/badge_manager_delegate.h",
        "badging/badge_manager_factory.cc",
        "badging/badge_manager_factory.h",
@@ -499,7 +498,7 @@ Subject: gn fixes for enable_extensions=true
        "bookmarks/bookmark_html_writer.cc",
        "bookmarks/bookmark_html_writer.h",
        "certificate_viewer.h",
-@@ -3356,7 +3355,6 @@ jumbo_static_library("browser") {
+@@ -3381,7 +3380,6 @@ static_library("browser") {
        "metrics/desktop_session_duration/desktop_session_duration_tracker.h",
        "metrics/first_web_contents_profiler.cc",
        "metrics/first_web_contents_profiler.h",
@@ -507,7 +506,7 @@ Subject: gn fixes for enable_extensions=true
        "metrics/tab_stats_data_store.cc",
        "metrics/tab_stats_data_store.h",
        "metrics/tab_stats_tracker.cc",
-@@ -3369,6 +3367,7 @@ jumbo_static_library("browser") {
+@@ -3401,6 +3399,7 @@ static_library("browser") {
        "notifications/profile_notification.cc",
        "notifications/profile_notification.h",
        "obsolete_system/obsolete_system.h",
@@ -515,7 +514,7 @@ Subject: gn fixes for enable_extensions=true
        "obsolete_system/obsolete_system_linux.cc",
        "obsolete_system/obsolete_system_mac.cc",
        "obsolete_system/obsolete_system_win.cc",
-@@ -3446,14 +3445,6 @@ jumbo_static_library("browser") {
+@@ -3453,14 +3452,6 @@ static_library("browser") {
        "profiles/profile_window.h",
        "renderer_context_menu/accessibility_labels_bubble_model.cc",
        "renderer_context_menu/accessibility_labels_bubble_model.h",
@@ -530,7 +529,7 @@ Subject: gn fixes for enable_extensions=true
        "repost_form_warning_controller.cc",
        "repost_form_warning_controller.h",
        "resource_coordinator/background_tab_navigation_throttle.cc",
-@@ -3593,16 +3584,6 @@ jumbo_static_library("browser") {
+@@ -3600,16 +3591,6 @@ static_library("browser") {
        "serial/serial_chooser_context.h",
        "serial/serial_chooser_context_factory.cc",
        "serial/serial_chooser_context_factory.h",
@@ -547,7 +546,7 @@ Subject: gn fixes for enable_extensions=true
        "sharing/shared_clipboard/remote_copy_message_handler.cc",
        "sharing/shared_clipboard/remote_copy_message_handler.h",
        "sharing/shared_clipboard/shared_clipboard_context_menu_observer.cc",
-@@ -3756,6 +3737,7 @@ jumbo_static_library("browser") {
+@@ -3767,6 +3748,7 @@ static_library("browser") {
        "upgrade_detector/build_state.cc",
        "upgrade_detector/build_state.h",
        "upgrade_detector/build_state_observer.h",
@@ -555,7 +554,7 @@ Subject: gn fixes for enable_extensions=true
        "upgrade_detector/upgrade_detector.cc",
        "upgrade_detector/upgrade_detector.h",
        "upgrade_detector/upgrade_observer.h",
-@@ -3786,7 +3768,6 @@ jumbo_static_library("browser") {
+@@ -3799,7 +3781,6 @@ static_library("browser") {
        "//chrome/browser/profile_resetter:profile_reset_report_proto",
        "//chrome/browser/resource_coordinator:intervention_policy_database_proto",
        "//chrome/browser/resource_coordinator:tab_metrics_event_proto",
@@ -563,7 +562,7 @@ Subject: gn fixes for enable_extensions=true
        "//chrome/browser/resources:component_extension_resources",
        "//chrome/browser/search:generated",
        "//chrome/common/importer:interfaces",
-@@ -3816,7 +3797,6 @@ jumbo_static_library("browser") {
+@@ -3833,7 +3814,6 @@ static_library("browser") {
          "chrome_browser_main_posix.h",
          "first_run/first_run_internal_posix.cc",
          "importer/firefox_profile_lock_posix.cc",
@@ -571,16 +570,16 @@ Subject: gn fixes for enable_extensions=true
          "task_manager/sampling/shared_sampler_posix.cc",
        ]
      }
-@@ -3923,8 +3903,6 @@ jumbo_static_library("browser") {
+@@ -3945,8 +3925,6 @@ static_library("browser") {
        "notifications/web_page_notifier_controller.h",
        "policy/default_geolocation_policy_handler.cc",
        "policy/default_geolocation_policy_handler.h",
 -      "renderer_context_menu/quick_answers_menu_observer.cc",
 -      "renderer_context_menu/quick_answers_menu_observer.h",
-       "signin/signin_error_notifier_ash.cc",
-       "signin/signin_error_notifier_ash.h",
-       "signin/signin_error_notifier_factory_ash.cc",
-@@ -4334,7 +4312,7 @@ jumbo_static_library("browser") {
+       "speech/tts_chromeos.cc",
+       "speech/tts_chromeos.h",
+       "sync/sync_error_notifier_ash.cc",
+@@ -4348,7 +4326,7 @@ static_library("browser") {
      ]
    }
  
@@ -589,7 +588,7 @@ Subject: gn fixes for enable_extensions=true
      sources += [
        "device_identity/device_oauth2_token_store_desktop.cc",
        "device_identity/device_oauth2_token_store_desktop.h",
-@@ -4364,8 +4342,6 @@ jumbo_static_library("browser") {
+@@ -4378,8 +4356,6 @@ static_library("browser") {
        "policy/chrome_browser_cloud_management_register_watcher.h",
        "policy/cloud/chrome_browser_cloud_management_helper.cc",
        "policy/cloud/chrome_browser_cloud_management_helper.h",
@@ -598,15 +597,16 @@ Subject: gn fixes for enable_extensions=true
        "policy/cloud/user_policy_signin_service_internal.h",
        "profiles/avatar_menu.cc",
        "profiles/avatar_menu.h",
-@@ -4401,7 +4377,6 @@ jumbo_static_library("browser") {
+@@ -4415,7 +4391,7 @@ static_library("browser") {
        "upgrade_detector/upgrade_detector_impl.cc",
        "upgrade_detector/upgrade_detector_impl.h",
      ]
--  } else {
+-  } else {  # is_android || is_chromeos
++
      sources += [
-       "media/protected_media_identifier_permission_context.cc",
-       "media/protected_media_identifier_permission_context.h",
-@@ -4507,7 +4482,7 @@ jumbo_static_library("browser") {
+       "installable/digital_asset_links/digital_asset_links_handler.cc",
+       "installable/digital_asset_links/digital_asset_links_handler.h",
+@@ -4523,7 +4499,7 @@ static_library("browser") {
        sources -= [ "background/background_mode_manager_aura.cc" ]
      }
    }
@@ -615,7 +615,7 @@ Subject: gn fixes for enable_extensions=true
      sources += [
        "background/background_contents_service.cc",
        "background/background_contents_service.h",
-@@ -5274,7 +5249,7 @@ jumbo_static_library("browser") {
+@@ -5302,7 +5278,7 @@ static_library("browser") {
      }
    }
  
@@ -624,7 +624,7 @@ Subject: gn fixes for enable_extensions=true
      sources += [
        "sessions/session_restore.cc",
        "sessions/session_restore.h",
-@@ -5656,7 +5631,7 @@ grit("resources") {
+@@ -5668,7 +5644,7 @@ grit("resources") {
      }
    }
  
@@ -645,7 +645,7 @@ Subject: gn fixes for enable_extensions=true
      "cpu_info_provider_win.cc",
 --- a/chrome/browser/ui/BUILD.gn
 +++ b/chrome/browser/ui/BUILD.gn
-@@ -608,7 +608,7 @@ jumbo_static_library("ui") {
+@@ -611,7 +611,7 @@ static_library("ui") {
    allow_circular_includes_from +=
        [ "//chrome/browser/ui/webui/bluetooth_internals" ]
  
@@ -654,7 +654,7 @@ Subject: gn fixes for enable_extensions=true
      deps += [ "//chrome/browser/ui/webui/discards:mojo_bindings" ]
    }
  
-@@ -838,8 +838,6 @@ jumbo_static_library("ui") {
+@@ -850,8 +850,6 @@ static_library("ui") {
        "//services/device/public/mojom:usb",
        "//ui/android",
      ]
@@ -663,7 +663,7 @@ Subject: gn fixes for enable_extensions=true
      sources += [
        "apps/app_info_dialog.h",
        "apps/chrome_app_delegate.cc",
-@@ -902,7 +900,6 @@ jumbo_static_library("ui") {
+@@ -914,7 +912,6 @@ static_library("ui") {
        "browser_location_bar_model_delegate.h",
        "browser_navigator.cc",
        "browser_navigator.h",
@@ -671,7 +671,7 @@ Subject: gn fixes for enable_extensions=true
        "browser_otr_state.h",
        "browser_tab_restorer.cc",
        "browser_tab_strip_model_delegate.cc",
-@@ -991,12 +988,6 @@ jumbo_static_library("ui") {
+@@ -1004,12 +1001,6 @@ static_library("ui") {
        "global_media_controls/overlay_media_notification.h",
        "global_media_controls/overlay_media_notifications_manager.cc",
        "global_media_controls/overlay_media_notifications_manager.h",
@@ -684,7 +684,7 @@ Subject: gn fixes for enable_extensions=true
        "hats/hats_survey_status_checker.cc",
        "hats/hats_survey_status_checker.h",
        "hid/hid_chooser.cc",
-@@ -1053,6 +1044,8 @@ jumbo_static_library("ui") {
+@@ -1066,6 +1057,8 @@ static_library("ui") {
        "media_router/query_result_manager.h",
        "media_router/ui_media_sink.cc",
        "media_router/ui_media_sink.h",
@@ -693,7 +693,7 @@ Subject: gn fixes for enable_extensions=true
        "native_window_tracker.h",
        "omnibox/alternate_nav_infobar_delegate.cc",
        "omnibox/alternate_nav_infobar_delegate.h",
-@@ -1146,8 +1139,6 @@ jumbo_static_library("ui") {
+@@ -1165,8 +1158,6 @@ static_library("ui") {
        "singleton_tabs.h",
        "startup/automation_infobar_delegate.cc",
        "startup/automation_infobar_delegate.h",
@@ -702,7 +702,7 @@ Subject: gn fixes for enable_extensions=true
        "startup/obsolete_system_infobar_delegate.cc",
        "startup/obsolete_system_infobar_delegate.h",
        "startup/startup_browser_creator.cc",
-@@ -1222,10 +1213,6 @@ jumbo_static_library("ui") {
+@@ -1241,10 +1232,6 @@ static_library("ui") {
        "tabs/tab_types.h",
        "tabs/tab_utils.cc",
        "tabs/tab_utils.h",
@@ -712,8 +712,8 @@ Subject: gn fixes for enable_extensions=true
 -      "task_manager/task_manager_table_model.h",
        "thumbnails/thumbnail_image.cc",
        "thumbnails/thumbnail_image.h",
-       "thumbnails/thumbnail_tab_helper.cc",
-@@ -1366,8 +1353,6 @@ jumbo_static_library("ui") {
+       "thumbnails/thumbnail_readiness_tracker.cc",
+@@ -1385,8 +1372,6 @@ static_library("ui") {
        "webui/settings/extension_control_handler.h",
        "webui/settings/font_handler.cc",
        "webui/settings/font_handler.h",
@@ -722,7 +722,7 @@ Subject: gn fixes for enable_extensions=true
        "webui/settings/import_data_handler.cc",
        "webui/settings/import_data_handler.h",
        "webui/settings/languages_handler.cc",
-@@ -1440,6 +1425,7 @@ jumbo_static_library("ui") {
+@@ -1461,6 +1446,7 @@ static_library("ui") {
        "webui/theme_source.h",
        "webui/web_footer_experiment_ui.cc",
        "webui/web_footer_experiment_ui.h",
@@ -730,7 +730,7 @@ Subject: gn fixes for enable_extensions=true
        "window_sizer/window_sizer.cc",
        "window_sizer/window_sizer.h",
        "zoom/chrome_zoom_level_otr_delegate.cc",
-@@ -1454,7 +1440,6 @@ jumbo_static_library("ui") {
+@@ -1475,7 +1461,6 @@ static_library("ui") {
        "//chrome/browser/media/router",
        "//chrome/browser/profile_resetter:profile_reset_report_proto",
        "//chrome/browser/resource_coordinator:tab_metrics_event_proto",
@@ -738,7 +738,7 @@ Subject: gn fixes for enable_extensions=true
        "//chrome/browser/safe_browsing:advanced_protection",
        "//chrome/browser/ui/color:color_headers",
        "//chrome/browser/ui/color:mixers",
-@@ -2167,7 +2152,7 @@ jumbo_static_library("ui") {
+@@ -2230,7 +2215,7 @@ static_library("ui") {
      }
    }
  
@@ -747,7 +747,7 @@ Subject: gn fixes for enable_extensions=true
      sources += [
        "autofill/payments/virtual_card_selection_dialog_controller.h",
        "autofill/payments/virtual_card_selection_dialog_controller_impl.cc",
-@@ -2211,10 +2196,6 @@ jumbo_static_library("ui") {
+@@ -2277,10 +2262,6 @@ static_library("ui") {
        "views/profiles/profile_menu_view_base.h",
        "views/profiles/signin_view_controller_delegate_views.cc",
        "views/profiles/signin_view_controller_delegate_views.h",
@@ -758,7 +758,7 @@ Subject: gn fixes for enable_extensions=true
        "webui/discards/site_data_provider_impl.cc",
        "webui/discards/site_data_provider_impl.h",
        "webui/signin/inline_login_handler.cc",
-@@ -2231,7 +2212,7 @@ jumbo_static_library("ui") {
+@@ -2297,7 +2278,7 @@ static_library("ui") {
      deps += [ "//ui/webui" ]
    }
  
@@ -767,7 +767,7 @@ Subject: gn fixes for enable_extensions=true
      sources += [
        "bookmarks/bookmark_bubble_sign_in_delegate.cc",
        "bookmarks/bookmark_bubble_sign_in_delegate.h",
-@@ -2244,10 +2225,7 @@ jumbo_static_library("ui") {
+@@ -2311,10 +2292,7 @@ static_library("ui") {
        "sync/one_click_signin_links_delegate_impl.h",
        "user_manager.cc",
        "user_manager.h",
@@ -775,10 +775,10 @@ Subject: gn fixes for enable_extensions=true
        "views/external_protocol_dialog.h",
 -      "views/profiles/badged_profile_photo.cc",
 -      "views/profiles/badged_profile_photo.h",
+       "views/profiles/profile_picker_view.cc",
+       "views/profiles/profile_picker_view.h",
        "views/profiles/user_manager_view.cc",
-       "views/profiles/user_manager_view.h",
-       "webui/app_launcher_page_ui.cc",
-@@ -2622,14 +2600,11 @@ jumbo_static_library("ui") {
+@@ -2687,14 +2665,11 @@ static_library("ui") {
      }
    }
  
@@ -794,7 +794,7 @@ Subject: gn fixes for enable_extensions=true
        "views/status_icons/status_icon_button_linux.cc",
        "views/status_icons/status_icon_button_linux.h",
        "views/status_icons/status_icon_linux_wrapper.cc",
-@@ -2639,9 +2614,6 @@ jumbo_static_library("ui") {
+@@ -2704,9 +2679,6 @@ static_library("ui") {
        "webui/settings_utils_linux.cc",
      ]
      deps += [
@@ -804,7 +804,7 @@ Subject: gn fixes for enable_extensions=true
      ]
  
      if (use_dbus) {
-@@ -2734,7 +2706,7 @@ jumbo_static_library("ui") {
+@@ -2789,7 +2761,7 @@ static_library("ui") {
      ]
    }
  
@@ -813,15 +813,15 @@ Subject: gn fixes for enable_extensions=true
      sources += [
        "autofill/payments/local_card_migration_bubble.h",
        "autofill/payments/local_card_migration_bubble_controller_impl.cc",
-@@ -2772,6 +2744,7 @@ jumbo_static_library("ui") {
+@@ -2827,6 +2799,7 @@ static_library("ui") {
        # This test header is included because it contains forward declarations
        # needed for "friend" statements for use in tests.
        "translate/translate_bubble_test_utils.h",
 +      "views/accelerator_utils_android.cc",
        "views/accessibility/caption_bubble.cc",
        "views/accessibility/caption_bubble.h",
-       "views/accessibility/invert_bubble_view.cc",
-@@ -2804,12 +2777,8 @@ jumbo_static_library("ui") {
+       "views/accessibility/caption_bubble_controller_views.cc",
+@@ -2861,12 +2834,8 @@ static_library("ui") {
        "views/autofill/autofill_bubble_handler_impl.h",
        "views/autofill/autofill_popup_base_view.cc",
        "views/autofill/autofill_popup_base_view.h",
@@ -834,7 +834,7 @@ Subject: gn fixes for enable_extensions=true
        "views/autofill/payments/dialog_view_ids.h",
        "views/autofill/payments/local_card_migration_bubble_views.cc",
        "views/autofill/payments/local_card_migration_bubble_views.h",
-@@ -2862,8 +2831,6 @@ jumbo_static_library("ui") {
+@@ -2919,8 +2888,6 @@ static_library("ui") {
        "views/bulleted_label_list_view.h",
        "views/certificate_selector.cc",
        "views/certificate_selector.h",
@@ -843,7 +843,7 @@ Subject: gn fixes for enable_extensions=true
        "views/chrome_constrained_window_views_client.cc",
        "views/chrome_constrained_window_views_client.h",
        "views/chrome_layout_provider.cc",
-@@ -2912,6 +2879,7 @@ jumbo_static_library("ui") {
+@@ -2969,6 +2936,7 @@ static_library("ui") {
        "views/download/download_shelf_view.cc",
        "views/download/download_shelf_view.h",
        "views/download/download_started_animation_views.cc",
@@ -851,7 +851,7 @@ Subject: gn fixes for enable_extensions=true
        "views/dropdown_bar_host.cc",
        "views/dropdown_bar_host.h",
        "views/dropdown_bar_host_delegate.h",
-@@ -2960,8 +2928,6 @@ jumbo_static_library("ui") {
+@@ -3017,8 +2985,6 @@ static_library("ui") {
        "views/find_bar_host.h",
        "views/find_bar_view.cc",
        "views/find_bar_view.h",
@@ -860,7 +860,7 @@ Subject: gn fixes for enable_extensions=true
        "views/frame/app_menu_button.cc",
        "views/frame/app_menu_button.h",
        "views/frame/app_menu_button_observer.h",
-@@ -2969,6 +2935,7 @@ jumbo_static_library("ui") {
+@@ -3026,6 +2992,7 @@ static_library("ui") {
        "views/frame/browser_frame.h",
        "views/frame/browser_non_client_frame_view.cc",
        "views/frame/browser_non_client_frame_view.h",
@@ -868,7 +868,7 @@ Subject: gn fixes for enable_extensions=true
        "views/frame/browser_root_view.cc",
        "views/frame/browser_root_view.h",
        "views/frame/browser_view.cc",
-@@ -2983,12 +2950,15 @@ jumbo_static_library("ui") {
+@@ -3040,12 +3007,15 @@ static_library("ui") {
        "views/frame/contents_layout_manager.h",
        "views/frame/contents_web_view.cc",
        "views/frame/contents_web_view.h",
@@ -884,7 +884,7 @@ Subject: gn fixes for enable_extensions=true
        "views/frame/native_browser_frame_factory.cc",
        "views/frame/native_browser_frame_factory.h",
        "views/frame/system_menu_model_builder.cc",
-@@ -3043,8 +3013,6 @@ jumbo_static_library("ui") {
+@@ -3098,8 +3068,6 @@ static_library("ui") {
        "views/importer/import_lock_dialog_view.h",
        "views/infobars/alternate_nav_infobar_view.cc",
        "views/infobars/alternate_nav_infobar_view.h",
@@ -893,7 +893,7 @@ Subject: gn fixes for enable_extensions=true
        "views/infobars/infobar_container_view.cc",
        "views/infobars/infobar_container_view.h",
        "views/infobars/infobar_view.cc",
-@@ -3104,12 +3072,8 @@ jumbo_static_library("ui") {
+@@ -3159,12 +3127,8 @@ static_library("ui") {
        "views/media_router/cast_dialog_view.h",
        "views/media_router/cast_toolbar_button.cc",
        "views/media_router/cast_toolbar_button.h",
@@ -906,7 +906,7 @@ Subject: gn fixes for enable_extensions=true
        "views/media_router/media_router_views_ui.cc",
        "views/media_router/media_router_views_ui.h",
        "views/media_router/presentation_receiver_window_factory.cc",
-@@ -3119,16 +3083,8 @@ jumbo_static_library("ui") {
+@@ -3174,16 +3138,8 @@ static_library("ui") {
        "views/media_router/presentation_receiver_window_view.h",
        "views/media_router/web_contents_display_observer_view.cc",
        "views/media_router/web_contents_display_observer_view.h",
@@ -923,7 +923,7 @@ Subject: gn fixes for enable_extensions=true
        "views/native_file_system/native_file_system_ui_helpers.cc",
        "views/native_file_system/native_file_system_ui_helpers.h",
        "views/native_file_system/native_file_system_usage_bubble_view.cc",
-@@ -3155,8 +3111,6 @@ jumbo_static_library("ui") {
+@@ -3214,8 +3170,6 @@ static_library("ui") {
        "views/overlay/back_to_tab_image_button.h",
        "views/overlay/close_image_button.cc",
        "views/overlay/close_image_button.h",
@@ -932,7 +932,7 @@ Subject: gn fixes for enable_extensions=true
        "views/overlay/playback_image_button.cc",
        "views/overlay/playback_image_button.h",
        "views/overlay/resize_handle_button.cc",
-@@ -3191,8 +3145,6 @@ jumbo_static_library("ui") {
+@@ -3250,8 +3204,6 @@ static_library("ui") {
        "views/page_info/permission_selector_row.cc",
        "views/page_info/permission_selector_row.h",
        "views/page_info/permission_selector_row_observer.h",
@@ -941,7 +941,7 @@ Subject: gn fixes for enable_extensions=true
        "views/passwords/account_chooser_dialog_view.cc",
        "views/passwords/account_chooser_dialog_view.h",
        "views/passwords/auto_signin_first_run_dialog_view.cc",
-@@ -3209,8 +3161,6 @@ jumbo_static_library("ui") {
+@@ -3270,8 +3222,6 @@ static_library("ui") {
        "views/passwords/password_bubble_view_base.h",
        "views/passwords/password_generation_confirmation_view.cc",
        "views/passwords/password_generation_confirmation_view.h",
@@ -950,7 +950,7 @@ Subject: gn fixes for enable_extensions=true
        "views/passwords/password_items_view.cc",
        "views/passwords/password_items_view.h",
        "views/passwords/password_save_unsynced_credentials_locally_view.cc",
-@@ -3267,8 +3217,6 @@ jumbo_static_library("ui") {
+@@ -3330,8 +3280,6 @@ static_library("ui") {
        "views/permission_bubble/chooser_bubble_ui.cc",
        "views/permission_bubble/permission_prompt_bubble_view.cc",
        "views/permission_bubble/permission_prompt_bubble_view.h",
@@ -959,15 +959,7 @@ Subject: gn fixes for enable_extensions=true
        "views/profiles/avatar_toolbar_button.cc",
        "views/profiles/avatar_toolbar_button.h",
        "views/profiles/avatar_toolbar_button_delegate.cc",
-@@ -3381,6 +3329,7 @@ jumbo_static_library("ui") {
-       "views/tabs/tab_style_views.h",
-       "views/tabs/tab_width_constraints.cc",
-       "views/tabs/tab_width_constraints.h",
-+      "views/tabs/window_finder_android.cc",
-       "views/tabs/window_finder.h",
-       "views/task_manager_view.cc",
-       "views/task_manager_view.h",
-@@ -3545,8 +3494,6 @@ jumbo_static_library("ui") {
+@@ -3606,8 +3554,6 @@ static_library("ui") {
        sources += [
          "views/create_application_shortcut_view.cc",
          "views/create_application_shortcut_view.h",
@@ -976,7 +968,7 @@ Subject: gn fixes for enable_extensions=true
        ]
      }
  
-@@ -3617,9 +3564,6 @@ jumbo_static_library("ui") {
+@@ -3676,9 +3622,6 @@ static_library("ui") {
          "views/relaunch_notification/relaunch_recommended_timer.h",
          "views/relaunch_notification/relaunch_required_dialog_view.cc",
          "views/relaunch_notification/relaunch_required_dialog_view.h",
@@ -986,7 +978,7 @@ Subject: gn fixes for enable_extensions=true
          "views/sync/dice_signin_button_view.cc",
          "views/sync/dice_signin_button_view.h",
        ]
-@@ -4159,7 +4103,7 @@ jumbo_static_library("ui") {
+@@ -4227,7 +4170,7 @@ static_library("ui") {
        "//components/printing/browser",
        "//printing",
      ]
@@ -1007,7 +999,7 @@ Subject: gn fixes for enable_extensions=true
      "device_id_win.cc",
 --- a/content/public/browser/BUILD.gn
 +++ b/content/public/browser/BUILD.gn
-@@ -496,7 +496,7 @@ jumbo_source_set("browser_sources") {
+@@ -504,7 +504,7 @@ jumbo_source_set("browser_sources") {
      sources += [ "remote_cocoa.h" ]
    }
  
@@ -1018,7 +1010,7 @@ Subject: gn fixes for enable_extensions=true
        "zoom_level_delegate.h",
 --- a/content/browser/BUILD.gn
 +++ b/content/browser/BUILD.gn
-@@ -2469,7 +2469,7 @@ jumbo_source_set("browser") {
+@@ -2510,7 +2510,7 @@ jumbo_source_set("browser") {
      }
      defines += [ "APPCACHE_USE_SIMPLE_CACHE" ]
      libs += [ "jnigraphics" ]
@@ -1029,7 +1021,7 @@ Subject: gn fixes for enable_extensions=true
        # The WebAuthn devtools protocol API is not supported in Android yet.
 --- a/chrome/renderer/BUILD.gn
 +++ b/chrome/renderer/BUILD.gn
-@@ -419,6 +419,8 @@ jumbo_static_library("renderer") {
+@@ -421,6 +421,8 @@ static_library("renderer") {
        "net/page_auto_fetcher_helper_android.cc",
        "net/page_auto_fetcher_helper_android.h",
      ]
@@ -1040,7 +1032,7 @@ Subject: gn fixes for enable_extensions=true
    if (is_chromeos) {
 --- a/chrome/common/BUILD.gn
 +++ b/chrome/common/BUILD.gn
-@@ -425,7 +425,6 @@ static_library("common") {
+@@ -419,7 +419,6 @@ static_library("common") {
        "media/chrome_media_drm_bridge_client.cc",
        "media/chrome_media_drm_bridge_client.h",
      ]
@@ -1050,7 +1042,7 @@ Subject: gn fixes for enable_extensions=true
    }
 --- a/chrome/browser/extensions/BUILD.gn
 +++ b/chrome/browser/extensions/BUILD.gn
-@@ -222,6 +222,7 @@ jumbo_static_library("extensions") {
+@@ -221,6 +221,7 @@ static_library("extensions") {
      "api/image_writer_private/operation_manager.h",
      "api/image_writer_private/removable_storage_provider.cc",
      "api/image_writer_private/removable_storage_provider.h",
@@ -1058,7 +1050,7 @@ Subject: gn fixes for enable_extensions=true
      "api/image_writer_private/removable_storage_provider_chromeos.cc",
      "api/image_writer_private/removable_storage_provider_mac.cc",
      "api/image_writer_private/removable_storage_provider_win.cc",
-@@ -629,6 +630,8 @@ jumbo_static_library("extensions") {
+@@ -624,6 +625,8 @@ static_library("extensions") {
      "global_shortcut_listener_mac.mm",
      "global_shortcut_listener_win.cc",
      "global_shortcut_listener_win.h",
@@ -1067,7 +1059,7 @@ Subject: gn fixes for enable_extensions=true
      "install_gate.h",
      "install_observer.cc",
      "install_observer.h",
-@@ -695,6 +698,8 @@ jumbo_static_library("extensions") {
+@@ -690,6 +693,8 @@ static_library("extensions") {
      "sync_bundle.cc",
      "sync_bundle.h",
      "system_display/display_info_provider.h",
@@ -1076,7 +1068,7 @@ Subject: gn fixes for enable_extensions=true
      "system_display/display_info_provider_chromeos.cc",
      "system_display/display_info_provider_chromeos.h",
      "system_display/display_info_provider_mac.cc",
-@@ -1116,7 +1121,7 @@ jumbo_static_library("extensions") {
+@@ -1117,7 +1122,7 @@ static_library("extensions") {
      }
    }
  
@@ -1221,7 +1213,7 @@ Subject: gn fixes for enable_extensions=true
  }
 --- a/build/config/locales.gni
 +++ b/build/config/locales.gni
-@@ -171,7 +171,7 @@ android_bundle_only_locales = [
+@@ -173,7 +173,7 @@ android_bundle_only_locales = [
  ]
  
  if (is_android) {
@@ -1232,7 +1224,7 @@ Subject: gn fixes for enable_extensions=true
    # (but webview does). http://crbug.com/369218
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -1474,7 +1474,6 @@ if (current_toolchain == default_toolcha
+@@ -1493,7 +1493,6 @@ if (current_toolchain == default_toolcha
          }
        }
        if (!dfmify_dev_ui || !_is_bundle_module) {
