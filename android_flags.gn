@@ -1,4 +1,4 @@
-android_channel="stable"
+android_channel="default"
 android_ndk_root = "//third_party/android_ndk"
 android_ndk_version = "r20b"
 android_ndk_major_version = 20
