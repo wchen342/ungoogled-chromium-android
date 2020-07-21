@@ -6,9 +6,13 @@ Subject: bundle chromium-web-store
 ---
  chrome/browser/browser_resources.grd                                  |    1 
  chrome/browser/extensions/component_extensions_whitelist/whitelist.cc |    1 
- chrome/browser/extensions/component_loader.cc                         |    3 +
- chrome/browser/resources/component_extension_resources.grd            |   18 ++++++++++
- 4 files changed, 23 insertions(+)
+ chrome/browser/extensions/component_loader.cc                         |    3 
+ chrome/browser/resources/component_extension_resources.grd            |   18 ++++
+ extensions/common/extension.cc                                        |    2 
+ extensions/common/extension_l10n_util.cc                              |    2 
+ extensions/common/file_util.cc                                        |    6 +
+ extensions/renderer/i18n_hooks_delegate.cc                            |   44 +++++++++-
+ 8 files changed, 76 insertions(+), 1 deletion(-)
 
 --- a/chrome/browser/browser_resources.grd
 +++ b/chrome/browser/browser_resources.grd
@@ -69,3 +73,206 @@ Subject: bundle chromium-web-store
      </includes>
    </release>
  </grit>
+--- a/extensions/renderer/i18n_hooks_delegate.cc
++++ b/extensions/renderer/i18n_hooks_delegate.cc
+@@ -145,18 +145,40 @@ v8::Local<v8::Value> GetI18nMessage(cons
+                                     v8::Local<v8::Value> v8_options,
+                                     content::RenderFrame* render_frame,
+                                     v8::Local<v8::Context> context) {
++  LOG(INFO) << "i18n_hooks_delegate.cc: GetI18nMessage: init";
++  LOG(INFO) << "i18n_hooks_delegate.cc: GetI18nMessage: message_name: " << message_name;
+   v8::Isolate* isolate = context->GetIsolate();
+   L10nMessagesMap* l10n_messages = nullptr;
+   {
+     ExtensionToL10nMessagesMap& messages_map = *GetExtensionToL10nMessagesMap();
+     auto iter = messages_map.find(extension_id);
++    LOG(INFO) << "i18n_hooks_delegate.cc: GetI18nMessage: &iter->first: " << &iter->first;
+     if (iter != messages_map.end()) {
+       l10n_messages = &iter->second;
++      for (const auto& iter_temp : *l10n_messages) {
++        LOG(INFO) << "i18n_hooks_delegate.cc: GetI18nMessage: l10n_messages 1:"
++            << "key: "
++            << iter_temp.first
++            << " value: "
++            << iter_temp.second;
++    }
++//       LOG(INFO) << "i18n_hooks_delegate.cc: GetI18nMessage: l10n_messages 1: first: " << (*l10n_messages).first;
++//       LOG(INFO) << "i18n_hooks_delegate.cc: GetI18nMessage: l10n_messages 1: second: " << l10n_messages->second;
+     } else {
++      LOG(INFO) << "i18n_hooks_delegate.cc: GetI18nMessage: l10n_messages 2.0";
+       if (!render_frame)
+         return v8::Undefined(isolate);
+ 
+       l10n_messages = &messages_map[extension_id];
++      for (const auto& iter_temp : *l10n_messages) {
++        LOG(INFO) << "i18n_hooks_delegate.cc: GetI18nMessage: l10n_messages 2:"
++            << "key: "
++            << iter_temp.first
++            << " value: "
++            << iter_temp.second;
++    }
++//       LOG(INFO) << "i18n_hooks_delegate.cc: GetI18nMessage: l10n_messages 2: first: " << l10n_messages->first;
++//       LOG(INFO) << "i18n_hooks_delegate.cc: GetI18nMessage: l10n_messages 2: second: " << l10n_messages->second;
+       // A sync call to load message catalogs for current extension.
+       // TODO(devlin): Wait, what?! A synchronous call to the browser to perform
+       // potentially blocking work reading files from disk? That's Bad.
+@@ -168,13 +190,16 @@ v8::Local<v8::Value> GetI18nMessage(cons
+     }
+   }
+ 
++  LOG(INFO) << "i18n_hooks_delegate.cc: GetI18nMessage: 2";
+   std::string message =
+       MessageBundle::GetL10nMessage(message_name, *l10n_messages);
+ 
++  LOG(INFO) << "i18n_hooks_delegate.cc: GetI18nMessage: message 1: " << message;
+   std::vector<std::string> substitutions;
+   // For now, we just suppress all errors, but that's really not the best.
+   // See https://crbug.com/807769.
+   v8::TryCatch try_catch(isolate);
++  LOG(INFO) << "i18n_hooks_delegate.cc: GetI18nMessage: 3";
+   if (v8_substitutions->IsArray()) {
+     // chrome.i18n.getMessage("message_name", ["more", "params"]);
+     v8::Local<v8::Array> placeholders = v8_substitutions.As<v8::Array>();
+@@ -182,8 +207,10 @@ v8::Local<v8::Value> GetI18nMessage(cons
+     if (count > 9)
+       return v8::Undefined(isolate);
+ 
++    LOG(INFO) << "i18n_hooks_delegate.cc: GetI18nMessage: 4";
+     for (uint32_t i = 0; i < count; ++i) {
+       v8::Local<v8::Value> placeholder;
++      LOG(INFO) << "i18n_hooks_delegate.cc: GetI18nMessage: 5";
+       if (!placeholders->Get(context, i).ToLocal(&placeholder))
+         return v8::Undefined(isolate);
+       // Note: this tries to convert each entry to a JS string, which can fail.
+@@ -192,6 +219,7 @@ v8::Local<v8::Value> GetI18nMessage(cons
+       // since this goes through an object's toString() method). If it fails,
+       // we just silently ignore the value.
+       v8::String::Utf8Value string_value(isolate, placeholder);
++      LOG(INFO) << "i18n_hooks_delegate.cc: GetI18nMessage: 6";
+       if (*string_value)
+         substitutions.push_back(*string_value);
+     }
+@@ -214,10 +242,12 @@ v8::Local<v8::Value> GetI18nMessage(cons
+     }
+   }
+ 
++  LOG(INFO) << "i18n_hooks_delegate.cc: GetI18nMessage: 7";
+   // NOTE: We call ReplaceStringPlaceholders even if |substitutions| is empty
+   // because we substitute $$ to be $ (in order to display a dollar sign in a
+   // message). See https://crbug.com/127243.
+   message = base::ReplaceStringPlaceholders(message, substitutions, nullptr);
++  LOG(INFO) << "i18n_hooks_delegate.cc: GetI18nMessage: message 2: " << message;
+   return gin::StringToV8(isolate, message);
+ }
+ 
+@@ -257,6 +287,7 @@ RequestResult I18nHooksDelegate::HandleR
+     v8::Local<v8::Context> context,
+     std::vector<v8::Local<v8::Value>>* arguments,
+     const APITypeReferenceMap& refs) {
++  LOG(INFO) << "i18n_hooks_delegate.cc: HandleRequest: init";
+   using Handler = RequestResult (I18nHooksDelegate::*)(
+       ScriptContext*, const std::vector<v8::Local<v8::Value>>&);
+   static const struct {
+@@ -273,19 +304,24 @@ RequestResult I18nHooksDelegate::HandleR
+   Handler handler = nullptr;
+   for (const auto& handler_entry : kHandlers) {
+     if (handler_entry.method == method_name) {
++      LOG(INFO) << "i18n_hooks_delegate.cc: HandleRequest: method_name: " << method_name;
+       handler = handler_entry.handler;
+       break;
+     }
+   }
+ 
+-  if (!handler)
++  if (!handler) {
++    LOG(INFO) << "i18n_hooks_delegate.cc: HandleRequest: NOT_HANDLED";
+     return RequestResult(RequestResult::NOT_HANDLED);
++  }
+ 
+   APISignature::V8ParseResult parse_result =
+       signature->ParseArgumentsToV8(context, *arguments, refs);
++  LOG(INFO) << "i18n_hooks_delegate.cc: HandleRequest: parse_result: " << parse_result.succeeded();
+   if (!parse_result.succeeded()) {
+     RequestResult result(RequestResult::INVALID_INVOCATION);
+     result.error = std::move(*parse_result.error);
++    LOG(INFO) << "i18n_hooks_delegate.cc: HandleRequest: result.error: " << result.error;
+     return result;
+   }
+ 
+@@ -295,13 +331,19 @@ RequestResult I18nHooksDelegate::HandleR
+ RequestResult I18nHooksDelegate::HandleGetMessage(
+     ScriptContext* script_context,
+     const std::vector<v8::Local<v8::Value>>& parsed_arguments) {
++  LOG(INFO) << "i18n_hooks_delegate.cc: HandleGetMessage: init";
+   DCHECK(script_context->extension());
+   DCHECK(parsed_arguments[0]->IsString());
++  LOG(INFO) << "i18n_hooks_delegate.cc: HandleGetMessage: gin::V8ToString(script_context->isolate(), parsed_arguments[0]): " << gin::V8ToString(script_context->isolate(), parsed_arguments[0]);
++  LOG(INFO) << "i18n_hooks_delegate.cc: HandleGetMessage: script_context->extension()->id(): " << script_context->extension()->id();
++  LOG(INFO) << "i18n_hooks_delegate.cc: HandleGetMessage: parsed_arguments[1]: " << gin::V8ToString(script_context->isolate(), parsed_arguments[1]);
++  LOG(INFO) << "i18n_hooks_delegate.cc: HandleGetMessage: parsed_arguments[2]: " << gin::V8ToString(script_context->isolate(), parsed_arguments[2]);
+   v8::Local<v8::Value> message = GetI18nMessage(
+       gin::V8ToString(script_context->isolate(), parsed_arguments[0]),
+       script_context->extension()->id(), parsed_arguments[1],
+       parsed_arguments[2], script_context->GetRenderFrame(),
+       script_context->v8_context());
++  LOG(INFO) << "i18n_hooks_delegate.cc: HandleGetMessage: message: " << gin::V8ToString(script_context->isolate(), message);
+ 
+   RequestResult result(RequestResult::HANDLED);
+   result.return_value = message;
+--- a/extensions/common/extension.cc
++++ b/extensions/common/extension.cc
+@@ -210,6 +210,8 @@ Manifest::Type Extension::GetType() cons
+ GURL Extension::GetResourceURL(const GURL& extension_url,
+                                const std::string& relative_path) {
+   DCHECK(extension_url.SchemeIs(kExtensionScheme));
++  LOG(INFO) << "extension.cc: GetResourceURL: extension_url: " << extension_url;
++  LOG(INFO) << "extension.cc: GetResourceURL: relative_path: " << extension_url;
+   return extension_url.Resolve(relative_path);
+ }
+ 
+--- a/extensions/common/file_util.cc
++++ b/extensions/common/file_util.cc
+@@ -545,12 +545,17 @@ MessageBundle* LoadMessageBundle(
+     const std::string& default_locale,
+     extension_l10n_util::GzippedMessagesPermission gzip_permission,
+     std::string* error) {
++  LOG(INFO) << "file_util.cc: LoadMessageBundle: init";
+   error->clear();
+   // Load locale information if available.
+   base::FilePath locale_path = extension_path.Append(kLocaleFolder);
++  LOG(INFO) << "file_util.cc: LoadMessageBundle: default_locale: " << default_locale;
++  LOG(INFO) << "file_util.cc: LoadMessageBundle: locale_path: " << locale_path;
++  LOG(INFO) << "file_util.cc: LoadMessageBundle: locale_path_exists: " << (base::PathExists(locale_path));
+   if (!base::PathExists(locale_path))
+     return nullptr;
+ 
++  LOG(INFO) << "file_util.cc: LoadMessageBundle: 1";
+   std::set<std::string> chrome_locales;
+   extension_l10n_util::GetAllLocales(&chrome_locales);
+ 
+@@ -563,6 +568,7 @@ MessageBundle* LoadMessageBundle(
+     return nullptr;
+   }
+ 
++  LOG(INFO) << "file_util.cc: LoadMessageBundle: 2";
+   MessageBundle* message_bundle = extension_l10n_util::LoadMessageCatalogs(
+       locale_path, default_locale, gzip_permission, error);
+ 
+--- a/extensions/common/extension_l10n_util.cc
++++ b/extensions/common/extension_l10n_util.cc
+@@ -461,6 +461,7 @@ extensions::MessageBundle* LoadMessageCa
+     const std::string& default_locale,
+     GzippedMessagesPermission gzip_permission,
+     std::string* error) {
++  LOG(INFO) << "extension_l10n_util.cc: LoadMessageCatalogs: init";
+   std::vector<std::string> all_fallback_locales;
+   GetAllFallbackLocales(default_locale, &all_fallback_locales);
+ 
+@@ -474,6 +475,7 @@ extensions::MessageBundle* LoadMessageCa
+     std::unique_ptr<base::DictionaryValue> catalog = LoadMessageFile(
+         locale_path, all_fallback_locales[i], error, gzip_permission);
+     if (!catalog.get()) {
++      LOG(INFO) << "extension_l10n_util.cc: LoadMessageCatalogs: !catalog.get(): " << (!catalog.get());
+       // If locale is valid, but messages.json is corrupted or missing, return
+       // an error.
+       return nullptr;
