@@ -12,7 +12,7 @@ Subject: add download prompt for installing extensions
  chrome/android/chrome_java_sources.gni                                                               |    2 
  chrome/android/java/src/org/chromium/chrome/browser/extensions/ExtensionInstallCustomScrollView.java |  130 ++++
  chrome/android/java/src/org/chromium/chrome/browser/extensions/ExtensionInstallDialogViewBridge.java |  156 +++++
- chrome/browser/download/download_crx_util.cc                                                         |    5 
+ chrome/browser/download/download_crx_util.cc                                                         |   19 
  chrome/browser/extensions/android/BUILD.gn                                                           |   20 
  chrome/browser/extensions/android/java/res/layout/extension_install_dialog.xml                       |  103 +++
  chrome/browser/extensions/crx_installer.cc                                                           |    7 
@@ -27,7 +27,7 @@ Subject: add download prompt for installing extensions
  components/crx_file/crx_verifier.cc                                                                  |   11 
  extensions/browser/sandboxed_unpacker.cc                                                             |   18 
  extensions/common/file_util.cc                                                                       |   22 
- 23 files changed, 885 insertions(+), 27 deletions(-)
+ 23 files changed, 894 insertions(+), 32 deletions(-)
 
 --- a/base/files/file_util_posix.cc
 +++ b/base/files/file_util_posix.cc
@@ -437,7 +437,44 @@ Subject: add download prompt for installing extensions
    } else {
 --- a/chrome/browser/download/download_crx_util.cc
 +++ b/chrome/browser/download/download_crx_util.cc
-@@ -140,13 +140,10 @@ bool ShouldDownloadAsRegularFile() {
+@@ -7,6 +7,9 @@
+ #include "chrome/browser/download/download_crx_util.h"
+ 
+ #include "base/command_line.h"
++#include "chrome/browser/android/tab_android.h"
++#include "chrome/browser/ui/android/tab_model/tab_model.h"
++#include "chrome/browser/ui/android/tab_model/tab_model_list.h"
+ #include "chrome/browser/chrome_notification_types.h"
+ #include "chrome/browser/extensions/crx_installer.h"
+ #include "chrome/browser/extensions/extension_install_prompt.h"
+@@ -42,6 +45,7 @@ ExtensionInstallPrompt* mock_install_pro
+ std::unique_ptr<ExtensionInstallPrompt> CreateExtensionInstallPrompt(
+     Profile* profile,
+     const DownloadItem& download_item) {
++  LOG(INFO) << "download_crx_util.cc: CreateExtensionInstallPrompt: download_item";
+   // Use a mock if one is present.  Otherwise, create a real extensions
+   // install UI.
+   if (mock_install_prompt_for_testing) {
+@@ -53,13 +57,13 @@ std::unique_ptr<ExtensionInstallPrompt>
+         content::DownloadItemUtils::GetWebContents(
+             const_cast<DownloadItem*>(&download_item));
+     if (!web_contents) {
+-      Browser* browser = chrome::FindLastActiveWithProfile(profile);
+-      if (!browser) {
+-        browser = new Browser(
+-            Browser::CreateParams(Browser::TYPE_NORMAL, profile, true));
++      LOG(INFO) << "download_crx_util.cc: CreateExtensionInstallPrompt: !web_contents";
++      for (size_t i = 0; i < TabModelList::size(); ++i) {
++        if (TabModelList::get(i)->IsCurrentModel())
++          web_contents = TabModelList::get(i)->GetActiveWebContents();
+       }
+-      web_contents = browser->tab_strip_model()->GetActiveWebContents();
+     }
++    LOG(INFO) << "download_crx_util.cc: CreateExtensionInstallPrompt: on_return";
+     return std::unique_ptr<ExtensionInstallPrompt>(
+         new ExtensionInstallPrompt(web_contents));
+   }
+@@ -136,13 +140,10 @@ bool ShouldDownloadAsRegularFile() {
  }
  
  bool IsExtensionDownload(const DownloadItem& download_item) {
