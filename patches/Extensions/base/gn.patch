@@ -4,7 +4,7 @@ Subject: gn fixes for enable_extensions=true
 
 ---
  apps/BUILD.gn                                                        |    2 
- build/config/locales.gni                                             |    2 
+ build/config/locales.gni                                             |    4 
  chrome/BUILD.gn                                                      |    4 
  chrome/android/BUILD.gn                                              |    1 
  chrome/browser/BUILD.gn                                              |   44 +----
@@ -20,14 +20,16 @@ Subject: gn fixes for enable_extensions=true
  chrome/browser/web_applications/components/BUILD.gn                  |   11 -
  chrome/browser/web_applications/extensions/BUILD.gn                  |    1 
  chrome/chrome_paks.gni                                               |    2 
- chrome/common/BUILD.gn                                               |    1 
+ chrome/common/BUILD.gn                                               |    2 
  chrome/common/extensions/api/api_sources.gni                         |    2 
  chrome/renderer/BUILD.gn                                             |    2 
  chrome/test/BUILD.gn                                                 |    1 
+ components/autofill/core/browser/BUILD.gn                            |    2 
  components/bookmarks/browser/BUILD.gn                                |    2 
  components/guest_view/browser/BUILD.gn                               |    2 
  components/guest_view/renderer/BUILD.gn                              |    2 
  components/keep_alive_registry/BUILD.gn                              |    2 
+ components/performance_manager/BUILD.gn                              |    2 
  components/web_modal/BUILD.gn                                        |    2 
  components/zoom/BUILD.gn                                             |    2 
  content/browser/BUILD.gn                                             |    2 
@@ -36,14 +38,16 @@ Subject: gn fixes for enable_extensions=true
  extensions/BUILD.gn                                                  |    1 
  extensions/browser/api/system_cpu/BUILD.gn                           |    1 
  extensions/buildflags/buildflags.gni                                 |    2 
+ media/mojo/mojom/BUILD.gn                                            |    2 
  services/device/public/cpp/hid/BUILD.gn                              |    1 
  third_party/blink/public/mojom/BUILD.gn                              |    2 
  ui/base/BUILD.gn                                                     |   18 --
  ui/gfx/BUILD.gn                                                      |    2 
  ui/gfx/animation/BUILD.gn                                            |    2 
- ui/message_center/BUILD.gn                                           |    4 
+ ui/message_center/BUILD.gn                                           |    4
  ui/views/BUILD.gn                                                    |   20 ++
- 40 files changed, 95 insertions(+), 173 deletions(-)
+ ui/webui/resources/BUILD.gn                                          |    4 -
+ 43 files changed, 98 insertions(+), 179 deletions(-)
 
 --- a/apps/BUILD.gn
 +++ b/apps/BUILD.gn
@@ -1040,6 +1044,14 @@ Subject: gn fixes for enable_extensions=true
      # Non-Android.
      public_deps += [ "//chrome/common/importer" ]
    }
+@@ -713,7 +712,6 @@ mojom("mojo_bindings") {
+ 
+   if (is_android) {
+     sources += [ "sandbox_status_extension_android.mojom" ]
+-  } else {
+     sources += [ "caption.mojom" ]
+   }
+ 
 --- a/chrome/browser/extensions/BUILD.gn
 +++ b/chrome/browser/extensions/BUILD.gn
 @@ -221,6 +221,7 @@ static_library("extensions") {
@@ -1222,6 +1234,21 @@ Subject: gn fixes for enable_extensions=true
  
    # Android doesn't ship all locales on KitKat in order to save space
    # (but webview does). http://crbug.com/369218
+@@ -195,14 +195,12 @@ if (is_android) {
+   android_bundle_locales_as_resources -= [
+     "en-rUS",
+     "es-r419",
+-    "sr-rLatn",
+     "fil",
+     "he",
+     "id",
+   ]
+   android_bundle_locales_as_resources += [
+     "es-rUS",
+-    "b+sr+Latn",
+     "in",
+     "iw",
+     "tl",
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
 @@ -1493,7 +1493,6 @@ if (current_toolchain == default_toolcha
@@ -1243,3 +1270,56 @@ Subject: gn fixes for enable_extensions=true
      ]
    }
  
+--- a/components/performance_manager/BUILD.gn
++++ b/components/performance_manager/BUILD.gn
+@@ -134,7 +134,7 @@ static_library("performance_manager") {
+     "//url",
+   ]
+ 
+-  if (!is_android) {
++  if (is_android) {
+     sources += [
+       "persistence/site_data/exponential_moving_average.cc",
+       "persistence/site_data/exponential_moving_average.h",
+--- a/media/mojo/mojom/BUILD.gn
++++ b/media/mojo/mojom/BUILD.gn
+@@ -50,7 +50,7 @@ mojom("mojom") {
+ 
+   if (is_android) {
+     sources += [ "android_overlay.mojom" ]
+-  } else {
++
+     sources += [ "speech_recognition_service.mojom" ]
+   }
+ 
+--- a/components/autofill/core/browser/BUILD.gn
++++ b/components/autofill/core/browser/BUILD.gn
+@@ -383,7 +383,7 @@ jumbo_static_library("browser") {
+     deps += [ "//third_party/blink/public/common" ]
+   }
+ 
+-  if (!is_android && !is_ios) {
++  if (is_android && !is_ios) {
+     sources += [
+       "payments/local_card_migration_manager.cc",
+       "payments/local_card_migration_manager.h",
+--- a/ui/webui/resources/BUILD.gn
++++ b/ui/webui/resources/BUILD.gn
+@@ -10,7 +10,7 @@ group("closure_compile") {
+     "js:closure_compile_modules",
+   ]
+
+-  if (!is_android) {
++  if (is_android) {
+     deps += [
+       "cr_components:closure_compile",
+       "cr_elements:closure_compile",
+@@ -25,7 +25,7 @@ group("modulize") {
+     "js/cr/ui:modulize",
+   ]
+
+-  if (!is_android) {
++  if (is_android) {
+     public_deps += [
+       "cr_components:polymer3_elements",
+       "cr_elements:polymer3_elements",

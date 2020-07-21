@@ -20,7 +20,7 @@ Subject: resource fixes for enable_extensions=true
  mojo/public/js/mojo_bindings_resources.grd |    2 
  ui/resources/ui_resources.grd              |   10 +--
  ui/webui/resources/webui_resources.grd     |    6 +-
- 17 files changed, 92 insertions(+), 122 deletions(-)
+ 18 files changed, 94 insertions(+), 124 deletions(-)
 
 --- a/chrome/app/theme/theme_resources.grd
 +++ b/chrome/app/theme/theme_resources.grd
