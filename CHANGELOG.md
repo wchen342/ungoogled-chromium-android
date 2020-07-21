@@ -1,3 +1,9 @@
+# 84.0.4147.89-1
+* Interval of checking update is now fixed to once every 2 days
+* Extension version:
+  * Fix a possible cause of [#51](https://git.droidware.info/wchen342/ungoogled-chromium-android/issues/51)
+  * Add extension removal prompt
+
 # 83.0.4103.116-2
 * Fix bug with update notification keeps sending pings
 
