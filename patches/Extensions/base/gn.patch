@@ -7,7 +7,7 @@ Subject: gn fixes for enable_extensions=true
  build/config/locales.gni                                             |    4 
  chrome/BUILD.gn                                                      |    4 
  chrome/android/BUILD.gn                                              |    1 
- chrome/browser/BUILD.gn                                              |   44 +----
+ chrome/browser/BUILD.gn                                              |   46 +----
  chrome/browser/apps/platform_apps/api/music_manager_private/BUILD.gn |    1 
  chrome/browser/devtools/BUILD.gn                                     |   14 -
  chrome/browser/extensions/BUILD.gn                                   |    7 
@@ -44,10 +44,10 @@ Subject: gn fixes for enable_extensions=true
  ui/base/BUILD.gn                                                     |   18 --
  ui/gfx/BUILD.gn                                                      |    2 
  ui/gfx/animation/BUILD.gn                                            |    2 
- ui/message_center/BUILD.gn                                           |    4
+ ui/message_center/BUILD.gn                                           |    4 
  ui/views/BUILD.gn                                                    |   20 ++
- ui/webui/resources/BUILD.gn                                          |    4 -
- 43 files changed, 98 insertions(+), 179 deletions(-)
+ ui/webui/resources/BUILD.gn                                          |    4 
+ 44 files changed, 104 insertions(+), 179 deletions(-)
 
 --- a/apps/BUILD.gn
 +++ b/apps/BUILD.gn
@@ -493,16 +493,7 @@ Subject: gn fixes for enable_extensions=true
      sources += [
        "accessibility/caption_controller.cc",
        "accessibility/caption_controller.h",
-@@ -3147,8 +3148,6 @@ static_library("browser") {
-       "badging/badge_manager_delegate.h",
-       "badging/badge_manager_factory.cc",
-       "badging/badge_manager_factory.h",
--      "banners/app_banner_manager_desktop.cc",
--      "banners/app_banner_manager_desktop.h",
-       "bookmarks/bookmark_html_writer.cc",
-       "bookmarks/bookmark_html_writer.h",
-       "certificate_viewer.h",
-@@ -3381,7 +3380,6 @@ static_library("browser") {
+@@ -3381,7 +3382,6 @@ static_library("browser") {
        "metrics/desktop_session_duration/desktop_session_duration_tracker.h",
        "metrics/first_web_contents_profiler.cc",
        "metrics/first_web_contents_profiler.h",
@@ -510,7 +501,7 @@ Subject: gn fixes for enable_extensions=true
        "metrics/tab_stats_data_store.cc",
        "metrics/tab_stats_data_store.h",
        "metrics/tab_stats_tracker.cc",
-@@ -3401,6 +3399,7 @@ static_library("browser") {
+@@ -3401,6 +3401,7 @@ static_library("browser") {
        "notifications/profile_notification.cc",
        "notifications/profile_notification.h",
        "obsolete_system/obsolete_system.h",
@@ -518,7 +509,7 @@ Subject: gn fixes for enable_extensions=true
        "obsolete_system/obsolete_system_linux.cc",
        "obsolete_system/obsolete_system_mac.cc",
        "obsolete_system/obsolete_system_win.cc",
-@@ -3453,14 +3452,6 @@ static_library("browser") {
+@@ -3453,14 +3454,6 @@ static_library("browser") {
        "profiles/profile_window.h",
        "renderer_context_menu/accessibility_labels_bubble_model.cc",
        "renderer_context_menu/accessibility_labels_bubble_model.h",
@@ -533,7 +524,7 @@ Subject: gn fixes for enable_extensions=true
        "repost_form_warning_controller.cc",
        "repost_form_warning_controller.h",
        "resource_coordinator/background_tab_navigation_throttle.cc",
-@@ -3600,16 +3591,6 @@ static_library("browser") {
+@@ -3600,16 +3593,6 @@ static_library("browser") {
        "serial/serial_chooser_context.h",
        "serial/serial_chooser_context_factory.cc",
        "serial/serial_chooser_context_factory.h",
@@ -550,7 +541,7 @@ Subject: gn fixes for enable_extensions=true
        "sharing/shared_clipboard/remote_copy_message_handler.cc",
        "sharing/shared_clipboard/remote_copy_message_handler.h",
        "sharing/shared_clipboard/shared_clipboard_context_menu_observer.cc",
-@@ -3767,6 +3748,7 @@ static_library("browser") {
+@@ -3767,6 +3750,7 @@ static_library("browser") {
        "upgrade_detector/build_state.cc",
        "upgrade_detector/build_state.h",
        "upgrade_detector/build_state_observer.h",
@@ -558,7 +549,18 @@ Subject: gn fixes for enable_extensions=true
        "upgrade_detector/upgrade_detector.cc",
        "upgrade_detector/upgrade_detector.h",
        "upgrade_detector/upgrade_observer.h",
-@@ -3799,7 +3781,6 @@ static_library("browser") {
+@@ -3789,6 +3773,10 @@ static_library("browser") {
+       "webauthn/observable_authenticator_list.cc",
+       "webauthn/observable_authenticator_list.h",
+     ]
++    sources -= [
++      "banners/app_banner_manager_desktop.cc",
++      "banners/app_banner_manager_desktop.h",
++    ]
+     deps += [
+       ":theme_properties",
+       "//base/util/memory_pressure",
+@@ -3799,7 +3787,6 @@ static_library("browser") {
        "//chrome/browser/profile_resetter:profile_reset_report_proto",
        "//chrome/browser/resource_coordinator:intervention_policy_database_proto",
        "//chrome/browser/resource_coordinator:tab_metrics_event_proto",
@@ -566,7 +568,7 @@ Subject: gn fixes for enable_extensions=true
        "//chrome/browser/resources:component_extension_resources",
        "//chrome/browser/search:generated",
        "//chrome/common/importer:interfaces",
-@@ -3833,7 +3814,6 @@ static_library("browser") {
+@@ -3833,7 +3820,6 @@ static_library("browser") {
          "chrome_browser_main_posix.h",
          "first_run/first_run_internal_posix.cc",
          "importer/firefox_profile_lock_posix.cc",
@@ -574,7 +576,7 @@ Subject: gn fixes for enable_extensions=true
          "task_manager/sampling/shared_sampler_posix.cc",
        ]
      }
-@@ -3945,8 +3925,6 @@ static_library("browser") {
+@@ -3945,8 +3931,6 @@ static_library("browser") {
        "notifications/web_page_notifier_controller.h",
        "policy/default_geolocation_policy_handler.cc",
        "policy/default_geolocation_policy_handler.h",
@@ -583,7 +585,7 @@ Subject: gn fixes for enable_extensions=true
        "speech/tts_chromeos.cc",
        "speech/tts_chromeos.h",
        "sync/sync_error_notifier_ash.cc",
-@@ -4348,7 +4326,7 @@ static_library("browser") {
+@@ -4348,7 +4332,7 @@ static_library("browser") {
      ]
    }
  
@@ -592,7 +594,7 @@ Subject: gn fixes for enable_extensions=true
      sources += [
        "device_identity/device_oauth2_token_store_desktop.cc",
        "device_identity/device_oauth2_token_store_desktop.h",
-@@ -4378,8 +4356,6 @@ static_library("browser") {
+@@ -4378,8 +4362,6 @@ static_library("browser") {
        "policy/chrome_browser_cloud_management_register_watcher.h",
        "policy/cloud/chrome_browser_cloud_management_helper.cc",
        "policy/cloud/chrome_browser_cloud_management_helper.h",
@@ -601,7 +603,7 @@ Subject: gn fixes for enable_extensions=true
        "policy/cloud/user_policy_signin_service_internal.h",
        "profiles/avatar_menu.cc",
        "profiles/avatar_menu.h",
-@@ -4415,7 +4391,7 @@ static_library("browser") {
+@@ -4415,7 +4397,7 @@ static_library("browser") {
        "upgrade_detector/upgrade_detector_impl.cc",
        "upgrade_detector/upgrade_detector_impl.h",
      ]
@@ -610,7 +612,7 @@ Subject: gn fixes for enable_extensions=true
      sources += [
        "installable/digital_asset_links/digital_asset_links_handler.cc",
        "installable/digital_asset_links/digital_asset_links_handler.h",
-@@ -4523,7 +4499,7 @@ static_library("browser") {
+@@ -4523,7 +4505,7 @@ static_library("browser") {
        sources -= [ "background/background_mode_manager_aura.cc" ]
      }
    }
@@ -619,7 +621,7 @@ Subject: gn fixes for enable_extensions=true
      sources += [
        "background/background_contents_service.cc",
        "background/background_contents_service.h",
-@@ -5302,7 +5278,7 @@ static_library("browser") {
+@@ -5302,7 +5284,7 @@ static_library("browser") {
      }
    }
  
@@ -628,7 +630,7 @@ Subject: gn fixes for enable_extensions=true
      sources += [
        "sessions/session_restore.cc",
        "sessions/session_restore.h",
-@@ -5668,7 +5644,7 @@ grit("resources") {
+@@ -5668,7 +5650,7 @@ grit("resources") {
      }
    }
  
@@ -1308,7 +1310,7 @@ Subject: gn fixes for enable_extensions=true
 @@ -10,7 +10,7 @@ group("closure_compile") {
      "js:closure_compile_modules",
    ]
-
+ 
 -  if (!is_android) {
 +  if (is_android) {
      deps += [
@@ -1317,7 +1319,7 @@ Subject: gn fixes for enable_extensions=true
 @@ -25,7 +25,7 @@ group("modulize") {
      "js/cr/ui:modulize",
    ]
-
+ 
 -  if (!is_android) {
 +  if (is_android) {
      public_deps += [
