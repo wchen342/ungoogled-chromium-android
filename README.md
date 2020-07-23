@@ -41,7 +41,7 @@ The enhancements included in ungoogled-chromium **are not to be considered usefu
 
 Pre-built apks are named as `{BUILD_TARGET}_{CPU_ARCH}.apk`, where:
 * `{BUILD_TARGET}` is one of `ChromePublic`, `MonoChromePublic`, `SystemWebview`.
-  * `ChromePublic` is for API > 19 (Android 4.4) and only contains the browser.
+  * `ChromePublic` is for API > 21 (Android 5.0) and only contains the browser.
   * `MonoChromePublic` is for API > 24 (Android 7.0) and contains both the browser and the webview.
   * `SystemWebview` is for API 21 - 23 (Android 5.0 - 6.0) and only contains the webview.
 * `{CPU_ARCH}` is one of `x86`, `arm` (armeabi-v7a), `arm64` (arm64-v8a).
