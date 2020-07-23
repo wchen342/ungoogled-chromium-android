@@ -270,6 +270,7 @@ pushd src
 mkdir -p out/Default
 if [ "$DEBUG" = n ] ; then
     cat ../ungoogled-chromium/flags.gn ../android_flags.gn ../android_flags.release.gn > out/Default/args.gn
+    cat ../../keystore/keystore.gn >> out/Default/args.gn
 else
     cat ../android_flags.gn ../android_flags.debug.gn > out/Default/args.gn
 fi
