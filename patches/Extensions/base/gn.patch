@@ -22,6 +22,7 @@ Subject: gn fixes for enable_extensions=true
  chrome/chrome_paks.gni                                               |    2 
  chrome/common/BUILD.gn                                               |    2 
  chrome/common/extensions/api/api_sources.gni                         |    2 
+ chrome/common/importer/BUILD.gn                                      |    2 
  chrome/renderer/BUILD.gn                                             |    2 
  chrome/test/BUILD.gn                                                 |    1 
  components/autofill/core/browser/BUILD.gn                            |    2 
@@ -47,7 +48,7 @@ Subject: gn fixes for enable_extensions=true
  ui/message_center/BUILD.gn                                           |    4 
  ui/views/BUILD.gn                                                    |   20 ++
  ui/webui/resources/BUILD.gn                                          |    4 
- 44 files changed, 104 insertions(+), 179 deletions(-)
+ 45 files changed, 104 insertions(+), 181 deletions(-)
 
 --- a/apps/BUILD.gn
 +++ b/apps/BUILD.gn
@@ -1325,3 +1326,14 @@ Subject: gn fixes for enable_extensions=true
      public_deps += [
        "cr_components:polymer3_elements",
        "cr_elements:polymer3_elements",
+--- a/chrome/common/importer/BUILD.gn
++++ b/chrome/common/importer/BUILD.gn
+@@ -25,8 +25,6 @@ source_set("importer") {
+     "firefox_importer_utils_win.cc",
+     "ie_importer_utils_win.cc",
+     "ie_importer_utils_win.h",
+-    "imported_bookmark_entry.cc",
+-    "imported_bookmark_entry.h",
+     "importer_autofill_form_data_entry.cc",
+     "importer_autofill_form_data_entry.h",
+     "importer_bridge.cc",
