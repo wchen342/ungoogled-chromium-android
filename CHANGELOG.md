@@ -1,3 +1,6 @@
+# 84.0.4147.105-1
+* Upstream update
+
 # 84.0.4147.89-2
 * All versions:
   * The apks are now signed with a custom signing key, instead of the default debug key coming with chromium source code. This will prevent miraculous attacks which debug keys are used to install miraculous apks. *Note: this is a breaking change. You will need to uninstall the current version on your phone!*

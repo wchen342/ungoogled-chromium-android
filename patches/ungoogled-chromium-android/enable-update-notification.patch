@@ -382,7 +382,7 @@
          }
 --- a/chrome/browser/flags/android/chrome_feature_list.cc
 +++ b/chrome/browser/flags/android/chrome_feature_list.cc
-@@ -489,6 +489,7 @@ const base::Feature kImmersiveUiMode{"Im
+@@ -490,6 +490,7 @@ const base::Feature kImmersiveUiMode{"Im
  
  const base::Feature kInlineUpdateFlow{"InlineUpdateFlow",
                                        base::FEATURE_DISABLED_BY_DEFAULT};

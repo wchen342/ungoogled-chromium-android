@@ -23,7 +23,7 @@ Corrected Exit functionality
      <!-- Items shown only in the tab switcher -->
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeActivity.java
-@@ -2027,6 +2027,8 @@ public abstract class ChromeActivity<C e
+@@ -2030,6 +2030,8 @@ public abstract class ChromeActivity<C e
              AddToHomescreenCoordinator.showForAppMenu(
                      this, getWindowAndroid(), getModalDialogManager(), currentTab.getWebContents());
              RecordUserAction.record("MobileMenuAddToHomescreen");
