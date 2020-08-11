@@ -1377,7 +1377,7 @@ Subject: Remove dependency on com.google.android.gms.cast
          <!-- Note: All activities directly or indirectly derived from ChromeActivity
               must specify android:hardwareAccelerated="false".
  
-@@ -701,16 +695,6 @@ by a child template that "extends" this
+@@ -707,16 +701,6 @@ by a child template that "extends" this
              </intent-filter>
          </activity>
  
@@ -1394,7 +1394,7 @@ Subject: Remove dependency on com.google.android.gms.cast
          <!-- This activity is used to restart the main Chrome process.  Should never be exported. -->
          <activity android:name="org.chromium.chrome.browser.BrowserRestartActivity"
              android:launchMode="singleInstance"
-@@ -1157,18 +1141,6 @@ by a child template that "extends" this
+@@ -1163,18 +1147,6 @@ by a child template that "extends" this
          {% endif %}
  
          {% block extra_application_definitions %}

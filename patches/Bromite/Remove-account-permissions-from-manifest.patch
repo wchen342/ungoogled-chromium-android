@@ -42,7 +42,7 @@ Subject: Remove all sync and account permissions/features from manifest
      {% block extra_uses_permissions %}
      {% endblock %}
  
-@@ -860,16 +852,6 @@ by a child template that "extends" this
+@@ -866,16 +858,6 @@ by a child template that "extends" this
                  android:resource="@xml/file_paths" />
          </provider>
  
@@ -59,7 +59,7 @@ Subject: Remove all sync and account permissions/features from manifest
          <!-- Broadcast receiver that will be notified of account changes -->
          <receiver android:name="org.chromium.chrome.browser.services.AccountsChangedReceiver">
              <intent-filter>
-@@ -938,14 +920,6 @@ by a child template that "extends" this
+@@ -944,14 +926,6 @@ by a child template that "extends" this
              android:configChanges="orientation|keyboardHidden|keyboard|screenSize|mcc|mnc|screenLayout|smallestScreenSize"
              android:hardwareAccelerated="false" />
  

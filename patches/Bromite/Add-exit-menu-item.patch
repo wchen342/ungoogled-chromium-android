@@ -49,7 +49,7 @@ Corrected Exit functionality
      @Override
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -2447,6 +2447,9 @@ To change this setting, <ph name="BEGIN_
+@@ -2446,6 +2446,9 @@ To change this setting, <ph name="BEGIN_
        <message name="IDS_MENU_SETTINGS" desc="Menu item for opening browser settings. [CHAR-LIMIT=27]">
          Settings
        </message>

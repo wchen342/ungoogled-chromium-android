@@ -47,8 +47,8 @@ Subject: fix build error with prefs.h
                      public void onConfirm(boolean wipeData) {
 --- a/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninPromoUtil.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninPromoUtil.java
-@@ -39,8 +39,7 @@ public class SigninPromoUtil {
-     public static boolean launchSigninPromoIfNeeded(final Activity activity) {
+@@ -44,8 +44,7 @@ public class SigninPromoUtil {
+ 
          SigninPreferencesManager preferencesManager = SigninPreferencesManager.getInstance();
          int currentMajorVersion = ChromeVersionInfo.getProductMajorVersion();
 -        boolean wasSignedIn = TextUtils.isEmpty(

@@ -239,7 +239,7 @@
 +}
 --- a/chrome/android/chrome_java_sources.gni
 +++ b/chrome/android/chrome_java_sources.gni
-@@ -510,6 +510,7 @@ chrome_java_sources = [
+@@ -512,6 +512,7 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/dom_distiller/ReaderModeManager.java",
    "java/src/org/chromium/chrome/browser/dom_distiller/TabDistillabilityProvider.java",
    "java/src/org/chromium/chrome/browser/download/ChromeDownloadDelegate.java",
@@ -247,7 +247,7 @@
    "java/src/org/chromium/chrome/browser/download/DownloadActivity.java",
    "java/src/org/chromium/chrome/browser/download/DownloadBroadcastManager.java",
    "java/src/org/chromium/chrome/browser/download/DownloadController.java",
-@@ -1079,6 +1080,7 @@ chrome_java_sources = [
+@@ -1081,6 +1082,7 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateController.java",
    "java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateControllerFactory.java",
    "java/src/org/chromium/chrome/browser/omaha/inline/NoopInlineUpdateController.java",
@@ -382,7 +382,7 @@
          }
 --- a/chrome/browser/flags/android/chrome_feature_list.cc
 +++ b/chrome/browser/flags/android/chrome_feature_list.cc
-@@ -490,6 +490,7 @@ const base::Feature kImmersiveUiMode{"Im
+@@ -491,6 +491,7 @@ const base::Feature kImmersiveUiMode{"Im
  
  const base::Feature kInlineUpdateFlow{"InlineUpdateFlow",
                                        base::FEATURE_DISABLED_BY_DEFAULT};
@@ -412,7 +412,7 @@
    return std::make_unique<UpdateNotificationConfig>();
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
-@@ -1114,7 +1114,7 @@ by a child template that "extends" this
+@@ -1120,7 +1120,7 @@ by a child template that "extends" this
          <service android:name="org.chromium.chrome.browser.tracing.TracingNotificationService"
              android:exported="false"/>
  
@@ -423,7 +423,7 @@
          <meta-data android:name="org.chromium.content.browser.SMART_CLIP_PROVIDER"
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -1570,7 +1570,7 @@ To change this setting, <ph name="BEGIN_
+@@ -1569,7 +1569,7 @@ To change this setting, <ph name="BEGIN_
          Update Chrome
        </message>
        <message name="IDS_UPDATE_NOTIFICATION_TEXT_BODY_DEFAULT" desc="Default text showing in the update notification body, kindly telling user to update to the latest version of Chrome.">
@@ -590,7 +590,7 @@
 +}
 --- a/chrome/browser/flag_descriptions.cc
 +++ b/chrome/browser/flag_descriptions.cc
-@@ -2826,10 +2826,9 @@ const char kUsageStatsDescription[] =
+@@ -2832,10 +2832,9 @@ const char kUsageStatsDescription[] =
      "to websites in order to enforce user-defined time limits.";
  const char kUsageStatsName[] = "Share Usage Stats with Digital Wellbeing";
  

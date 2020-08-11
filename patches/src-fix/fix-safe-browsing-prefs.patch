@@ -25,7 +25,7 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
      "java/src/org/chromium/chrome/browser/search_engines/TemplateUrlServiceFactory.java",
 --- a/chrome/android/chrome_java_sources.gni
 +++ b/chrome/android/chrome_java_sources.gni
-@@ -1355,7 +1355,6 @@ chrome_java_sources = [
+@@ -1358,7 +1358,6 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/resources/ResourceMapper.java",
    "java/src/org/chromium/chrome/browser/rlz/RevenueStats.java",
    "java/src/org/chromium/chrome/browser/rlz/RlzPingHandler.java",

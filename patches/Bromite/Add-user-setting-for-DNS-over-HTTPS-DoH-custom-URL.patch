@@ -43,7 +43,7 @@ Subject: Add user setting for DNS-over-HTTPS (DoH) custom URL
    "java/res/xml/homepage_preferences.xml",
 --- a/chrome/android/chrome_java_sources.gni
 +++ b/chrome/android/chrome_java_sources.gni
-@@ -1370,6 +1370,8 @@ chrome_java_sources = [
+@@ -1373,6 +1373,8 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/searchwidget/SearchWidgetProvider.java",
    "java/src/org/chromium/chrome/browser/send_tab_to_self/DevicePickerBottomSheetAdapter.java",
    "java/src/org/chromium/chrome/browser/send_tab_to_self/DevicePickerBottomSheetContent.java",
@@ -480,7 +480,7 @@ Subject: Add user setting for DNS-over-HTTPS (DoH) custom URL
  
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -599,6 +599,17 @@ CHAR-LIMIT guidelines:
+@@ -598,6 +598,17 @@ CHAR-LIMIT guidelines:
          Chrome Passwords
        </message>
  

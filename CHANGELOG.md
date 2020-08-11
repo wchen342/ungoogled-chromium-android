@@ -1,3 +1,9 @@
+# 84.0.4147.125-1
+* All versions:
+  * The package names are now `org.ungoogled.chromium.stable`/`org.ungoogled.chromium.extensions.stable` due to [#53](https://git.droidware.info/wchen342/ungoogled-chromium-android/issues/53) / [#24](https://github.com/ungoogled-software/ungoogled-chromium-android/issues/24).
+  * Fix [#26](https://github.com/ungoogled-software/ungoogled-chromium-android/issues/26).
+  * Disable Google homepage by default when first installed.
+
 # 84.0.4147.105-1
 * Upstream update
 

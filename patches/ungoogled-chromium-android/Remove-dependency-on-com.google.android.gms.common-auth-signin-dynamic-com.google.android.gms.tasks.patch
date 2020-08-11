@@ -102,7 +102,7 @@ Subject: Remove dependency on
                      MediaRouteProvider cafProvider = CafMediaRouteProvider.create(manager);
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
-@@ -775,15 +775,6 @@ by a child template that "extends" this
+@@ -781,15 +781,6 @@ by a child template that "extends" this
              </intent-filter>
            </activity>
  

@@ -30,6 +30,8 @@ ungoogled-chromium-android/Add-folder-button-bookmark.patch
 ungoogled-chromium-android/Mark-http-as-dangerous-mixed-content-warning.patch
 ungoogled-chromium-android/flag-enable-process-sharing.patch
 ungoogled-chromium-android/enable-update-notification.patch
+ungoogled-chromium-android/Enable-ProactivelySwapBrowsingInstance.patch
+ungoogled-chromium-android/Disable-homepage-by-default.patch
 Bromite/Add-exit-menu-item.patch
 Bromite/Add-flag-to-disable-WebGL.patch
 Bromite/Add-flags-to-disable-device-motion-orientation-APIs.patch

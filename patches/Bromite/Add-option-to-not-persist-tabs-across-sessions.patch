@@ -38,7 +38,7 @@ Subject: Add option to not persist tabs across sessions
          android:key="do_not_track"
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-@@ -1149,8 +1149,10 @@ public class ChromeTabbedActivity
+@@ -1172,8 +1172,10 @@ public class ChromeTabbedActivity
              boolean hadCipherData =
                      CipherFactory.getInstance().restoreFromBundle(getSavedInstanceState());
  
@@ -103,7 +103,7 @@ Subject: Add option to not persist tabs across sessions
  
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -3220,6 +3220,12 @@ Only you can see what your camera is loo
+@@ -3219,6 +3219,12 @@ Only you can see what your camera is loo
        <message name="IDS_CONTEXTMENU_IMAGE_TITLE" desc="The title of a context menu tab when the item pressed contains more than one type. This indicates that all the actions are related to the image.">
          IMAGE
        </message>

@@ -41,7 +41,7 @@ Subject: kill GCM
    "java/src/org/chromium/chrome/browser/ChromeBackupAgent.java",
    "java/src/org/chromium/chrome/browser/ChromeBackupWatcher.java",
    "java/src/org/chromium/chrome/browser/ChromeBaseAppCompatActivity.java",
-@@ -1383,11 +1382,6 @@ chrome_java_sources = [
+@@ -1386,11 +1385,6 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/services/AndroidChildAccountHelper.java",
    "java/src/org/chromium/chrome/browser/services/AndroidEduOwnerCheckCallback.java",
    "java/src/org/chromium/chrome/browser/services/GoogleServicesManager.java",
@@ -78,7 +78,7 @@ Subject: kill GCM
      <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT"/>
  
      <uses-permission android:name="com.google.android.apps.now.CURRENT_ACCOUNT_ACCESS" />
-@@ -968,50 +963,9 @@ by a child template that "extends" this
+@@ -974,50 +969,9 @@ by a child template that "extends" this
              android:configChanges="orientation|keyboardHidden|keyboard|screenSize|mcc|mnc|screenLayout|smallestScreenSize"
              android:hardwareAccelerated="false" />
  
@@ -129,7 +129,7 @@ Subject: kill GCM
          <receiver android:name="com.google.ipc.invalidation.ticl.android2.AndroidInternalScheduler$AlarmReceiver"
              android:exported="false"/>
          <receiver android:name="com.google.ipc.invalidation.external.client.contrib.AndroidListener$AlarmReceiver"
-@@ -1038,28 +992,10 @@ by a child template that "extends" this
+@@ -1044,28 +998,10 @@ by a child template that "extends" this
              android:exported="false"
              android:permission="android.permission.BIND_JOB_SERVICE"/>
  
