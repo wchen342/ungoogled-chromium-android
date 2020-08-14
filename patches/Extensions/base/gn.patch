@@ -7,17 +7,17 @@ Subject: gn fixes for enable_extensions=true
  build/config/locales.gni                                             |    4 
  chrome/BUILD.gn                                                      |    4 
  chrome/android/BUILD.gn                                              |    1 
- chrome/browser/BUILD.gn                                              |   46 +----
- chrome/browser/apps/platform_apps/api/music_manager_private/BUILD.gn |    1 
- chrome/browser/devtools/BUILD.gn                                     |   14 -
- chrome/browser/extensions/BUILD.gn                                   |    7 
+ chrome/browser/BUILD.gn                                              |  233 ----------
+ chrome/browser/apps/platform_apps/api/music_manager_private/BUILD.gn |    5 
+ chrome/browser/devtools/BUILD.gn                                     |   14 
+ chrome/browser/extensions/BUILD.gn                                   |   40 -
  chrome/browser/media/router/discovery/BUILD.gn                       |    4 
  chrome/browser/resources/BUILD.gn                                    |    4 
- chrome/browser/ui/BUILD.gn                                           |   87 +---------
+ chrome/browser/ui/BUILD.gn                                           |   87 ---
  chrome/browser/ui/views/BUILD.gn                                     |    2 
  chrome/browser/ui/webui/discards/BUILD.gn                            |    2 
  chrome/browser/web_applications/BUILD.gn                             |    3 
- chrome/browser/web_applications/components/BUILD.gn                  |   11 -
+ chrome/browser/web_applications/components/BUILD.gn                  |    7 
  chrome/browser/web_applications/extensions/BUILD.gn                  |    1 
  chrome/chrome_paks.gni                                               |    2 
  chrome/common/BUILD.gn                                               |    2 
@@ -37,18 +37,18 @@ Subject: gn fixes for enable_extensions=true
  content/browser/devtools/BUILD.gn                                    |    2 
  content/public/browser/BUILD.gn                                      |    2 
  extensions/BUILD.gn                                                  |    1 
- extensions/browser/api/system_cpu/BUILD.gn                           |    1 
+ extensions/browser/api/system_cpu/BUILD.gn                           |    4 
  extensions/buildflags/buildflags.gni                                 |    2 
  media/mojo/mojom/BUILD.gn                                            |    2 
  services/device/public/cpp/hid/BUILD.gn                              |    1 
  third_party/blink/public/mojom/BUILD.gn                              |    2 
- ui/base/BUILD.gn                                                     |   18 --
+ ui/base/BUILD.gn                                                     |   18 
  ui/gfx/BUILD.gn                                                      |    2 
  ui/gfx/animation/BUILD.gn                                            |    2 
  ui/message_center/BUILD.gn                                           |    4 
- ui/views/BUILD.gn                                                    |   20 ++
+ ui/views/BUILD.gn                                                    |   19 
  ui/webui/resources/BUILD.gn                                          |    4 
- 45 files changed, 104 insertions(+), 181 deletions(-)
+ 45 files changed, 101 insertions(+), 406 deletions(-)
 
 --- a/apps/BUILD.gn
 +++ b/apps/BUILD.gn
@@ -88,8 +88,8 @@ Subject: gn fixes for enable_extensions=true
    }
  
 +  sources += [
-+    "dragdrop/os_exchange_data_provider_android.cc",
-+    "dragdrop/os_exchange_data_provider_android.h",
++    "dragdrop/os_exchange_data_provider_aura.cc",
++    "dragdrop/os_exchange_data_provider_aura.h",
 +  ]
 +
    if (!is_ios) {
@@ -143,22 +143,25 @@ Subject: gn fixes for enable_extensions=true
  
 --- a/chrome/browser/web_applications/components/BUILD.gn
 +++ b/chrome/browser/web_applications/components/BUILD.gn
-@@ -100,6 +100,14 @@ source_set("components") {
-     ]
-   }
+@@ -2,6 +2,8 @@
+ # Use of this source code is governed by a BSD-style license that can be
+ # found in the LICENSE file.
  
-+  if (is_android) {
-+    sources += [
-+      "web_app_shortcut_android.h",
-+      "web_app_shortcut_android.cc",
-+    ]
-+  }
++set_sources_assignment_filter([])
 +
-+
-   if (is_win) {
-     sources += [
-       "web_app_file_handler_registration_win.cc",
-@@ -188,7 +196,6 @@ source_set("unit_tests") {
+ source_set("components") {
+   sources = [
+     "app_icon_manager.h",
+@@ -55,6 +57,8 @@ source_set("components") {
+     "web_app_provider_base_factory.h",
+     "web_app_shortcut.cc",
+     "web_app_shortcut.h",
++    "web_app_shortcut_linux.cc",
++    "web_app_shortcut_linux.h",
+     "web_app_shortcuts_menu.cc",
+     "web_app_shortcuts_menu.h",
+     "web_app_tab_helper_base.cc",
+@@ -188,7 +192,6 @@ source_set("unit_tests") {
      "//chrome/browser/web_applications:web_applications",
      "//chrome/browser/web_applications:web_applications_test_support",
      "//chrome/browser/web_applications/extensions:extensions",
@@ -166,7 +169,7 @@ Subject: gn fixes for enable_extensions=true
      "//content/public/browser",
      "//skia",
      "//testing/gmock",
-@@ -218,8 +225,6 @@ source_set("browser_tests") {
+@@ -218,8 +221,6 @@ source_set("browser_tests") {
    deps = [
      ":components",
      "//chrome/browser/web_applications:web_applications_test_support",
@@ -287,7 +290,7 @@ Subject: gn fixes for enable_extensions=true
      "controls/menu/menu_types.h",
      "controls/menu/submenu_view.h",
      "controls/message_box_view.h",
-+    "controls/native/native_view_host_android.h",
++    "controls/native/native_view_host_aura.h",
      "controls/native/native_view_host.h",
      "controls/native/native_view_host_mac.h",
      "controls/native/native_view_host_wrapper.h",
@@ -295,63 +298,66 @@ Subject: gn fixes for enable_extensions=true
      "debug_utils.h",
      "drag_controller.h",
      "drag_utils.h",
-+    "event_monitor_android.h",
++    "event_monitor_aura.h",
      "event_monitor.h",
      "focus/external_focus_tracker.h",
      "focus/focus_manager.h",
-@@ -254,6 +256,7 @@ jumbo_component("views") {
+@@ -250,10 +252,12 @@ jumbo_component("views") {
+     "widget/any_widget_observer_singleton.h",
+     "widget/drop_helper.h",
+     "widget/native_widget.h",
++    "widget/native_widget_aura.h",
+     "widget/native_widget_delegate.h",
      "widget/native_widget_private.h",
      "widget/root_view.h",
      "widget/root_view_targeter.h",
-+    "widget/tooltip_manager_android.h",
++    "widget/tooltip_manager_aura.h",
      "widget/tooltip_manager.h",
      "widget/widget.h",
      "widget/widget_delegate.h",
-@@ -342,6 +345,7 @@ jumbo_component("views") {
+@@ -342,6 +346,7 @@ jumbo_component("views") {
      "controls/label.cc",
      "controls/link.cc",
      "controls/menu/menu_config.cc",
-+    "controls/menu/menu_config_android.cc",
++    "controls/menu/menu_config_linux.cc",
      "controls/menu/menu_controller.cc",
      "controls/menu/menu_delegate.cc",
      "controls/menu/menu_host.cc",
-@@ -349,6 +353,8 @@ jumbo_component("views") {
+@@ -349,6 +354,8 @@ jumbo_component("views") {
      "controls/menu/menu_image_util.cc",
      "controls/menu/menu_item_view.cc",
      "controls/menu/menu_model_adapter.cc",
-+    "controls/menu/menu_pre_target_handler_android.cc",
-+    "controls/menu/menu_pre_target_handler_android.h",
++    "controls/menu/menu_pre_target_handler_aura.cc",
++    "controls/menu/menu_pre_target_handler_aura.h",
      "controls/menu/menu_runner.cc",
      "controls/menu/menu_runner_impl.cc",
      "controls/menu/menu_runner_impl_adapter.cc",
-@@ -356,6 +362,7 @@ jumbo_component("views") {
+@@ -356,6 +363,7 @@ jumbo_component("views") {
      "controls/menu/menu_separator.cc",
      "controls/menu/submenu_view.cc",
      "controls/message_box_view.cc",
-+    "controls/native/native_view_host_android.cc",
++    "controls/native/native_view_host_aura.cc",
      "controls/native/native_view_host.cc",
      "controls/prefix_selector.cc",
      "controls/progress_bar.cc",
-@@ -384,7 +391,9 @@ jumbo_component("views") {
-     "controls/views_text_services_context_menu_base.cc",
+@@ -385,6 +393,8 @@ jumbo_component("views") {
      "controls/views_text_services_context_menu_base.h",
      "debug_utils.cc",
-+    "drag_utils_android.cc",
      "drag_utils.cc",
-+    "event_monitor_android.cc",
++    "drag_utils_aura.cc",
++    "event_monitor_aura.cc",
      "focus/external_focus_tracker.cc",
      "focus/focus_manager.cc",
      "focus/focus_manager_factory.cc",
-@@ -407,9 +416,12 @@ jumbo_component("views") {
+@@ -407,9 +417,11 @@ jumbo_component("views") {
      "metadata/metadata_cache.cc",
      "metadata/metadata_types.cc",
      "metadata/type_conversion.cc",
-+    "metrics_android.cc",
++    "metrics_aura.cc",
      "metrics.cc",
      "mouse_watcher.cc",
      "mouse_watcher_view_host.cc",
-+    "native_cursor_android.cc",
-+    "native_cursor_android.h",
++    "native_cursor_aura.cc",
      "paint_info.cc",
      "painter.cc",
      "rect_based_targeting_utils.cc",
@@ -363,24 +369,23 @@ Subject: gn fixes for enable_extensions=true
      "view.cc",
      "view_class_properties.cc",
      "view_constants.cc",
-@@ -430,12 +443,16 @@ jumbo_component("views") {
+@@ -430,12 +443,15 @@ jumbo_component("views") {
      "views_delegate.cc",
      "views_features.cc",
      "views_switches.cc",
-+    "views_touch_selection_controller_factory_android.cc",
++    "views_touch_selection_controller_factory_aura.cc",
      "widget/any_widget_observer.cc",
      "widget/any_widget_observer_singleton.cc",
      "widget/drop_helper.cc",
-+    "widget/native_widget_android.cc",
-+    "widget/native_widget_android.h",
++    "widget/native_widget_aura.cc",
      "widget/native_widget_private.cc",
      "widget/root_view.cc",
      "widget/root_view_targeter.cc",
-+    "widget/tooltip_manager_android.cc",
++    "widget/tooltip_manager_aura.cc",
      "widget/tooltip_manager.cc",
      "widget/widget.cc",
      "widget/widget_aura_utils.cc",
-@@ -483,6 +500,7 @@ jumbo_component("views") {
+@@ -483,6 +499,7 @@ jumbo_component("views") {
      "//skia",
      "//third_party/icu",
      "//ui/accessibility",
@@ -461,7 +466,69 @@ Subject: gn fixes for enable_extensions=true
  
 --- a/chrome/browser/BUILD.gn
 +++ b/chrome/browser/BUILD.gn
-@@ -399,7 +399,6 @@ static_library("browser") {
+@@ -35,6 +35,8 @@ import("//third_party/webrtc/webrtc.gni"
+ import("//third_party/widevine/cdm/widevine.gni")
+ import("//ui/base/ui_features.gni")
+ 
++set_sources_assignment_filter([])
++
+ # //build/config/android/rules.gni imports //tools/grit/grit_rule.gni, which
+ # produces a conflict for the "grit" template so we have to only include one.
+ if (is_android) {
+@@ -101,8 +103,6 @@ static_library("browser") {
+     "accessibility/caption_util.h",
+     "after_startup_task_utils.cc",
+     "after_startup_task_utils.h",
+-    "app_controller_mac.h",
+-    "app_controller_mac.mm",
+     "app_mode/app_mode_utils.cc",
+     "app_mode/app_mode_utils.h",
+     "apps/user_type_filter.cc",
+@@ -203,12 +203,6 @@ static_library("browser") {
+     "browser_process_platform_part_android.h",
+     "browser_process_platform_part_base.cc",
+     "browser_process_platform_part_base.h",
+-    "browser_process_platform_part_chromeos.cc",
+-    "browser_process_platform_part_chromeos.h",
+-    "browser_process_platform_part_mac.h",
+-    "browser_process_platform_part_mac.mm",
+-    "browser_process_platform_part_win.cc",
+-    "browser_process_platform_part_win.h",
+     "browsing_data/browsing_data_file_system_util.cc",
+     "browsing_data/browsing_data_file_system_util.h",
+     "browsing_data/browsing_data_history_observer_service.cc",
+@@ -253,8 +247,6 @@ static_library("browser") {
+     "cache_stats_recorder.h",
+     "chooser_controller/chooser_controller.cc",
+     "chooser_controller/chooser_controller.h",
+-    "chrome_browser_application_mac.h",
+-    "chrome_browser_application_mac.mm",
+     "chrome_browser_field_trials.cc",
+     "chrome_browser_field_trials.h",
+     "chrome_browser_interface_binders.cc",
+@@ -264,12 +256,6 @@ static_library("browser") {
+     "chrome_browser_main_android.cc",
+     "chrome_browser_main_android.h",
+     "chrome_browser_main_extra_parts.h",
+-    "chrome_browser_main_linux.cc",
+-    "chrome_browser_main_linux.h",
+-    "chrome_browser_main_mac.h",
+-    "chrome_browser_main_mac.mm",
+-    "chrome_browser_main_win.cc",
+-    "chrome_browser_main_win.h",
+     "chrome_content_browser_client.cc",
+     "chrome_content_browser_client.h",
+     "chrome_content_browser_client_parts.h",
+@@ -328,8 +314,6 @@ static_library("browser") {
+     "component_updater/sth_set_component_remover.h",
+     "component_updater/subresource_filter_component_installer.cc",
+     "component_updater/subresource_filter_component_installer.h",
+-    "component_updater/sw_reporter_installer_win.cc",
+-    "component_updater/sw_reporter_installer_win.h",
+     "component_updater/tls_deprecation_config_component_installer.cc",
+     "component_updater/tls_deprecation_config_component_installer.h",
+     "component_updater/trust_token_key_commitments_component_installer.cc",
+@@ -399,7 +383,6 @@ static_library("browser") {
      "download/download_core_service_factory.h",
      "download/download_core_service_impl.cc",
      "download/download_core_service_impl.h",
@@ -469,24 +536,378 @@ Subject: gn fixes for enable_extensions=true
      "download/download_file_picker.cc",
      "download/download_file_picker.h",
      "download/download_history.cc",
-@@ -443,6 +442,7 @@ static_library("browser") {
+@@ -430,8 +413,6 @@ static_library("browser") {
+     "download/download_stats.h",
+     "download/download_status_updater.cc",
+     "download/download_status_updater.h",
+-    "download/download_status_updater_mac.mm",
+-    "download/download_status_updater_win.cc",
+     "download/download_target_determiner.cc",
+     "download/download_target_determiner.h",
+     "download/download_target_determiner_delegate.h",
+@@ -443,6 +424,7 @@ static_library("browser") {
      "download/download_ui_controller.h",
      "download/download_ui_model.cc",
      "download/download_ui_model.h",
-+    "download/drag_download_item_android.cc",
++    "download/drag_download_item_aura.cc",
      "download/drag_download_item.h",
      "download/mixed_content_download_blocking.cc",
      "download/mixed_content_download_blocking.h",
-@@ -1199,6 +1199,8 @@ static_library("browser") {
-     "plugins/pdf_plugin_placeholder_observer.h",
-     "policy/browser_dm_token_storage.cc",
+@@ -461,7 +443,6 @@ static_library("browser") {
+     "download/simple_download_manager_coordinator_factory.h",
+     "download/trusted_sources_manager.cc",
+     "download/trusted_sources_manager.h",
+-    "download/trusted_sources_manager_win.cc",
+     "engagement/important_sites_usage_counter.cc",
+     "engagement/important_sites_usage_counter.h",
+     "engagement/important_sites_util.cc",
+@@ -501,7 +482,6 @@ static_library("browser") {
+     "file_select_helper.h",
+     "file_select_helper_contacts_android.cc",
+     "file_select_helper_contacts_android.h",
+-    "file_select_helper_mac.mm",
+     "file_util_service.cc",
+     "file_util_service.h",
+     "flag_descriptions.cc",
+@@ -510,8 +490,6 @@ static_library("browser") {
+     "font_pref_change_notifier.h",
+     "font_pref_change_notifier_factory.cc",
+     "font_pref_change_notifier_factory.h",
+-    "fullscreen_mac.mm",
+-    "fullscreen_win.cc",
+     "games/games_service_factory.cc",
+     "games/games_service_factory.h",
+     "gcm/gcm_product_util.cc",
+@@ -528,10 +506,6 @@ static_library("browser") {
+     "geolocation/geolocation_permission_context_delegate_android.h",
+     "geolocation/geolocation_permission_context_extensions.cc",
+     "geolocation/geolocation_permission_context_extensions.h",
+-    "global_keyboard_shortcuts_mac.h",
+-    "global_keyboard_shortcuts_mac.mm",
+-    "google/did_run_updater_win.cc",
+-    "google/did_run_updater_win.h",
+     "google/google_brand.cc",
+     "google/google_brand.h",
+     "google/google_search_domain_mixing_metrics_emitter.cc",
+@@ -543,8 +517,6 @@ static_library("browser") {
+     "gpu/gpu_mode_manager.cc",
+     "gpu/gpu_mode_manager.h",
+     "hang_monitor/hang_crash_dump.h",
+-    "hang_monitor/hang_crash_dump_mac.cc",
+-    "hang_monitor/hang_crash_dump_win.cc",
+     "heavy_ad_intervention/heavy_ad_blocklist.cc",
+     "heavy_ad_intervention/heavy_ad_blocklist.h",
+     "heavy_ad_intervention/heavy_ad_features.cc",
+@@ -578,9 +550,6 @@ static_library("browser") {
+     "icon_loader.cc",
+     "icon_loader.h",
+     "icon_loader_android.cc",
+-    "icon_loader_chromeos.cc",
+-    "icon_loader_mac.mm",
+-    "icon_loader_win.cc",
+     "icon_manager.cc",
+     "icon_manager.h",
+     "idle/idle_detection_permission_context.cc",
+@@ -593,11 +562,6 @@ static_library("browser") {
+     "infobars/infobar_responder.h",
+     "infobars/infobar_service.cc",
+     "infobars/infobar_service.h",
+-    "install_verification/win/module_info.h",
+-    "install_verification/win/module_list.cc",
+-    "install_verification/win/module_list.h",
+-    "install_verification/win/module_verification_common.cc",
+-    "install_verification/win/module_verification_common.h",
+     "installable/installable_ambient_badge_infobar_delegate.h",
+     "installable/installable_data.cc",
+     "installable/installable_data.h",
+@@ -628,7 +592,6 @@ static_library("browser") {
+     "language/url_language_histogram_factory.h",
+     "lifetime/application_lifetime.cc",
+     "lifetime/application_lifetime.h",
+-    "lifetime/application_lifetime_mac.mm",
+     "lifetime/browser_shutdown.cc",
+     "lifetime/browser_shutdown.h",
+     "lookalikes/lookalike_url_blocking_page.cc",
+@@ -641,26 +604,6 @@ static_library("browser") {
+     "lookalikes/lookalike_url_service.h",
+     "lookalikes/lookalike_url_tab_storage.cc",
+     "lookalikes/lookalike_url_tab_storage.h",
+-    "mac/bluetooth_utility.h",
+-    "mac/bluetooth_utility.mm",
+-    "mac/dock.h",
+-    "mac/dock.mm",
+-    "mac/exception_processor.h",
+-    "mac/exception_processor.mm",
+-    "mac/install_from_dmg.h",
+-    "mac/install_from_dmg.mm",
+-    "mac/keystone_glue.h",
+-    "mac/keystone_glue.mm",
+-    "mac/keystone_registration.h",
+-    "mac/keystone_registration.mm",
+-    "mac/mac_startup_profiler.cc",
+-    "mac/mac_startup_profiler.h",
+-    "mac/master_prefs.h",
+-    "mac/master_prefs.mm",
+-    "mac/nsprocessinfo_additions.h",
+-    "mac/nsprocessinfo_additions.mm",
+-    "mac/relauncher.h",
+-    "mac/relauncher.mm",
+     "media/cast_mirroring_service_host.cc",
+     "media/cast_mirroring_service_host.h",
+     "media/cast_remoting_connector.cc",
+@@ -777,9 +720,6 @@ static_library("browser") {
+     "media/webrtc/webrtc_text_log_handler.cc",
+     "media/webrtc/webrtc_text_log_handler.h",
+     "media/webrtc/window_icon_util.h",
+-    "media/webrtc/window_icon_util_chromeos.cc",
+-    "media/webrtc/window_icon_util_mac.mm",
+-    "media/webrtc/window_icon_util_win.cc",
+     "memory/chrome_browser_main_extra_parts_memory.cc",
+     "memory/chrome_browser_main_extra_parts_memory.h",
+     "memory/enterprise_memory_limit_evaluator.cc",
+@@ -789,18 +729,12 @@ static_library("browser") {
+     "memory_details.cc",
+     "memory_details.h",
+     "memory_details_android.cc",
+-    "memory_details_linux.cc",
+-    "memory_details_mac.cc",
+-    "memory_details_win.cc",
+-    "metrics/antivirus_metrics_provider_win.cc",
+-    "metrics/antivirus_metrics_provider_win.h",
+     "metrics/bluetooth_available_utility.cc",
+     "metrics/bluetooth_available_utility.h",
+     "metrics/browser_window_histogram_helper.cc",
+     "metrics/browser_window_histogram_helper.h",
+     "metrics/chrome_browser_main_extra_parts_metrics.cc",
+     "metrics/chrome_browser_main_extra_parts_metrics.h",
+-    "metrics/chrome_browser_main_extra_parts_metrics_mac.mm",
+     "metrics/chrome_feature_list_creator.cc",
+     "metrics/chrome_feature_list_creator.h",
+     "metrics/chrome_metrics_service_accessor.cc",
+@@ -811,14 +745,10 @@ static_library("browser") {
+     "metrics/chrome_metrics_services_manager_client.h",
+     "metrics/chrome_stability_metrics_provider.cc",
+     "metrics/chrome_stability_metrics_provider.h",
+-    "metrics/google_update_metrics_provider_win.cc",
+-    "metrics/google_update_metrics_provider_win.h",
+     "metrics/https_engagement_metrics_provider.cc",
+     "metrics/https_engagement_metrics_provider.h",
+     "metrics/incognito_observer.cc",
+     "metrics/incognito_observer.h",
+-    "metrics/jumplist_metrics_win.cc",
+-    "metrics/jumplist_metrics_win.h",
+     "metrics/metrics_memory_details.cc",
+     "metrics/metrics_memory_details.h",
+     "metrics/metrics_reporting_state.cc",
+@@ -827,8 +757,6 @@ static_library("browser") {
+     "metrics/network_quality_estimator_provider_impl.h",
+     "metrics/oom/out_of_memory_reporter.cc",
+     "metrics/oom/out_of_memory_reporter.h",
+-    "metrics/power_metrics_provider_mac.h",
+-    "metrics/power_metrics_provider_mac.mm",
+     "metrics/process_memory_metrics_emitter.cc",
+     "metrics/process_memory_metrics_emitter.h",
+     "metrics/renderer_uptime_tracker.cc",
+@@ -893,7 +821,6 @@ static_library("browser") {
+     "net/file_downloader.cc",
+     "net/file_downloader.h",
+     "net/net_error_diagnostics_dialog.h",
+-    "net/net_error_diagnostics_dialog_win.cc",
+     "net/net_error_tab_helper.cc",
+     "net/net_error_tab_helper.h",
+     "net/net_export_helper.cc",
+@@ -920,8 +847,6 @@ static_library("browser") {
+     "net/secure_dns_policy_handler.h",
+     "net/secure_dns_util.cc",
+     "net/secure_dns_util.h",
+-    "net/service_providers_win.cc",
+-    "net/service_providers_win.h",
+     "net/stub_resolver_config_reader.cc",
+     "net/stub_resolver_config_reader.h",
+     "net/system_network_context_manager.cc",
+@@ -932,7 +857,6 @@ static_library("browser") {
+     "nfc/nfc_permission_context.h",
+     "nfc/nfc_permission_context_android.cc",
+     "nfc/nfc_permission_context_android.h",
+-    "notifications/alert_dispatcher_mac.h",
+     "notifications/metrics/notification_metrics_logger.cc",
+     "notifications/metrics/notification_metrics_logger.h",
+     "notifications/metrics/notification_metrics_logger_factory.cc",
+@@ -955,8 +879,6 @@ static_library("browser") {
+     "notifications/notification_permission_context.h",
+     "notifications/notification_platform_bridge.cc",
+     "notifications/notification_platform_bridge.h",
+-    "notifications/notification_platform_bridge_mac.h",
+-    "notifications/notification_platform_bridge_mac.mm",
+     "notifications/notification_trigger_scheduler.cc",
+     "notifications/notification_trigger_scheduler.h",
+     "notifications/notification_ui_manager.h",
+@@ -1104,10 +1026,6 @@ static_library("browser") {
+     "password_manager/chrome_password_manager_client.h",
+     "password_manager/field_info_manager_factory.cc",
+     "password_manager/field_info_manager_factory.h",
+-    "password_manager/password_manager_util_mac.h",
+-    "password_manager/password_manager_util_mac.mm",
+-    "password_manager/password_manager_util_win.cc",
+-    "password_manager/password_manager_util_win.h",
+     "password_manager/password_store_factory.cc",
+     "password_manager/password_store_factory.h",
+     "password_manager/password_store_utils.cc",
+@@ -1139,10 +1057,6 @@ static_library("browser") {
+     "performance_manager/mechanisms/high_pmf_memory_pressure_signals.h",
+     "performance_manager/mechanisms/working_set_trimmer.cc",
+     "performance_manager/mechanisms/working_set_trimmer.h",
+-    "performance_manager/mechanisms/working_set_trimmer_chromeos.cc",
+-    "performance_manager/mechanisms/working_set_trimmer_chromeos.h",
+-    "performance_manager/mechanisms/working_set_trimmer_win.cc",
+-    "performance_manager/mechanisms/working_set_trimmer_win.h",
+     "performance_manager/metrics/memory_pressure_metrics.cc",
+     "performance_manager/metrics/memory_pressure_metrics.h",
+     "performance_manager/observers/background_metrics_reporter.h",
+@@ -1156,12 +1070,6 @@ static_library("browser") {
+     "performance_manager/policies/policy_features.h",
+     "performance_manager/policies/working_set_trimmer_policy.cc",
+     "performance_manager/policies/working_set_trimmer_policy.h",
+-    "performance_manager/policies/working_set_trimmer_policy_chromeos.cc",
+-    "performance_manager/policies/working_set_trimmer_policy_chromeos.h",
+-    "performance_manager/policies/working_set_trimmer_policy_win.cc",
+-    "performance_manager/policies/working_set_trimmer_policy_win.h",
+-    "performance_monitor/metric_evaluator_helper_win.cc",
+-    "performance_monitor/metric_evaluator_helper_win.h",
+     "performance_monitor/process_metrics_history.cc",
+     "performance_monitor/process_metrics_history.h",
+     "performance_monitor/process_monitor.cc",
+@@ -1189,10 +1097,7 @@ static_library("browser") {
+     "picture_in_picture/picture_in_picture_window_manager.cc",
+     "picture_in_picture/picture_in_picture_window_manager.h",
+     "platform_util.h",
+-    "platform_util_chromeos.cc",
+     "platform_util_internal.h",
+-    "platform_util_mac.mm",
+-    "platform_util_win.cc",
+     "plugins/pdf_iframe_navigation_throttle.cc",
+     "plugins/pdf_iframe_navigation_throttle.h",
+     "plugins/pdf_plugin_placeholder_observer.cc",
+@@ -1201,10 +1106,6 @@ static_library("browser") {
      "policy/browser_dm_token_storage.h",
-+    "policy/browser_dm_token_storage_android.cc",
-+    "policy/browser_dm_token_storage_android.h",
      "policy/browser_dm_token_storage_linux.cc",
      "policy/browser_dm_token_storage_linux.h",
-     "policy/browser_dm_token_storage_mac.h",
-@@ -3085,7 +3087,6 @@ static_library("browser") {
+-    "policy/browser_dm_token_storage_mac.h",
+-    "policy/browser_dm_token_storage_mac.mm",
+-    "policy/browser_dm_token_storage_win.cc",
+-    "policy/browser_dm_token_storage_win.h",
+     "policy/browsing_history_policy_handler.cc",
+     "policy/browsing_history_policy_handler.h",
+     "policy/chrome_browser_policy_connector.cc",
+@@ -1390,8 +1291,6 @@ static_library("browser") {
+     "process_resource_usage.cc",
+     "process_resource_usage.h",
+     "process_singleton.h",
+-    "process_singleton_mac.mm",
+-    "process_singleton_win.cc",
+     "profiles/avatar_menu_actions.h",
+     "profiles/bookmark_model_loaded_observer.cc",
+     "profiles/bookmark_model_loaded_observer.h",
+@@ -1450,8 +1349,6 @@ static_library("browser") {
+     "profiles/profile_metrics.cc",
+     "profiles/profile_metrics.h",
+     "profiles/profile_observer.h",
+-    "profiles/profile_shortcut_manager_win.cc",
+-    "profiles/profile_shortcut_manager_win.h",
+     "profiles/profiles_state.cc",
+     "profiles/profiles_state.h",
+     "profiles/renderer_updater.cc",
+@@ -1485,10 +1382,6 @@ static_library("browser") {
+     "renderer_context_menu/context_menu_content_type_factory.h",
+     "renderer_host/chrome_navigation_ui_data.cc",
+     "renderer_host/chrome_navigation_ui_data.h",
+-    "renderer_host/chrome_render_widget_host_view_mac_delegate.h",
+-    "renderer_host/chrome_render_widget_host_view_mac_delegate.mm",
+-    "renderer_host/chrome_render_widget_host_view_mac_history_swiper.h",
+-    "renderer_host/chrome_render_widget_host_view_mac_history_swiper.mm",
+     "renderer_preferences_util.cc",
+     "renderer_preferences_util.h",
+     "reputation/local_heuristics.cc",
+@@ -1642,10 +1535,6 @@ static_library("browser") {
+     "shell_integration.cc",
+     "shell_integration.h",
+     "shell_integration_android.cc",
+-    "shell_integration_chromeos.cc",
+-    "shell_integration_mac.mm",
+-    "shell_integration_win.cc",
+-    "shell_integration_win.h",
+     "signin/about_signin_internals_factory.cc",
+     "signin/about_signin_internals_factory.h",
+     "signin/account_consistency_mode_manager.cc",
+@@ -1694,8 +1583,6 @@ static_library("browser") {
+     "signin/signin_profile_attributes_updater_factory.h",
+     "signin/signin_promo_util.cc",
+     "signin/signin_promo_util.h",
+-    "signin/signin_status_metrics_provider_chromeos.cc",
+-    "signin/signin_status_metrics_provider_chromeos.h",
+     "signin/signin_util.cc",
+     "signin/signin_util.h",
+     "site_isolation/prefs_observer.cc",
+@@ -1809,8 +1696,6 @@ static_library("browser") {
+     "tab_contents/tab_util.h",
+     "task_manager/web_contents_tags.cc",
+     "task_manager/web_contents_tags.h",
+-    "themes/theme_helper_win.cc",
+-    "themes/theme_helper_win.h",
+     "tracing/background_tracing_field_trial.cc",
+     "tracing/background_tracing_field_trial.h",
+     "tracing/background_tracing_metrics_provider.cc",
+@@ -1872,49 +1757,6 @@ static_library("browser") {
+     "wake_lock/wake_lock_permission_context.h",
+     "web_data_service_factory.cc",
+     "web_data_service_factory.h",
+-    "win/app_icon.cc",
+-    "win/app_icon.h",
+-    "win/automation_controller.cc",
+-    "win/automation_controller.h",
+-    "win/browser_util.cc",
+-    "win/browser_util.h",
+-    "win/chrome_elf_init.cc",
+-    "win/chrome_elf_init.h",
+-    "win/chrome_select_file_dialog_factory.cc",
+-    "win/chrome_select_file_dialog_factory.h",
+-    "win/conflicts/enumerate_input_method_editors.cc",
+-    "win/conflicts/enumerate_input_method_editors.h",
+-    "win/conflicts/enumerate_shell_extensions.cc",
+-    "win/conflicts/enumerate_shell_extensions.h",
+-    "win/conflicts/inspection_results_cache.cc",
+-    "win/conflicts/inspection_results_cache.h",
+-    "win/conflicts/module_database.cc",
+-    "win/conflicts/module_database.h",
+-    "win/conflicts/module_database_observer.h",
+-    "win/conflicts/module_event_sink_impl.cc",
+-    "win/conflicts/module_event_sink_impl.h",
+-    "win/conflicts/module_inspector.cc",
+-    "win/conflicts/module_inspector.h",
+-    "win/conflicts/third_party_metrics_recorder.cc",
+-    "win/conflicts/third_party_metrics_recorder.h",
+-    "win/jumplist.cc",
+-    "win/jumplist.h",
+-    "win/jumplist_factory.cc",
+-    "win/jumplist_factory.h",
+-    "win/jumplist_file_util.cc",
+-    "win/jumplist_file_util.h",
+-    "win/jumplist_update_util.cc",
+-    "win/jumplist_update_util.h",
+-    "win/jumplist_updater.cc",
+-    "win/jumplist_updater.h",
+-    "win/settings_app_monitor.cc",
+-    "win/settings_app_monitor.h",
+-    "win/taskbar_icon_finder.cc",
+-    "win/taskbar_icon_finder.h",
+-    "win/titlebar_config.cc",
+-    "win/titlebar_config.h",
+-    "win/ui_automation_util.cc",
+-    "win/ui_automation_util.h",
+   ]
+ 
+   configs += [
+@@ -3085,7 +2927,6 @@ static_library("browser") {
  
        defines += [ "ENABLE_PASSWORD_CHANGE" ]
      }
@@ -494,7 +915,46 @@ Subject: gn fixes for enable_extensions=true
      sources += [
        "accessibility/caption_controller.cc",
        "accessibility/caption_controller.h",
-@@ -3381,7 +3382,6 @@ static_library("browser") {
+@@ -3261,9 +3102,6 @@ static_library("browser") {
+       "first_run/first_run.h",
+       "first_run/first_run_dialog.h",
+       "first_run/first_run_internal.h",
+-      "first_run/first_run_internal_linux.cc",
+-      "first_run/first_run_internal_mac.mm",
+-      "first_run/first_run_internal_win.cc",
+       "font_family_cache.cc",
+       "font_family_cache.h",
+       "hid/chrome_hid_delegate.cc",
+@@ -3278,7 +3116,6 @@ static_library("browser") {
+       "importer/external_process_importer_host.h",
+       "importer/firefox_profile_lock.cc",
+       "importer/firefox_profile_lock.h",
+-      "importer/firefox_profile_lock_win.cc",
+       "importer/importer_list.cc",
+       "importer/importer_list.h",
+       "importer/importer_lock_dialog.h",
+@@ -3315,11 +3152,6 @@ static_library("browser") {
+       "media/webrtc/desktop_media_picker_factory_impl.h",
+       "media/webrtc/display_media_access_handler.cc",
+       "media/webrtc/display_media_access_handler.h",
+-      "media/webrtc/media_authorization_wrapper_mac.h",
+-      "media/webrtc/system_media_capture_permissions_mac.h",
+-      "media/webrtc/system_media_capture_permissions_mac.mm",
+-      "media/webrtc/system_media_capture_permissions_stats_mac.h",
+-      "media/webrtc/system_media_capture_permissions_stats_mac.mm",
+       "media/webrtc/tab_desktop_media_list.cc",
+       "media/webrtc/tab_desktop_media_list.h",
+       "media_galleries/fileapi/av_scanning_file_validator.cc",
+@@ -3361,8 +3193,6 @@ static_library("browser") {
+       "memory/swap_thrashing_monitor.h",
+       "memory/swap_thrashing_monitor_delegate.cc",
+       "memory/swap_thrashing_monitor_delegate.h",
+-      "memory/swap_thrashing_monitor_delegate_win.cc",
+-      "memory/swap_thrashing_monitor_delegate_win.h",
+       "metrics/browser_activity_watcher.cc",
+       "metrics/browser_activity_watcher.h",
+       "metrics/desktop_platform_features_metrics_provider.cc",
+@@ -3381,14 +3211,11 @@ static_library("browser") {
        "metrics/desktop_session_duration/desktop_session_duration_tracker.h",
        "metrics/first_web_contents_profiler.cc",
        "metrics/first_web_contents_profiler.h",
@@ -502,15 +962,30 @@ Subject: gn fixes for enable_extensions=true
        "metrics/tab_stats_data_store.cc",
        "metrics/tab_stats_data_store.h",
        "metrics/tab_stats_tracker.cc",
-@@ -3401,6 +3401,7 @@ static_library("browser") {
-       "notifications/profile_notification.cc",
+       "metrics/tab_stats_tracker.h",
+       "metrics/tab_stats_tracker_delegate.h",
+-      "metrics/tab_stats_tracker_delegate_win.cc",
+-      "metrics/tab_stats_tracker_win.cc",
+       "nearby_sharing/nearby_sharing_prefs.cc",
+       "nearby_sharing/nearby_sharing_prefs.h",
+       "nearby_sharing/nearby_sharing_service.h",
+@@ -3402,8 +3229,6 @@ static_library("browser") {
        "notifications/profile_notification.h",
        "obsolete_system/obsolete_system.h",
-+      "obsolete_system/obsolete_system_android.cc",
        "obsolete_system/obsolete_system_linux.cc",
-       "obsolete_system/obsolete_system_mac.cc",
-       "obsolete_system/obsolete_system_win.cc",
-@@ -3453,14 +3454,6 @@ static_library("browser") {
+-      "obsolete_system/obsolete_system_mac.cc",
+-      "obsolete_system/obsolete_system_win.cc",
+       "page_load_metrics/observers/session_restore_page_load_metrics_observer.cc",
+       "page_load_metrics/observers/session_restore_page_load_metrics_observer.h",
+       "performance_manager/mechanisms/page_discarder.cc",
+@@ -3446,21 +3271,12 @@ static_library("browser") {
+       "profile_resetter/triggered_profile_resetter.h",
+       "profile_resetter/triggered_profile_resetter_factory.cc",
+       "profile_resetter/triggered_profile_resetter_factory.h",
+-      "profile_resetter/triggered_profile_resetter_win.cc",
+       "profiles/profile_shortcut_manager.cc",
+       "profiles/profile_shortcut_manager.h",
+       "profiles/profile_window.cc",
        "profiles/profile_window.h",
        "renderer_context_menu/accessibility_labels_bubble_model.cc",
        "renderer_context_menu/accessibility_labels_bubble_model.h",
@@ -525,7 +1000,16 @@ Subject: gn fixes for enable_extensions=true
        "repost_form_warning_controller.cc",
        "repost_form_warning_controller.h",
        "resource_coordinator/background_tab_navigation_throttle.cc",
-@@ -3600,16 +3593,6 @@ static_library("browser") {
+@@ -3516,8 +3332,6 @@ static_library("browser") {
+       "resource_coordinator/tab_lifecycle_unit_source.h",
+       "resource_coordinator/tab_manager.cc",
+       "resource_coordinator/tab_manager.h",
+-      "resource_coordinator/tab_manager_delegate_chromeos.cc",
+-      "resource_coordinator/tab_manager_delegate_chromeos.h",
+       "resource_coordinator/tab_manager_resource_coordinator_signal_observer.cc",
+       "resource_coordinator/tab_manager_resource_coordinator_signal_observer.h",
+       "resource_coordinator/tab_manager_stats_collector.cc",
+@@ -3600,16 +3414,6 @@ static_library("browser") {
        "serial/serial_chooser_context.h",
        "serial/serial_chooser_context_factory.cc",
        "serial/serial_chooser_context_factory.h",
@@ -542,15 +1026,24 @@ Subject: gn fixes for enable_extensions=true
        "sharing/shared_clipboard/remote_copy_message_handler.cc",
        "sharing/shared_clipboard/remote_copy_message_handler.h",
        "sharing/shared_clipboard/shared_clipboard_context_menu_observer.cc",
-@@ -3767,6 +3750,7 @@ static_library("browser") {
+@@ -3737,8 +3541,6 @@ static_library("browser") {
+       "task_manager/providers/worker_task_provider.cc",
+       "task_manager/providers/worker_task_provider.h",
+       "task_manager/sampling/shared_sampler.h",
+-      "task_manager/sampling/shared_sampler_win.cc",
+-      "task_manager/sampling/shared_sampler_win_defines.h",
+       "task_manager/sampling/task_group.cc",
+       "task_manager/sampling/task_group.h",
+       "task_manager/sampling/task_group_sampler.cc",
+@@ -3767,6 +3569,7 @@ static_library("browser") {
        "upgrade_detector/build_state.cc",
        "upgrade_detector/build_state.h",
        "upgrade_detector/build_state_observer.h",
-+      "upgrade_detector/get_installed_version_android.cc",
++      "upgrade_detector/get_installed_version_linux.cc",
        "upgrade_detector/upgrade_detector.cc",
        "upgrade_detector/upgrade_detector.h",
        "upgrade_detector/upgrade_observer.h",
-@@ -3789,6 +3773,10 @@ static_library("browser") {
+@@ -3789,6 +3592,10 @@ static_library("browser") {
        "webauthn/observable_authenticator_list.cc",
        "webauthn/observable_authenticator_list.h",
      ]
@@ -561,7 +1054,7 @@ Subject: gn fixes for enable_extensions=true
      deps += [
        ":theme_properties",
        "//base/util/memory_pressure",
-@@ -3799,7 +3787,6 @@ static_library("browser") {
+@@ -3799,7 +3606,6 @@ static_library("browser") {
        "//chrome/browser/profile_resetter:profile_reset_report_proto",
        "//chrome/browser/resource_coordinator:intervention_policy_database_proto",
        "//chrome/browser/resource_coordinator:tab_metrics_event_proto",
@@ -569,7 +1062,7 @@ Subject: gn fixes for enable_extensions=true
        "//chrome/browser/resources:component_extension_resources",
        "//chrome/browser/search:generated",
        "//chrome/common/importer:interfaces",
-@@ -3833,7 +3820,6 @@ static_library("browser") {
+@@ -3833,7 +3639,6 @@ static_library("browser") {
          "chrome_browser_main_posix.h",
          "first_run/first_run_internal_posix.cc",
          "importer/firefox_profile_lock_posix.cc",
@@ -577,7 +1070,7 @@ Subject: gn fixes for enable_extensions=true
          "task_manager/sampling/shared_sampler_posix.cc",
        ]
      }
-@@ -3945,8 +3931,6 @@ static_library("browser") {
+@@ -3945,8 +3750,6 @@ static_library("browser") {
        "notifications/web_page_notifier_controller.h",
        "policy/default_geolocation_policy_handler.cc",
        "policy/default_geolocation_policy_handler.h",
@@ -586,7 +1079,7 @@ Subject: gn fixes for enable_extensions=true
        "speech/tts_chromeos.cc",
        "speech/tts_chromeos.h",
        "sync/sync_error_notifier_ash.cc",
-@@ -4348,7 +4332,7 @@ static_library("browser") {
+@@ -4348,15 +4151,12 @@ static_library("browser") {
      ]
    }
  
@@ -595,7 +1088,15 @@ Subject: gn fixes for enable_extensions=true
      sources += [
        "device_identity/device_oauth2_token_store_desktop.cc",
        "device_identity/device_oauth2_token_store_desktop.h",
-@@ -4378,8 +4362,6 @@ static_library("browser") {
+       "first_run/upgrade_util.cc",
+       "first_run/upgrade_util.h",
+-      "first_run/upgrade_util_mac.cc",
+-      "first_run/upgrade_util_win.cc",
+-      "first_run/upgrade_util_win.h",
+       "lifetime/switch_utils.cc",
+       "lifetime/switch_utils.h",
+       "metrics/upgrade_metrics_provider.cc",
+@@ -4378,8 +4178,6 @@ static_library("browser") {
        "policy/chrome_browser_cloud_management_register_watcher.h",
        "policy/cloud/chrome_browser_cloud_management_helper.cc",
        "policy/cloud/chrome_browser_cloud_management_helper.h",
@@ -604,7 +1105,14 @@ Subject: gn fixes for enable_extensions=true
        "policy/cloud/user_policy_signin_service_internal.h",
        "profiles/avatar_menu.cc",
        "profiles/avatar_menu.h",
-@@ -4415,7 +4397,7 @@ static_library("browser") {
+@@ -4408,14 +4206,12 @@ static_library("browser") {
+       "signin/signin_global_error_factory.h",
+       "upgrade_detector/get_installed_version.cc",
+       "upgrade_detector/get_installed_version.h",
+-      "upgrade_detector/get_installed_version_mac.mm",
+-      "upgrade_detector/get_installed_version_win.cc",
+       "upgrade_detector/installed_version_poller.cc",
+       "upgrade_detector/installed_version_poller.h",
        "upgrade_detector/upgrade_detector_impl.cc",
        "upgrade_detector/upgrade_detector_impl.h",
      ]
@@ -613,7 +1121,7 @@ Subject: gn fixes for enable_extensions=true
      sources += [
        "installable/digital_asset_links/digital_asset_links_handler.cc",
        "installable/digital_asset_links/digital_asset_links_handler.h",
-@@ -4523,7 +4505,7 @@ static_library("browser") {
+@@ -4523,7 +4319,7 @@ static_library("browser") {
        sources -= [ "background/background_mode_manager_aura.cc" ]
      }
    }
@@ -622,7 +1130,17 @@ Subject: gn fixes for enable_extensions=true
      sources += [
        "background/background_contents_service.cc",
        "background/background_contents_service.h",
-@@ -5302,7 +5284,7 @@ static_library("browser") {
+@@ -4548,9 +4344,6 @@ static_library("browser") {
+       "printing/print_view_manager_common.cc",
+       "printing/print_view_manager_common.h",
+       "printing/printer_manager_dialog.h",
+-      "printing/printer_manager_dialog_linux.cc",
+-      "printing/printer_manager_dialog_mac.mm",
+-      "printing/printer_manager_dialog_win.cc",
+       "printing/printer_query.cc",
+       "printing/printer_query.h",
+       "printing/printing_init.cc",
+@@ -5302,7 +5095,7 @@ static_library("browser") {
      }
    }
  
@@ -631,7 +1149,7 @@ Subject: gn fixes for enable_extensions=true
      sources += [
        "sessions/session_restore.cc",
        "sessions/session_restore.h",
-@@ -5668,7 +5650,7 @@ grit("resources") {
+@@ -5668,7 +5461,7 @@ grit("resources") {
      }
    }
  
@@ -640,16 +1158,6 @@ Subject: gn fixes for enable_extensions=true
      deps += [
        "//chrome/browser/resources/discards:discards_resources_gen",
        "//chrome/browser/resources/gaia_auth_host:modulize",
---- a/extensions/browser/api/system_cpu/BUILD.gn
-+++ b/extensions/browser/api/system_cpu/BUILD.gn
-@@ -11,6 +11,7 @@ source_set("system_cpu") {
-   sources = [
-     "cpu_info_provider.cc",
-     "cpu_info_provider.h",
-+    "cpu_info_provider_android.cc",
-     "cpu_info_provider_linux.cc",
-     "cpu_info_provider_mac.cc",
-     "cpu_info_provider_win.cc",
 --- a/chrome/browser/ui/BUILD.gn
 +++ b/chrome/browser/ui/BUILD.gn
 @@ -611,7 +611,7 @@ static_library("ui") {
@@ -670,7 +1178,16 @@ Subject: gn fixes for enable_extensions=true
      sources += [
        "apps/app_info_dialog.h",
        "apps/chrome_app_delegate.cc",
-@@ -914,7 +912,6 @@ static_library("ui") {
+@@ -860,6 +858,8 @@ static_library("ui") {
+       "apps/chrome_app_window_client.h",
+       "apps/directory_access_confirmation_dialog.cc",
+       "apps/directory_access_confirmation_dialog.h",
++      "aura/native_window_tracker_aura.cc",
++      "aura/native_window_tracker_aura.h",
+       "blocked_content/framebust_block_tab_helper.cc",
+       "blocked_content/framebust_block_tab_helper.h",
+       "blocked_content/popunder_preventer.cc",
+@@ -914,7 +914,6 @@ static_library("ui") {
        "browser_location_bar_model_delegate.h",
        "browser_navigator.cc",
        "browser_navigator.h",
@@ -678,7 +1195,7 @@ Subject: gn fixes for enable_extensions=true
        "browser_otr_state.h",
        "browser_tab_restorer.cc",
        "browser_tab_strip_model_delegate.cc",
-@@ -1004,12 +1001,6 @@ static_library("ui") {
+@@ -1004,12 +1003,6 @@ static_library("ui") {
        "global_media_controls/overlay_media_notification.h",
        "global_media_controls/overlay_media_notifications_manager.cc",
        "global_media_controls/overlay_media_notifications_manager.h",
@@ -691,15 +1208,6 @@ Subject: gn fixes for enable_extensions=true
        "hats/hats_survey_status_checker.cc",
        "hats/hats_survey_status_checker.h",
        "hid/hid_chooser.cc",
-@@ -1066,6 +1057,8 @@ static_library("ui") {
-       "media_router/query_result_manager.h",
-       "media_router/ui_media_sink.cc",
-       "media_router/ui_media_sink.h",
-+      "native_window_tracker_android.cc",
-+      "native_window_tracker_android.h",
-       "native_window_tracker.h",
-       "omnibox/alternate_nav_infobar_delegate.cc",
-       "omnibox/alternate_nav_infobar_delegate.h",
 @@ -1165,8 +1158,6 @@ static_library("ui") {
        "singleton_tabs.h",
        "startup/automation_infobar_delegate.cc",
@@ -733,7 +1241,7 @@ Subject: gn fixes for enable_extensions=true
        "webui/theme_source.h",
        "webui/web_footer_experiment_ui.cc",
        "webui/web_footer_experiment_ui.h",
-+      "window_sizer/window_sizer_android.cc",
++      "window_sizer/window_sizer_aura.cc",
        "window_sizer/window_sizer.cc",
        "window_sizer/window_sizer.h",
        "zoom/chrome_zoom_level_otr_delegate.cc",
@@ -824,7 +1332,7 @@ Subject: gn fixes for enable_extensions=true
        # This test header is included because it contains forward declarations
        # needed for "friend" statements for use in tests.
        "translate/translate_bubble_test_utils.h",
-+      "views/accelerator_utils_android.cc",
++      "views/accelerator_utils_aura.cc",
        "views/accessibility/caption_bubble.cc",
        "views/accessibility/caption_bubble.h",
        "views/accessibility/caption_bubble_controller_views.cc",
@@ -854,7 +1362,7 @@ Subject: gn fixes for enable_extensions=true
        "views/download/download_shelf_view.cc",
        "views/download/download_shelf_view.h",
        "views/download/download_started_animation_views.cc",
-+      "views/dropdown_bar_host_android.cc",
++      "views/dropdown_bar_host_aura.cc",
        "views/dropdown_bar_host.cc",
        "views/dropdown_bar_host.h",
        "views/dropdown_bar_host_delegate.h",
@@ -879,15 +1387,15 @@ Subject: gn fixes for enable_extensions=true
        "views/frame/contents_layout_manager.h",
        "views/frame/contents_web_view.cc",
        "views/frame/contents_web_view.h",
-+      "views/frame/desktop_browser_frame_android.cc",
-+      "views/frame/desktop_browser_frame_android.h",
++      "views/frame/desktop_browser_frame_aura.cc",
++      "views/frame/desktop_browser_frame_aura.h",
        "views/frame/immersive_mode_controller.cc",
        "views/frame/immersive_mode_controller.h",
        "views/frame/immersive_mode_controller_factory_views.cc",
        "views/frame/immersive_mode_controller_stub.cc",
        "views/frame/immersive_mode_controller_stub.h",
        "views/frame/native_browser_frame.h",
-+      "views/frame/native_browser_frame_factory_android.cc",
++      "views/frame/native_browser_frame_factory_aurax11.cc",
        "views/frame/native_browser_frame_factory.cc",
        "views/frame/native_browser_frame_factory.h",
        "views/frame/system_menu_model_builder.cc",
@@ -994,16 +1502,6 @@ Subject: gn fixes for enable_extensions=true
        sources += [
          "webui/settings/printing_handler.cc",
          "webui/settings/printing_handler.h",
---- a/chrome/browser/apps/platform_apps/api/music_manager_private/BUILD.gn
-+++ b/chrome/browser/apps/platform_apps/api/music_manager_private/BUILD.gn
-@@ -13,6 +13,7 @@ source_set("music_manager_private") {
-     "device_id.cc",
-     "device_id.h",
-     "device_id_chromeos.cc",
-+    "device_id_android.cc",
-     "device_id_linux.cc",
-     "device_id_mac.cc",
-     "device_id_win.cc",
 --- a/content/public/browser/BUILD.gn
 +++ b/content/public/browser/BUILD.gn
 @@ -504,7 +504,7 @@ jumbo_source_set("browser_sources") {
@@ -1057,33 +1555,140 @@ Subject: gn fixes for enable_extensions=true
  
 --- a/chrome/browser/extensions/BUILD.gn
 +++ b/chrome/browser/extensions/BUILD.gn
-@@ -221,6 +221,7 @@ static_library("extensions") {
+@@ -13,6 +13,8 @@ import("//rlz/buildflags/buildflags.gni"
+ 
+ assert(enable_extensions)
+ 
++set_sources_assignment_filter([])
++
+ static_library("extensions") {
+   sources = [
+     # TODO These references to files in //chrome/browser/ should either be
+@@ -164,8 +166,6 @@ static_library("extensions") {
+     "api/extension_action/extension_page_actions_api_constants.h",
+     "api/feedback_private/chrome_feedback_private_delegate.cc",
+     "api/feedback_private/chrome_feedback_private_delegate.h",
+-    "api/file_handlers/non_native_file_system_delegate_chromeos.cc",
+-    "api/file_handlers/non_native_file_system_delegate_chromeos.h",
+     "api/file_system/chrome_file_system_delegate.cc",
+     "api/file_system/chrome_file_system_delegate.h",
+     "api/file_system/file_entry_picker.cc",
+@@ -216,14 +216,10 @@ static_library("extensions") {
+     "api/image_writer_private/image_writer_utility_client.h",
+     "api/image_writer_private/operation.cc",
+     "api/image_writer_private/operation.h",
+-    "api/image_writer_private/operation_chromeos.cc",
+     "api/image_writer_private/operation_manager.cc",
      "api/image_writer_private/operation_manager.h",
      "api/image_writer_private/removable_storage_provider.cc",
      "api/image_writer_private/removable_storage_provider.h",
-+    "api/image_writer_private/removable_storage_provider_android.cc",
-     "api/image_writer_private/removable_storage_provider_chromeos.cc",
-     "api/image_writer_private/removable_storage_provider_mac.cc",
-     "api/image_writer_private/removable_storage_provider_win.cc",
-@@ -624,6 +625,8 @@ static_library("extensions") {
-     "global_shortcut_listener_mac.mm",
-     "global_shortcut_listener_win.cc",
-     "global_shortcut_listener_win.h",
-+    "global_shortcut_listener_android.cc",
-+    "global_shortcut_listener_android.h",
+-    "api/image_writer_private/removable_storage_provider_chromeos.cc",
+-    "api/image_writer_private/removable_storage_provider_mac.cc",
+-    "api/image_writer_private/removable_storage_provider_win.cc",
+     "api/image_writer_private/unzip_helper.cc",
+     "api/image_writer_private/unzip_helper.h",
+     "api/image_writer_private/write_from_file_operation.cc",
+@@ -256,8 +252,6 @@ static_library("extensions") {
+     "api/metrics_private/chrome_metrics_private_delegate.h",
+     "api/module/module.cc",
+     "api/module/module.h",
+-    "api/networking_private/networking_private_ui_delegate_chromeos.cc",
+-    "api/networking_private/networking_private_ui_delegate_chromeos.h",
+     "api/networking_private/networking_private_ui_delegate_factory_impl.cc",
+     "api/networking_private/networking_private_ui_delegate_factory_impl.h",
+     "api/notifications/extension_notification_display_helper.cc",
+@@ -392,7 +386,6 @@ static_library("extensions") {
+     "api/tabs/tabs_event_router.cc",
+     "api/tabs/tabs_event_router.h",
+     "api/tabs/tabs_util.h",
+-    "api/tabs/tabs_util_chromeos.cc",
+     "api/tabs/tabs_windows_api.cc",
+     "api/tabs/tabs_windows_api.h",
+     "api/tabs/windows_event_router.cc",
+@@ -476,8 +469,6 @@ static_library("extensions") {
+     "chrome_url_request_util.h",
+     "chrome_zipfile_installer.cc",
+     "chrome_zipfile_installer.h",
+-    "clipboard_extension_helper_chromeos.cc",
+-    "clipboard_extension_helper_chromeos.h",
+     "component_extensions_whitelist/whitelist.cc",
+     "component_extensions_whitelist/whitelist.h",
+     "component_loader.cc",
+@@ -514,8 +505,6 @@ static_library("extensions") {
+     "extension_action_storage_manager.h",
+     "extension_assets_manager.cc",
+     "extension_assets_manager.h",
+-    "extension_assets_manager_chromeos.cc",
+-    "extension_assets_manager_chromeos.h",
+     "extension_browser_window_helper.cc",
+     "extension_browser_window_helper.h",
+     "extension_checkup.cc",
+@@ -533,8 +522,6 @@ static_library("extensions") {
+     "extension_error_ui_default.h",
+     "extension_garbage_collector.cc",
+     "extension_garbage_collector.h",
+-    "extension_garbage_collector_chromeos.cc",
+-    "extension_garbage_collector_chromeos.h",
+     "extension_garbage_collector_factory.cc",
+     "extension_garbage_collector_factory.h",
+     "extension_gcm_app_handler.cc",
+@@ -608,8 +595,6 @@ static_library("extensions") {
+     "external_pref_loader.h",
+     "external_provider_impl.cc",
+     "external_provider_impl.h",
+-    "external_registry_loader_win.cc",
+-    "external_registry_loader_win.h",
+     "forced_extensions/installation_metrics.cc",
+     "forced_extensions/installation_metrics.h",
+     "forced_extensions/installation_reporter.cc",
+@@ -620,10 +605,8 @@ static_library("extensions") {
+     "forced_extensions/installation_tracker.h",
+     "global_shortcut_listener.cc",
+     "global_shortcut_listener.h",
+-    "global_shortcut_listener_mac.h",
+-    "global_shortcut_listener_mac.mm",
+-    "global_shortcut_listener_win.cc",
+-    "global_shortcut_listener_win.h",
++    "global_shortcut_listener_ozone.cc",
++    "global_shortcut_listener_ozone.h",
      "install_gate.h",
      "install_observer.cc",
      "install_observer.h",
-@@ -690,6 +693,8 @@ static_library("extensions") {
+@@ -690,12 +673,8 @@ static_library("extensions") {
      "sync_bundle.cc",
      "sync_bundle.h",
      "system_display/display_info_provider.h",
-+    "system_display/display_info_provider_android.cc",
-+    "system_display/display_info_provider_android.h",
-     "system_display/display_info_provider_chromeos.cc",
-     "system_display/display_info_provider_chromeos.h",
-     "system_display/display_info_provider_mac.cc",
-@@ -1117,7 +1122,7 @@ static_library("extensions") {
+-    "system_display/display_info_provider_chromeos.cc",
+-    "system_display/display_info_provider_chromeos.h",
+-    "system_display/display_info_provider_mac.cc",
+-    "system_display/display_info_provider_mac.h",
+-    "system_display/display_info_provider_win.cc",
+-    "system_display/display_info_provider_win.h",
++    "system_display/display_info_provider_aura.cc",
++    "system_display/display_info_provider_aura.h",
+     "tab_helper.cc",
+     "tab_helper.h",
+     "theme_installed_infobar_delegate.cc",
+@@ -1055,10 +1034,6 @@ static_library("extensions") {
+       "api/enterprise_reporting_private/device_info_fetcher.h",
+       "api/enterprise_reporting_private/device_info_fetcher_linux.cc",
+       "api/enterprise_reporting_private/device_info_fetcher_linux.h",
+-      "api/enterprise_reporting_private/device_info_fetcher_mac.h",
+-      "api/enterprise_reporting_private/device_info_fetcher_mac.mm",
+-      "api/enterprise_reporting_private/device_info_fetcher_win.cc",
+-      "api/enterprise_reporting_private/device_info_fetcher_win.h",
+       "api/enterprise_reporting_private/enterprise_reporting_private_api.cc",
+       "api/enterprise_reporting_private/enterprise_reporting_private_api.h",
+       "api/enterprise_reporting_private/prefs.cc",
+@@ -1071,7 +1046,6 @@ static_library("extensions") {
+       "api/messaging/native_messaging_launch_from_native.h",
+       "api/messaging/native_process_launcher.cc",
+       "api/messaging/native_process_launcher.h",
+-      "api/messaging/native_process_launcher_win.cc",
+       "api/tabs/tabs_util.cc",
+       "chrome_kiosk_delegate.cc",
+       "default_apps.cc",
+@@ -1117,7 +1091,7 @@ static_library("extensions") {
      }
    }
  
@@ -1337,3 +1942,40 @@ Subject: gn fixes for enable_extensions=true
      "importer_autofill_form_data_entry.cc",
      "importer_autofill_form_data_entry.h",
      "importer_bridge.cc",
+--- a/extensions/browser/api/system_cpu/BUILD.gn
++++ b/extensions/browser/api/system_cpu/BUILD.gn
+@@ -7,13 +7,13 @@ import("//extensions/buildflags/buildfla
+ assert(enable_extensions,
+        "Cannot depend on extensions because enable_extensions=false.")
+ 
++set_sources_assignment_filter([])
++
+ source_set("system_cpu") {
+   sources = [
+     "cpu_info_provider.cc",
+     "cpu_info_provider.h",
+     "cpu_info_provider_linux.cc",
+-    "cpu_info_provider_mac.cc",
+-    "cpu_info_provider_win.cc",
+     "system_cpu_api.cc",
+     "system_cpu_api.h",
+   ]
+--- a/chrome/browser/apps/platform_apps/api/music_manager_private/BUILD.gn
++++ b/chrome/browser/apps/platform_apps/api/music_manager_private/BUILD.gn
+@@ -8,14 +8,13 @@ import("//rlz/buildflags/buildflags.gni"
+ 
+ assert(enable_extensions)
+ 
++set_sources_assignment_filter([])
++
+ source_set("music_manager_private") {
+   sources = [
+     "device_id.cc",
+     "device_id.h",
+-    "device_id_chromeos.cc",
+     "device_id_linux.cc",
+-    "device_id_mac.cc",
+-    "device_id_win.cc",
+     "music_manager_private_api.cc",
+     "music_manager_private_api.h",
+   ]

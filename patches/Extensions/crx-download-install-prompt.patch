@@ -766,7 +766,7 @@ Subject: add download prompt for installing extensions
 +
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -1073,6 +1073,11 @@ Your Google account may have other forms
+@@ -1072,6 +1072,11 @@ Your Google account may have other forms
        </message>
  
        <!-- About Chrome preferences -->
@@ -1157,7 +1157,7 @@ Subject: add download prompt for installing extensions
      "java/src/org/chromium/chrome/browser/feedback/ProcessIdFeedbackSource.java",
 --- a/chrome/android/chrome_java_sources.gni
 +++ b/chrome/android/chrome_java_sources.gni
-@@ -668,6 +668,8 @@ chrome_java_sources = [
+@@ -670,6 +670,8 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/explore_sites/ExploreSitesSite.java",
    "java/src/org/chromium/chrome/browser/explore_sites/ExploreSitesTileView.java",
    "java/src/org/chromium/chrome/browser/explore_sites/StableScrollLayoutManager.java",
