@@ -312,7 +312,7 @@ Subject: fix remove button for extensions
 +}
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -1071,11 +1071,12 @@ Your Google account may have other forms
+@@ -1070,11 +1070,12 @@ Your Google account may have other forms
        <message name="IDS_RENAME_EXTENSION_MESSAGE" desc="Message to warn users the danger of changing file extension.">
          If you change the file extension, the file may open in a different application and potentially be a hazard to your device.
        </message>
@@ -380,7 +380,7 @@ Subject: fix remove button for extensions
      "java/src/org/chromium/chrome/browser/feedback/ProcessIdFeedbackSource.java",
 --- a/chrome/android/chrome_java_sources.gni
 +++ b/chrome/android/chrome_java_sources.gni
-@@ -670,6 +670,8 @@ chrome_java_sources = [
+@@ -672,6 +672,8 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/explore_sites/StableScrollLayoutManager.java",
    "java/src/org/chromium/chrome/browser/extensions/ExtensionInstallDialogViewBridge.java",
    "java/src/org/chromium/chrome/browser/extensions/ExtensionInstallCustomScrollView.java",

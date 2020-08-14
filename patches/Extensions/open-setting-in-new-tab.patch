@@ -119,7 +119,7 @@ Subject: make settings of extensions open in new tab
        bool currently_visible = button_visibility_ == VISIBLE;
 --- a/chrome/browser/ui/webui/settings/people_handler.cc
 +++ b/chrome/browser/ui/webui/settings/people_handler.cc
-@@ -719,7 +719,6 @@ void PeopleHandler::HandleSignout(const
+@@ -718,7 +718,6 @@ void PeopleHandler::HandleSignout(const
  }
  
  void PeopleHandler::HandlePauseSync(const base::ListValue* args) {

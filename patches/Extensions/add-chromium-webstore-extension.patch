@@ -7,12 +7,12 @@ Subject: bundle chromium-web-store
  chrome/browser/browser_resources.grd                                  |    1 
  chrome/browser/extensions/component_extensions_whitelist/whitelist.cc |    1 
  chrome/browser/extensions/component_loader.cc                         |    3 
- chrome/browser/resources/component_extension_resources.grd            |   18 ++++
+ chrome/browser/resources/component_extension_resources.grd            |   19 ++++
  extensions/common/extension.cc                                        |    2 
  extensions/common/extension_l10n_util.cc                              |    2 
  extensions/common/file_util.cc                                        |    6 +
  extensions/renderer/i18n_hooks_delegate.cc                            |   44 +++++++++-
- 8 files changed, 76 insertions(+), 1 deletion(-)
+ 8 files changed, 77 insertions(+), 1 deletion(-)
 
 --- a/chrome/browser/browser_resources.grd
 +++ b/chrome/browser/browser_resources.grd
@@ -48,7 +48,7 @@ Subject: bundle chromium-web-store
  void ComponentLoader::
 --- a/chrome/browser/resources/component_extension_resources.grd
 +++ b/chrome/browser/resources/component_extension_resources.grd
-@@ -166,6 +166,24 @@
+@@ -166,6 +166,25 @@
        <include name="IDR_CRYPTOTOKEN_CRYPTOTOKENAPPROVEDORIGIN_JS" file="cryptotoken/cryptotokenapprovedorigins.js" type="BINDATA" />
        <include name="IDR_CRYPTOTOKEN_CRYPTOTOKENORIGINCHECK_JS" file="cryptotoken/cryptotokenorigincheck.js" type="BINDATA" />
        <include name="IDR_CRYPTOTOKEN_CRYPTOTOKENBACKGROUND_JS" file="cryptotoken/cryptotokenbackground.js" type="BINDATA" />
@@ -60,14 +60,15 @@ Subject: bundle chromium-web-store
 +      <include name="IDR_CHROMIUM_WEB_STORE_ASSETS_ICON_ICON_128_PNG" file="chromium_web_store/assets/icon/icon_128.png" type="BINDATA" />
 +      <include name="IDR_CHROMIUM_WEB_STORE_SCRIPTS_BACKGROUND_JS" file="chromium_web_store/scripts/background.js" type="BINDATA" />
 +      <include name="IDR_CHROMIUM_WEB_STORE_SCRIPTS_INJECT_JS" file="chromium_web_store/scripts/inject.js" type="BINDATA" />
++      <include name="IDR_CHROMIUM_WEB_STORE_SCRIPTS_LOCALIZE_JS" file="chromium_web_store/scripts/localize.js" type="BINDATA" />
 +      <include name="IDR_CHROMIUM_WEB_STORE_SCRIPTS_OPTIONS_JS" file="chromium_web_store/scripts/options.js" type="BINDATA" />
 +      <include name="IDR_CHROMIUM_WEB_STORE_SCRIPTS_POPUP_JS" file="chromium_web_store/scripts/popup.js" type="BINDATA" />
-+      <include name="IDR_CHROMIUM_WEB_STORE_SCRIPTS_STORE_JS" file="chromium_web_store/scripts/store.js" type="BINDATA" />
 +      <include name="IDR_CHROMIUM_WEB_STORE_SCRIPTS_UTIL_JS" file="chromium_web_store/scripts/util.js" type="BINDATA" />
 +      <include name="IDR_CHROMIUM_WEB_STORE_SHEETS_BASE_CSS" file="chromium_web_store/sheets/base.css" type="BINDATA" />
 +      <include name="IDR_CHROMIUM_WEB_STORE_SHEETS_OPTIONS_CSS" file="chromium_web_store/sheets/options.css" type="BINDATA" />
 +      <include name="IDR_CHROMIUM_WEB_STORE_SHEETS_POPUP_CSS" file="chromium_web_store/sheets/popup.css" type="BINDATA" />
 +      <include name="IDR_CHROMIUM_WEB_STORE_SHEETS_SCROLLBAR_CSS" file="chromium_web_store/sheets/scrollbar.css" type="BINDATA" />
++      <include name="IDR_CHROMIUM_WEB_STORE_MANAGED_STORAGE_JSON" file="chromium_web_store/managed_storage.json" flattenhtml="true" type="BINDATA" />
 +      <include name="IDR_CHROMIUM_WEB_STORE_OPTIONS_HTML" file="chromium_web_store/options.html" flattenhtml="true" allowexternalscript="true" type="BINDATA" />
 +      <include name="IDR_CHROMIUM_WEB_STORE_POPUP_HTML" file="chromium_web_store/popup.html" flattenhtml="true" allowexternalscript="true" type="BINDATA" />
      </includes>
