@@ -245,7 +245,7 @@ popd
 
 # chromium-web-store, extension version only
 # git clone https://github.com/NeverDecaf/chromium-web-store
-# cp -ar chromium-web-store/src src/chrome/browser/resources/chromium_web_store
+# cp -ar chromium-web-store/en_nolocale src/chrome/browser/resources/chromium_web_store
 
 # Additional Source Patches
 ## Extra fixes for Chromium source

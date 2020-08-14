@@ -3,8 +3,9 @@ Date: Tue, 11 Aug 2020 16:07:07 -0400
 Subject: Enable experimental ProactivelySwapBrowsingInstance feature
 
 ---
- content/public/common/content_features.cc |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ content/common/content_navigation_policy.cc |    2 +-
+ content/public/common/content_features.cc   |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
 --- a/content/public/common/content_features.cc
 +++ b/content/public/common/content_features.cc
@@ -17,3 +18,14 @@ Subject: Enable experimental ProactivelySwapBrowsingInstance feature
  
  // Reduce the amount of information in the default 'referer' header for
  // cross-origin requests.
+--- a/content/common/content_navigation_policy.cc
++++ b/content/common/content_navigation_policy.cc
+@@ -52,7 +52,7 @@ const base::FeatureParam<ProactivelySwap
+     proactively_swap_browsing_instance_level{
+         &features::kProactivelySwapBrowsingInstance,
+         kProactivelySwapBrowsingInstanceLevelParameterName,
+-        ProactivelySwapBrowsingInstanceLevel::kDisabled,
++        ProactivelySwapBrowsingInstanceLevel::kCrossSiteReuseProcess,
+         &proactively_swap_browsing_instance_levels};
+ 
+ ProactivelySwapBrowsingInstanceLevel GetProactivelySwapBrowsingInstanceLevel() {

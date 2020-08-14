@@ -3852,7 +3852,6 @@
 ./components/safe_browsing/core/resources/push_file_type_proto.py
 ./components/schema_org/common/improved_metadata.mojom
 ./components/schema_org/common/metadata.mojom
-./components/search_engines/prepopulated_engines.json
 ./components/security_interstitials/content/android/java/src/org/chromium/components/security_interstitials/CaptivePortalHelper.java
 ./components/security_interstitials/content/cert_logger.proto
 ./components/security_interstitials/core/browser/resources/interstitial_large.js
@@ -4471,7 +4470,6 @@
 ./net/android/java/src/org/chromium/net/NetworkChangeNotifierAutoDetect.java
 ./net/android/java/src/org/chromium/net/X509Util.java
 ./net/base/network_change_notifier_win.cc
-./net/http/transport_security_state_static.json
 ./net/socket/tcp_socket_win.cc
 ./net/socket/udp_socket_posix.h
 ./net/socket/udp_socket_win.h
@@ -4960,7 +4958,6 @@
 ./third_party/blink/renderer/core/css/invalidation/pending_invalidations.h
 ./third_party/blink/renderer/core/css/invalidation/style_invalidator.h
 ./third_party/blink/renderer/core/css/parser/css.proto
-./third_party/blink/renderer/core/dom/document.cc
 ./third_party/blink/renderer/core/editing/finder/find_buffer.h
 ./third_party/blink/renderer/core/editing/spellcheck/cold_mode_spell_check_requester.h
 ./third_party/blink/renderer/core/editing/spellcheck/hot_mode_spell_check_requester.h
