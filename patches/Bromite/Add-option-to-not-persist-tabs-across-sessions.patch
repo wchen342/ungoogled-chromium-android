@@ -4,11 +4,11 @@ Subject: Add option to not persist tabs across sessions
 
 ---
  chrome/android/java/res/values/values.xml                                                 |    3 ++
- chrome/android/java/res/xml/privacy_preferences.xml                                       |    5 +++
- chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java             |    4 ++
- chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java |   14 +++++++++-
- chrome/browser/ui/android/strings/android_chrome_strings.grd                              |    6 ++++
- 5 files changed, 30 insertions(+), 2 deletions(-)
+ chrome/android/java/res/xml/privacy_preferences.xml                                       |    5 ++++
+ chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java             |    4 ++-
+ chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java |   12 ++++++++++
+ chrome/browser/ui/android/strings/android_chrome_strings.grd                              |    6 +++++
+ 5 files changed, 29 insertions(+), 1 deletion(-)
 
 --- a/chrome/android/java/res/values/values.xml
 +++ b/chrome/android/java/res/values/values.xml
@@ -38,7 +38,7 @@ Subject: Add option to not persist tabs across sessions
          android:key="do_not_track"
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-@@ -1172,8 +1172,10 @@ public class ChromeTabbedActivity
+@@ -1181,8 +1181,10 @@ public class ChromeTabbedActivity extend
              boolean hadCipherData =
                      CipherFactory.getInstance().restoreFromBundle(getSavedInstanceState());
  
@@ -68,42 +68,40 @@ Subject: Add option to not persist tabs across sessions
  import org.chromium.base.BuildInfo;
  import org.chromium.chrome.R;
  import org.chromium.chrome.browser.help.HelpAndFeedback;
-@@ -38,6 +40,7 @@ public class PrivacySettings
+@@ -40,6 +42,7 @@ import java.util.List;
+  */
+ public class PrivacySettings
          extends PreferenceFragmentCompat implements Preference.OnPreferenceChangeListener {
++    private static final String PREF_CLOSE_TABS_ON_EXIT = "close_tabs_on_exit";
      private static final String PREF_CAN_MAKE_PAYMENT = "can_make_payment";
      private static final String PREF_NETWORK_PREDICTIONS = "preload_pages";
-+    private static final String PREF_CLOSE_TABS_ON_EXIT = "close_tabs_on_exit";
-     private static final String PREF_USAGE_STATS = "usage_stats_reporting";
-     private static final String PREF_DO_NOT_TRACK = "do_not_track";
-     private static final String PREF_SYNC_AND_SERVICES_LINK = "sync_and_services_link";
-@@ -86,7 +89,11 @@ public class PrivacySettings
+     private static final String PREF_SECURE_DNS = "secure_dns";
+@@ -94,6 +97,10 @@ public class PrivacySettings
                      Pref.CAN_MAKE_PAYMENT_ENABLED, (boolean) newValue);
          } else if (PREF_NETWORK_PREDICTIONS.equals(key)) {
              PrivacyPreferencesManager.getInstance().setNetworkPredictionEnabled((boolean) newValue);
--        }
 +        } else if (PREF_CLOSE_TABS_ON_EXIT.equals(key)) {
 +            SharedPreferences.Editor sharedPreferencesEditor = ContextUtils.getAppSharedPreferences().edit();
 +            sharedPreferencesEditor.putBoolean(PREF_CLOSE_TABS_ON_EXIT, (boolean)newValue);
 +            sharedPreferencesEditor.apply();
-+         }
+         }
  
          return true;
-     }
-@@ -134,6 +141,11 @@ public class PrivacySettings
-             } else {
+@@ -168,6 +175,11 @@ public class PrivacySettings
                  getPreferenceScreen().removePreference(usageStatsPref);
              }
+         }
 +
 +        ChromeBaseCheckBoxPreference closeTabsOnExitPref =
 +                (ChromeBaseCheckBoxPreference) findPreference(PREF_CLOSE_TABS_ON_EXIT);
 +        closeTabsOnExitPref.setOnPreferenceChangeListener(this);
 +        closeTabsOnExitPref.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
-         }
      }
  
+     private ChromeManagedPreferenceDelegate createManagedPreferenceDelegate() {
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -3219,6 +3219,12 @@ Only you can see what your camera is loo
+@@ -3357,6 +3357,12 @@ To change this setting, <ph name="BEGIN_
        <message name="IDS_CONTEXTMENU_IMAGE_TITLE" desc="The title of a context menu tab when the item pressed contains more than one type. This indicates that all the actions are related to the image.">
          IMAGE
        </message>

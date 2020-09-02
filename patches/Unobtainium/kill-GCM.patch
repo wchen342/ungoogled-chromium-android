@@ -9,7 +9,6 @@ Subject: kill GCM
  chrome/android/java/src/org/chromium/chrome/browser/background_task_scheduler/ChromeBackgroundTaskFactory.java                                                          |    3 
  chrome/android/java/src/org/chromium/chrome/browser/ntp/snippets/SnippetsLauncher.java                                                                                  |   56 ---
  chrome/android/java/src/org/chromium/chrome/browser/services/gcm/GCMBackgroundTask.java                                                                                 |    1 
- chrome/android/java/src/org/chromium/chrome/browser/services/gcm/InvalidationGcmUpstreamSender.java                                                                     |   18 
  components/background_task_scheduler/internal/android/java/src/org/chromium/components/background_task_scheduler/internal/BackgroundTaskGcmTaskService.java             |   65 ---
  components/background_task_scheduler/internal/android/java/src/org/chromium/components/background_task_scheduler/internal/BackgroundTaskSchedulerGcmNetworkManager.java |  183 ----------
  components/gcm_driver/android/BUILD.gn                                                                                                                                  |    1 
@@ -19,11 +18,11 @@ Subject: kill GCM
  third_party/cacheinvalidation/BUILD.gn                                                                                                                                  |    6 
  third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/contrib/MultiplexingGcmListener.java                                                 |   91 ----
  third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/ticl/android2/channel/AndroidNetworkChannel.java                                                     |    6 
- 16 files changed, 20 insertions(+), 535 deletions(-)
+ 15 files changed, 20 insertions(+), 517 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -450,7 +450,6 @@ android_library("chrome_java") {
+@@ -466,7 +466,6 @@ android_library("chrome_java") {
      "//third_party/android_deps:com_google_protobuf_protobuf_javalite_java",
      "//third_party/android_deps:javax_inject_javax_inject_java",
      "//third_party/android_media:android_media_java",
@@ -33,7 +32,7 @@ Subject: kill GCM
      "//third_party/blink/public:blink_headers_java",
 --- a/chrome/android/chrome_java_sources.gni
 +++ b/chrome/android/chrome_java_sources.gni
-@@ -16,7 +16,6 @@ chrome_java_sources = [
+@@ -17,7 +17,6 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/ChromeActivity.java",
    "java/src/org/chromium/chrome/browser/ChromeActivitySessionTracker.java",
    "java/src/org/chromium/chrome/browser/ChromeApplication.java",
@@ -41,7 +40,7 @@ Subject: kill GCM
    "java/src/org/chromium/chrome/browser/ChromeBackupAgent.java",
    "java/src/org/chromium/chrome/browser/ChromeBackupWatcher.java",
    "java/src/org/chromium/chrome/browser/ChromeBaseAppCompatActivity.java",
-@@ -1386,11 +1385,6 @@ chrome_java_sources = [
+@@ -1385,11 +1384,6 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/services/AndroidChildAccountHelper.java",
    "java/src/org/chromium/chrome/browser/services/AndroidEduOwnerCheckCallback.java",
    "java/src/org/chromium/chrome/browser/services/GoogleServicesManager.java",
@@ -50,9 +49,9 @@ Subject: kill GCM
 -  "java/src/org/chromium/chrome/browser/services/gcm/GCMBackgroundTask.java",
 -  "java/src/org/chromium/chrome/browser/services/gcm/GcmUma.java",
 -  "java/src/org/chromium/chrome/browser/services/gcm/InvalidationGcmUpstreamSender.java",
-   "java/src/org/chromium/chrome/browser/settings/HyperlinkPreference.java",
    "java/src/org/chromium/chrome/browser/settings/MainSettings.java",
    "java/src/org/chromium/chrome/browser/settings/SettingsActivity.java",
+   "java/src/org/chromium/chrome/browser/settings/SettingsLauncherImpl.java",
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
 @@ -82,22 +82,17 @@ by a child template that "extends" this
@@ -78,7 +77,7 @@ Subject: kill GCM
      <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT"/>
  
      <uses-permission android:name="com.google.android.apps.now.CURRENT_ACCOUNT_ACCESS" />
-@@ -974,50 +969,9 @@ by a child template that "extends" this
+@@ -948,50 +943,9 @@ by a child template that "extends" this
              android:configChanges="orientation|keyboardHidden|keyboard|screenSize|mcc|mnc|screenLayout|smallestScreenSize"
              android:hardwareAccelerated="false" />
  
@@ -129,7 +128,7 @@ Subject: kill GCM
          <receiver android:name="com.google.ipc.invalidation.ticl.android2.AndroidInternalScheduler$AlarmReceiver"
              android:exported="false"/>
          <receiver android:name="com.google.ipc.invalidation.external.client.contrib.AndroidListener$AlarmReceiver"
-@@ -1044,28 +998,10 @@ by a child template that "extends" this
+@@ -1018,28 +972,10 @@ by a child template that "extends" this
              android:exported="false"
              android:permission="android.permission.BIND_JOB_SERVICE"/>
  
@@ -285,47 +284,6 @@ Subject: kill GCM
          return false;
      }
  
---- a/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/InvalidationGcmUpstreamSender.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/InvalidationGcmUpstreamSender.java
-@@ -14,7 +14,6 @@ import android.util.Log;
- import androidx.annotation.MainThread;
- import androidx.annotation.Nullable;
- 
--import com.google.android.gms.gcm.GoogleCloudMessaging;
- import com.google.ipc.invalidation.ticl.android2.channel.GcmUpstreamSenderService;
- 
- import org.chromium.base.ContextUtils;
-@@ -28,9 +27,6 @@ import org.chromium.components.signin.id
- import org.chromium.components.sync.SyncConstants;
- import org.chromium.content_public.browser.UiThreadTaskTraits;
- 
--import java.io.IOException;
--import java.util.UUID;
--
- /**
-  * Sends Upstream messages for Invalidations using GCM.
-  */
-@@ -92,20 +88,6 @@ public class InvalidationGcmUpstreamSend
-      * This function runs on a thread pool executor thread.
-      */
-     private void sendUpstreamMessage(String to, Bundle data, String token, Context context) {
--        // Add the OAuth2 token to the bundle. The token should have the prefix Bearer added to it.
--        data.putString("Authorization", "Bearer " + token);
--        if (!isMessageWithinLimit(data)) {
--            GcmUma.recordGcmUpstreamHistogram(context, GcmUma.UMA_UPSTREAM_SIZE_LIMIT_EXCEEDED);
--            return;
--        }
--        String msgId = UUID.randomUUID().toString();
--        try {
--            GoogleCloudMessaging.getInstance(ContextUtils.getApplicationContext())
--                    .send(to, msgId, 1, data);
--        } catch (IOException | IllegalArgumentException exception) {
--            Log.w(TAG, "Send message failed");
--            GcmUma.recordGcmUpstreamHistogram(context, GcmUma.UMA_UPSTREAM_SEND_FAILED);
--        }
-     }
- 
-     private boolean isMessageWithinLimit(Bundle data) {
 --- a/components/gcm_driver/android/BUILD.gn
 +++ b/components/gcm_driver/android/BUILD.gn
 @@ -14,7 +14,6 @@ android_library("gcm_driver_java") {

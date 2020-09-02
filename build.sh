@@ -4,11 +4,13 @@ set -eux -o pipefail
 # Required tools: protobuf python python2 gperf wget rsync tar unzip curl gnupg maven yasm npm ninja gn nodejs git clang lld gn llvm jdk8-openjdk jre8-openjdk-headless jdk10-openjdk lib32-glibc multilib-devel
 # Assuming default python to be python2.
 
-chrome_target=chrome_public_apk
-mono_target=monochrome_public_apk
+modern_chrome_apk_target=chrome_modern_public_apk
+modern_chrome_bundle_target=chrome_modern_public_bundle
+trichrome_chrome_bundle_target=trichrome_chrome_bundle
+trichrome_library_apk_target=trichrome_library_apk
 webview_target=system_webview_apk
 
-chromium_version=84.0.4147.125
+chromium_version=85.0.4183.83
 ungoogled_chromium_revision=1
 
 # Argument parser from https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash/29754866#29754866

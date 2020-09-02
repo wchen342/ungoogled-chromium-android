@@ -32,12 +32,11 @@ Subject: Remove dependency on
  services/device/geolocation/BUILD.gn                                                                          |    2 
  services/shape_detection/BUILD.gn                                                                             |    2 
  third_party/cacheinvalidation/BUILD.gn                                                                        |    1 
- third_party/robolectric/BUILD.gn                                                                              |    2 
- 28 files changed, 17 insertions(+), 226 deletions(-)
+ 27 files changed, 17 insertions(+), 224 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -275,9 +275,6 @@ android_library("chrome_java") {
+@@ -272,9 +272,6 @@ android_library("chrome_java") {
      ":partner_location_descriptor_proto_java",
      ":update_proto_java",
      ":usage_stats_proto_java",
@@ -47,7 +46,7 @@ Subject: Remove dependency on
      "//base:base_java",
      "//base:jni_java",
      "//chrome/android/features/keyboard_accessory:public_java",
-@@ -706,8 +703,6 @@ junit_binary("chrome_junit_tests") {
+@@ -718,8 +715,6 @@ junit_binary("chrome_junit_tests") {
      ":chrome_app_java_resources",
      ":chrome_java",
      ":partner_location_descriptor_proto_java",
@@ -56,7 +55,7 @@ Subject: Remove dependency on
      "//base:base_java",
      "//base:base_java_test_support",
      "//base:base_junit_test_support",
-@@ -820,9 +815,6 @@ android_library("chrome_test_java") {
+@@ -896,9 +891,6 @@ android_library("chrome_test_java") {
      ":chrome_test_util_java",
      ":native_java_unittests_java",
      ":partner_location_descriptor_proto_java",
@@ -102,7 +101,7 @@ Subject: Remove dependency on
                      MediaRouteProvider cafProvider = CafMediaRouteProvider.create(manager);
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
-@@ -781,15 +781,6 @@ by a child template that "extends" this
+@@ -755,15 +755,6 @@ by a child template that "extends" this
              </intent-filter>
            </activity>
  
@@ -130,7 +129,7 @@ Subject: Remove dependency on
  import org.chromium.base.Callback;
  import org.chromium.base.ContextUtils;
  import org.chromium.base.annotations.CalledByNative;
-@@ -333,16 +330,7 @@ public abstract class AppHooks {
+@@ -304,16 +301,7 @@ public abstract class AppHooks {
       * same as {@link GoogleApiAvailability#isGooglePlayServicesAvailable()}.
       */
      public int isGoogleApiAvailableWithMinApkVersion(int minApkVersion) {
@@ -218,7 +217,7 @@ Subject: Remove dependency on
  import org.chromium.base.CommandLine;
  import org.chromium.base.ContextUtils;
  import org.chromium.base.Log;
-@@ -158,9 +155,7 @@ public class ExternalAuthUtils {
+@@ -168,9 +165,7 @@ public class ExternalAuthUtils {
       *         when it is updating.
       */
      public boolean isGooglePlayServicesMissing(final Context context) {
@@ -229,7 +228,7 @@ Subject: Remove dependency on
      }
  
      /**
-@@ -182,7 +177,6 @@ public class ExternalAuthUtils {
+@@ -192,7 +187,6 @@ public class ExternalAuthUtils {
  
          Context context = ContextUtils.getApplicationContext();
          final int resultCode = checkGooglePlayServicesAvailable(context);
@@ -237,7 +236,7 @@ Subject: Remove dependency on
          // resultCode is some kind of error.
          Log.v(TAG, "Unable to use Google Play Services: %s", describeError(resultCode));
          if (isUserRecoverableError(resultCode)) {
-@@ -252,7 +246,7 @@ public class ExternalAuthUtils {
+@@ -262,7 +256,7 @@ public class ExternalAuthUtils {
      protected int checkGooglePlayServicesAvailable(final Context context) {
          // TODO(crbug.com/577190): Temporarily allowing disk access until more permanent fix is in.
          try (StrictModeContext ignored = StrictModeContext.allowDiskWrites()) {
@@ -246,7 +245,7 @@ Subject: Remove dependency on
          }
      }
  
-@@ -264,7 +258,7 @@ public class ExternalAuthUtils {
+@@ -274,7 +268,7 @@ public class ExternalAuthUtils {
       * @return true If the code represents a user-recoverable error
       */
      protected boolean isUserRecoverableError(final int errorCode) {
@@ -255,7 +254,7 @@ Subject: Remove dependency on
      }
  
      /**
-@@ -274,6 +268,6 @@ public class ExternalAuthUtils {
+@@ -284,6 +278,6 @@ public class ExternalAuthUtils {
       * @return a textual description of the error code
       */
      protected String describeError(final int errorCode) {
@@ -529,7 +528,7 @@ Subject: Remove dependency on
          @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 --- a/chrome/test/android/BUILD.gn
 +++ b/chrome/test/android/BUILD.gn
-@@ -197,8 +197,6 @@ android_library("chrome_java_test_suppor
+@@ -239,8 +239,6 @@ android_library("chrome_java_test_suppor
      "javatests/src/org/chromium/chrome/test/util/browser/webapps/WebappTestPage.java",
    ]
    deps = [
@@ -540,10 +539,10 @@ Subject: Remove dependency on
      "//chrome/android:chrome_java",
 --- a/components/background_task_scheduler/BUILD.gn
 +++ b/components/background_task_scheduler/BUILD.gn
-@@ -119,9 +119,6 @@ if (is_android) {
-     ]
+@@ -120,9 +120,6 @@ if (is_android) {
  
      deps = [
+       ":background_task_scheduler_task_ids_java",
 -      "$google_play_services_package:google_play_services_base_java",
 -      "$google_play_services_package:google_play_services_basement_java",
 -      "$google_play_services_package:google_play_services_tasks_java",
@@ -582,7 +581,7 @@ Subject: Remove dependency on
  }
 --- a/content/public/android/BUILD.gn
 +++ b/content/public/android/BUILD.gn
-@@ -75,9 +75,6 @@ action("generate_sandboxed_service_srcja
+@@ -72,9 +72,6 @@ action_with_pydeps("generate_sandboxed_s
  android_library("content_java") {
    deps = [
      ":content_java_resources",
@@ -594,7 +593,7 @@ Subject: Remove dependency on
      "//components/download/public/common:public_java",
 --- a/content/test/BUILD.gn
 +++ b/content/test/BUILD.gn
-@@ -2424,9 +2424,6 @@ if (is_android) {
+@@ -2511,9 +2511,6 @@ if (is_android) {
      testonly = true
      sources = content_java_sources_needing_jni
      deps = [
@@ -606,7 +605,7 @@ Subject: Remove dependency on
        "//ui/android:ui_full_java",
 --- a/device/BUILD.gn
 +++ b/device/BUILD.gn
-@@ -384,8 +384,6 @@ if (is_android) {
+@@ -393,8 +393,6 @@ if (is_android) {
    junit_binary("device_junit_tests") {
      sources = [ "gamepad/android/junit/src/org/chromium/device/gamepad/GamepadMappingsTest.java" ]
      deps = [
@@ -638,7 +637,7 @@ Subject: Remove dependency on
        "//base:base_java",
        "//base:base_java_test_support",
        "//base:base_junit_test_support",
-@@ -132,8 +130,6 @@ if (is_android) {
+@@ -133,8 +131,6 @@ if (is_android) {
        "shape_detection/android/javatests/src/org/chromium/shape_detection/TextDetectionImplTest.java",
      ]
      deps = [
@@ -679,17 +678,6 @@ Subject: Remove dependency on
        "//base:base_java",
        "//third_party/android_protobuf:protobuf_nano_javalib",
      ]
---- a/third_party/robolectric/BUILD.gn
-+++ b/third_party/robolectric/BUILD.gn
-@@ -1162,8 +1162,6 @@ java_library("shadows_play_services_java
-     ":robolectric_shadowapi_java",
-     ":robolectric_utils_java",
-     ":shadows_core_java",
--    "$google_play_services_package:google_play_services_base_java",
--    "$google_play_services_package:google_play_services_basement_java",
-     "//third_party/android_deps:android_support_v4_java",
-     "//third_party/android_deps:com_android_support_support_annotations_java",
-     "//third_party/android_deps:com_android_support_support_fragment_java",
 --- a/chrome/android/java/src/org/chromium/chrome/browser/password_manager/PasswordManagerLauncher.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/password_manager/PasswordManagerLauncher.java
 @@ -6,8 +6,6 @@ package org.chromium.chrome.browser.pass

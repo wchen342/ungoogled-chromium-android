@@ -9,7 +9,7 @@ Subject: Enable experimental ProactivelySwapBrowsingInstance feature
 
 --- a/content/public/common/content_features.cc
 +++ b/content/public/common/content_features.cc
-@@ -459,7 +459,7 @@ const base::Feature kPrioritizeBootstrap
+@@ -451,7 +451,7 @@ const base::Feature kPrioritizeBootstrap
  // HTTP(S) navigations when the BrowsingInstance doesn't contain any other
  // windows.
  const base::Feature kProactivelySwapBrowsingInstance{
@@ -20,7 +20,7 @@ Subject: Enable experimental ProactivelySwapBrowsingInstance feature
  // cross-origin requests.
 --- a/content/common/content_navigation_policy.cc
 +++ b/content/common/content_navigation_policy.cc
-@@ -52,7 +52,7 @@ const base::FeatureParam<ProactivelySwap
+@@ -53,7 +53,7 @@ const base::FeatureParam<ProactivelySwap
      proactively_swap_browsing_instance_level{
          &features::kProactivelySwapBrowsingInstance,
          kProactivelySwapBrowsingInstanceLevelParameterName,
@@ -28,4 +28,4 @@ Subject: Enable experimental ProactivelySwapBrowsingInstance feature
 +        ProactivelySwapBrowsingInstanceLevel::kCrossSiteReuseProcess,
          &proactively_swap_browsing_instance_levels};
  
- ProactivelySwapBrowsingInstanceLevel GetProactivelySwapBrowsingInstanceLevel() {
+ std::string GetProactivelySwapBrowsingInstanceLevelName(

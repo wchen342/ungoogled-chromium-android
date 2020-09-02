@@ -6,36 +6,26 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
  android_webview/browser/aw_browser_context.cc                                                  |    2 
  android_webview/browser/safe_browsing/aw_safe_browsing_blocking_page.cc                        |   10 ++--
  chrome/android/BUILD.gn                                                                        |    1 
- chrome/android/chrome_java_sources.gni                                                         |    1 
  chrome/android/java/src/org/chromium/chrome/browser/sync/settings/GoogleServicesSettings.java  |   21 ----------
  chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java |   19 +--------
- chrome/browser/android/preferences/prefs.h                                                     |    2 
+ chrome/browser/preferences/BUILD.gn                                                            |    1 
+ chrome/browser/safe_browsing/BUILD.gn                                                          |    1 
  weblayer/browser/browser_context_impl.cc                                                       |    2 
- 8 files changed, 12 insertions(+), 46 deletions(-)
+ 8 files changed, 12 insertions(+), 45 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -2914,7 +2914,6 @@ generate_jni("chrome_jni_headers") {
-     "java/src/org/chromium/chrome/browser/resources/ResourceMapper.java",
-     "java/src/org/chromium/chrome/browser/rlz/RevenueStats.java",
-     "java/src/org/chromium/chrome/browser/rlz/RlzPingHandler.java",
--    "java/src/org/chromium/chrome/browser/safe_browsing/SafeBrowsingBridge.java",
-     "java/src/org/chromium/chrome/browser/safe_browsing/SafeBrowsingPasswordReuseDialogBridge.java",
-     "java/src/org/chromium/chrome/browser/screenshot/EditorScreenshotTask.java",
-     "java/src/org/chromium/chrome/browser/search_engines/TemplateUrlServiceFactory.java",
---- a/chrome/android/chrome_java_sources.gni
-+++ b/chrome/android/chrome_java_sources.gni
-@@ -1358,7 +1358,6 @@ chrome_java_sources = [
-   "java/src/org/chromium/chrome/browser/resources/ResourceMapper.java",
-   "java/src/org/chromium/chrome/browser/rlz/RevenueStats.java",
-   "java/src/org/chromium/chrome/browser/rlz/RlzPingHandler.java",
--  "java/src/org/chromium/chrome/browser/safe_browsing/SafeBrowsingBridge.java",
-   "java/src/org/chromium/chrome/browser/safe_browsing/SafeBrowsingPasswordReuseDialogBridge.java",
-   "java/src/org/chromium/chrome/browser/screenshot/EditorScreenshotSource.java",
-   "java/src/org/chromium/chrome/browser/screenshot/EditorScreenshotTask.java",
+@@ -316,7 +316,6 @@ android_library("chrome_java") {
+     "//chrome/browser/performance_hints/android:java",
+     "//chrome/browser/preferences:java",
+     "//chrome/browser/profiles/android:java",
+-    "//chrome/browser/safe_browsing/android:java",
+     "//chrome/browser/safety_check/android:java",
+     "//chrome/browser/settings:java",
+     "//chrome/browser/share/android:java_resources",
 --- a/android_webview/browser/aw_browser_context.cc
 +++ b/android_webview/browser/aw_browser_context.cc
-@@ -235,7 +235,7 @@ base::FilePath AwBrowserContext::GetCont
+@@ -233,7 +233,7 @@ base::FilePath AwBrowserContext::GetCont
  
  // static
  void AwBrowserContext::RegisterPrefs(PrefRegistrySimple* registry) {
@@ -64,17 +54,6 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
            false,                    // should_open_links_in_new_tab
            false,                    // always_show_back_to_safety
            "cpn_safe_browsing_wv");  // help_center_article_link
---- a/chrome/browser/android/preferences/prefs.h
-+++ b/chrome/browser/android/preferences/prefs.h
-@@ -38,8 +38,6 @@ enum Pref {
-   AUTOFILL_CREDIT_CARD_ENABLED,
-   USAGE_STATS_ENABLED,
-   OFFLINE_PREFETCH_USER_SETTING_ENABLED,
--  SAFE_BROWSING_EXTENDED_REPORTING_OPT_IN_ALLOWED,
--  SAFE_BROWSING_ENABLED,
-   PASSWORD_MANAGER_ONBOARDING_STATE,
-   SEARCH_SUGGEST_ENABLED,
-   REMEMBER_PASSWORDS_ENABLED,
 --- a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
 @@ -48,7 +48,6 @@ import org.chromium.chrome.browser.prefe
@@ -85,7 +64,7 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
  import org.chromium.chrome.browser.settings.ChromeManagedPreferenceDelegate;
  import org.chromium.chrome.browser.settings.SettingsActivity;
  import org.chromium.chrome.browser.signin.IdentityServicesProvider;
-@@ -358,17 +357,9 @@ public class SyncAndServicesSettings ext
+@@ -360,16 +359,8 @@ public class SyncAndServicesSettings ext
              PostTask.postTask(UiThreadTaskTraits.DEFAULT, this::updatePreferences);
          } else if (PREF_SEARCH_SUGGESTIONS.equals(key)) {
              mPrefServiceBridge.setBoolean(Pref.SEARCH_SUGGEST_ENABLED, (boolean) newValue);
@@ -96,14 +75,13 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
 -            PostTask.postTask(UiThreadTaskTraits.DEFAULT,
 -                    this::updateLeakDetectionAndSafeBrowsingReportingPreferences);
          } else if (PREF_PASSWORD_LEAK_DETECTION.equals(key)) {
-             mPrefServiceBridge.setBoolean(
-                     Pref.PASSWORD_MANAGER_LEAK_DETECTION_ENABLED, (boolean) newValue);
+             mPrefServiceBridge.setBoolean(Pref.PASSWORD_LEAK_DETECTION_ENABLED, (boolean) newValue);
 -        } else if (PREF_SAFE_BROWSING_SCOUT_REPORTING.equals(key)) {
 -            SafeBrowsingBridge.setSafeBrowsingExtendedReportingEnabled((boolean) newValue);
          } else if (PREF_NAVIGATION_ERROR.equals(key)) {
              mPrefServiceBridge.setBoolean(Pref.ALTERNATE_ERROR_PAGES_ENABLED, (boolean) newValue);
          } else if (PREF_USAGE_AND_CRASH_REPORTING.equals(key)) {
-@@ -544,7 +535,6 @@ public class SyncAndServicesSettings ext
+@@ -551,7 +542,6 @@ public class SyncAndServicesSettings ext
          mSearchSuggestions.setChecked(mPrefServiceBridge.getBoolean(Pref.SEARCH_SUGGEST_ENABLED));
          mNavigationError.setChecked(
                  mPrefServiceBridge.getBoolean(Pref.ALTERNATE_ERROR_PAGES_ENABLED));
@@ -111,7 +89,7 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
  
          updateLeakDetectionAndSafeBrowsingReportingPreferences();
  
-@@ -614,10 +604,9 @@ public class SyncAndServicesSettings ext
+@@ -623,10 +613,9 @@ public class SyncAndServicesSettings ext
       * its appearance needs to be updated. The same goes for safe browsing reporting.
       */
      private void updateLeakDetectionAndSafeBrowsingReportingPreferences() {
@@ -124,7 +102,7 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
  
          boolean has_token_for_leak_check = PasswordUIView.hasAccountForLeakCheckRequest();
          boolean leak_detection_enabled =
-@@ -645,10 +634,10 @@ public class SyncAndServicesSettings ext
+@@ -654,10 +643,10 @@ public class SyncAndServicesSettings ext
                  return mPrefServiceBridge.isManagedPreference(Pref.SEARCH_SUGGEST_ENABLED);
              }
              if (PREF_SAFE_BROWSING_SCOUT_REPORTING.equals(key)) {
@@ -136,25 +114,25 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
 +                return false;
              }
              if (PREF_PASSWORD_LEAK_DETECTION.equals(key)) {
-                 return mPrefServiceBridge.isManagedPreference(
+                 return mPrefServiceBridge.isManagedPreference(Pref.PASSWORD_LEAK_DETECTION_ENABLED);
 --- a/weblayer/browser/browser_context_impl.cc
 +++ b/weblayer/browser/browser_context_impl.cc
-@@ -17,7 +17,6 @@
+@@ -18,7 +18,6 @@
  #include "components/prefs/json_pref_store.h"
  #include "components/prefs/pref_service.h"
  #include "components/prefs/pref_service_factory.h"
 -#include "components/safe_browsing/core/common/safe_browsing_prefs.h"
  #include "components/security_interstitials/content/stateful_ssl_host_state_delegate.h"
- #include "components/security_state/core/security_state.h"
- #include "components/translate/core/browser/translate_pref_names.h"
-@@ -236,7 +235,6 @@ void BrowserContextImpl::RegisterPrefs(
+ #include "components/site_isolation/pref_names.h"
+ #include "components/site_isolation/site_isolation_policy.h"
+@@ -252,7 +251,6 @@ void BrowserContextImpl::RegisterPrefs(
  
    StatefulSSLHostStateDelegate::RegisterProfilePrefs(pref_registry);
    HostContentSettingsMap::RegisterProfilePrefs(pref_registry);
 -  safe_browsing::RegisterProfilePrefs(pref_registry);
-   security_state::RegisterProfilePrefs(pref_registry);
    language::LanguagePrefs::RegisterProfilePrefs(pref_registry);
    translate::TranslatePrefs::RegisterProfilePrefs(pref_registry);
+   blocked_content::SafeBrowsingTriggeredPopupBlocker::RegisterProfilePrefs(
 --- a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/GoogleServicesSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/GoogleServicesSettings.java
 @@ -28,7 +28,6 @@ import org.chromium.chrome.browser.prefe
@@ -165,7 +143,7 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
  import org.chromium.chrome.browser.settings.ChromeManagedPreferenceDelegate;
  import org.chromium.chrome.browser.signin.UnifiedConsentServiceBridge;
  import org.chromium.components.browser_ui.settings.ChromeSwitchPreference;
-@@ -158,17 +157,9 @@ public class GoogleServicesSettings
+@@ -158,16 +157,8 @@ public class GoogleServicesSettings
          String key = preference.getKey();
          if (PREF_SEARCH_SUGGESTIONS.equals(key)) {
              mPrefServiceBridge.setBoolean(Pref.SEARCH_SUGGEST_ENABLED, (boolean) newValue);
@@ -176,14 +154,13 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
 -            PostTask.postTask(UiThreadTaskTraits.DEFAULT,
 -                    this::updateLeakDetectionAndSafeBrowsingReportingPreferences);
          } else if (PREF_PASSWORD_LEAK_DETECTION.equals(key)) {
-             mPrefServiceBridge.setBoolean(
-                     Pref.PASSWORD_MANAGER_LEAK_DETECTION_ENABLED, (boolean) newValue);
+             mPrefServiceBridge.setBoolean(Pref.PASSWORD_LEAK_DETECTION_ENABLED, (boolean) newValue);
 -        } else if (PREF_SAFE_BROWSING_SCOUT_REPORTING.equals(key)) {
 -            SafeBrowsingBridge.setSafeBrowsingExtendedReportingEnabled((boolean) newValue);
          } else if (PREF_NAVIGATION_ERROR.equals(key)) {
              mPrefServiceBridge.setBoolean(Pref.ALTERNATE_ERROR_PAGES_ENABLED, (boolean) newValue);
          } else if (PREF_USAGE_AND_CRASH_REPORTING.equals(key)) {
-@@ -191,7 +182,6 @@ public class GoogleServicesSettings
+@@ -190,7 +181,6 @@ public class GoogleServicesSettings
          mSearchSuggestions.setChecked(mPrefServiceBridge.getBoolean(Pref.SEARCH_SUGGEST_ENABLED));
          mNavigationError.setChecked(
                  mPrefServiceBridge.getBoolean(Pref.ALTERNATE_ERROR_PAGES_ENABLED));
@@ -191,7 +168,7 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
  
          updateLeakDetectionAndSafeBrowsingReportingPreferences();
  
-@@ -217,10 +207,9 @@ public class GoogleServicesSettings
+@@ -216,10 +206,9 @@ public class GoogleServicesSettings
       * its appearance needs to be updated. The same goes for safe browsing reporting.
       */
      private void updateLeakDetectionAndSafeBrowsingReportingPreferences() {
@@ -204,7 +181,7 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
  
          boolean has_token_for_leak_check = PasswordUIView.hasAccountForLeakCheckRequest();
          boolean leak_detection_enabled =
-@@ -247,12 +236,6 @@ public class GoogleServicesSettings
+@@ -246,12 +235,6 @@ public class GoogleServicesSettings
              if (PREF_SEARCH_SUGGESTIONS.equals(key)) {
                  return mPrefServiceBridge.isManagedPreference(Pref.SEARCH_SUGGEST_ENABLED);
              }
@@ -215,5 +192,25 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
 -                return mPrefServiceBridge.isManagedPreference(Pref.SAFE_BROWSING_ENABLED);
 -            }
              if (PREF_PASSWORD_LEAK_DETECTION.equals(key)) {
-                 return mPrefServiceBridge.isManagedPreference(
-                         Pref.PASSWORD_MANAGER_LEAK_DETECTION_ENABLED);
+                 return mPrefServiceBridge.isManagedPreference(Pref.PASSWORD_LEAK_DETECTION_ENABLED);
+             }
+--- a/chrome/browser/safe_browsing/BUILD.gn
++++ b/chrome/browser/safe_browsing/BUILD.gn
+@@ -274,7 +274,6 @@ static_library("safe_browsing") {
+         "telemetry/android/android_telemetry_service.h",
+       ]
+       deps += [
+-        "//chrome/browser/safe_browsing/android",
+         "//components/safe_browsing:buildflags",
+         "//components/safe_browsing/android:safe_browsing_mobile",
+       ]
+--- a/chrome/browser/preferences/BUILD.gn
++++ b/chrome/browser/preferences/BUILD.gn
+@@ -35,7 +35,6 @@ java_cpp_strings("java_pref_names_srcjar
+     "//components/offline_pages/core/prefetch/prefetch_prefs.cc",
+     "//components/password_manager/core/common/password_manager_pref_names.cc",
+     "//components/payments/core/payment_prefs.cc",
+-    "//components/safe_browsing/core/common/safe_browsing_prefs.cc",
+     "//components/signin/public/base/signin_pref_names.cc",
+     "//components/translate/core/browser/translate_pref_names.cc",
+   ]

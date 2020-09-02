@@ -3,8 +3,8 @@ Date: Sun, 14 Apr 2019 12:08:27 +0200
 Subject: Remove all sync and account permissions/features from manifest
 
 ---
- chrome/android/java/AndroidManifest.xml                                                |   26 ----------
- components/sync/android/java/src/org/chromium/components/sync/AndroidSyncSettings.java |    2 
+ chrome/android/java/AndroidManifest.xml                                           |   26 ----------
+ chrome/android/java/src/org/chromium/chrome/browser/sync/AndroidSyncSettings.java |    2 
  2 files changed, 1 insertion(+), 27 deletions(-)
 
 --- a/chrome/android/java/AndroidManifest.xml
@@ -42,7 +42,7 @@ Subject: Remove all sync and account permissions/features from manifest
      {% block extra_uses_permissions %}
      {% endblock %}
  
-@@ -866,16 +858,6 @@ by a child template that "extends" this
+@@ -840,16 +832,6 @@ by a child template that "extends" this
                  android:resource="@xml/file_paths" />
          </provider>
  
@@ -59,7 +59,7 @@ Subject: Remove all sync and account permissions/features from manifest
          <!-- Broadcast receiver that will be notified of account changes -->
          <receiver android:name="org.chromium.chrome.browser.services.AccountsChangedReceiver">
              <intent-filter>
-@@ -944,14 +926,6 @@ by a child template that "extends" this
+@@ -918,14 +900,6 @@ by a child template that "extends" this
              android:configChanges="orientation|keyboardHidden|keyboard|screenSize|mcc|mnc|screenLayout|smallestScreenSize"
              android:hardwareAccelerated="false" />
  
@@ -74,9 +74,9 @@ Subject: Remove all sync and account permissions/features from manifest
          <!-- Android Notification service listener -->
          <service android:name="org.chromium.chrome.browser.notifications.NotificationService"
              android:exported="false"/>
---- a/components/sync/android/java/src/org/chromium/components/sync/AndroidSyncSettings.java
-+++ b/components/sync/android/java/src/org/chromium/components/sync/AndroidSyncSettings.java
-@@ -311,7 +311,7 @@ public class AndroidSyncSettings {
+--- a/chrome/android/java/src/org/chromium/chrome/browser/sync/AndroidSyncSettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/AndroidSyncSettings.java
+@@ -313,7 +313,7 @@ public class AndroidSyncSettings {
                  mIsSyncable = false;
                  mChromeSyncEnabled = false;
              }

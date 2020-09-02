@@ -13,12 +13,11 @@ Subject: Remove dependency on com.google.android.gms.auth
  content/public/android/java/src/org/chromium/content/browser/sms/Wrappers.java                                   |   14 --
  content/test/BUILD.gn                                                                                            |    1 
  third_party/android_deps/BUILD.gn                                                                                |   47 ----------
- third_party/robolectric/BUILD.gn                                                                                 |    1 
- 11 files changed, 6 insertions(+), 174 deletions(-)
+ 10 files changed, 6 insertions(+), 173 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -275,7 +275,6 @@ android_library("chrome_java") {
+@@ -272,7 +272,6 @@ android_library("chrome_java") {
      ":partner_location_descriptor_proto_java",
      ":update_proto_java",
      ":usage_stats_proto_java",
@@ -57,7 +56,7 @@ Subject: Remove dependency on com.google.android.gms.auth
      }
  
      @Override
-@@ -127,15 +117,6 @@ public class SystemAccountManagerDelegat
+@@ -128,15 +118,6 @@ public class SystemAccountManagerDelegat
  
      @Override
      public void invalidateAuthToken(String authToken) throws AuthException {
@@ -73,7 +72,7 @@ Subject: Remove dependency on com.google.android.gms.auth
      }
  
      @Override
-@@ -214,22 +195,13 @@ public class SystemAccountManagerDelegat
+@@ -215,22 +196,13 @@ public class SystemAccountManagerDelegat
      @Nullable
      @Override
      public String getAccountGaiaId(String accountEmail) {
@@ -100,7 +99,7 @@ Subject: Remove dependency on com.google.android.gms.auth
      protected boolean hasGetAccountsPermission() {
 --- a/content/public/android/BUILD.gn
 +++ b/content/public/android/BUILD.gn
-@@ -75,7 +75,6 @@ action("generate_sandboxed_service_srcja
+@@ -72,7 +72,6 @@ action_with_pydeps("generate_sandboxed_s
  android_library("content_java") {
    deps = [
      ":content_java_resources",
@@ -110,7 +109,7 @@ Subject: Remove dependency on com.google.android.gms.auth
      "$google_play_services_package:google_play_services_tasks_java",
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -972,53 +972,6 @@ java_prebuilt("com_android_tools_build_j
+@@ -997,53 +997,6 @@ java_prebuilt("com_android_tools_build_j
  }
  
  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
@@ -164,16 +163,6 @@ Subject: Remove dependency on com.google.android.gms.auth
  android_aar_prebuilt("google_play_services_base_java") {
    aar_path = "libs/com_google_android_gms_play_services_base/play-services-base-17.0.0.aar"
    info_path = "libs/com_google_android_gms_play_services_base/com_google_android_gms_play_services_base.info"
---- a/third_party/robolectric/BUILD.gn
-+++ b/third_party/robolectric/BUILD.gn
-@@ -1162,7 +1162,6 @@ java_library("shadows_play_services_java
-     ":robolectric_shadowapi_java",
-     ":robolectric_utils_java",
-     ":shadows_core_java",
--    "$google_play_services_package:google_play_services_auth_base_java",
-     "$google_play_services_package:google_play_services_base_java",
-     "$google_play_services_package:google_play_services_basement_java",
-     "//third_party/android_deps:android_support_v4_java",
 --- a/content/public/android/java/src/org/chromium/content/browser/sms/Wrappers.java
 +++ b/content/public/android/java/src/org/chromium/content/browser/sms/Wrappers.java
 @@ -10,8 +10,6 @@ import android.content.ContextWrapper;
@@ -215,10 +204,10 @@ Subject: Remove dependency on com.google.android.gms.auth
      /**
 --- a/components/background_task_scheduler/BUILD.gn
 +++ b/components/background_task_scheduler/BUILD.gn
-@@ -119,7 +119,6 @@ if (is_android) {
-     ]
+@@ -120,7 +120,6 @@ if (is_android) {
  
      deps = [
+       ":background_task_scheduler_task_ids_java",
 -      "$google_play_services_package:google_play_services_auth_base_java",
        "$google_play_services_package:google_play_services_base_java",
        "$google_play_services_package:google_play_services_basement_java",
@@ -383,7 +372,7 @@ Subject: Remove dependency on com.google.android.gms.auth
      @VisibleForTesting
 --- a/content/test/BUILD.gn
 +++ b/content/test/BUILD.gn
-@@ -2424,7 +2424,6 @@ if (is_android) {
+@@ -2511,7 +2511,6 @@ if (is_android) {
      testonly = true
      sources = content_java_sources_needing_jni
      deps = [

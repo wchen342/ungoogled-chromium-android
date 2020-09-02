@@ -5,42 +5,16 @@ Subject: fix build error with prefs.h
 ---
  chrome/android/java/src/org/chromium/chrome/browser/signin/SigninFragmentBase.java |    2 +-
  chrome/android/java/src/org/chromium/chrome/browser/signin/SigninPromoUtil.java    |    3 +--
- chrome/browser/android/preferences/prefs.h                                         |    3 ---
- 3 files changed, 2 insertions(+), 6 deletions(-)
+ chrome/browser/preferences/BUILD.gn                                                |    1 -
+ 3 files changed, 2 insertions(+), 4 deletions(-)
  
---- a/chrome/browser/android/preferences/prefs.h
-+++ b/chrome/browser/android/preferences/prefs.h
-@@ -18,7 +18,6 @@
- #include "components/offline_pages/core/prefetch/prefetch_prefs.h"
- #include "components/password_manager/core/common/password_manager_pref_names.h"
- #include "components/payments/core/payment_prefs.h"
--#include "components/signin/public/base/signin_pref_names.h"
- #include "components/translate/core/browser/translate_pref_names.h"
- 
- // A preference exposed to Java.
-@@ -58,7 +57,6 @@ enum Pref {
-   OFFER_TRANSLATE_ENABLED,
-   NOTIFICATIONS_VIBRATE_ENABLED,
-   ALTERNATE_ERROR_PAGES_ENABLED,
--  SYNC_LAST_ACCOUNT_NAME,
-   WEBKIT_PASSWORD_ECHO_ENABLED,
-   WEBKIT_FORCE_DARK_MODE_ENABLED,
-   HOME_PAGE,
-@@ -104,7 +102,6 @@ const char* const kPrefsExposedToJava[]
-     prefs::kOfferTranslateEnabled,
-     prefs::kNotificationsVibrateEnabled,
-     embedder_support::kAlternateErrorPagesEnabled,
--    prefs::kGoogleServicesLastUsername,
-     prefs::kWebKitPasswordEchoEnabled,
-     prefs::kWebKitForceDarkModeEnabled,
-     prefs::kHomePage,
 --- a/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninFragmentBase.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninFragmentBase.java
 @@ -428,7 +428,7 @@ public abstract class SigninFragmentBase
      private void runStateMachineAndSignin(boolean settingsClicked) {
          mConfirmSyncDataStateMachine = new ConfirmSyncDataStateMachine(
                  new ConfirmSyncDataStateMachineDelegate(getChildFragmentManager()),
--                PrefServiceBridge.getInstance().getString(Pref.SYNC_LAST_ACCOUNT_NAME),
+-                PrefServiceBridge.getInstance().getString(Pref.GOOGLE_SERVICES_LAST_USERNAME),
 +                "",
                  mSelectedAccountName, new ConfirmSyncDataStateMachine.Listener() {
                      @Override
@@ -52,8 +26,18 @@ Subject: fix build error with prefs.h
          SigninPreferencesManager preferencesManager = SigninPreferencesManager.getInstance();
          int currentMajorVersion = ChromeVersionInfo.getProductMajorVersion();
 -        boolean wasSignedIn = TextUtils.isEmpty(
--                PrefServiceBridge.getInstance().getString(Pref.SYNC_LAST_ACCOUNT_NAME));
+-                PrefServiceBridge.getInstance().getString(Pref.GOOGLE_SERVICES_LAST_USERNAME));
 +        boolean wasSignedIn = true;
          List<String> accountNames = AccountUtils.toAccountNames(
                  AccountManagerFacadeProvider.getInstance().tryGetGoogleAccounts());
          Supplier<Set<String>> accountNamesSupplier = () -> new ArraySet<>(accountNames);
+--- a/chrome/browser/preferences/BUILD.gn
++++ b/chrome/browser/preferences/BUILD.gn
+@@ -35,7 +35,6 @@ java_cpp_strings("java_pref_names_srcjar
+     "//components/offline_pages/core/prefetch/prefetch_prefs.cc",
+     "//components/password_manager/core/common/password_manager_pref_names.cc",
+     "//components/payments/core/payment_prefs.cc",
+-    "//components/signin/public/base/signin_pref_names.cc",
+     "//components/translate/core/browser/translate_pref_names.cc",
+   ]
+ 

@@ -3,6 +3,7 @@ Date: Fri, 10 Jan 2020 21:49:36 -0500
 Subject: Remove dependency on com.google.android.play.core.splitcompat, com.google.android.play.core.splitinstall
 
 ---
+ components/module_installer/android/BUILD.gn                                                                                |    2 
  components/module_installer/android/java/src/org/chromium/components/module_installer/engine/FakeEngine.java                |   13 --
  components/module_installer/android/java/src/org/chromium/components/module_installer/engine/SplitCompatEngine.java         |   49 ----------
  components/module_installer/android/java/src/org/chromium/components/module_installer/engine/SplitCompatEngineFacade.java   |   20 ----
@@ -13,7 +14,7 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
  components/module_installer/android/java/src/org/chromium/components/module_installer/logger/SplitInstallStatusLogger.java  |   27 -----
  components/module_installer/android/java/src/org/chromium/components/module_installer/util/CrashKeyRecorder.java            |    6 -
  components/module_installer/android/java/src/org/chromium/components/module_installer/util/SplitCompatInitializer.java      |    5 -
- 10 files changed, 17 insertions(+), 203 deletions(-)
+ 11 files changed, 17 insertions(+), 205 deletions(-)
 
 --- a/components/module_installer/android/java/src/org/chromium/components/module_installer/engine/FakeEngine.java
 +++ b/components/module_installer/android/java/src/org/chromium/components/module_installer/engine/FakeEngine.java
@@ -27,7 +28,7 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
  import org.chromium.base.BuildInfo;
  import org.chromium.base.ContextUtils;
  import org.chromium.base.Log;
-@@ -125,17 +122,9 @@ class FakeEngine extends SplitCompatEngi
+@@ -130,17 +127,9 @@ class FakeEngine extends SplitCompatEngi
          }
  
          // Check that the module's signature matches Chrome's.
@@ -501,3 +502,21 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
      }
  
      public static boolean isInitialized() {
+--- a/components/module_installer/android/BUILD.gn
++++ b/components/module_installer/android/BUILD.gn
+@@ -36,7 +36,6 @@ android_library("module_installer_java")
+     "//base:base_java",
+     "//base:jni_java",
+     "//components/crash/android:java",
+-    "//third_party/google_android_play_core:com_google_android_play_core_java",
+   ]
+ 
+   annotation_processor_deps = [ "//base/android/jni_generator:jni_processor" ]
+@@ -59,7 +58,6 @@ junit_binary("module_installer_junit_tes
+     "//base:base_java",
+     "//base:base_java_test_support",
+     "//base:base_junit_test_support",
+-    "//third_party/google_android_play_core:com_google_android_play_core_java",
+     "//third_party/hamcrest:hamcrest_java",
+   ]
+ }

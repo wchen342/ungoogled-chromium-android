@@ -12,7 +12,7 @@ This reverts commit 4e598f38a0e6dd3dbede009c6a99b2a520a94e1f.
 
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -2619,6 +2619,10 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -2643,6 +2643,10 @@ const FeatureEntry kFeatureEntries[] = {
       SINGLE_VALUE_TYPE(switches::kHostedAppQuitNotification)},
  #endif  // OS_MACOSX
  #if defined(OS_ANDROID)
@@ -25,8 +25,8 @@ This reverts commit 4e598f38a0e6dd3dbede009c6a99b2a520a94e1f.
       flag_descriptions::kTranslateForceTriggerOnEnglishDescription, kOsAndroid,
 --- a/chrome/browser/flag-metadata.json
 +++ b/chrome/browser/flag-metadata.json
-@@ -70,6 +70,11 @@
-     "expiry_milestone": 88
+@@ -946,6 +946,11 @@
+     "expiry_milestone": -1
    },
    {
 +    "name": "disable-pull-to-refresh-effect",
@@ -34,12 +34,12 @@ This reverts commit 4e598f38a0e6dd3dbede009c6a99b2a520a94e1f.
 +    "expiry_milestone": -1
 +  },
 +  {
-     "name": "allow-previews",
-     "owners": [ "//components/data_reduction_proxy/OWNERS" ],
-     // This flag is used for frequent manual testing and should not be removed.
+     "name": "disable-keepalive-fetch",
+     "owners": [ "yhirano" ],
+     "expiry_milestone": 83
 --- a/chrome/browser/flag_descriptions.cc
 +++ b/chrome/browser/flag_descriptions.cc
-@@ -2707,6 +2707,10 @@ const char kQueryTilesInstantFetchName[]
+@@ -2839,6 +2839,10 @@ const char kQueryTilesInstantFetchName[]
  const char kQueryTilesInstantFetchDescription[] =
      "Immediately schedule background task to fetch query tiles";
  
@@ -52,7 +52,7 @@ This reverts commit 4e598f38a0e6dd3dbede009c6a99b2a520a94e1f.
      "Determines what pages the Reader Mode infobar is shown on.";
 --- a/chrome/browser/flag_descriptions.h
 +++ b/chrome/browser/flag_descriptions.h
-@@ -1578,6 +1578,9 @@ extern const char kQueryTilesCountryCode
+@@ -1644,6 +1644,9 @@ extern const char kQueryTilesCountryCode
  extern const char kQueryTilesInstantFetchName[];
  extern const char kQueryTilesInstantFetchDescription[];
  

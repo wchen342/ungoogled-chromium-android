@@ -4,11 +4,11 @@ Subject: Add exit menu item
 
 Corrected Exit functionality
 ---
- chrome/android/java/res/menu/main_menu.xml                                             |    2 ++
- chrome/android/java/src/org/chromium/chrome/browser/ChromeActivity.java                |    2 ++
+ chrome/android/java/res/menu/main_menu.xml                                             |    4 ++++
+ chrome/android/java/src/org/chromium/chrome/browser/ChromeActivity.java                |    5 +++++
  chrome/android/java/src/org/chromium/chrome/browser/init/ChromeLifetimeController.java |    6 +++++-
  chrome/browser/ui/android/strings/android_chrome_strings.grd                           |    3 +++
- 4 files changed, 12 insertions(+), 1 deletion(-)
+ 4 files changed, 17 insertions(+), 1 deletion(-)
 
 --- a/chrome/android/java/res/menu/main_menu.xml
 +++ b/chrome/android/java/res/menu/main_menu.xml
@@ -21,17 +21,29 @@ Corrected Exit functionality
      </group>
  
      <!-- Items shown only in the tab switcher -->
+@@ -104,6 +106,8 @@
+             android:title="@string/menu_group_tabs" />
+         <item android:id="@id/preferences_id"
+             android:title="@string/menu_settings" />
++        <item android:id="@+id/exit_id"
++            android:title="@string/menu_exit" />
+     </group>
+ 
+     <!-- Items shown only in the tab switcher when start surface is enabled -->
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeActivity.java
-@@ -2030,6 +2030,8 @@ public abstract class ChromeActivity<C e
-             AddToHomescreenCoordinator.showForAppMenu(
-                     this, getWindowAndroid(), getModalDialogManager(), currentTab.getWebContents());
-             RecordUserAction.record("MobileMenuAddToHomescreen");
-+        } else if (id == R.id.exit_id) {
+@@ -1930,6 +1930,11 @@ public abstract class ChromeActivity<C e
+             RecordUserAction.record("MobileMenuSettings");
+         }
+ 
++        if (id == R.id.exit_id) {
 +            ApplicationLifetime.terminate(false);
-         } else if (id == R.id.open_webapk_id) {
-             Context context = ContextUtils.getApplicationContext();
-             String packageName =
++            return true;
++        }
++
+         if (id == R.id.update_menu_id) {
+             UpdateMenuItemHelper.getInstance().onMenuItemClicked(this);
+             return true;
 --- a/chrome/android/java/src/org/chromium/chrome/browser/init/ChromeLifetimeController.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/init/ChromeLifetimeController.java
 @@ -82,7 +82,11 @@ class ChromeLifetimeController implement
@@ -49,7 +61,7 @@ Corrected Exit functionality
      @Override
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -2446,6 +2446,9 @@ To change this setting, <ph name="BEGIN_
+@@ -2584,6 +2584,9 @@ To change this setting, <ph name="BEGIN_
        <message name="IDS_MENU_SETTINGS" desc="Menu item for opening browser settings. [CHAR-LIMIT=27]">
          Settings
        </message>

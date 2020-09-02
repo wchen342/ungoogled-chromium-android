@@ -10,21 +10,22 @@ Subject: Remove dependency on com.google.android.gms.fido,
  chrome/android/features/cablev2_authenticator/BUILD.gn                                                                       |    1 
  chrome/android/java/src/org/chromium/chrome/browser/externalnav/ExternalNavigationDelegateImpl.java                          |    6 
  chrome/android/java/src/org/chromium/chrome/browser/instantapps/InstantAppsHandler.java                                      |   51 -
- chrome/android/java/src/org/chromium/chrome/browser/webauth/Fido2CredentialRequest.java                                      |  171 -----
- chrome/android/java/src/org/chromium/chrome/browser/webauth/Fido2Helper.java                                                 |  324 ----------
+ chrome/android/java/src/org/chromium/chrome/browser/webauth/Fido2CredentialRequest.java                                      |  172 -----
+ chrome/android/java/src/org/chromium/chrome/browser/webauth/Fido2Helper.java                                                 |  335 ----------
  components/gcm_driver/instance_id/android/BUILD.gn                                                                           |    2 
  components/gcm_driver/instance_id/android/java/src/org/chromium/components/gcm_driver/instance_id/InstanceIDWithSubtype.java |   28 
  device/BUILD.gn                                                                                                              |    1 
+ services/BUILD.gn                                                                                                            |    1 
  services/device/geolocation/BUILD.gn                                                                                         |    1 
  services/device/geolocation/android/java/src/org/chromium/device/geolocation/LocationProviderGmsCore.java                    |  103 ---
  third_party/android_deps/BUILD.gn                                                                                            |   60 -
  third_party/cacheinvalidation/BUILD.gn                                                                                       |    1 
  third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/android2/AndroidManifestUpdatedGcm.xml    |    3 
- 15 files changed, 13 insertions(+), 749 deletions(-)
+ 16 files changed, 14 insertions(+), 761 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -277,8 +277,6 @@ android_library("chrome_java") {
+@@ -274,8 +274,6 @@ android_library("chrome_java") {
      ":usage_stats_proto_java",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
@@ -33,7 +34,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
      "$google_play_services_package:google_play_services_tasks_java",
      "$google_play_services_package:google_play_services_vision_common_java",
      "$google_play_services_package:google_play_services_vision_java",
-@@ -712,7 +710,6 @@ junit_binary("chrome_junit_tests") {
+@@ -724,7 +722,6 @@ junit_binary("chrome_junit_tests") {
      ":partner_location_descriptor_proto_java",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
@@ -41,7 +42,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
      "//base:base_java",
      "//base:base_java_test_support",
      "//base:base_junit_test_support",
-@@ -827,8 +824,6 @@ android_library("chrome_test_java") {
+@@ -903,8 +900,6 @@ android_library("chrome_test_java") {
      ":partner_location_descriptor_proto_java",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
@@ -252,7 +253,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
      /** Fake subclasses can set {@link #sFakeFactoryForTesting} to an implementation of this. */
 --- a/device/BUILD.gn
 +++ b/device/BUILD.gn
-@@ -386,7 +386,6 @@ if (is_android) {
+@@ -395,7 +395,6 @@ if (is_android) {
      deps = [
        "$google_play_services_package:google_play_services_base_java",
        "$google_play_services_package:google_play_services_basement_java",
@@ -421,7 +422,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
  }
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -1003,66 +1003,6 @@ android_aar_prebuilt("google_play_servic
+@@ -1028,66 +1028,6 @@ android_aar_prebuilt("google_play_servic
  }
  
  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
@@ -717,7 +718,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
                  break;
              case Activity.RESULT_OK:
                  processIntentResult(data);
-@@ -296,53 +166,20 @@ public class Fido2CredentialRequest impl
+@@ -296,30 +166,11 @@ public class Fido2CredentialRequest impl
              default:
                  // Something went wrong.
                  Log.e(TAG, "Failed with result code" + resultCode);
@@ -733,33 +734,35 @@ Subject: Remove dependency on com.google.android.gms.fido,
 -        if (response instanceof AuthenticatorErrorResponse) {
 -            processErrorResponse((AuthenticatorErrorResponse) response);
 -        } else if (response instanceof AuthenticatorAttestationResponse) {
--            mCallback.onRegisterResponse(AuthenticatorStatus.SUCCESS,
--                    Fido2Helper.toMakeCredentialResponse(publicKeyCredential));
--            mCallback = null;
+-            try {
+-                mCallback.onRegisterResponse(AuthenticatorStatus.SUCCESS,
+-                        Fido2Helper.toMakeCredentialResponse(publicKeyCredential));
+-                mCallback = null;
+-            } catch (NoSuchAlgorithmException e) {
+-                returnErrorAndResetCallback(AuthenticatorStatus.ALGORITHM_UNSUPPORTED);
+-            }
 -        } else if (response instanceof AuthenticatorAssertionResponse) {
 -            mCallback.onSignResponse(AuthenticatorStatus.SUCCESS,
 -                    Fido2Helper.toGetAssertionResponse(publicKeyCredential, mAppIdExtensionUsed));
 -            mCallback = null;
 -        }
--    }
--
--    private void processErrorResponse(AuthenticatorErrorResponse errorResponse) {
--        Log.e(TAG,
--                "Google Play Services FIDO2 API returned an error: "
--                        + errorResponse.getErrorMessage());
--        int authenticatorStatus = Fido2Helper.convertError(
--                errorResponse.getErrorCode(), errorResponse.getErrorMessage());
--        returnErrorAndResetCallback(authenticatorStatus);
      }
  
-     private void processKeyResponse(Intent data) {
+     private void processErrorResponse(AuthenticatorErrorResponse errorResponse) {
+@@ -335,23 +186,10 @@ public class Fido2CredentialRequest impl
          switch (mRequestStatus) {
              case REGISTER_REQUEST:
                  Log.e(TAG, "Received a register response from Google Play Services FIDO2 API");
--                mCallback.onRegisterResponse(AuthenticatorStatus.SUCCESS,
--                        Fido2Helper.toMakeCredentialResponse(
--                                AuthenticatorAttestationResponse.deserializeFromBytes(
--                                        data.getByteArrayExtra(Fido.FIDO2_KEY_RESPONSE_EXTRA))));
+-                try {
+-                    mCallback.onRegisterResponse(AuthenticatorStatus.SUCCESS,
+-                            Fido2Helper.toMakeCredentialResponse(
+-                                    AuthenticatorAttestationResponse.deserializeFromBytes(
+-                                            data.getByteArrayExtra(
+-                                                    Fido.FIDO2_KEY_RESPONSE_EXTRA))));
+-                } catch (NoSuchAlgorithmException e) {
+-                    returnErrorAndResetCallback(AuthenticatorStatus.ALGORITHM_UNSUPPORTED);
+-                }
++                returnErrorAndResetCallback(AuthenticatorStatus.ALGORITHM_UNSUPPORTED);
                  break;
              case SIGN_REQUEST:
                  Log.e(TAG, "Received a sign response from Google Play Services FIDO2 API");
@@ -771,7 +774,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
                  break;
          }
          mCallback = null;
-@@ -354,17 +191,11 @@ public class Fido2CredentialRequest impl
+@@ -363,17 +201,11 @@ public class Fido2CredentialRequest impl
          // [Attestation/Assertion/Error] Response.
          if (data.hasExtra(FIDO2_KEY_CREDENTIAL_EXTRA)) {
              processPublicKeyCredential(data);
@@ -816,9 +819,9 @@ Subject: Remove dependency on com.google.android.gms.fido,
 -import com.google.android.gms.fido.fido2.api.common.UvmEntries;
 -
  import org.chromium.base.Log;
- import org.chromium.blink.mojom.AuthenticatorAttachment;
- import org.chromium.blink.mojom.AuthenticatorStatus;
-@@ -62,214 +42,6 @@ public final class Fido2Helper {
+ import org.chromium.base.annotations.CalledByNative;
+ import org.chromium.base.annotations.NativeMethods;
+@@ -64,225 +44,6 @@ public final class Fido2Helper {
      static final double MAX_TIMEOUT_SECONDS = 600;
  
      /**
@@ -884,14 +887,25 @@ Subject: Remove dependency on com.google.android.gms.fido,
 -     * @return Response to be passed to the renderer.
 -     */
 -    public static MakeCredentialAuthenticatorResponse toMakeCredentialResponse(
--            AuthenticatorAttestationResponse data) {
+-            AuthenticatorAttestationResponse data) throws NoSuchAlgorithmException {
 -        MakeCredentialAuthenticatorResponse response = new MakeCredentialAuthenticatorResponse();
 -        CommonCredentialInfo info = new CommonCredentialInfo();
 -
 -        response.attestationObject = data.getAttestationObject();
+-        AttestationObjectParts parts = new AttestationObjectParts();
+-        if (!Fido2HelperJni.get().parseAttestationObject(response.attestationObject, parts)) {
+-            // A failure to parse the attestation object is fatal to the request
+-            // on desktop and so the same behavior is used here.
+-            throw new NoSuchAlgorithmException();
+-        }
+-        response.publicKeyAlgo = parts.coseAlgorithm;
+-        info.authenticatorData = parts.authenticatorData;
+-        response.publicKeyDer = parts.spki;
+-
 -        // An empty transports array indicates that we don't have any
 -        // information about the available transports.
 -        response.transports = new int[] {};
+-
 -        info.id = encodeId(data.getKeyHandle());
 -        info.rawId = data.getKeyHandle();
 -        info.clientDataJson = data.getClientDataJSON();
@@ -900,7 +914,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
 -    }
 -
 -    public static MakeCredentialAuthenticatorResponse toMakeCredentialResponse(
--            PublicKeyCredential data) {
+-            PublicKeyCredential data) throws NoSuchAlgorithmException {
 -        MakeCredentialAuthenticatorResponse response =
 -                toMakeCredentialResponse((AuthenticatorAttestationResponse) data.getResponse());
 -        return response;
@@ -949,9 +963,9 @@ Subject: Remove dependency on com.google.android.gms.fido,
 -            AuthenticatorAssertionResponse data, boolean appIdExtensionUsed) {
 -        GetAssertionAuthenticatorResponse response = new GetAssertionAuthenticatorResponse();
 -        CommonCredentialInfo info = new CommonCredentialInfo();
--        response.authenticatorData = data.getAuthenticatorData();
 -        response.signature = data.getSignature();
 -        response.echoAppidExtension = appIdExtensionUsed;
+-        info.authenticatorData = data.getAuthenticatorData();
 -        info.id = encodeId(data.getKeyHandle());
 -        info.rawId = data.getKeyHandle();
 -        info.clientDataJson = data.getClientDataJSON();
@@ -1033,7 +1047,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
       * Base64 encodes the raw id.
       * @param keyHandle the raw id (key handle of the credential).
       * @return Base64-encoded id.
-@@ -280,102 +52,6 @@ public final class Fido2Helper {
+@@ -293,102 +54,6 @@ public final class Fido2Helper {
      }
  
      /**
@@ -1138,7 +1152,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
       * @param timeout The unadjusted timeout as specified by the website. May be null.
 --- a/chrome/android/java/src/org/chromium/chrome/browser/externalnav/ExternalNavigationDelegateImpl.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/externalnav/ExternalNavigationDelegateImpl.java
-@@ -279,12 +279,6 @@ public class ExternalNavigationDelegateI
+@@ -282,12 +282,6 @@ public class ExternalNavigationDelegateI
  
      @Override
      public void maybeAdjustInstantAppExtras(Intent intent, boolean isIntentToInstantApp) {
@@ -1182,3 +1196,13 @@ Subject: Remove dependency on com.google.android.gms.fido,
          }
  
          return false;
+--- a/services/BUILD.gn
++++ b/services/BUILD.gn
+@@ -105,7 +105,6 @@ if (is_android) {
+     deps = [
+       "$google_play_services_package:google_play_services_base_java",
+       "$google_play_services_package:google_play_services_basement_java",
+-      "$google_play_services_package:google_play_services_location_java",
+       "$google_play_services_package:google_play_services_vision_common_java",
+       "$google_play_services_package:google_play_services_vision_java",
+       "//base:base_java",

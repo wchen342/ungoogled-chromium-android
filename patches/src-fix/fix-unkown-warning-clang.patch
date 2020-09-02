@@ -7,7 +7,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
 
 --- a/build/config/compiler/BUILD.gn
 +++ b/build/config/compiler/BUILD.gn
-@@ -1480,6 +1480,9 @@ config("default_warnings") {
+@@ -1497,6 +1497,9 @@ config("default_warnings") {
          # Flags NaCl (Clang 3.7) and Xcode 9.2 (Clang clang-900.0.39.2) do not
          # recognize.
          cflags += [

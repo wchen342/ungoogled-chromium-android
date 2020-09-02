@@ -4,7 +4,7 @@ Subject: Remove dependency on com.google.android.gms.cast
 
 ---
  chrome/android/BUILD.gn                                                                                                                |    6 
- chrome/android/features/media_router/BUILD.gn                                                                                          |    2 
+ chrome/android/features/media_router/BUILD.gn                                                                                          |    5 
  chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/CastSessionUtil.java                            |   35 ---
  chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/MediaSink.java                                  |   44 ----
  chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/MediaStatusBridge.java                          |   40 +--
@@ -24,11 +24,11 @@ Subject: Remove dependency on com.google.android.gms.cast
  chrome/android/java/AndroidManifest.xml                                                                                                |   28 --
  chrome/test/android/cast_emulator/BUILD.gn                                                                                             |    1 
  third_party/android_deps/BUILD.gn                                                                                                      |   39 ---
- 21 files changed, 27 insertions(+), 749 deletions(-)
+ 21 files changed, 27 insertions(+), 752 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -277,8 +277,6 @@ android_library("chrome_java") {
+@@ -274,8 +274,6 @@ android_library("chrome_java") {
      ":usage_stats_proto_java",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
@@ -37,7 +37,7 @@ Subject: Remove dependency on com.google.android.gms.cast
      "$google_play_services_package:google_play_services_fido_java",
      "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
-@@ -714,8 +712,6 @@ junit_binary("chrome_junit_tests") {
+@@ -726,8 +724,6 @@ junit_binary("chrome_junit_tests") {
      ":partner_location_descriptor_proto_java",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
@@ -46,7 +46,7 @@ Subject: Remove dependency on com.google.android.gms.cast
      "$google_play_services_package:google_play_services_fido_java",
      "//base:base_java",
      "//base:base_java_test_support",
-@@ -831,8 +827,6 @@ android_library("chrome_test_java") {
+@@ -907,8 +903,6 @@ android_library("chrome_test_java") {
      ":partner_location_descriptor_proto_java",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
@@ -66,6 +66,16 @@ Subject: Remove dependency on com.google.android.gms.cast
      "//base:base_java",
      "//base:jni_java",
      "//chrome/android:chrome_java",
+@@ -123,9 +121,6 @@ junit_binary("media_router_junit_tests")
+ 
+   deps = [
+     ":java",
+-    "$google_play_services_package:google_play_services_basement_java",
+-    "$google_play_services_package:google_play_services_cast_framework_java",
+-    "$google_play_services_package:google_play_services_cast_java",
+     "//base:base_java",
+     "//base:base_java_test_support",
+     "//base:base_junit_test_support",
 --- a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/CastSessionUtil.java
 +++ b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/CastSessionUtil.java
 @@ -4,9 +4,6 @@
@@ -75,7 +85,7 @@ Subject: Remove dependency on com.google.android.gms.cast
 -import com.google.android.gms.cast.CastDevice;
 -import com.google.android.gms.cast.RemoteMediaPlayer;
 -
- import org.chromium.chrome.browser.media.ui.MediaNotificationInfo;
+ import org.chromium.components.browser_ui.media.MediaNotificationInfo;
  import org.chromium.services.media_session.MediaMetadata;
  
 @@ -18,36 +15,4 @@ public class CastSessionUtil {
@@ -357,9 +367,9 @@ Subject: Remove dependency on com.google.android.gms.cast
 -import com.google.android.gms.cast.MediaStatus;
 -import com.google.android.gms.cast.framework.media.RemoteMediaClient;
 -
- import org.chromium.chrome.browser.media.ui.MediaNotificationInfo;
- import org.chromium.chrome.browser.media.ui.MediaNotificationListener;
  import org.chromium.chrome.browser.media.ui.MediaNotificationManager;
+ import org.chromium.chrome.media.router.R;
+ import org.chromium.components.browser_ui.media.MediaNotificationInfo;
 @@ -59,20 +55,6 @@ public abstract class BaseNotificationCo
      public void onStatusUpdated() {
          if (mNotificationBuilder == null) return;
@@ -1377,7 +1387,7 @@ Subject: Remove dependency on com.google.android.gms.cast
          <!-- Note: All activities directly or indirectly derived from ChromeActivity
               must specify android:hardwareAccelerated="false".
  
-@@ -707,16 +701,6 @@ by a child template that "extends" this
+@@ -681,16 +675,6 @@ by a child template that "extends" this
              </intent-filter>
          </activity>
  
@@ -1394,7 +1404,7 @@ Subject: Remove dependency on com.google.android.gms.cast
          <!-- This activity is used to restart the main Chrome process.  Should never be exported. -->
          <activity android:name="org.chromium.chrome.browser.BrowserRestartActivity"
              android:launchMode="singleInstance"
-@@ -1163,18 +1147,6 @@ by a child template that "extends" this
+@@ -1121,18 +1105,6 @@ by a child template that "extends" this
          {% endif %}
  
          {% block extra_application_definitions %}
@@ -1425,7 +1435,7 @@ Subject: Remove dependency on com.google.android.gms.cast
      "//third_party/android_deps:androidx_mediarouter_mediarouter_java",
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -1003,45 +1003,6 @@ android_aar_prebuilt("google_play_servic
+@@ -1028,45 +1028,6 @@ android_aar_prebuilt("google_play_servic
  }
  
  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.

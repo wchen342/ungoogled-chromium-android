@@ -19,7 +19,7 @@ legacy acceleration events.
 
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -2266,6 +2266,12 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -2283,6 +2283,12 @@ const FeatureEntry kFeatureEntries[] = {
      {"enable-gpu-rasterization", flag_descriptions::kGpuRasterizationName,
       flag_descriptions::kGpuRasterizationDescription, kOsAll,
       MULTI_VALUE_TYPE(kEnableGpuRasterizationChoices)},
@@ -34,7 +34,7 @@ legacy acceleration events.
       MULTI_VALUE_TYPE(kEnableOopRasterizationChoices)},
 --- a/chrome/browser/flag_descriptions.cc
 +++ b/chrome/browser/flag_descriptions.cc
-@@ -678,6 +678,14 @@ const char kWinrtSensorsImplementationDe
+@@ -709,6 +709,14 @@ const char kWinrtSensorsImplementationDe
      "Enables usage of the Windows.Devices.Sensors WinRT APIs on Windows for "
      "sensors";
  
@@ -51,7 +51,7 @@ legacy acceleration events.
  const char kEnableGenericSensorExtraClassesDescription[] =
 --- a/chrome/browser/flag_descriptions.h
 +++ b/chrome/browser/flag_descriptions.h
-@@ -410,6 +410,12 @@ extern const char kWinrtGeolocationImple
+@@ -425,6 +425,12 @@ extern const char kWinrtGeolocationImple
  extern const char kWinrtSensorsImplementationName[];
  extern const char kWinrtSensorsImplementationDescription[];
  
@@ -66,9 +66,9 @@ legacy acceleration events.
  
 --- a/content/child/runtime_features.cc
 +++ b/content/child/runtime_features.cc
-@@ -88,6 +88,9 @@ void SetRuntimeFeatureDefaultsForPlatfor
+@@ -92,6 +92,9 @@ void SetRuntimeFeatureDefaultsForPlatfor
        command_line.HasSwitch(
-           switches::kEnableGpuMemoryBufferCompositorResources) &&
+           blink::switches::kEnableGpuMemoryBufferCompositorResources) &&
        !command_line.HasSwitch(switches::kDisableWebGLImageChromium) &&
 +  WebRuntimeFeatures::EnableDeviceMotion(base::FeatureList::IsEnabled(features::kDeviceMotion));
 +  WebRuntimeFeatures::EnableDeviceOrientation(base::FeatureList::IsEnabled(features::kDeviceOrientation));
@@ -78,7 +78,7 @@ legacy acceleration events.
  #else
 --- a/content/public/common/content_features.cc
 +++ b/content/public/common/content_features.cc
-@@ -804,6 +804,16 @@ const base::Feature kWebOtpBackend{"kWeb
+@@ -801,6 +801,16 @@ const base::Feature kWebOtpBackend{"kWeb
  // TODO(rouslan): Remove this.
  const base::Feature kWebPayments{"WebPayments",
                                   base::FEATURE_ENABLED_BY_DEFAULT};
@@ -97,7 +97,7 @@ legacy acceleration events.
  const base::Feature kWebPaymentsMinimalUI{"WebPaymentsMinimalUI",
 --- a/content/public/common/content_features.h
 +++ b/content/public/common/content_features.h
-@@ -176,6 +176,8 @@ CONTENT_EXPORT extern const base::Featur
+@@ -175,6 +175,8 @@ CONTENT_EXPORT extern const base::Featur
  CONTENT_EXPORT extern const base::Feature kWebXrIncubations;
  CONTENT_EXPORT extern const base::Feature kWebXrPermissionsApi;
  
@@ -108,7 +108,7 @@ legacy acceleration events.
  CONTENT_EXPORT extern const base::Feature
 --- a/third_party/blink/public/platform/web_runtime_features.h
 +++ b/third_party/blink/public/platform/web_runtime_features.h
-@@ -98,6 +98,8 @@ class WebRuntimeFeatures {
+@@ -99,6 +99,8 @@ class WebRuntimeFeatures {
    BLINK_PLATFORM_EXPORT static void EnableCSSHexAlphaColor(bool);
    BLINK_PLATFORM_EXPORT static void EnableSameSiteByDefaultCookies(bool);
    BLINK_PLATFORM_EXPORT static void EnableScrollTopLeftInterop(bool);
@@ -138,7 +138,7 @@ legacy acceleration events.
    // TODO(nhiroki): Figure out why ServiceWorkerContainer needs to be eagerly
 --- a/third_party/blink/renderer/platform/exported/web_runtime_features.cc
 +++ b/third_party/blink/renderer/platform/exported/web_runtime_features.cc
-@@ -179,6 +179,14 @@ void WebRuntimeFeatures::EnableScrollTop
+@@ -189,6 +189,14 @@ void WebRuntimeFeatures::EnableScrollTop
    RuntimeEnabledFeatures::SetScrollTopLeftInteropEnabled(enable);
  }
  
@@ -155,7 +155,7 @@ legacy acceleration events.
  }
 --- a/third_party/blink/renderer/platform/runtime_enabled_features.json5
 +++ b/third_party/blink/renderer/platform/runtime_enabled_features.json5
-@@ -1245,6 +1245,14 @@
+@@ -1257,6 +1257,14 @@
        status: "experimental",
      },
      {

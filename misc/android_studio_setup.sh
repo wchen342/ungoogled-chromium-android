@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 set -eux -o pipefail
 
-chromium_version=84.0.4147.125
-chrome_target=chrome_public_apk
-mono_target=monochrome_public_apk
+chromium_version=85.0.4183.83
+modern_chrome_apk_target=chrome_modern_public_apk
+modern_chrome_bundle_target=chrome_modern_public_bundle
+trichrome_chrome_bundle_target=trichrome_chrome_bundle
+trichrome_library_apk_target=trichrome_library_apk
 webview_target=system_webview_apk
 
 # Create symbol links to gn, depot-tools

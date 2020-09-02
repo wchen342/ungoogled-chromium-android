@@ -21,7 +21,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -281,7 +281,6 @@ android_library("chrome_java") {
+@@ -278,7 +278,6 @@ android_library("chrome_java") {
      "$google_play_services_package:google_play_services_cast_framework_java",
      "$google_play_services_package:google_play_services_cast_java",
      "$google_play_services_package:google_play_services_fido_java",
@@ -29,7 +29,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
      "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
      "$google_play_services_package:google_play_services_vision_common_java",
-@@ -836,7 +835,6 @@ android_library("chrome_test_java") {
+@@ -912,7 +911,6 @@ android_library("chrome_test_java") {
      "$google_play_services_package:google_play_services_cast_framework_java",
      "$google_play_services_package:google_play_services_cast_java",
      "$google_play_services_package:google_play_services_fido_java",
@@ -37,7 +37,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
      "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
      "//base:base_java",
-@@ -1682,7 +1680,6 @@ android_library("browser_java_test_suppo
+@@ -1811,7 +1809,6 @@ android_library("browser_java_test_suppo
    ]
    deps = [
      ":chrome_java",
@@ -230,7 +230,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
      private static boolean isFullBrowserLoaded() {
 --- a/components/background_task_scheduler/BUILD.gn
 +++ b/components/background_task_scheduler/BUILD.gn
-@@ -122,7 +122,6 @@ if (is_android) {
+@@ -123,7 +123,6 @@ if (is_android) {
        "$google_play_services_package:google_play_services_auth_base_java",
        "$google_play_services_package:google_play_services_base_java",
        "$google_play_services_package:google_play_services_basement_java",
@@ -240,7 +240,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
        "internal:proto_java",
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -1103,24 +1103,6 @@ android_aar_prebuilt("google_play_servic
+@@ -1128,24 +1128,6 @@ android_aar_prebuilt("google_play_servic
  }
  
  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.

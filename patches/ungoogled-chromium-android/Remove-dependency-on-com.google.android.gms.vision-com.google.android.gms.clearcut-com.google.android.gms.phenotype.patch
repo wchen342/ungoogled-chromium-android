@@ -6,7 +6,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
 ---
  chrome/android/BUILD.gn                                                                                         |    2 
  chrome/android/features/cablev2_authenticator/BUILD.gn                                                          |    2 
- chrome/browser/share/android/java/src/org/chromium/chrome/browser/share/qrcode/scan_tab/QrCodeScanMediator.java |   49 ----
+ chrome/browser/share/android/java/src/org/chromium/chrome/browser/share/qrcode/scan_tab/QrCodeScanMediator.java |   52 ----
  services/BUILD.gn                                                                                               |    4 
  services/shape_detection/BUILD.gn                                                                               |    2 
  services/shape_detection/android/java/src/org/chromium/shape_detection/BarcodeDetectionImpl.java                |  114 ---------
@@ -14,7 +14,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
  services/shape_detection/android/java/src/org/chromium/shape_detection/FaceDetectionImplGmsCore.java            |  122 ----------
  services/shape_detection/android/java/src/org/chromium/shape_detection/TextDetectionImpl.java                   |   60 ----
  third_party/android_deps/BUILD.gn                                                                               |   69 -----
- 10 files changed, 10 insertions(+), 436 deletions(-)
+ 10 files changed, 10 insertions(+), 439 deletions(-)
 
 --- a/services/BUILD.gn
 +++ b/services/BUILD.gn
@@ -27,7 +27,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
        "//base:base_java",
        "//base:base_java_test_support",
        "//base:base_junit_test_support",
-@@ -136,8 +134,6 @@ if (is_android) {
+@@ -137,8 +135,6 @@ if (is_android) {
      deps = [
        "$google_play_services_package:google_play_services_base_java",
        "$google_play_services_package:google_play_services_basement_java",
@@ -439,7 +439,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
  }
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -1013,36 +1013,6 @@ android_aar_prebuilt("google_play_servic
+@@ -1038,36 +1038,6 @@ android_aar_prebuilt("google_play_servic
  }
  
  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
@@ -474,9 +474,9 @@ Subject: Remove dependency on com.google.android.gms.vision,
 -
 -# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
  android_aar_prebuilt("com_google_android_material_material_java") {
-   aar_path = "libs/com_google_android_material_material/material-1.0.0-rc02.aar"
-   info_path = "libs/com_google_android_material_material/com_google_android_material_material.info"
-@@ -1940,26 +1910,6 @@ java_prebuilt("com_github_kevinstern_sof
+   aar_path =
+       "libs/com_google_android_material_material/material-1.2.0-alpha06.aar"
+@@ -2016,26 +1986,6 @@ java_prebuilt("com_github_kevinstern_sof
  }
  
  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
@@ -503,7 +503,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
  android_aar_prebuilt("google_play_services_flags_java") {
    aar_path = "libs/com_google_android_gms_play_services_flags/play-services-flags-17.0.0.aar"
    info_path = "libs/com_google_android_gms_play_services_flags/com_google_android_gms_play_services_flags.info"
-@@ -1973,25 +1923,6 @@ android_aar_prebuilt("google_play_servic
+@@ -2049,25 +1999,6 @@ android_aar_prebuilt("google_play_servic
    ]
  
    # Removing drawables from GMS .aars as they are unused bloat.
@@ -559,7 +559,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
          initBarcodeDetectorAsync();
      }
  
-@@ -141,36 +134,7 @@ public class QrCodeScanMediator implemen
+@@ -141,39 +134,7 @@ public class QrCodeScanMediator implemen
       */
      @Override
      public void onPreviewFrame(byte[] data, Camera camera) {
@@ -575,6 +575,9 @@ Subject: Remove dependency on com.google.android.gms.vision,
 -                                camera.getParameters().getPreviewSize().height, ImageFormat.NV21)
 -                        .build();
 -        SparseArray<Barcode> barcodes = mDetector.detect(frame);
+-        if (!mPropertyModel.get(QrCodeScanViewProperties.IS_ON_FOREGROUND)) {
+-            return;
+-        }
 -        if (barcodes.size() == 0) {
 -            camera.setOneShotPreviewCallback(this);
 -            return;
@@ -597,7 +600,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
      }
  
      private void openUrl(String url) {
-@@ -187,16 +151,5 @@ public class QrCodeScanMediator implemen
+@@ -190,16 +151,5 @@ public class QrCodeScanMediator implemen
      }
  
      private void initBarcodeDetectorAsync() {
@@ -616,7 +619,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
  }
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -278,8 +278,6 @@ android_library("chrome_java") {
+@@ -275,8 +275,6 @@ android_library("chrome_java") {
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
      "$google_play_services_package:google_play_services_tasks_java",

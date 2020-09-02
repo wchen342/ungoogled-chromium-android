@@ -4,8 +4,8 @@ Subject: kill Auth
 
 ---
  chrome/android/java/src/org/chromium/chrome/browser/signin/SigninHelper.java                                     |   22 -----
- components/signin/core/browser/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java |   42 ----------
- 2 files changed, 4 insertions(+), 60 deletions(-)
+ components/signin/core/browser/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java |   40 ----------
+ 2 files changed, 3 insertions(+), 59 deletions(-)
 
 --- a/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninHelper.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninHelper.java
@@ -59,7 +59,7 @@ Subject: kill Auth
  
  import org.chromium.base.ApiCompatibilityUtils;
  import org.chromium.base.Callback;
-@@ -119,35 +114,15 @@ public class SystemAccountManagerDelegat
+@@ -119,18 +114,7 @@ public class SystemAccountManagerDelegat
          // so don't report any accounts if Google Play Services are out of date.
          checkCanUseGooglePlayServices();
  
@@ -79,26 +79,26 @@ Subject: kill Auth
      }
  
      @Override
-     public String getAuthToken(Account account, String authTokenScope) throws AuthException {
+@@ -138,17 +122,8 @@ public class SystemAccountManagerDelegat
+             throws AuthException {
          assert !ThreadUtils.runningOnUiThread();
          assert AccountUtils.GOOGLE_ACCOUNT_TYPE.equals(account.type);
 -        try {
--            return GoogleAuthUtil.getTokenWithNotification(
--                    ContextUtils.getApplicationContext(), account, authTokenScope, null);
+-            return new AccessTokenData(GoogleAuthUtil.getTokenWithNotification(
+-                    ContextUtils.getApplicationContext(), account, authTokenScope, null));
 -        } catch (GoogleAuthException ex) {
 -            // This case includes a UserRecoverableNotifiedException, but most clients will have
 -            // their own retry mechanism anyway.
 -            throw new AuthException(AuthException.NONTRANSIENT,
--                    "Error while getting token for scope '" + authTokenScope + "'", ex);
++        throw new AuthException(AuthException.NONTRANSIENT,
+                     "Error while getting token for scope '" + authTokenScope + "'", ex);
 -        } catch (IOException ex) {
 -            throw new AuthException(AuthException.TRANSIENT, ex);
 -        }
-+        throw new AuthException(AuthException.NONTRANSIENT,
-+                    "Error while getting token for scope '" + authTokenScope);
      }
  
      @Override
-@@ -200,17 +175,6 @@ public class SystemAccountManagerDelegat
+@@ -201,17 +176,6 @@ public class SystemAccountManagerDelegat
      @SuppressLint("MissingPermission")
      @Override
      public void createAddAccountIntent(Callback<Intent> callback) {
