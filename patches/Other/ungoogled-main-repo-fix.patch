@@ -17,13 +17,13 @@ author: Wengling Chen <feiyu2817@gmail.com>
  build/android/stacktrace/java_deobfuscate.jar
  build/android/tests/symbolize/liba.so
  build/android/tests/symbolize/libb.so
-@@ -15168,12 +15167,9 @@ third_party/hunspell/fuzz/bdict_corpus/en-US-7-1.bdic
+@@ -15168,12 +15167,8 @@ third_party/hunspell/fuzz/bdict_corpus/en-US-7-1.bdic
  third_party/hunspell/fuzz/bdict_corpus/en-US-8-0.bdic
  third_party/hunspell/fuzz/bdict_corpus/f95048cdc0fc231dd712bad106578a9eeecd869b
  third_party/hunspell/fuzz/bdict_corpus/fda69541054125551c41ab3e591e0482405ca2dc
 -third_party/icu/android/icudtl.dat
 -third_party/icu/android_small/icudtl.dat
- third_party/icu/android_small/icudtl_extra.dat
+-third_party/icu/android_small/icudtl_extra.dat
  third_party/icu/cast/icudtl.dat
  third_party/icu/chromeos/icudtl.dat
 -third_party/icu/common/icudtb.dat

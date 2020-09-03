@@ -4,17 +4,18 @@ Subject: Remove dependency on com.google.android.gms.vision,
  com.google.android.gms.clearcut, com.google.android.gms.phenotype
 
 ---
- chrome/android/BUILD.gn                                                                                         |    2 
- chrome/android/features/cablev2_authenticator/BUILD.gn                                                          |    2 
- chrome/browser/share/android/java/src/org/chromium/chrome/browser/share/qrcode/scan_tab/QrCodeScanMediator.java |   52 ----
- services/BUILD.gn                                                                                               |    4 
- services/shape_detection/BUILD.gn                                                                               |    2 
- services/shape_detection/android/java/src/org/chromium/shape_detection/BarcodeDetectionImpl.java                |  114 ---------
- services/shape_detection/android/java/src/org/chromium/shape_detection/BarcodeDetectionProviderImpl.java        |   22 -
- services/shape_detection/android/java/src/org/chromium/shape_detection/FaceDetectionImplGmsCore.java            |  122 ----------
- services/shape_detection/android/java/src/org/chromium/shape_detection/TextDetectionImpl.java                   |   60 ----
- third_party/android_deps/BUILD.gn                                                                               |   69 -----
- 10 files changed, 10 insertions(+), 439 deletions(-)
+ chrome/android/BUILD.gn                                                                                                    |    2 
+ chrome/android/features/cablev2_authenticator/BUILD.gn                                                                     |    2 
+ chrome/android/features/cablev2_authenticator/java/src/org/chromium/chrome/browser/webauth/authenticator/QRScanDialog.java |   50 ----
+ chrome/browser/share/android/java/src/org/chromium/chrome/browser/share/qrcode/scan_tab/QrCodeScanMediator.java            |   52 ----
+ services/BUILD.gn                                                                                                          |    4 
+ services/shape_detection/BUILD.gn                                                                                          |    2 
+ services/shape_detection/android/java/src/org/chromium/shape_detection/BarcodeDetectionImpl.java                           |  114 ---------
+ services/shape_detection/android/java/src/org/chromium/shape_detection/BarcodeDetectionProviderImpl.java                   |   22 -
+ services/shape_detection/android/java/src/org/chromium/shape_detection/FaceDetectionImplGmsCore.java                       |  122 ----------
+ services/shape_detection/android/java/src/org/chromium/shape_detection/TextDetectionImpl.java                              |   60 ----
+ third_party/android_deps/BUILD.gn                                                                                          |   69 -----
+ 11 files changed, 10 insertions(+), 489 deletions(-)
 
 --- a/services/BUILD.gn
 +++ b/services/BUILD.gn
@@ -674,5 +675,77 @@ Subject: Remove dependency on com.google.android.gms.vision,
 -        }
 -        return new BarcodeDetectionProviderImpl();
 +        return null;
+     }
+ }
+--- a/chrome/android/features/cablev2_authenticator/java/src/org/chromium/chrome/browser/webauth/authenticator/QRScanDialog.java
++++ b/chrome/android/features/cablev2_authenticator/java/src/org/chromium/chrome/browser/webauth/authenticator/QRScanDialog.java
+@@ -15,10 +15,6 @@ import android.view.ViewGroup;
+ 
+ import androidx.fragment.app.DialogFragment;
+ 
+-import com.google.android.gms.vision.Frame;
+-import com.google.android.gms.vision.barcode.Barcode;
+-import com.google.android.gms.vision.barcode.BarcodeDetector;
+-
+ import org.chromium.base.Log;
+ import org.chromium.base.ThreadUtils;
+ import org.chromium.base.task.PostTask;
+@@ -45,7 +41,6 @@ public class QRScanDialog extends Dialog
+     public static interface Callback { void onQRCode(String value); }
+ 
+     private final Callback mCallback;
+-    private BarcodeDetector mQRScanner;
+     private CameraView mCameraView;
+     private ByteBuffer mBuffer;
+     private boolean mDismissed;
+@@ -86,50 +81,5 @@ public class QRScanDialog extends Dialog
+      * {@link #mBuffer}. Runs on a background thread.
+      */
+     private void findQRCodes(ByteBuffer buffer, Camera.Parameters cameraParams) {
+-        if (mQRScanner == null) {
+-            // This can trigger a load of GmsCore modules, which is too
+-            // much to do on the main thread.
+-            mQRScanner = new BarcodeDetector.Builder(getContext()).build();
+-            if (mQRScanner == null) {
+-                Log.i(TAG, "BarcodeDetector failed to load");
+-                PostTask.postTask(UiThreadTaskTraits.DEFAULT, this::dismiss);
+-                return;
+-            }
+-        }
+-
+-        // From
+-        // https://developer.android.com/reference/android/hardware/Camera.PreviewCallback.html#onPreviewFrame(byte%5B%5D,%20android.hardware.Camera)
+-        // "If Camera.Parameters.setPreviewFormat(int) is never called, the default will be
+-        // the YCbCr_420_SP (NV21) format."
+-        Frame frame = new Frame.Builder()
+-                              .setImageData(buffer, cameraParams.getPreviewSize().width,
+-                                      cameraParams.getPreviewSize().height, ImageFormat.NV21)
+-                              .build();
+-        SparseArray<Barcode> barcodes = mQRScanner.detect(frame);
+-        PostTask.postTask(UiThreadTaskTraits.DEFAULT, () -> handleQRCodes(barcodes));
+-    }
+-
+-    /**
+-     * Handles the results of QR detection. Runs on the UI thread.
+-     */
+-    private void handleQRCodes(SparseArray<Barcode> barcodes) {
+-        ThreadUtils.assertOnUiThread();
+-
+-        // This dialog may have been dismissed while background QR detection was
+-        // running.
+-        if (mDismissed) {
+-            return;
+-        }
+-
+-        for (int i = 0; i < barcodes.size(); i++) {
+-            String value = barcodes.valueAt(i).rawValue;
+-            if (value.startsWith(FIDO_QR_PREFIX)) {
+-                mCallback.onQRCode(value);
+-                dismiss();
+-                return;
+-            }
+-        }
+-
+-        mCameraView.rearmCallback();
      }
  }

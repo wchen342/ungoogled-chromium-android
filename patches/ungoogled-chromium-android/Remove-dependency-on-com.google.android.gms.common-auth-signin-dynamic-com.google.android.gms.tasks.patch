@@ -5,34 +5,35 @@ Subject: Remove dependency on
  com.google.android.gms.tasks
 
 ---
- chrome/android/BUILD.gn                                                                                       |    8 
- chrome/android/features/cablev2_authenticator/BUILD.gn                                                        |    2 
- chrome/android/features/media_router/BUILD.gn                                                                 |    2 
- chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/ChromeMediaRouter.java |    7 
- chrome/android/java/AndroidManifest.xml                                                                       |    9 -
- chrome/android/java/src/org/chromium/chrome/browser/AppHooks.java                                             |   14 -
- chrome/android/java/src/org/chromium/chrome/browser/ChromeVersionInfo.java                                    |   12 -
- chrome/android/java/src/org/chromium/chrome/browser/component_updater/UpdateScheduler.java                    |    8 
- chrome/android/java/src/org/chromium/chrome/browser/externalauth/ExternalAuthUtils.java                       |   14 -
- chrome/android/java/src/org/chromium/chrome/browser/externalauth/UserRecoverableErrorHandler.java             |    7 
- chrome/android/java/src/org/chromium/chrome/browser/gcore/ChromeGoogleApiClientImpl.java                      |   25 ---
- chrome/android/java/src/org/chromium/chrome/browser/gcore/GoogleApiClientHelper.java                          |   82 ----------
- chrome/android/java/src/org/chromium/chrome/browser/omaha/UpdateStatusProvider.java                           |   10 -
- chrome/android/java/src/org/chromium/chrome/browser/password_manager/PasswordManagerLauncher.java             |    4 
- chrome/test/android/BUILD.gn                                                                                  |    2 
- components/background_task_scheduler/BUILD.gn                                                                 |    3 
- components/background_task_scheduler/internal/BUILD.gn                                                        |    6 
- components/signin/core/browser/android/BUILD.gn                                                               |    2 
- components/signin/core/browser/android/java/src/org/chromium/components/signin/GmsAvailabilityException.java  |    4 
- content/public/android/BUILD.gn                                                                               |    3 
- content/test/BUILD.gn                                                                                         |    3 
- device/BUILD.gn                                                                                               |    2 
- remoting/android/client_java_tmpl.gni                                                                         |    3 
- services/BUILD.gn                                                                                             |    4 
- services/device/geolocation/BUILD.gn                                                                          |    2 
- services/shape_detection/BUILD.gn                                                                             |    2 
- third_party/cacheinvalidation/BUILD.gn                                                                        |    1 
- 27 files changed, 17 insertions(+), 224 deletions(-)
+ chrome/android/BUILD.gn                                                                                                          |    8 
+ chrome/android/features/cablev2_authenticator/BUILD.gn                                                                           |    2 
+ chrome/android/features/cablev2_authenticator/java/src/org/chromium/chrome/browser/webauth/authenticator/CableAuthenticator.java |    2 
+ chrome/android/features/media_router/BUILD.gn                                                                                    |    2 
+ chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/ChromeMediaRouter.java                    |    7 
+ chrome/android/java/AndroidManifest.xml                                                                                          |    9 -
+ chrome/android/java/src/org/chromium/chrome/browser/AppHooks.java                                                                |   14 -
+ chrome/android/java/src/org/chromium/chrome/browser/ChromeVersionInfo.java                                                       |   12 -
+ chrome/android/java/src/org/chromium/chrome/browser/component_updater/UpdateScheduler.java                                       |    8 
+ chrome/android/java/src/org/chromium/chrome/browser/externalauth/ExternalAuthUtils.java                                          |   14 -
+ chrome/android/java/src/org/chromium/chrome/browser/externalauth/UserRecoverableErrorHandler.java                                |    7 
+ chrome/android/java/src/org/chromium/chrome/browser/gcore/ChromeGoogleApiClientImpl.java                                         |   25 ---
+ chrome/android/java/src/org/chromium/chrome/browser/gcore/GoogleApiClientHelper.java                                             |   82 ----------
+ chrome/android/java/src/org/chromium/chrome/browser/omaha/UpdateStatusProvider.java                                              |   10 -
+ chrome/android/java/src/org/chromium/chrome/browser/password_manager/PasswordManagerLauncher.java                                |    4 
+ chrome/test/android/BUILD.gn                                                                                                     |    2 
+ components/background_task_scheduler/BUILD.gn                                                                                    |    3 
+ components/background_task_scheduler/internal/BUILD.gn                                                                           |    6 
+ components/signin/core/browser/android/BUILD.gn                                                                                  |    2 
+ components/signin/core/browser/android/java/src/org/chromium/components/signin/GmsAvailabilityException.java                     |    4 
+ content/public/android/BUILD.gn                                                                                                  |    3 
+ content/test/BUILD.gn                                                                                                            |    3 
+ device/BUILD.gn                                                                                                                  |    2 
+ remoting/android/client_java_tmpl.gni                                                                                            |    3 
+ services/BUILD.gn                                                                                                                |    4 
+ services/device/geolocation/BUILD.gn                                                                                             |    2 
+ services/shape_detection/BUILD.gn                                                                                                |    2 
+ third_party/cacheinvalidation/BUILD.gn                                                                                           |    1 
+ 28 files changed, 17 insertions(+), 226 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
@@ -731,3 +732,14 @@ Subject: Remove dependency on
      "//base:base_java",
      "//base:jni_java",
      "//chrome/android:chrome_java",
+--- a/chrome/android/features/cablev2_authenticator/java/src/org/chromium/chrome/browser/webauth/authenticator/CableAuthenticator.java
++++ b/chrome/android/features/cablev2_authenticator/java/src/org/chromium/chrome/browser/webauth/authenticator/CableAuthenticator.java
+@@ -12,8 +12,6 @@ import android.content.IntentSender;
+ import android.net.Uri;
+ import android.os.Bundle;
+ 
+-import com.google.android.gms.tasks.Task;
+-
+ import org.chromium.base.Log;
+ 
+ import java.util.ArrayList;

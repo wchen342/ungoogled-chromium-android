@@ -69,7 +69,7 @@ popd
 
 # Compile apk
 pushd src
-ninja -C ${output_folder} ${chrome_target}
+ninja -C ${output_folder} ${modern_chrome_apk_target}
 popd
 
 ###
@@ -89,5 +89,5 @@ pushd ..
 patch -p1 --ignore-whitespace -i patches/Other/generate_gradle.patch --no-backup-if-mismatch
 popd
 # patch -p1 --ignore-whitespace -i ../patches/src-fix/fix-unkown-warning-clang-9.patch --no-backup-if-mismatch
-python build/android/gradle/generate_gradle.py --target //chrome/android:${chrome_target} --output-directory ${output_folder}
+python build/android/gradle/generate_gradle.py --target //chrome/android:${modern_chrome_apk_target} --output-directory ${output_folder}
 popd

@@ -12,8 +12,8 @@ Corrected Exit functionality
 
 --- a/chrome/android/java/res/menu/main_menu.xml
 +++ b/chrome/android/java/res/menu/main_menu.xml
-@@ -87,6 +87,8 @@
-             android:title="@string/menu_help" />
+@@ -85,6 +85,8 @@
+             android:title="@string/menu_settings" />
          <item android:id="@+id/enter_vr_id"
              android:title="@string/enter_vr" />
 +        <item android:id="@+id/exit_id"
@@ -21,7 +21,7 @@ Corrected Exit functionality
      </group>
  
      <!-- Items shown only in the tab switcher -->
-@@ -104,6 +106,8 @@
+@@ -102,6 +104,8 @@
              android:title="@string/menu_group_tabs" />
          <item android:id="@id/preferences_id"
              android:title="@string/menu_settings" />

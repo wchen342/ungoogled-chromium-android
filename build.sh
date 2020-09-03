@@ -71,7 +71,7 @@ if [[ "$ARCH" != "arm64" ]] && [[ "$ARCH" != "arm" ]] && [[ "$ARCH" != "x86" ]];
     exit 4
 fi
 
-if [[ "$TARGET" != "$chrome_target" ]] && [[ "$TARGET" != "$mono_target" ]] && [[ "$TARGET" != "$webview_target" ]]; then
+if [[ "$TARGET" != "$modern_chrome_apk_target" ]] && [[ "$TARGET" != "$trichrome_chrome_bundle_target" ]] && [[ "$TARGET" != "$webview_target" ]]; then
     echo "Wrong target"
     exit 5
 fi

@@ -4,8 +4,8 @@ Subject: kill Auth
 
 ---
  chrome/android/java/src/org/chromium/chrome/browser/signin/SigninHelper.java                                     |   22 -----
- components/signin/core/browser/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java |   40 ----------
- 2 files changed, 3 insertions(+), 59 deletions(-)
+ components/signin/core/browser/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java |   42 ----------
+ 2 files changed, 4 insertions(+), 60 deletions(-)
 
 --- a/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninHelper.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninHelper.java
@@ -90,11 +90,12 @@ Subject: kill Auth
 -            // This case includes a UserRecoverableNotifiedException, but most clients will have
 -            // their own retry mechanism anyway.
 -            throw new AuthException(AuthException.NONTRANSIENT,
-+        throw new AuthException(AuthException.NONTRANSIENT,
-                     "Error while getting token for scope '" + authTokenScope + "'", ex);
+-                    "Error while getting token for scope '" + authTokenScope + "'", ex);
 -        } catch (IOException ex) {
 -            throw new AuthException(AuthException.TRANSIENT, ex);
 -        }
++        throw new AuthException(AuthException.NONTRANSIENT,
++                    "Error while getting token for scope '" + authTokenScope + "'");
      }
  
      @Override

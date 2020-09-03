@@ -5,23 +5,25 @@ Subject: Remove dependency on com.google.android.gms.fido,
  com.google.android.gms.location
 
 ---
- base/android/java/src/org/chromium/base/IntentUtils.java                                                                     |    5 
- chrome/android/BUILD.gn                                                                                                      |    5 
- chrome/android/features/cablev2_authenticator/BUILD.gn                                                                       |    1 
- chrome/android/java/src/org/chromium/chrome/browser/externalnav/ExternalNavigationDelegateImpl.java                          |    6 
- chrome/android/java/src/org/chromium/chrome/browser/instantapps/InstantAppsHandler.java                                      |   51 -
- chrome/android/java/src/org/chromium/chrome/browser/webauth/Fido2CredentialRequest.java                                      |  172 -----
- chrome/android/java/src/org/chromium/chrome/browser/webauth/Fido2Helper.java                                                 |  335 ----------
- components/gcm_driver/instance_id/android/BUILD.gn                                                                           |    2 
- components/gcm_driver/instance_id/android/java/src/org/chromium/components/gcm_driver/instance_id/InstanceIDWithSubtype.java |   28 
- device/BUILD.gn                                                                                                              |    1 
- services/BUILD.gn                                                                                                            |    1 
- services/device/geolocation/BUILD.gn                                                                                         |    1 
- services/device/geolocation/android/java/src/org/chromium/device/geolocation/LocationProviderGmsCore.java                    |  103 ---
- third_party/android_deps/BUILD.gn                                                                                            |   60 -
- third_party/cacheinvalidation/BUILD.gn                                                                                       |    1 
- third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/android2/AndroidManifestUpdatedGcm.xml    |    3 
- 16 files changed, 14 insertions(+), 761 deletions(-)
+ base/android/java/src/org/chromium/base/IntentUtils.java                                                                              |    5 
+ chrome/android/BUILD.gn                                                                                                               |    5 
+ chrome/android/features/cablev2_authenticator/BUILD.gn                                                                                |    1 
+ chrome/android/features/cablev2_authenticator/java/src/org/chromium/chrome/browser/webauth/authenticator/CableAuthenticator.java      |  221 ------
+ chrome/android/java/src/org/chromium/chrome/browser/externalnav/ExternalNavigationDelegateImpl.java                                   |    6 
+ chrome/android/java/src/org/chromium/chrome/browser/instantapps/InstantAppsHandler.java                                               |   51 -
+ chrome/android/java/src/org/chromium/chrome/browser/webauth/Fido2CredentialRequest.java                                               |  181 -----
+ chrome/android/java/src/org/chromium/chrome/browser/webauth/Fido2Helper.java                                                          |  335 ----------
+ components/gcm_driver/instance_id/android/BUILD.gn                                                                                    |    2 
+ components/gcm_driver/instance_id/android/java/src/org/chromium/components/gcm_driver/instance_id/InstanceIDWithSubtype.java          |   28 
+ components/gcm_driver/instance_id/android/javatests/src/org/chromium/components/gcm_driver/instance_id/FakeInstanceIDWithSubtype.java |   14 
+ device/BUILD.gn                                                                                                                       |    1 
+ services/BUILD.gn                                                                                                                     |    1 
+ services/device/geolocation/BUILD.gn                                                                                                  |    1 
+ services/device/geolocation/android/java/src/org/chromium/device/geolocation/LocationProviderGmsCore.java                             |  103 ---
+ third_party/android_deps/BUILD.gn                                                                                                     |   60 -
+ third_party/cacheinvalidation/BUILD.gn                                                                                                |    1 
+ third_party/cacheinvalidation/src/java/com/google/ipc/invalidation/external/client/android2/AndroidManifestUpdatedGcm.xml             |    3 
+ 18 files changed, 26 insertions(+), 993 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
@@ -718,7 +720,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
                  break;
              case Activity.RESULT_OK:
                  processIntentResult(data);
-@@ -296,30 +166,11 @@ public class Fido2CredentialRequest impl
+@@ -296,62 +166,21 @@ public class Fido2CredentialRequest impl
              default:
                  // Something went wrong.
                  Log.e(TAG, "Failed with result code" + resultCode);
@@ -746,10 +748,18 @@ Subject: Remove dependency on com.google.android.gms.fido,
 -                    Fido2Helper.toGetAssertionResponse(publicKeyCredential, mAppIdExtensionUsed));
 -            mCallback = null;
 -        }
+-    }
+-
+-    private void processErrorResponse(AuthenticatorErrorResponse errorResponse) {
+-        Log.e(TAG,
+-                "Google Play Services FIDO2 API returned an error: "
+-                        + errorResponse.getErrorMessage());
+-        int authenticatorStatus = Fido2Helper.convertError(
+-                errorResponse.getErrorCode(), errorResponse.getErrorMessage());
+-        returnErrorAndResetCallback(authenticatorStatus);
      }
  
-     private void processErrorResponse(AuthenticatorErrorResponse errorResponse) {
-@@ -335,23 +186,10 @@ public class Fido2CredentialRequest impl
+     private void processKeyResponse(Intent data) {
          switch (mRequestStatus) {
              case REGISTER_REQUEST:
                  Log.e(TAG, "Received a register response from Google Play Services FIDO2 API");
@@ -774,7 +784,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
                  break;
          }
          mCallback = null;
-@@ -363,17 +201,11 @@ public class Fido2CredentialRequest impl
+@@ -363,17 +192,11 @@ public class Fido2CredentialRequest impl
          // [Attestation/Assertion/Error] Response.
          if (data.hasExtra(FIDO2_KEY_CREDENTIAL_EXTRA)) {
              processPublicKeyCredential(data);
@@ -1206,3 +1216,326 @@ Subject: Remove dependency on com.google.android.gms.fido,
        "$google_play_services_package:google_play_services_vision_common_java",
        "$google_play_services_package:google_play_services_vision_java",
        "//base:base_java",
+--- a/components/gcm_driver/instance_id/android/javatests/src/org/chromium/components/gcm_driver/instance_id/FakeInstanceIDWithSubtype.java
++++ b/components/gcm_driver/instance_id/android/javatests/src/org/chromium/components/gcm_driver/instance_id/FakeInstanceIDWithSubtype.java
+@@ -8,8 +8,6 @@ import android.os.Bundle;
+ import android.os.Looper;
+ import android.util.Pair;
+ 
+-import com.google.android.gms.iid.InstanceID;
+-
+ import org.chromium.base.annotations.CalledByNative;
+ import org.chromium.base.annotations.JNINamespace;
+ 
+@@ -100,7 +98,7 @@ public class FakeInstanceIDWithSubtype e
+         // SharedPreferences. Since we can't override those static methods to simulate the strict
+         // mode violation in tests, check the thread here (which is only called from getInstance).
+         if (Looper.getMainLooper() == Looper.myLooper())
+-            throw new AssertionError(InstanceID.ERROR_MAIN_THREAD);
++            throw new AssertionError();
+     }
+ 
+     @Override
+@@ -113,7 +111,7 @@ public class FakeInstanceIDWithSubtype e
+         // InstanceID.getId sometimes triggers a strict mode violation if it's called on the main
+         // thread, by reading from SharedPreferences.
+         if (Looper.getMainLooper() == Looper.myLooper())
+-            throw new AssertionError(InstanceID.ERROR_MAIN_THREAD);
++            throw new AssertionError();
+ 
+         if (mId == null) {
+             mCreationTime = System.currentTimeMillis();
+@@ -127,7 +125,7 @@ public class FakeInstanceIDWithSubtype e
+         // InstanceID.getCreationTime sometimes triggers a strict mode violation if it's called on
+         // the main thread, by reading from SharedPreferences.
+         if (Looper.getMainLooper() == Looper.myLooper())
+-            throw new AssertionError(InstanceID.ERROR_MAIN_THREAD);
++            throw new AssertionError();
+ 
+         return mCreationTime;
+     }
+@@ -142,7 +140,7 @@ public class FakeInstanceIDWithSubtype e
+             throws IOException {
+         // InstanceID.getToken enforces this.
+         if (Looper.getMainLooper() == Looper.myLooper()) {
+-            throw new IOException(InstanceID.ERROR_MAIN_THREAD);
++            throw new IOException();
+         }
+ 
+         String key = getSubtype() + ',' + authorizedEntity + ',' + scope;
+@@ -159,7 +157,7 @@ public class FakeInstanceIDWithSubtype e
+     public void deleteToken(String authorizedEntity, String scope) throws IOException {
+         // InstanceID.deleteToken enforces this.
+         if (Looper.getMainLooper() == Looper.myLooper()) {
+-            throw new IOException(InstanceID.ERROR_MAIN_THREAD);
++            throw new IOException();
+         }
+ 
+         String key = getSubtype() + ',' + authorizedEntity + ',' + scope;
+@@ -175,7 +173,7 @@ public class FakeInstanceIDWithSubtype e
+ 
+             // InstanceID.deleteInstanceID calls InstanceID.deleteToken which enforces this.
+             if (Looper.getMainLooper() == Looper.myLooper()) {
+-                throw new IOException(InstanceID.ERROR_MAIN_THREAD);
++                throw new IOException();
+             }
+ 
+             mTokens.clear();
+--- a/chrome/android/features/cablev2_authenticator/java/src/org/chromium/chrome/browser/webauth/authenticator/CableAuthenticator.java
++++ b/chrome/android/features/cablev2_authenticator/java/src/org/chromium/chrome/browser/webauth/authenticator/CableAuthenticator.java
+@@ -12,25 +12,6 @@ import android.content.IntentSender;
+ import android.net.Uri;
+ import android.os.Bundle;
+ 
+-import com.google.android.gms.fido.Fido;
+-import com.google.android.gms.fido.common.Transport;
+-import com.google.android.gms.fido.fido2.Fido2PrivilegedApiClient;
+-import com.google.android.gms.fido.fido2.api.common.Attachment;
+-import com.google.android.gms.fido.fido2.api.common.AttestationConveyancePreference;
+-import com.google.android.gms.fido.fido2.api.common.AuthenticatorAssertionResponse;
+-import com.google.android.gms.fido.fido2.api.common.AuthenticatorAttestationResponse;
+-import com.google.android.gms.fido.fido2.api.common.AuthenticatorErrorResponse;
+-import com.google.android.gms.fido.fido2.api.common.AuthenticatorSelectionCriteria;
+-import com.google.android.gms.fido.fido2.api.common.BrowserPublicKeyCredentialCreationOptions;
+-import com.google.android.gms.fido.fido2.api.common.BrowserPublicKeyCredentialRequestOptions;
+-import com.google.android.gms.fido.fido2.api.common.PublicKeyCredential;
+-import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialCreationOptions;
+-import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialDescriptor;
+-import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialParameters;
+-import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialRequestOptions;
+-import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialRpEntity;
+-import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialType;
+-import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialUserEntity;
+ import com.google.android.gms.tasks.Task;
+ 
+ import org.chromium.base.Log;
+@@ -99,69 +80,8 @@ class CableAuthenticator {
+         // TODO: handle concurrent requests
+         assert mClientAddress == 0;
+         mClientAddress = clientAddress;
+-        Fido2PrivilegedApiClient client = Fido.getFido2PrivilegedApiClient(mContext);
+-        if (client == null) {
+-            Log.i(TAG, "getFido2PrivilegedApiClient failed");
+-            return;
+-        }
+-        Log.i(TAG, "have fido client");
+-
+-        List<PublicKeyCredentialParameters> parameters = new ArrayList<>();
+-        for (int i = 0; i < algorithms.length; i++) {
+-            try {
+-                parameters.add(new PublicKeyCredentialParameters(
+-                        PublicKeyCredentialType.PUBLIC_KEY.toString(), algorithms[i]));
+-            } catch (IllegalArgumentException e) {
+-                // The FIDO API will throw IllegalArgumentException for unrecognised algorithms.
+-                // Since an authenticator ignores unknown algorithms, this exception just needs to
+-                // be caught and ignored.
+-            }
+-        }
+-        // The GmsCore FIDO2 API does not actually support resident keys yet.
+-        AuthenticatorSelectionCriteria selection = new AuthenticatorSelectionCriteria.Builder()
+-                                                           .setAttachment(Attachment.PLATFORM)
+-                                                           .build();
+-        List<PublicKeyCredentialDescriptor> excludeCredentials =
+-                new ArrayList<PublicKeyCredentialDescriptor>();
+-        for (int i = 0; i < excludedCredentialIds.length; i++) {
+-            excludeCredentials.add(
+-                    new PublicKeyCredentialDescriptor(PublicKeyCredentialType.PUBLIC_KEY.toString(),
+-                            excludedCredentialIds[i], new ArrayList<Transport>()));
+-        }
+-        byte[] dummy = new byte[32];
+-        PublicKeyCredentialCreationOptions credentialCreationOptions =
+-                new PublicKeyCredentialCreationOptions.Builder()
+-                        .setRp(new PublicKeyCredentialRpEntity(rpId, "", ""))
+-                        .setUser(new PublicKeyCredentialUserEntity(userId, "", null, ""))
+-                        .setChallenge(challenge)
+-                        .setParameters(parameters)
+-                        .setTimeoutSeconds(TIMEOUT_SECONDS)
+-                        .setExcludeList(excludeCredentials)
+-                        .setAuthenticatorSelection(selection)
+-                        .setAttestationConveyancePreference(AttestationConveyancePreference.NONE)
+-                        .build();
+-        BrowserPublicKeyCredentialCreationOptions browserRequestOptions =
+-                new BrowserPublicKeyCredentialCreationOptions.Builder()
+-                        .setPublicKeyCredentialCreationOptions(credentialCreationOptions)
+-                        .setOrigin(Uri.parse(origin))
+-                        .build();
+-        Task<PendingIntent> result = client.getRegisterPendingIntent(browserRequestOptions);
+-        result.addOnSuccessListener(pedingIntent -> {
+-                  Log.i(TAG, "got pending");
+-                  try {
+-                      mUi.startIntentSenderForResult(pedingIntent.getIntentSender(),
+-                              REGISTER_REQUEST_CODE,
+-                              null, // fillInIntent,
+-                              0, // flagsMask,
+-                              0, // flagsValue,
+-                              0, // extraFlags,
+-                              Bundle.EMPTY);
+-                  } catch (IntentSender.SendIntentException e) {
+-                      Log.e(TAG, "intent failure");
+-                  }
+-              }).addOnFailureListener(e -> { Log.e(TAG, "intent failure" + e); });
+-
+-        Log.i(TAG, "op done");
++        Log.i(TAG, "getFido2PrivilegedApiClient failed");
++        return;
+     }
+ 
+     public void getAssertion(long clientAddress, String origin, String rpId, byte[] challenge,
+@@ -170,54 +90,8 @@ class CableAuthenticator {
+         assert mClientAddress == 0;
+         mClientAddress = clientAddress;
+ 
+-        Fido2PrivilegedApiClient client = Fido.getFido2PrivilegedApiClient(mContext);
+-        if (client == null) {
+-            Log.i(TAG, "getFido2PrivilegedApiClient failed");
+-            return;
+-        }
+-        Log.i(TAG, "have fido client");
+-
+-        List<PublicKeyCredentialDescriptor> allowCredentials =
+-                new ArrayList<PublicKeyCredentialDescriptor>();
+-        ArrayList<Transport> transports = new ArrayList<Transport>();
+-        transports.add(Transport.INTERNAL);
+-        for (int i = 0; i < allowedCredentialIds.length; i++) {
+-            allowCredentials.add(
+-                    new PublicKeyCredentialDescriptor(PublicKeyCredentialType.PUBLIC_KEY.toString(),
+-                            allowedCredentialIds[i], transports));
+-        }
+-
+-        PublicKeyCredentialRequestOptions credentialRequestOptions =
+-                new PublicKeyCredentialRequestOptions.Builder()
+-                        .setAllowList(allowCredentials)
+-                        .setChallenge(challenge)
+-                        .setRpId(rpId)
+-                        .setTimeoutSeconds(TIMEOUT_SECONDS)
+-                        .build();
+-
+-        BrowserPublicKeyCredentialRequestOptions browserRequestOptions =
+-                new BrowserPublicKeyCredentialRequestOptions.Builder()
+-                        .setPublicKeyCredentialRequestOptions(credentialRequestOptions)
+-                        .setOrigin(Uri.parse(origin))
+-                        .build();
+-
+-        Task<PendingIntent> result = client.getSignPendingIntent(browserRequestOptions);
+-        result.addOnSuccessListener(pedingIntent -> {
+-                  Log.i(TAG, "got pending");
+-                  try {
+-                      mUi.startIntentSenderForResult(pedingIntent.getIntentSender(),
+-                              SIGN_REQUEST_CODE,
+-                              null, // fillInIntent,
+-                              0, // flagsMask,
+-                              0, // flagsValue,
+-                              0, // extraFlags,
+-                              Bundle.EMPTY);
+-                  } catch (IntentSender.SendIntentException e) {
+-                      Log.e(TAG, "intent failure");
+-                  }
+-              }).addOnFailureListener(e -> { Log.e(TAG, "intent failure" + e); });
+-
+-        Log.i(TAG, "op done");
++        Log.i(TAG, "getFido2PrivilegedApiClient failed");
++        return;
+     }
+ 
+     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+@@ -254,48 +128,7 @@ class CableAuthenticator {
+             return false;
+         }
+         Log.e(TAG, "OK.");
+-
+-        if (data.hasExtra(Fido.FIDO2_KEY_ERROR_EXTRA)) {
+-            Log.e(TAG, "error extra");
+-            AuthenticatorErrorResponse error = AuthenticatorErrorResponse.deserializeFromBytes(
+-                    data.getByteArrayExtra(Fido.FIDO2_KEY_ERROR_EXTRA));
+-            Log.i(TAG,
+-                    "error response: " + error.getErrorMessage() + " "
+-                            + String.valueOf(error.getErrorCodeAsInt()));
+-
+-            // ErrorCode represents DOMErrors not CTAP status codes.
+-            // TODO: figure out translation of the remaining codes
+-            int ctap_status;
+-            switch (error.getErrorCode()) {
+-                case NOT_ALLOWED_ERR:
+-                    ctap_status = CTAP2_ERR_OPERATION_DENIED;
+-                    break;
+-                default:
+-                    ctap_status = CTAP2_ERR_OTHER;
+-                    break;
+-            }
+-            mBleHandler.onAuthenticatorAttestationResponse(
+-                    mClientAddress, CTAP2_ERR_OTHER, null, null);
+-            return false;
+-        }
+-
+-        if (!data.hasExtra(Fido.FIDO2_KEY_RESPONSE_EXTRA)
+-                || !data.hasExtra(Fido.FIDO2_KEY_CREDENTIAL_EXTRA)) {
+-            Log.e(TAG, "Missing FIDO2_KEY_RESPONSE_EXTRA or FIDO2_KEY_CREDENTIAL_EXTRA");
+-            mBleHandler.onAuthenticatorAttestationResponse(
+-                    mClientAddress, CTAP2_ERR_OTHER, null, null);
+-            return false;
+-        }
+-
+-        Log.e(TAG, "cred extra");
+-        PublicKeyCredential unusedPublicKeyCredential = PublicKeyCredential.deserializeFromBytes(
+-                data.getByteArrayExtra(Fido.FIDO2_KEY_CREDENTIAL_EXTRA));
+-        AuthenticatorAttestationResponse response =
+-                AuthenticatorAttestationResponse.deserializeFromBytes(
+-                        data.getByteArrayExtra(Fido.FIDO2_KEY_RESPONSE_EXTRA));
+-        mBleHandler.onAuthenticatorAttestationResponse(mClientAddress, CTAP2_OK,
+-                response.getClientDataJSON(), response.getAttestationObject());
+-        return true;
++        return false;
+     }
+ 
+     public boolean onSignResponse(int resultCode, Intent data) {
+@@ -306,49 +139,7 @@ class CableAuthenticator {
+             return false;
+         }
+         Log.e(TAG, "OK.");
+-
+-        if (data.hasExtra(Fido.FIDO2_KEY_ERROR_EXTRA)) {
+-            Log.e(TAG, "error extra");
+-            AuthenticatorErrorResponse error = AuthenticatorErrorResponse.deserializeFromBytes(
+-                    data.getByteArrayExtra(Fido.FIDO2_KEY_ERROR_EXTRA));
+-            Log.i(TAG,
+-                    "error response: " + error.getErrorMessage() + " "
+-                            + String.valueOf(error.getErrorCodeAsInt()));
+-
+-            // ErrorCode represents DOMErrors not CTAP status codes.
+-            // TODO: figure out translation of the remaining codes
+-            int ctap_status;
+-            switch (error.getErrorCode()) {
+-                case NOT_ALLOWED_ERR:
+-                    ctap_status = CTAP2_ERR_OPERATION_DENIED;
+-                    break;
+-                default:
+-                    ctap_status = CTAP2_ERR_OTHER;
+-                    break;
+-            }
+-            mBleHandler.onAuthenticatorAssertionResponse(
+-                    mClientAddress, ctap_status, null, null, null, null);
+-            return false;
+-        }
+-
+-        if (!data.hasExtra(Fido.FIDO2_KEY_RESPONSE_EXTRA)
+-                || !data.hasExtra(Fido.FIDO2_KEY_CREDENTIAL_EXTRA)) {
+-            Log.e(TAG, "Missing FIDO2_KEY_RESPONSE_EXTRA or FIDO2_KEY_CREDENTIAL_EXTRA");
+-            mBleHandler.onAuthenticatorAssertionResponse(
+-                    mClientAddress, CTAP2_ERR_OTHER, null, null, null, null);
+-            return false;
+-        }
+-
+-        Log.e(TAG, "cred extra");
+-        PublicKeyCredential unusedPublicKeyCredential = PublicKeyCredential.deserializeFromBytes(
+-                data.getByteArrayExtra(Fido.FIDO2_KEY_CREDENTIAL_EXTRA));
+-        AuthenticatorAssertionResponse response =
+-                AuthenticatorAssertionResponse.deserializeFromBytes(
+-                        data.getByteArrayExtra(Fido.FIDO2_KEY_RESPONSE_EXTRA));
+-        mBleHandler.onAuthenticatorAssertionResponse(mClientAddress, CTAP2_OK,
+-                response.getClientDataJSON(), response.getKeyHandle(),
+-                response.getAuthenticatorData(), response.getSignature());
+-        return true;
++        return false;
+     }
+ 
+     public void onQRCode(String value) {

@@ -8,10 +8,11 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
  chrome/android/BUILD.gn                                                                        |    1 
  chrome/android/java/src/org/chromium/chrome/browser/sync/settings/GoogleServicesSettings.java  |   21 ----------
  chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java |   19 +--------
+ chrome/browser/android/tab_web_contents_delegate_android.cc                                    |    2 
  chrome/browser/preferences/BUILD.gn                                                            |    1 
  chrome/browser/safe_browsing/BUILD.gn                                                          |    1 
  weblayer/browser/browser_context_impl.cc                                                       |    2 
- 8 files changed, 12 insertions(+), 45 deletions(-)
+ 9 files changed, 12 insertions(+), 47 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
@@ -214,3 +215,14 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
      "//components/signin/public/base/signin_pref_names.cc",
      "//components/translate/core/browser/translate_pref_names.cc",
    ]
+--- a/chrome/browser/android/tab_web_contents_delegate_android.cc
++++ b/chrome/browser/android/tab_web_contents_delegate_android.cc
+@@ -175,8 +175,6 @@ void TabWebContentsDelegateAndroid::Port
+   InfoBarService::CreateForWebContents(portal_contents);
+   PrefsTabHelper::CreateForWebContents(portal_contents);
+   DataReductionProxyTabHelper::CreateForWebContents(portal_contents);
+-  safe_browsing::SafeBrowsingNavigationObserver::MaybeCreateForWebContents(
+-      portal_contents);
+ }
+ 
+ void TabWebContentsDelegateAndroid::RunFileChooser(

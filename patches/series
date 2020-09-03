@@ -11,7 +11,7 @@ Unobtainium/kill-Location-fall-back-to-system.patch
 Unobtainium/kill-Vision.patch
 Unobtainium/kill-Translate.patch
 Unobtainium/kill-TOS-and-metrics-opt-out.patch
-ungoogled-chromium-android/change-package-name-chromium.patch
+ungoogled-chromium-android/Change-package-name-chromium.patch
 ungoogled-chromium-android/Remove-dependency-on-com.google.android.gcm.patch
 ungoogled-chromium-android/Remove-dependency-on-com.google.android.gms.gcm.patch
 ungoogled-chromium-android/Remove-dependency-on-com.google.android.gms.auth.patch
@@ -28,10 +28,11 @@ ungoogled-chromium-android/Disable-prefetch.patch
 ungoogled-chromium-android/Add-more-search-engines.patch
 ungoogled-chromium-android/Add-folder-button-bookmark.patch
 ungoogled-chromium-android/Mark-http-as-dangerous-mixed-content-warning.patch
-ungoogled-chromium-android/flag-enable-process-sharing.patch
-ungoogled-chromium-android/enable-update-notification.patch
+ungoogled-chromium-android/Enable-flag-process-sharing.patch
+ungoogled-chromium-android/Enable-update-notification.patch
 ungoogled-chromium-android/Enable-ProactivelySwapBrowsingInstance.patch
 ungoogled-chromium-android/Disable-homepage-by-default.patch
+ungoogled-chromium-android/Remove-UI-elements.patch
 Bromite/Add-exit-menu-item.patch
 Bromite/Add-flag-to-disable-WebGL.patch
 Bromite/Add-flags-to-disable-device-motion-orientation-APIs.patch

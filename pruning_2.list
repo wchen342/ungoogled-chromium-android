@@ -11,6 +11,7 @@
 ./third_party/sqlite4java/lib/mac-x86_64/libsqlite4java.jnilib
 ./third_party/proguard/lib/proguard603.jar
 ./third_party/proguard/lib/retrace603.jar
+./third_party/webpagereplay/bin/linux/x86_64/wpr
 ./chrome/browser/resource_coordinator/tab_ranker/example_preprocessor_config.pb
 ./chrome/browser/resource_coordinator/tab_ranker/pairwise_preprocessor_config.pb
 ./chrome/common/win/eventlog_messages.mc

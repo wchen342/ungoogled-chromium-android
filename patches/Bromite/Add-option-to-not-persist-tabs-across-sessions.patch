@@ -76,7 +76,7 @@ Subject: Add option to not persist tabs across sessions
      private static final String PREF_CAN_MAKE_PAYMENT = "can_make_payment";
      private static final String PREF_NETWORK_PREDICTIONS = "preload_pages";
      private static final String PREF_SECURE_DNS = "secure_dns";
-@@ -94,6 +97,10 @@ public class PrivacySettings
+@@ -90,6 +93,10 @@ public class PrivacySettings
                      Pref.CAN_MAKE_PAYMENT_ENABLED, (boolean) newValue);
          } else if (PREF_NETWORK_PREDICTIONS.equals(key)) {
              PrivacyPreferencesManager.getInstance().setNetworkPredictionEnabled((boolean) newValue);
@@ -87,7 +87,7 @@ Subject: Add option to not persist tabs across sessions
          }
  
          return true;
-@@ -168,6 +175,11 @@ public class PrivacySettings
+@@ -164,6 +171,11 @@ public class PrivacySettings
                  getPreferenceScreen().removePreference(usageStatsPref);
              }
          }
