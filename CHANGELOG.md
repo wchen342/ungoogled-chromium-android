@@ -1,3 +1,10 @@
+# 85.0.4183.83-1
+* All versions:
+  * Update building targets. Now the two versions will be one for Android 5.0+ and one for Android 10+. Note that `Trichrome` produce two apks, you need to install both.
+  * Remove Google related UI elements.
+  * Remove first run screen.
+  * Fix safe browsing error for v85.
+
 # 84.0.4147.125-1
 * All versions:
   * The package names are now `org.ungoogled.chromium.stable`/`org.ungoogled.chromium.extensions.stable` due to [#53](https://git.droidware.info/wchen342/ungoogled-chromium-android/issues/53) / [#24](https://github.com/ungoogled-software/ungoogled-chromium-android/issues/24).

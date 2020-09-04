@@ -4,15 +4,21 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
 
 ---
  android_webview/browser/aw_browser_context.cc                                                  |    2 
- android_webview/browser/safe_browsing/aw_safe_browsing_blocking_page.cc                        |   10 ++--
+ android_webview/browser/safe_browsing/aw_safe_browsing_blocking_page.cc                        |   10 
  chrome/android/BUILD.gn                                                                        |    1 
- chrome/android/java/src/org/chromium/chrome/browser/sync/settings/GoogleServicesSettings.java  |   21 ----------
- chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java |   19 +--------
+ chrome/android/java/src/org/chromium/chrome/browser/sync/settings/GoogleServicesSettings.java  |   21 -
+ chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java |   19 -
  chrome/browser/android/tab_web_contents_delegate_android.cc                                    |    2 
  chrome/browser/preferences/BUILD.gn                                                            |    1 
  chrome/browser/safe_browsing/BUILD.gn                                                          |    1 
  weblayer/browser/browser_context_impl.cc                                                       |    2 
- 9 files changed, 12 insertions(+), 47 deletions(-)
+ weblayer/browser/browser_process.cc                                                            |   10 
+ weblayer/browser/browser_process.h                                                             |    4 
+ weblayer/browser/content_browser_client_impl.cc                                                |   20 -
+ weblayer/browser/profile_impl.cc                                                               |   15 
+ weblayer/browser/safe_browsing/safe_browsing_blocking_page.cc                                  |    8 
+ weblayer/browser/safe_browsing/safe_browsing_service.cc                                        |  169 ----------
+ 15 files changed, 17 insertions(+), 268 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
@@ -226,3 +232,345 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
  }
  
  void TabWebContentsDelegateAndroid::RunFileChooser(
+--- a/weblayer/browser/content_browser_client_impl.cc
++++ b/weblayer/browser/content_browser_client_impl.cc
+@@ -377,8 +377,7 @@ ContentBrowserClientImpl::CreateURLLoade
+ #if defined(OS_ANDROID)
+     BrowserContextImpl* browser_context_impl =
+         static_cast<BrowserContextImpl*>(browser_context);
+-    bool is_safe_browsing_enabled = safe_browsing::IsSafeBrowsingEnabled(
+-        *browser_context_impl->pref_service());
++    bool is_safe_browsing_enabled = false;
+ 
+     if (is_safe_browsing_enabled) {
+       bool is_real_time_lookup_enabled =
+@@ -589,18 +588,6 @@ ContentBrowserClientImpl::CreateThrottle
+ 
+ #if defined(OS_ANDROID)
+   if (handle->IsInMainFrame()) {
+-    if (base::FeatureList::IsEnabled(features::kWebLayerSafeBrowsing) &&
+-        IsSafebrowsingSupported()) {
+-      throttles.push_back(
+-          GetSafeBrowsingService()->CreateSafeBrowsingNavigationThrottle(
+-              handle));
+-      if (handle->IsInMainFrame()) {
+-        throttles.push_back(
+-            navigation_interception::InterceptNavigationDelegate::
+-                CreateThrottleFor(
+-                    handle, navigation_interception::SynchronyMode::kAsync));
+-      }
+-    }
+   }
+ #endif
+   return throttles;
+@@ -651,11 +638,6 @@ void ContentBrowserClientImpl::ExposeInt
+       };
+   registry->AddInterface(base::BindRepeating(create_spellcheck_host),
+                          content::GetUIThreadTaskRunner({}));
+-
+-  if (base::FeatureList::IsEnabled(features::kWebLayerSafeBrowsing) &&
+-      IsSafebrowsingSupported()) {
+-    GetSafeBrowsingService()->AddInterface(registry, render_process_host);
+-  }
+ #endif  // defined(OS_ANDROID)
+ }
+ 
+--- a/weblayer/browser/safe_browsing/safe_browsing_blocking_page.cc
++++ b/weblayer/browser/safe_browsing/safe_browsing_blocking_page.cc
+@@ -50,12 +50,8 @@ SafeBrowsingBlockingPage* SafeBrowsingBl
+   security_interstitials::BaseSafeBrowsingErrorUI::SBErrorDisplayOptions
+       display_options =
+           BaseBlockingPage::CreateDefaultDisplayOptions(unsafe_resources);
+-  display_options.is_extended_reporting_opt_in_allowed =
+-      safe_browsing::IsExtendedReportingOptInAllowed(
+-          *(browser_context->pref_service()));
+-  display_options.is_extended_reporting_enabled =
+-      safe_browsing::IsExtendedReportingEnabled(
+-          *(browser_context->pref_service()));
++  display_options.is_extended_reporting_opt_in_allowed = false;
++  display_options.is_extended_reporting_enabled = false;
+ 
+   return new SafeBrowsingBlockingPage(
+       ui_manager, web_contents, url, unsafe_resources,
+--- a/weblayer/browser/safe_browsing/safe_browsing_service.cc
++++ b/weblayer/browser/safe_browsing/safe_browsing_service.cc
+@@ -2,8 +2,6 @@
+ // Use of this source code is governed by a BSD-style license that can be
+ // found in the LICENSE file.
+ 
+-#include "weblayer/browser/safe_browsing/safe_browsing_service.h"
+-
+ #include "base/bind.h"
+ #include "base/path_service.h"
+ #include "components/prefs/pref_service.h"
+@@ -12,7 +10,6 @@
+ #include "components/safe_browsing/content/browser/browser_url_loader_throttle.h"
+ #include "components/safe_browsing/content/browser/mojo_safe_browsing_impl.h"
+ #include "components/safe_browsing/core/browser/safe_browsing_network_context.h"
+-#include "components/safe_browsing/core/common/safe_browsing_prefs.h"
+ #include "components/safe_browsing/core/realtime/url_lookup_service.h"
+ #include "content/public/browser/browser_context.h"
+ #include "content/public/browser/browser_task_traits.h"
+@@ -57,10 +54,7 @@ void MaybeCreateSafeBrowsing(
+   if (!render_process_host)
+     return;
+ 
+-  bool is_safe_browsing_enabled = safe_browsing::IsSafeBrowsingEnabled(
+-      *static_cast<BrowserContextImpl*>(
+-           render_process_host->GetBrowserContext())
+-           ->pref_service());
++  bool is_safe_browsing_enabled = false;
+ 
+   if (!is_safe_browsing_enabled)
+     return;
+@@ -74,165 +68,4 @@ void MaybeCreateSafeBrowsing(
+ 
+ }  // namespace
+ 
+-SafeBrowsingService::SafeBrowsingService(const std::string& user_agent)
+-    : user_agent_(user_agent) {}
+-
+-SafeBrowsingService::~SafeBrowsingService() = default;
+-
+-void SafeBrowsingService::Initialize() {
+-  DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
+-
+-  if (network_context_) {
+-    // already initialized
+-    return;
+-  }
+-
+-  safe_browsing_api_handler_.reset(
+-      new safe_browsing::SafeBrowsingApiHandlerBridge());
+-  safe_browsing::SafeBrowsingApiHandler::SetInstance(
+-      safe_browsing_api_handler_.get());
+-
+-  base::FilePath user_data_dir;
+-  bool result =
+-      base::PathService::Get(base::DIR_ANDROID_APP_DATA, &user_data_dir);
+-  DCHECK(result);
+-
+-  // safebrowsing network context needs to be created on the UI thread.
+-  network_context_ =
+-      std::make_unique<safe_browsing::SafeBrowsingNetworkContext>(
+-          user_data_dir,
+-          base::BindRepeating(CreateDefaultNetworkContextParams, user_agent_));
+-
+-  CreateSafeBrowsingUIManager();
+-}
+-
+-std::unique_ptr<blink::URLLoaderThrottle>
+-SafeBrowsingService::CreateURLLoaderThrottle(
+-    const base::RepeatingCallback<content::WebContents*()>& wc_getter,
+-    int frame_tree_node_id,
+-    safe_browsing::RealTimeUrlLookupServiceBase* url_lookup_service) {
+-  DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
+-
+-  return safe_browsing::BrowserURLLoaderThrottle::Create(
+-      base::BindOnce(
+-          [](SafeBrowsingService* sb_service) {
+-            return sb_service->GetSafeBrowsingUrlCheckerDelegate();
+-          },
+-          base::Unretained(this)),
+-      wc_getter, frame_tree_node_id,
+-      url_lookup_service ? url_lookup_service->GetWeakPtr() : nullptr);
+-}
+-
+-std::unique_ptr<content::NavigationThrottle>
+-SafeBrowsingService::CreateSafeBrowsingNavigationThrottle(
+-    content::NavigationHandle* handle) {
+-  return std::make_unique<SafeBrowsingNavigationThrottle>(
+-      handle, GetSafeBrowsingUIManager());
+-}
+-
+-scoped_refptr<safe_browsing::UrlCheckerDelegate>
+-SafeBrowsingService::GetSafeBrowsingUrlCheckerDelegate() {
+-  DCHECK_CURRENTLY_ON(content::BrowserThread::IO);
+-
+-  if (!safe_browsing_url_checker_delegate_) {
+-    safe_browsing_url_checker_delegate_ = new UrlCheckerDelegateImpl(
+-        GetSafeBrowsingDBManager(), GetSafeBrowsingUIManager());
+-  }
+-
+-  return safe_browsing_url_checker_delegate_;
+-}
+-
+-safe_browsing::RemoteSafeBrowsingDatabaseManager*
+-SafeBrowsingService::GetSafeBrowsingDBManager() {
+-  if (!safe_browsing_db_manager_) {
+-    CreateAndStartSafeBrowsingDBManager();
+-  }
+-  return safe_browsing_db_manager_.get();
+-}
+-
+-SafeBrowsingUIManager* SafeBrowsingService::GetSafeBrowsingUIManager() {
+-  return ui_manager_.get();
+-}
+-
+-void SafeBrowsingService::CreateSafeBrowsingUIManager() {
+-  DCHECK(!ui_manager_);
+-  ui_manager_ = new SafeBrowsingUIManager(this);
+-}
+-
+-void SafeBrowsingService::CreateAndStartSafeBrowsingDBManager() {
+-  DCHECK_CURRENTLY_ON(content::BrowserThread::IO);
+-  DCHECK(!safe_browsing_db_manager_);
+-
+-  safe_browsing_db_manager_ =
+-      new safe_browsing::RemoteSafeBrowsingDatabaseManager();
+-
+-  // V4ProtocolConfig is not used. Just create one with empty values.
+-  safe_browsing::V4ProtocolConfig config("", false, "", "");
+-  safe_browsing_db_manager_->StartOnIOThread(GetURLLoaderFactoryOnIOThread(),
+-                                             config);
+-}
+-
+-scoped_refptr<network::SharedURLLoaderFactory>
+-SafeBrowsingService::GetURLLoaderFactoryOnIOThread() {
+-  DCHECK_CURRENTLY_ON(content::BrowserThread::IO);
+-  if (!shared_url_loader_factory_on_io_) {
+-    content::GetUIThreadTaskRunner({})->PostTask(
+-        FROM_HERE,
+-        base::BindOnce(&SafeBrowsingService::CreateURLLoaderFactoryForIO,
+-                       base::Unretained(this),
+-                       url_loader_factory_on_io_.BindNewPipeAndPassReceiver()));
+-    shared_url_loader_factory_on_io_ =
+-        base::MakeRefCounted<network::WeakWrapperSharedURLLoaderFactory>(
+-            url_loader_factory_on_io_.get());
+-  }
+-  return shared_url_loader_factory_on_io_;
+-}
+-
+-void SafeBrowsingService::CreateURLLoaderFactoryForIO(
+-    mojo::PendingReceiver<network::mojom::URLLoaderFactory> receiver) {
+-  DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
+-  auto url_loader_factory_params =
+-      network::mojom::URLLoaderFactoryParams::New();
+-  url_loader_factory_params->process_id = network::mojom::kBrowserProcessId;
+-  url_loader_factory_params->is_corb_enabled = false;
+-  network_context_->GetNetworkContext()->CreateURLLoaderFactory(
+-      std::move(receiver), std::move(url_loader_factory_params));
+-}
+-
+-void SafeBrowsingService::AddInterface(
+-    service_manager::BinderRegistry* registry,
+-    content::RenderProcessHost* render_process_host) {
+-  content::ResourceContext* resource_context =
+-      render_process_host->GetBrowserContext()->GetResourceContext();
+-  registry->AddInterface(
+-      base::BindRepeating(
+-          &MaybeCreateSafeBrowsing, render_process_host->GetID(),
+-          resource_context,
+-          base::BindRepeating(
+-              &SafeBrowsingService::GetSafeBrowsingUrlCheckerDelegate,
+-              base::Unretained(this))),
+-      content::GetUIThreadTaskRunner({}));
+-}
+-
+-void SafeBrowsingService::StopDBManager() {
+-  content::GetIOThreadTaskRunner({})->PostTask(
+-      FROM_HERE, base::BindOnce(&SafeBrowsingService::StopDBManagerOnIOThread,
+-                                base::Unretained(this)));
+-}
+-
+-void SafeBrowsingService::StopDBManagerOnIOThread() {
+-  DCHECK_CURRENTLY_ON(content::BrowserThread::IO);
+-  if (safe_browsing_db_manager_) {
+-    safe_browsing_db_manager_->StopOnIOThread(true /*shutdown*/);
+-    safe_browsing_db_manager_.reset();
+-  }
+-}
+-
+-scoped_refptr<network::SharedURLLoaderFactory>
+-SafeBrowsingService::GetURLLoaderFactory() {
+-  if (!network_context_)
+-    return nullptr;
+-  return network_context_->GetURLLoaderFactory();
+-}
+-
+ }  // namespace weblayer
+--- a/weblayer/browser/profile_impl.cc
++++ b/weblayer/browser/profile_impl.cc
+@@ -42,7 +42,6 @@
+ #include "base/android/jni_array.h"
+ #include "base/android/jni_string.h"
+ #include "base/android/scoped_java_ref.h"
+-#include "components/safe_browsing/core/common/safe_browsing_prefs.h"
+ #include "components/unified_consent/pref_names.h"
+ #include "weblayer/browser/browser_process.h"
+ #include "weblayer/browser/java/jni/ProfileImpl_jni.h"
+@@ -512,10 +511,6 @@ void ProfileImpl::SetBooleanSetting(Sett
+   auto* pref_service = GetBrowserContext()->pref_service();
+   switch (type) {
+     case SettingType::BASIC_SAFE_BROWSING_ENABLED:
+-#if defined(OS_ANDROID)
+-      pref_service->SetBoolean(::prefs::kSafeBrowsingEnabled, value);
+-      pref_service->SetBoolean(::prefs::kSafeBrowsingEnhanced, false);
+-#endif
+       break;
+     case SettingType::UKM_ENABLED: {
+ #if defined(OS_ANDROID)
+@@ -530,10 +525,6 @@ void ProfileImpl::SetBooleanSetting(Sett
+       break;
+     }
+     case SettingType::EXTENDED_REPORTING_SAFE_BROWSING_ENABLED:
+-#if defined(OS_ANDROID)
+-      pref_service->SetBoolean(::prefs::kSafeBrowsingScoutReportingEnabled,
+-                               value);
+-#endif
+       break;
+     case SettingType::REAL_TIME_SAFE_BROWSING_ENABLED:
+ #if defined(OS_ANDROID)
+@@ -550,16 +541,12 @@ bool ProfileImpl::GetBooleanSetting(Sett
+   switch (type) {
+     case SettingType::BASIC_SAFE_BROWSING_ENABLED:
+ #if defined(OS_ANDROID)
+-      return safe_browsing::IsSafeBrowsingEnabled(*pref_service);
++      return false;
+ #endif
+       return false;
+     case SettingType::UKM_ENABLED:
+       return pref_service->GetBoolean(prefs::kUkmEnabled);
+     case SettingType::EXTENDED_REPORTING_SAFE_BROWSING_ENABLED:
+-#if defined(OS_ANDROID)
+-      return pref_service->GetBoolean(
+-          ::prefs::kSafeBrowsingScoutReportingEnabled);
+-#endif
+       return false;
+     case SettingType::REAL_TIME_SAFE_BROWSING_ENABLED:
+ #if defined(OS_ANDROID)
+--- a/weblayer/browser/browser_process.cc
++++ b/weblayer/browser/browser_process.cc
+@@ -101,19 +101,9 @@ void BrowserProcess::CreateNetworkQualit
+ #if defined(OS_ANDROID)
+ SafeBrowsingService* BrowserProcess::GetSafeBrowsingService(
+     std::string user_agent) {
+-  if (!safe_browsing_service_) {
+-    // Create and initialize safe_browsing_service on first get.
+-    // Note: Initialize() needs to happen on UI thread.
+-    safe_browsing_service_ = std::make_unique<SafeBrowsingService>(user_agent);
+-    safe_browsing_service_->Initialize();
+-  }
+-  return safe_browsing_service_.get();
+ }
+ 
+ void BrowserProcess::StopSafeBrowsingService() {
+-  if (safe_browsing_service_) {
+-    safe_browsing_service_->StopDBManager();
+-  }
+ }
+ #endif
+ 
+--- a/weblayer/browser/browser_process.h
++++ b/weblayer/browser/browser_process.h
+@@ -66,10 +66,6 @@ class BrowserProcess {
+       network::NetworkQualityTracker::RTTAndThroughputEstimatesObserver>
+       network_quality_observer_;
+ 
+-#if defined(OS_ANDROID)
+-  std::unique_ptr<SafeBrowsingService> safe_browsing_service_;
+-#endif
+-
+   SEQUENCE_CHECKER(sequence_checker_);
+ 
+   DISALLOW_COPY_AND_ASSIGN(BrowserProcess);

@@ -40,10 +40,10 @@ The enhancements included in ungoogled-chromium **are not to be considered usefu
 ## Platforms and Versions
 
 Pre-built apks are named as `{BUILD_TARGET}_{CPU_ARCH}.apk`, where:
-* `{BUILD_TARGET}` is one of `ChromePublic`, `MonoChromePublic`, `SystemWebview`.
-  * `ChromePublic` is for API > 21 (Android 5.0) and only contains the browser.
-  * `MonoChromePublic` is for API > 24 (Android 7.0) and contains both the browser and the webview.
-  * `SystemWebview` is for API 21 - 23 (Android 5.0 - 6.0) and only contains the webview.
+* `{BUILD_TARGET}` is one of `ChromeModernPublic`, `Trichrome`, `SystemWebview`.
+  * `ChromeModernPublic` is for API >= 21 (Android 5.0) and only contains the browser.
+  * `Trichrome` is for API >= 29 (Android 10) and only contains the browser. *Note: `Trichrome` has two apks, you need to install both for ungoogled-chromium to work.*
+  * `SystemWebview` is for >= API 21 (Android 5.0) and only contains the webview.
 * `{CPU_ARCH}` is one of `x86`, `arm` (armeabi-v7a), `arm64` (arm64-v8a).
 * Please also read this [important note](https://chromium.googlesource.com/chromium/src/+/HEAD/android_webview/docs/build-instructions.md#Important-notes-for-N_P) about Webview on Android N-P.
 * The [Bromite Wiki](https://github.com/bromite/bromite/wiki/Installing-SystemWebView) can also be helpful.

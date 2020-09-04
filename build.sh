@@ -4,10 +4,8 @@ set -eux -o pipefail
 # Required tools: protobuf python python2 gperf wget rsync tar unzip curl gnupg maven yasm npm ninja gn nodejs git clang lld gn llvm jdk8-openjdk jre8-openjdk-headless jdk10-openjdk lib32-glibc multilib-devel
 # Assuming default python to be python2.
 
-modern_chrome_apk_target=chrome_modern_public_apk
-modern_chrome_bundle_target=chrome_modern_public_bundle
+chrome_modern_apk_target=chrome_modern_public_apk
 trichrome_chrome_bundle_target=trichrome_chrome_bundle
-trichrome_library_apk_target=trichrome_library_apk
 webview_target=system_webview_apk
 
 chromium_version=85.0.4183.83
@@ -71,7 +69,7 @@ if [[ "$ARCH" != "arm64" ]] && [[ "$ARCH" != "arm" ]] && [[ "$ARCH" != "x86" ]];
     exit 4
 fi
 
-if [[ "$TARGET" != "$modern_chrome_apk_target" ]] && [[ "$TARGET" != "$trichrome_chrome_bundle_target" ]] && [[ "$TARGET" != "$webview_target" ]]; then
+if [[ "$TARGET" != "$chrome_modern_apk_target" ]] && [[ "$TARGET" != "$trichrome_chrome_bundle_target" ]] && [[ "$TARGET" != "$webview_target" ]]; then
     echo "Wrong target"
     exit 5
 fi
@@ -290,4 +288,9 @@ export CXX=${CXX:=clang++}
 ## Build
 pushd src
 ninja -C out/Default $TARGET
+popd
+
+# Extract apk from aab for Trichrome
+pushd src
+../trichrome_generate_apk.sh
 popd
