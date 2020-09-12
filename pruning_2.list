@@ -1,6 +1,5 @@
 ./third_party/junit/src/lib/hamcrest-core-1.3.jar
 ./third_party/junit/src/lib/hamcrest-core-1.3-sources.jar
-./third_party/android_build_tools/bundletool/bundletool-all-0.13.3.jar
 ./third_party/byte_buddy/android_sdk_build_tools_25_0_2/build-tools/25.0.2/lib/dx.jar
 ./third_party/android_protobuf/src/benchmarks/google_message2.dat
 ./third_party/sqlite4java/lib/windows-x86/sqlite4java.dll

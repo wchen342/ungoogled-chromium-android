@@ -116,7 +116,7 @@ Subject: add folder selection mode picker
              chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS,
                      extraIntents.toArray(new Intent[] { }));
          }
-@@ -701,6 +728,18 @@ public class SelectFileDialog implements
+@@ -738,6 +765,18 @@ public class SelectFileDialog implements
              String[] displayNames = new String[mUris.length];
              try {
                  for (int i = 0; i < mUris.length; i++) {
@@ -135,7 +135,7 @@ Subject: add folder selection mode picker
                      // The selected files must be returned as a list of absolute paths. A MIUI 8.5
                      // device was observed to return a file:// URI instead, so convert if necessary.
                      // See https://crbug.com/752834 for context.
-@@ -709,8 +748,13 @@ public class SelectFileDialog implements
+@@ -746,8 +785,13 @@ public class SelectFileDialog implements
                      } else {
                          mFilePaths[i] = mUris[i].toString();
                      }
@@ -151,7 +151,7 @@ Subject: add folder selection mode picker
                  }
              }  catch (SecurityException e) {
                  // Some third party apps will present themselves as being able
-@@ -807,4 +851,95 @@ public class SelectFileDialog implements
+@@ -844,4 +888,95 @@ public class SelectFileDialog implements
          void onContactsSelected(
                  long nativeSelectFileDialogImpl, SelectFileDialog caller, String contacts);
      }
