@@ -16,14 +16,14 @@ Subject: bundle chromium-web-store
 
 --- a/chrome/browser/browser_resources.grd
 +++ b/chrome/browser/browser_resources.grd
-@@ -203,6 +203,7 @@
+@@ -208,6 +208,7 @@
        <include name="IDR_WEB_FOOTER_EXPERIMENT_HTML" file="resources\web_footer_experiment\index.html" type="BINDATA" />
        <include name="IDR_WEBSTORE_MANIFEST" file="resources\webstore_app\manifest.json" type="BINDATA" />
        <include name="IDR_CRYPTOTOKEN_MANIFEST" file="resources\cryptotoken\manifest.json" type="BINDATA" />
 +      <include name="IDR_CHROMIUM_WEB_STORE_MANIFEST" file="resources\chromium_web_store\manifest.json" type="BINDATA" />
        <if expr="chromeos">
-         <if expr="optimize_webui">
-           <then>
+         <!-- Edu account login resources -->
+         <include name="IDR_EDU_LOGIN_EDU_LOGIN_HTML" file="resources\chromeos\edu_login\edu_login.html" allowexternalscript="true" type="BINDATA" />
 --- a/chrome/browser/extensions/component_extensions_whitelist/whitelist.cc
 +++ b/chrome/browser/extensions/component_extensions_whitelist/whitelist.cc
 @@ -65,6 +65,7 @@ bool IsComponentExtensionWhitelisted(int
@@ -36,7 +36,7 @@ Subject: bundle chromium-web-store
      case IDR_HANGOUT_SERVICES_MANIFEST:
 --- a/chrome/browser/extensions/component_loader.cc
 +++ b/chrome/browser/extensions/component_loader.cc
-@@ -573,6 +573,9 @@ void ComponentLoader::AddDefaultComponen
+@@ -575,6 +575,9 @@ void ComponentLoader::AddDefaultComponen
  
    Add(IDR_CRYPTOTOKEN_MANIFEST,
        base::FilePath(FILE_PATH_LITERAL("cryptotoken")));
@@ -48,7 +48,7 @@ Subject: bundle chromium-web-store
  void ComponentLoader::
 --- a/chrome/browser/resources/component_extension_resources.grd
 +++ b/chrome/browser/resources/component_extension_resources.grd
-@@ -166,6 +166,25 @@
+@@ -170,6 +170,25 @@
        <include name="IDR_CRYPTOTOKEN_CRYPTOTOKENAPPROVEDORIGIN_JS" file="cryptotoken/cryptotokenapprovedorigins.js" type="BINDATA" />
        <include name="IDR_CRYPTOTOKEN_CRYPTOTOKENORIGINCHECK_JS" file="cryptotoken/cryptotokenorigincheck.js" type="BINDATA" />
        <include name="IDR_CRYPTOTOKEN_CRYPTOTOKENBACKGROUND_JS" file="cryptotoken/cryptotokenbackground.js" type="BINDATA" />

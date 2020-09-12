@@ -13,7 +13,7 @@ Subject: make settings of extensions open in new tab
 
 --- a/chrome/browser/extensions/api/developer_private/developer_private_api.cc
 +++ b/chrome/browser/extensions/api/developer_private/developer_private_api.cc
-@@ -1908,12 +1908,14 @@ ExtensionFunction::ResponseAction Develo
+@@ -1911,12 +1911,14 @@ ExtensionFunction::ResponseAction Develo
      return RespondNow(Error(kNoOptionsPageForExtensionError));
  
    content::WebContents* web_contents = GetSenderWebContents();
@@ -108,7 +108,7 @@ Subject: make settings of extensions open in new tab
    // Example of Browsers which don't support tabs include apps and devtools.
 --- a/chrome/browser/extensions/extension_context_menu_model.cc
 +++ b/chrome/browser/extensions/extension_context_menu_model.cc
-@@ -331,7 +331,7 @@ void ExtensionContextMenuModel::ExecuteC
+@@ -333,7 +333,7 @@ void ExtensionContextMenuModel::ExecuteC
      }
      case OPTIONS:
        DCHECK(OptionsPageInfo::HasOptionsPage(extension));
