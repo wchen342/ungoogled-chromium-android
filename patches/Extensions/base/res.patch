@@ -16,11 +16,12 @@ Subject: resource fixes for enable_extensions=true
  components/new_or_sad_tab_strings.grdp     |    4 -
  components/page_info_strings.grdp          |    6 +-
  components/payments_strings.grdp           |    2 
+ components/permissions_strings.grdp        |    2 
  components/sync_ui_strings.grdp            |    2 
  mojo/public/js/mojo_bindings_resources.grd |    2 
  ui/resources/ui_resources.grd              |   10 +--
  ui/webui/resources/webui_resources.grd     |    6 +-
- 17 files changed, 92 insertions(+), 122 deletions(-)
+ 18 files changed, 93 insertions(+), 123 deletions(-)
 
 --- a/chrome/app/theme/theme_resources.grd
 +++ b/chrome/app/theme/theme_resources.grd
@@ -67,9 +68,9 @@ Subject: resource fixes for enable_extensions=true
 -      <if expr="not is_android">
 +      <if expr="is_android">
          <structure type="chrome_scaled_image" name="IDR_HELP_MENU" file="common/help_16.png" />
-         <structure type="chrome_scaled_image" name="IDR_HIDE_PASSWORD_HOVER" file="common/hide_password_hover.png" />
          <if expr="not chromeos">
-@@ -147,7 +147,7 @@
+         <!-- User Manager tutorial -->
+@@ -146,7 +146,7 @@
        <if expr="enable_service_discovery">
          <structure type="chrome_scaled_image" name="IDR_LOCAL_DISCOVERY_CLOUDPRINT_ICON" file="common/cloudprint.png" />
        </if>
@@ -78,7 +79,7 @@ Subject: resource fixes for enable_extensions=true
          <structure type="chrome_scaled_image" name="IDR_MANAGEMENT_FAVICON" file="common/favicon_management.png" />
          <structure type="chrome_scaled_image" name="IDR_MAXIMIZE_BUTTON_MASK" file="common/maximize_button_mask.png" />
          <structure type="chrome_scaled_image" name="IDR_MINIMIZE_BUTTON_MASK" file="common/minimize_button_mask.png" />
-@@ -157,12 +157,12 @@
+@@ -156,12 +156,12 @@
          <structure type="chrome_scaled_image" name="IDR_ARC_PLAY_STORE_OPTIN_IN_PROGRESS_NOTIFICATION" file="cros/notification_play_store_optin_in_progress.png" />
          <structure type="chrome_scaled_image" name="IDR_NOTIFICATION_EASYUNLOCK_ENABLED" file="cros/notification_easyunlock_enabled.png" />
        </if>
@@ -93,8 +94,8 @@ Subject: resource fixes for enable_extensions=true
          <structure type="chrome_scaled_image" name="IDR_PRERENDER" file="common/prerender_succeed_icon.png" />
        </if>
        <if expr="not _google_chrome">
-@@ -252,7 +252,7 @@
-         <structure type="chrome_scaled_image" name="IDR_RESET_WARNING" file="cros/reset_warning.png" />
+@@ -255,7 +255,7 @@
+         <structure type="chrome_scaled_image" name="IDR_ENABLE_DEBUGGING_SUCCESS" file="cros/enable_debugging_success.png" />
        </if>
        <structure type="chrome_scaled_image" name="IDR_RESTORE_BUTTON_MASK" file="common/restore_button_mask.png" />
 -      <if expr="not is_android">
@@ -102,16 +103,16 @@ Subject: resource fixes for enable_extensions=true
          <structure type="chrome_scaled_image" name="IDR_SAFETY_TIP_LOOKALIKE_ILLUSTRATION_DARK" file="common/safety_tip_lookalike_illustration_dark.png" />
          <structure type="chrome_scaled_image" name="IDR_SAFETY_TIP_LOOKALIKE_ILLUSTRATION_LIGHT" file="common/safety_tip_lookalike_illustration_light.png" />
          <structure type="chrome_scaled_image" name="IDR_SAFETY_TIP_SUSPICIOUS_ILLUSTRATION_DARK" file="common/safety_tip_suspicious_illustration_dark.png" />
-@@ -264,7 +264,7 @@
+@@ -267,7 +267,7 @@
        <if expr="chromeos">
          <structure type="chrome_scaled_image" name="IDR_SECONDARY_USER_SETTINGS" file="cros/secondary_user_settings.png" />
        </if>
 -      <if expr="not is_android">
 +      <if expr="is_android">
          <structure type="chrome_scaled_image" name="IDR_SETTINGS_FAVICON" file="common/favicon_settings.png" />
-         <structure type="chrome_scaled_image" name="IDR_SHOW_PASSWORD_HOVER" file="common/show_password_hover.png" />
        </if>
-@@ -286,7 +286,7 @@
+       <if expr="chromeos">
+@@ -288,7 +288,7 @@
        <if expr="chromeos">
          <structure type="chrome_scaled_image" name="IDR_TAB_RECORDING_INDICATOR" file="cros/tab_recording_indicator.png" />
        </if>
@@ -120,7 +121,7 @@ Subject: resource fixes for enable_extensions=true
          <structure type="chrome_scaled_image" name="IDR_COOKIE_BLOCKING_ON_HEADER" file="common/cookie_blocking_on_header.png" />
          <structure type="chrome_scaled_image" name="IDR_COOKIE_BLOCKING_OFF_HEADER" file="common/cookie_blocking_off_header.png" />
        </if>
-@@ -340,7 +340,7 @@
+@@ -342,7 +342,7 @@
          <structure type="chrome_scaled_image" name="IDR_PASTE_VIOLATION_DARK" file="common/paste_violation_dark.png" />
        </if>
        <if expr="not _google_chrome">
@@ -234,7 +235,7 @@ Subject: resource fixes for enable_extensions=true
          <if expr="not use_titlecase">
            <message name="IDS_NEW_TAB" desc="The text label of a menu item for opening a new tab">
              New &amp;tab
-@@ -2021,7 +2021,7 @@ are declared in tools/grit/grit_rule.gni
+@@ -2034,7 +2034,7 @@ are declared in tools/grit/grit_rule.gni
        </message>
  
        <!-- Download Context Menu Items -->
@@ -243,7 +244,7 @@ Subject: resource fixes for enable_extensions=true
          <if expr="not use_titlecase">
            <if expr="is_macosx">
              <message name="IDS_DOWNLOAD_MENU_SHOW"
-@@ -2263,7 +2263,7 @@ are declared in tools/grit/grit_rule.gni
+@@ -2276,7 +2276,7 @@ are declared in tools/grit/grit_rule.gni
        </if>
  
        <!-- Desktop omnibox PWA install icon -->
@@ -252,7 +253,7 @@ Subject: resource fixes for enable_extensions=true
          <message name="IDS_OMNIBOX_PWA_INSTALL_ICON_LABEL" desc="String for the omnibox icon label promoting an app installation">
            Install
          </message>
-@@ -2739,7 +2739,6 @@ are declared in tools/grit/grit_rule.gni
+@@ -2764,7 +2764,6 @@ are declared in tools/grit/grit_rule.gni
        </message>
  
        <!-- Win certificate selector dialog strings.  -->
@@ -260,7 +261,7 @@ Subject: resource fixes for enable_extensions=true
          <message name="IDS_CERT_SELECTOR_SUBJECT_COLUMN" desc="The text of the header for the certificate subject column in the certificate selector dialog.">
            Subject
          </message>
-@@ -2752,7 +2751,6 @@ are declared in tools/grit/grit_rule.gni
+@@ -2777,7 +2776,6 @@ are declared in tools/grit/grit_rule.gni
          <message name="IDS_CERT_SELECTOR_SERIAL_COLUMN" desc="The text of the header for the certificate serial number column in the certificate selector dialog.">
            Serial
          </message>
@@ -268,7 +269,7 @@ Subject: resource fixes for enable_extensions=true
  
        <message name="IDS_CERT_EXPORT_TYPE_BASE64" desc="The description of saving a single certificate in base64 encoding.">
          Base64-encoded ASCII, single certificate
-@@ -3319,7 +3317,7 @@ are declared in tools/grit/grit_rule.gni
+@@ -3344,7 +3342,7 @@ are declared in tools/grit/grit_rule.gni
        </message>
  
        <!-- Task Manager Window -->
@@ -277,7 +278,7 @@ Subject: resource fixes for enable_extensions=true
          <if expr="not use_titlecase">
            <message name="IDS_TASK_MANAGER_KILL" desc="The caption of the Task Manager kill button">
              End process
-@@ -3598,7 +3596,7 @@ are declared in tools/grit/grit_rule.gni
+@@ -3626,7 +3624,7 @@ are declared in tools/grit/grit_rule.gni
        <message name="IDS_UTILITY_PROCESS_FILE_UTILITY_NAME" desc="The name of the utility process used for various Chrome specific file operations.">
            Chrome File Utilities
        </message>
@@ -286,7 +287,7 @@ Subject: resource fixes for enable_extensions=true
          <message name="IDS_UTILITY_PROCESS_PROFILE_IMPORTER_NAME" desc="The name of the utility process used for importing profiles.">
            Profile Importer
          </message>
-@@ -5150,7 +5148,7 @@ Keep your key file in a safe place. You
+@@ -5184,7 +5182,7 @@ Keep your key file in a safe place. You
        </message>
  
        <!-- about:system strings -->
@@ -295,7 +296,7 @@ Subject: resource fixes for enable_extensions=true
          <message name="IDS_ABOUT_SYS_TITLE" desc="about:system page title">
            About System
          </message>
-@@ -5181,7 +5179,7 @@ Keep your key file in a safe place. You
+@@ -5215,7 +5213,7 @@ Keep your key file in a safe place. You
        </if>
  
        <!-- chrome://browser-switch strings -->
@@ -304,7 +305,7 @@ Subject: resource fixes for enable_extensions=true
          <message name="IDS_ABOUT_BROWSER_SWITCH_TITLE" desc="about:browser-switch page title">
            Legacy Browser Support
          </message>
-@@ -5648,7 +5646,7 @@ Keep your key file in a safe place. You
+@@ -5685,7 +5683,7 @@ Keep your key file in a safe place. You
        </message>
  
        <!-- Strings for intent picker -->
@@ -313,7 +314,7 @@ Subject: resource fixes for enable_extensions=true
          <message name="IDS_TOOLTIP_INTENT_PICKER_ICON" desc="The tooltip for the intent picker bubble icon">
            To open this link, choose an app
          </message>
-@@ -5877,23 +5875,10 @@ the Bookmarks menu.">
+@@ -5917,23 +5915,10 @@ the Bookmarks menu.">
            No thanks
          </message>
        </if>
@@ -338,7 +339,7 @@ Subject: resource fixes for enable_extensions=true
          <message name="IDS_PASSWORD_MANAGER_BUBBLE_BLACKLIST_BUTTON" desc="Button text for the 'Save Password' bubble's 'Never remember for this site' option">
            Never
          </message>
-@@ -5959,7 +5944,7 @@ the Bookmarks menu.">
+@@ -6029,7 +6014,7 @@ the Bookmarks menu.">
        </if>
  
        <!-- Android uses custom UI for Bookmark importing -->
@@ -347,7 +348,7 @@ Subject: resource fixes for enable_extensions=true
          <!-- Import Settings Dialog -->
          <if expr="is_win">
            <message name="IDS_IMPORT_FROM_IE" desc="browser combo box: Microsoft Internet Explorer">
-@@ -6786,7 +6771,7 @@ the Bookmarks menu.">
+@@ -6851,7 +6836,7 @@ the Bookmarks menu.">
        <!-- Settings related strings not specific to chrome://settings.
             (Settings specific strings are in settings_strings.grdp).
             Android uses native UI for settings -->
@@ -356,7 +357,7 @@ Subject: resource fixes for enable_extensions=true
          <message name="IDS_TOOLBAR_INFORM_SET_HOME_PAGE" desc="The confirmation message when dropping a link on the Home toolbar button">
             Your home page has been set.
          </message>
-@@ -6993,7 +6978,7 @@ the Bookmarks menu.">
+@@ -7058,7 +7043,7 @@ the Bookmarks menu.">
            Create QR code for this Image
          </message>
        </if>
@@ -365,7 +366,7 @@ Subject: resource fixes for enable_extensions=true
          <message name="IDS_OMNIBOX_QRCODE_GENERATOR_ICON_LABEL" desc="String for the omnibox icon label for the QR code Generator">
            QR code
          </message>
-@@ -7157,14 +7142,12 @@ the Bookmarks menu.">
+@@ -7230,14 +7215,12 @@ the Bookmarks menu.">
        </message>
  
        <!-- Accessiblility strings for Infobars in Views -->
@@ -380,7 +381,7 @@ Subject: resource fixes for enable_extensions=true
  
        <!-- One click sign-in bubble and dialog -->
        <message name="IDS_ONE_CLICK_BUBBLE_UNDO" desc="The text for the undo button in the one click sign-in bubble.">
-@@ -7218,7 +7201,7 @@ the Bookmarks menu.">
+@@ -7291,7 +7274,7 @@ the Bookmarks menu.">
        </message>
  
        <!-- Managed UI on pages like chrome://settings and chrome://downloads -->
@@ -389,7 +390,7 @@ Subject: resource fixes for enable_extensions=true
          <if expr="chromeos">
            <message name="IDS_DEVICE_MANAGED_WITH_HYPERLINK" desc="Message to end users in Enterprise/EDU, with a link for more info (ChromeOS)">
              Your <ph name="BEGIN_LINK">&lt;a target="_blank" href="$1"&gt;</ph><ph name="DEVICE_TYPE">$2<ex>Chromebook</ex></ph> is managed<ph name="END_LINK">&lt;/a&gt;</ph> by your organization
-@@ -7339,7 +7322,7 @@ the Bookmarks menu.">
+@@ -7412,7 +7395,7 @@ the Bookmarks menu.">
        </message>
  
        <!-- Strings used for non-Android builds -->
@@ -398,7 +399,7 @@ Subject: resource fixes for enable_extensions=true
          <message name="IDS_APP_DEFAULT_PAGE_NAME"
                   desc="Default name for the first 'Apps' page on the New Tab Page.">
            Apps
-@@ -7985,7 +7968,7 @@ Please help our engineers fix this probl
+@@ -8081,7 +8064,7 @@ Please help our engineers fix this probl
        </if>
  
        <!-- Android uses native UI to handle Sync settings -->
@@ -407,7 +408,7 @@ Subject: resource fixes for enable_extensions=true
          <!-- Sync options dialog strings -->
          <if expr="not chromeos">
            <message name="IDS_SYNC_OVERVIEW" desc="The message that appears in the options dialog when sync has not been set up by the user.">
-@@ -8094,7 +8077,6 @@ Please help our engineers fix this probl
+@@ -8190,7 +8173,6 @@ Please help our engineers fix this probl
        </if>
  
        <!-- Translate Bubble -->
@@ -415,7 +416,7 @@ Subject: resource fixes for enable_extensions=true
          <message name="IDS_TRANSLATE_BUBBLE_BEFORE_TRANSLATE_TITLE" desc="Title text for the translate bubble when asking to translate a page.">
            Translate this page?
          </message>
-@@ -8225,7 +8207,6 @@ Please help our engineers fix this probl
+@@ -8321,7 +8303,6 @@ Please help our engineers fix this probl
          <message name="IDS_TRANSLATE_BUBBLE_RESET" desc="Text to show for the language combobox to revert to its original state in the advanced view under TAB UI">
              Reset
          </message>
@@ -423,7 +424,7 @@ Subject: resource fixes for enable_extensions=true
  
        <!-- Web and message center notifications -->
        <message name="IDS_NOTIFICATION_BUTTON_SETTINGS" desc="Short button label to go to the notification settings panel">
-@@ -9112,7 +9093,7 @@ Please help our engineers fix this probl
+@@ -9211,7 +9192,7 @@ Please help our engineers fix this probl
        </message>
  
        <!-- Media Galleries. -->
@@ -432,7 +433,7 @@ Subject: resource fixes for enable_extensions=true
          <message name="IDS_MEDIA_GALLERIES_DIALOG_HEADER" desc="Header for media gallery permissions dialog.">
            Media-File Permissions for "<ph name="EXTENSION">$1<ex>Photo Editor</ex></ph>"
          </message>
-@@ -9651,7 +9632,7 @@ Please help our engineers fix this probl
+@@ -9728,7 +9709,7 @@ Please help our engineers fix this probl
        </message>
      </if>
  
@@ -441,7 +442,7 @@ Subject: resource fixes for enable_extensions=true
        <!-- Device Chooser Prompt -->
        <message name="IDS_BLUETOOTH_DEVICE_CHOOSER_PROMPT_ORIGIN" desc="The label that is used to introduce Bluetooth chooser details to the user in a popup when it is from a website.">
          <ph name="Origin">$1<ex>www.9oo91e.qjz9zk</ex></ph> wants to pair
-@@ -9764,7 +9745,7 @@ Please help our engineers fix this probl
+@@ -9841,7 +9822,7 @@ Please help our engineers fix this probl
      </message>
  
      <!-- Serial port chooser -->
@@ -450,7 +451,7 @@ Subject: resource fixes for enable_extensions=true
        <message name="IDS_SERIAL_PORT_CHOOSER_PROMPT_ORIGIN" desc="The label that is used to introduce serial port chooser details to the user in a popup when it is from a website.">
          <ph name="Origin">$1<ex>www.9oo91e.qjz9zk</ex></ph> wants to connect to a serial port
        </message>
-@@ -9783,7 +9764,7 @@ Please help our engineers fix this probl
+@@ -9860,7 +9841,7 @@ Please help our engineers fix this probl
      </if>
  
      <!-- HID (Human Interface Device) chooser -->
@@ -459,7 +460,7 @@ Subject: resource fixes for enable_extensions=true
        <message name="IDS_HID_CHOOSER_PROMPT_ORIGIN" desc="The label that is used to introduce the Human Interface Device (HID) chooser details to the user in a popup when it is from a website.">
          <ph name="Origin">$1<ex>www.9oo91e.qjz9zk</ex></ph> wants to connect to a HID device
        </message>
-@@ -9844,7 +9825,7 @@ Please help our engineers fix this probl
+@@ -9924,7 +9905,7 @@ Please help our engineers fix this probl
      </if>
  
      <!-- Framebust / Blocked Redirection intervention message -->
@@ -468,7 +469,7 @@ Subject: resource fixes for enable_extensions=true
        <!-- Android strings are declared in android_chrome_strings.grd. -->
        <message name="IDS_REDIRECT_BLOCKED_MESSAGE" desc="The message stating that a redirect (noun) was blocked on this page. This will be followed on a separate line with the address the user was being redirected to.">
          Redirect blocked:
-@@ -9919,7 +9900,7 @@ Please help our engineers fix this probl
+@@ -9999,7 +9980,7 @@ Please help our engineers fix this probl
      </if>
  
      <!-- Download open confirmation dialog -->
@@ -477,7 +478,7 @@ Subject: resource fixes for enable_extensions=true
        <message name="IDS_DOWNLOAD_OPEN_CONFIRMATION_DIALOG_TITLE" desc="Title of the dialog prompt shown to users when an extension is trying to open a downloaded file.">
          Open download
        </message>
-@@ -10088,7 +10069,7 @@ Please help our engineers fix this probl
+@@ -10149,7 +10130,7 @@ Please help our engineers fix this probl
      </message>
  
      <!-- Relaunch notification bubble and dialog. -->
@@ -486,7 +487,7 @@ Subject: resource fixes for enable_extensions=true
        <if expr="not chromeos">
          <message name="IDS_RELAUNCH_ACCEPT_BUTTON" desc="The text in the accept button of a dialog that causes the browser to be relaunched immediately.">
            Relaunch now
-@@ -10105,7 +10086,7 @@ Please help our engineers fix this probl
+@@ -10166,7 +10147,7 @@ Please help our engineers fix this probl
      </if>
  
      <!-- Web-modal dialog shown during Web Authenticaton API requests. -->
@@ -495,7 +496,7 @@ Subject: resource fixes for enable_extensions=true
        <message name="IDS_WEBAUTHN_GENERIC_TITLE" desc="Title of most dialogs shown while the user is authenticating on a web site using a security key.">
          Use your security key with <ph name="APP_NAME">$1<ex>9oo91e.qjz9zk</ex></ph>
        </message>
-@@ -10348,7 +10329,7 @@ Please help our engineers fix this probl
+@@ -10409,7 +10390,7 @@ Please help our engineers fix this probl
      </message>
  
      <!-- User happiness tracking survey UI -->
@@ -504,7 +505,7 @@ Subject: resource fixes for enable_extensions=true
        <if expr="use_titlecase">
          <message name="IDS_HATS_BUBBLE_OK_LABEL" translateable="false" desc="Button label on Happiness Tracking Survey's invitation banner, clicking the button gives the user's consent on taking the survey.">
            Take Survey
-@@ -10532,7 +10513,7 @@ Please help our engineers fix this probl
+@@ -10593,7 +10574,7 @@ Please help our engineers fix this probl
      </message>
  
      <!-- Extension request -->
@@ -515,7 +516,7 @@ Subject: resource fixes for enable_extensions=true
            =1 {An extension has been approved}
 --- a/components/components_strings.grd
 +++ b/components/components_strings.grd
-@@ -318,7 +318,7 @@
+@@ -319,7 +319,7 @@
        <part file="undo_strings.grdp" />
        <part file="version_ui_strings.grdp" />
  
@@ -524,7 +525,7 @@ Subject: resource fixes for enable_extensions=true
          <part file="management_strings.grdp" />
        </if>
        <if expr="is_android">
-@@ -398,7 +398,7 @@
+@@ -399,7 +399,7 @@
        <message name="IDS_PLUGIN_NOT_SUPPORTED" desc="The placeholder text for an unsupported plugin.">
          This plugin is not supported
        </message>
@@ -679,28 +680,28 @@ Subject: resource fixes for enable_extensions=true
 -      <if expr="not is_android">
 +      <if expr="is_android">
          <!-- New Tab Page WebUI. -->
-         <structure name="IDR_INCOGNITO_TAB_HTML" file="resources\ntp4\incognito_tab.html" compress="gzip" flattenhtml="true" type="chrome_html" />
-         <structure name="IDR_INCOGNITO_TAB_THEME_CSS" file="resources\ntp4\incognito_tab_theme.css" compress="gzip" flattenhtml="true" type="chrome_html" />
+         <structure name="IDR_INCOGNITO_TAB_HTML" file="resources\ntp4\incognito_tab.html" flattenhtml="true" type="chrome_html" />
+         <structure name="IDR_INCOGNITO_TAB_THEME_CSS" file="resources\ntp4\incognito_tab_theme.css" flattenhtml="true" type="chrome_html" />
 @@ -64,7 +64,7 @@
-         <include name="IDR_DISCARDS_SITE_DATA_MOJOM_LITE_JS" file="${root_gen_dir}\chrome\browser\ui\webui\discards\site_data.mojom-lite.js" compress="gzip" use_base_dir="false" type="BINDATA" />
-         <include name="IDR_DISCARDS_SORTED_TABLE_BEHAVIOR_JS" file="resources\discards\sorted_table_behavior.js" compress="gzip" type="BINDATA" />
+         <include name="IDR_DISCARDS_SITE_DATA_MOJOM_LITE_JS" file="${root_gen_dir}\chrome\browser\ui\webui\discards\site_data.mojom-lite.js" use_base_dir="false" type="BINDATA" />
+         <include name="IDR_DISCARDS_SORTED_TABLE_BEHAVIOR_JS" file="resources\discards\sorted_table_behavior.js" type="BINDATA" />
        </if>
 -      <if expr="is_win or is_macosx or (is_linux and not chromeos)">
 +      <if expr="is_win or is_macosx or is_android or (is_linux and not chromeos)">
-         <include name="IDR_BROWSER_SWITCH_APP_JS" file="${root_gen_dir}\chrome\browser\resources\browser_switch\app.js" compress="gzip" use_base_dir="false" type="BINDATA" />
-         <include name="IDR_BROWSER_SWITCH_PROXY_JS" file="resources\browser_switch\browser_switch_proxy.js" compress="gzip" type="BINDATA" />
-         <include name="IDR_BROWSER_SWITCH_HTML" file="resources\browser_switch\browser_switch.html" compress="gzip" allowexternalscript="true" type="BINDATA" />
+         <include name="IDR_BROWSER_SWITCH_APP_JS" file="${root_gen_dir}\chrome\browser\resources\browser_switch\app.js" use_base_dir="false" type="BINDATA" />
+         <include name="IDR_BROWSER_SWITCH_PROXY_JS" file="resources\browser_switch\browser_switch_proxy.js" type="BINDATA" />
+         <include name="IDR_BROWSER_SWITCH_HTML" file="resources\browser_switch\browser_switch.html" allowexternalscript="true" type="BINDATA" />
 @@ -80,7 +80,7 @@
-         <include name="IDR_ABOUT_NACL_CSS" file="resources\about_nacl\about_nacl.css" compress="gzip" flattenhtml="true" type="chrome_html" />
-         <include name="IDR_ABOUT_NACL_JS" file="resources\about_nacl\about_nacl.js" compress="gzip" type="BINDATA" />
+         <include name="IDR_ABOUT_NACL_CSS" file="resources\about_nacl\about_nacl.css" flattenhtml="true" type="chrome_html" />
+         <include name="IDR_ABOUT_NACL_JS" file="resources\about_nacl\about_nacl.js" type="BINDATA" />
        </if>
 -      <if expr="not is_android">
 +      <if expr="is_android">
-         <include name="IDR_ABOUT_SYS_HTML" file="resources\about_sys\about_sys.html" compress="gzip" type="BINDATA" />
-         <include name="IDR_ABOUT_SYS_CSS" file="resources\about_sys\about_sys.css" compress="gzip" flattenhtml="true" type="BINDATA" />
-         <include name="IDR_ABOUT_SYS_JS" file="resources\about_sys\about_sys.js" compress="gzip" type="BINDATA" />
+         <include name="IDR_ABOUT_SYS_HTML" file="resources\about_sys\about_sys.html" type="BINDATA" />
+         <include name="IDR_ABOUT_SYS_CSS" file="resources\about_sys\about_sys.css" flattenhtml="true" type="BINDATA" />
+         <include name="IDR_ABOUT_SYS_JS" file="resources\about_sys\about_sys.js" type="BINDATA" />
 @@ -111,7 +111,7 @@
-         <include name="IDR_OFFLINE_INTERNALS_BROWSER_PROXY_JS" file="resources\offline_pages\offline_internals_browser_proxy.js" type="BINDATA" compress="gzip" />
+         <include name="IDR_OFFLINE_INTERNALS_BROWSER_PROXY_JS" file="resources\offline_pages\offline_internals_browser_proxy.js" type="BINDATA" />
        </if>
  
 -      <if expr="not is_android">
@@ -723,27 +724,27 @@ Subject: resource fixes for enable_extensions=true
        </if>
 -      <if expr="not is_android">
 +      <if expr="is_android">
-         <include name="IDR_MANAGEMENT_HTML" file="resources\management\management.html" flattenhtml="true" allowexternalscript="true" type="BINDATA" compress="gzip" />
-         <include name="IDR_MANAGEMENT_UI_JS" file="${root_gen_dir}/chrome/browser/resources/management/management_ui.js" use_base_dir="false" type="BINDATA" compress="gzip" preprocess="true" />
-         <include name="IDR_MANAGEMENT_BROWSER_PROXY_JS" file="resources\management\management_browser_proxy.js" type="BINDATA" compress="gzip" preprocess="true" />
-         <include name="IDR_MANAGEMENT_ICONS_JS" file="${root_gen_dir}/chrome/browser/resources/management/icons.js" use_base_dir="false" type="BINDATA" compress="gzip" preprocess="true" />
+         <include name="IDR_MANAGEMENT_HTML" file="resources\management\management.html" flattenhtml="true" allowexternalscript="true" type="BINDATA" />
+         <include name="IDR_MANAGEMENT_UI_JS" file="${root_gen_dir}/chrome/browser/resources/management/management_ui.js" use_base_dir="false" type="BINDATA" preprocess="true" />
+         <include name="IDR_MANAGEMENT_BROWSER_PROXY_JS" file="resources\management\management_browser_proxy.js" type="BINDATA" preprocess="true" />
+         <include name="IDR_MANAGEMENT_ICONS_JS" file="${root_gen_dir}/chrome/browser/resources/management/icons.js" use_base_dir="false" type="BINDATA" preprocess="true" />
        </if>
-       <include name="IDR_URL_MOJOM_LITE_JS" file="${root_gen_dir}\url\mojom\url.mojom-lite.js" use_base_dir="false" type="BINDATA" compress="gzip" />
+       <include name="IDR_URL_MOJOM_LITE_JS" file="${root_gen_dir}\url\mojom\url.mojom-lite.js" use_base_dir="false" type="BINDATA" />
 -      <if expr="is_win or is_macosx or desktop_linux or chromeos">
 +      <if expr="is_win or is_macosx or desktop_linux or chromeos or is_android">
          <include name="IDR_SYNC_DISABLED_CONFIRMATION_HTML" file="resources\signin\sync_confirmation\sync_disabled_confirmation.html" type="BINDATA" />
          <include name="IDR_SYNC_DISABLED_CONFIRMATION_APP_JS" file="${root_gen_dir}\chrome\browser\resources\signin\sync_confirmation\sync_disabled_confirmation_app.js" use_base_dir="false" preprocess="true" type="BINDATA" />
          <include name="IDR_SYNC_CONFIRMATION_HTML" file="resources\signin\sync_confirmation\sync_confirmation.html" flattenhtml="true" allowexternalscript="true" type="BINDATA" />
 @@ -188,7 +188,7 @@
-         <include name="IDR_SYNC_CONFIRMATION_IMAGES_SYNC_CONFIRMATION_ILLUSTRATION_SVG" file="resources\signin\sync_confirmation\images\sync_confirmation_illustration.svg" type="BINDATA" compress="gzip" />
-         <include name="IDR_SYNC_CONFIRMATION_IMAGES_SYNC_CONFIRMATION_ILLUSTRATION_DARK_SVG" file="resources\signin\sync_confirmation\images\sync_confirmation_illustration_dark.svg" type="BINDATA" compress="gzip" />
+         <include name="IDR_SYNC_CONFIRMATION_IMAGES_SYNC_CONFIRMATION_ILLUSTRATION_SVG" file="resources\signin\sync_confirmation\images\sync_confirmation_illustration.svg" type="BINDATA" />
+         <include name="IDR_SYNC_CONFIRMATION_IMAGES_SYNC_CONFIRMATION_ILLUSTRATION_DARK_SVG" file="resources\signin\sync_confirmation\images\sync_confirmation_illustration_dark.svg" type="BINDATA" />
        </if>
 -      <if expr="is_win or is_macosx or desktop_linux">
 +      <if expr="is_win or is_macosx or is_android or desktop_linux">
          <include name="IDR_SIGNIN_EMAIL_CONFIRMATION_HTML" file="resources\signin\signin_email_confirmation\signin_email_confirmation.html" flattenhtml="true" allowexternalscript="true" type="BINDATA" />
          <include name="IDR_SIGNIN_EMAIL_CONFIRMATION_APP_JS" file="${root_gen_dir}\chrome\browser\resources\signin\signin_email_confirmation\signin_email_confirmation_app.js" use_base_dir="false" preprocess="true" type="BINDATA" />
          <include name="IDR_SIGNIN_ERROR_HTML" file="resources\signin\signin_error\signin_error.html" type="BINDATA" />
-@@ -312,7 +312,7 @@
+@@ -307,7 +307,7 @@
          <include name="IDR_QUICKOFFICE_MANIFEST" file="resources\chromeos\quickoffice\manifest.json" type="BINDATA" />
          <include name="IDR_PRODUCT_CHROMEOS_SYNC_CONSENT_SCREEN_ICONS" file="internal\resources\chromeos-sync-consent-icons.html" type="BINDATA" />
        </if>
@@ -752,24 +753,24 @@ Subject: resource fixes for enable_extensions=true
          <include name="IDR_CONTROL_BAR_HTML" file="resources\user_manager\control_bar.html" type="BINDATA" />
          <include name="IDR_CONTROL_BAR_JS" file="resources\user_manager\control_bar.js" type="BINDATA" />
          <include name="IDR_CREATE_PROFILE_HTML" file="resources\user_manager\create_profile.html" type="BINDATA" />
-@@ -330,7 +330,7 @@
+@@ -325,7 +325,7 @@
          <include name="IDR_USER_MANAGER_TUTORIAL_HTML" file="resources\user_manager\user_manager_tutorial.html" type="BINDATA" />
          <include name="IDR_USER_MANAGER_TUTORIAL_JS" file="resources\user_manager\user_manager_tutorial.js" type="BINDATA" />
        </if>
 -      <if expr="not is_android">
 +      <if expr="is_android">
-         <include name="IDR_IDENTITY_INTERNALS_HTML" file="resources\identity_internals\identity_internals.html" compress="gzip" type="BINDATA" />
-         <include name="IDR_IDENTITY_INTERNALS_CSS" file="resources\identity_internals\identity_internals.css" compress="gzip" type="BINDATA" />
-         <include name="IDR_IDENTITY_INTERNALS_JS" file="resources\identity_internals\identity_internals.js" compress="gzip" type="BINDATA" />
-@@ -407,7 +407,7 @@
+         <include name="IDR_IDENTITY_INTERNALS_HTML" file="resources\identity_internals\identity_internals.html" type="BINDATA" />
+         <include name="IDR_IDENTITY_INTERNALS_CSS" file="resources\identity_internals\identity_internals.css" type="BINDATA" />
+         <include name="IDR_IDENTITY_INTERNALS_JS" file="resources\identity_internals\identity_internals.js" type="BINDATA" />
+@@ -408,7 +408,7 @@
          </if>
          <include name="IDR_BRAILLE_MANIFEST" file="resources\chromeos\accessibility\braille_ime\manifest.json" type="BINDATA" />
        </if>
 -      <if expr="not is_android">
 +      <if expr="is_android">
-         <include name="IDR_MEDIA_ROUTER_INTERNALS_HTML" file="resources\media_router\media_router_internals.html" compress="gzip" type="BINDATA" />
-         <include name="IDR_MEDIA_ROUTER_INTERNALS_CSS" file="resources\media_router\media_router_internals.css" compress="gzip" type="BINDATA" />
-         <include name="IDR_MEDIA_ROUTER_INTERNALS_JS" file="resources\media_router\media_router_internals.js" compress="gzip" type="BINDATA" />
+         <include name="IDR_MEDIA_ROUTER_INTERNALS_HTML" file="resources\media_router\media_router_internals.html" type="BINDATA" />
+         <include name="IDR_MEDIA_ROUTER_INTERNALS_CSS" file="resources\media_router\media_router_internals.css" type="BINDATA" />
+         <include name="IDR_MEDIA_ROUTER_INTERNALS_JS" file="resources\media_router\media_router_internals.js" type="BINDATA" />
 --- a/components/history_strings.grdp
 +++ b/components/history_strings.grdp
 @@ -63,7 +63,7 @@
@@ -931,7 +932,7 @@ Subject: resource fixes for enable_extensions=true
        <message name="IDS_PAGE_INFO_COOKIES" desc="The label for the Cookies setting in the Page Information Window.">
          Cookies
        </message>
-@@ -440,7 +440,7 @@
+@@ -449,7 +449,7 @@
      </message>
  
      <!-- Permission change infobar. -->
@@ -954,7 +955,7 @@ Subject: resource fixes for enable_extensions=true
 --- a/ui/webui/resources/webui_resources.grd
 +++ b/ui/webui/resources/webui_resources.grd
 @@ -135,12 +135,12 @@ without changes to the corresponding grd
-                use_base_dir="false" type="BINDATA" compress="gzip"
+                use_base_dir="false" type="BINDATA"
                 preprocess="true" />
  
 -      <if expr="not is_android">
@@ -968,8 +969,8 @@ Subject: resource fixes for enable_extensions=true
          <part file="cr_components/cr_components_resources_v3.grdp" />
          <part file="cr_elements_resources_v3.grdp" />
          <part file="cr_polymer_resources_v3.grdp" />
-@@ -459,7 +459,7 @@ without changes to the corresponding grd
-                    compress="gzip" />
+@@ -404,7 +404,7 @@ without changes to the corresponding grd
+                    type="chrome_html" />
        </if>
  
 -      <if expr="not is_android and not is_ios">
@@ -977,3 +978,14 @@ Subject: resource fixes for enable_extensions=true
          <part file="cr_components/cr_components_resources.grdp" />
          <part file="cr_elements_resources.grdp" />
          <part file="cr_polymer_resources.grdp" />
+--- a/components/permissions_strings.grdp
++++ b/components/permissions_strings.grdp
+@@ -119,7 +119,7 @@ This will otherwise be blocked by your p
+     Block
+   </message>
+ 
+-  <if expr="not is_android">
++  <if expr="is_android">
+     <message name="IDS_GEOLOCATION_PERMISSION_CHIP" desc="Button text representing a request for the user's physical location from a website. When clicked, shows a permission prompt bubble with more information.">
+       Share location?
+     </message>
