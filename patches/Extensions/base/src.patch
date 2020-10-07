@@ -1940,7 +1940,7 @@ Subject: source code fixes for enable_extensions=true
  #include "chrome/browser/signin/identity_manager_factory.h"
  #include "components/signin/public/identity_manager/identity_manager.h"
  #endif
-@@ -524,7 +524,7 @@ GURL GetOSSettingsUrl(const std::string&
+@@ -527,7 +527,7 @@ GURL GetOSSettingsUrl(const std::string&
  }
  #endif
  
@@ -3556,7 +3556,7 @@ Subject: source code fixes for enable_extensions=true
    BuildProfileManagementHeading();
    BuildSelectableProfiles();
    BuildProfileManagementFeatureButtons();
-@@ -248,7 +248,7 @@ void ProfileMenuView::OnSyncSettingsButt
+@@ -249,7 +249,7 @@ void ProfileMenuView::OnSyncSettingsButt
  
  void ProfileMenuView::OnSyncErrorButtonClicked(
      sync_ui_util::AvatarSyncErrorType error) {
@@ -3565,7 +3565,7 @@ Subject: source code fixes for enable_extensions=true
    // On ChromeOS, sync errors are fixed by re-signing into the OS.
    chrome::AttemptUserExit();
  #else
-@@ -273,16 +273,10 @@ void ProfileMenuView::OnSyncErrorButtonC
+@@ -274,16 +274,10 @@ void ProfileMenuView::OnSyncErrorButtonC
              signin_metrics::USER_CLICKED_SIGNOUT_SETTINGS,
              signin_metrics::SignoutDelete::IGNORE_METRIC);
          Hide();
@@ -3582,7 +3582,7 @@ Subject: source code fixes for enable_extensions=true
        break;
      case sync_ui_util::UPGRADE_CLIENT_ERROR:
        chrome::OpenUpdateChromeDialog(browser());
-@@ -314,7 +308,7 @@ void ProfileMenuView::OnSigninAccountBut
+@@ -315,7 +309,7 @@ void ProfileMenuView::OnSigninAccountBut
        true /* is_default_promo_account */);
  }
  
@@ -3591,7 +3591,7 @@ Subject: source code fixes for enable_extensions=true
  void ProfileMenuView::OnSignoutButtonClicked() {
    RecordClick(ActionableItem::kSignoutButton);
    if (!perform_menu_actions())
-@@ -331,9 +325,6 @@ void ProfileMenuView::OnSigninButtonClic
+@@ -332,9 +326,6 @@ void ProfileMenuView::OnSigninButtonClic
    if (!perform_menu_actions())
      return;
    Hide();
@@ -3601,7 +3601,7 @@ Subject: source code fixes for enable_extensions=true
  }
  
  void ProfileMenuView::OnOtherProfileSelected(
-@@ -392,7 +383,7 @@ void ProfileMenuView::BuildIdentity() {
+@@ -393,7 +384,7 @@ void ProfileMenuView::BuildIdentity() {
        GetProfileAttributesEntry(profile);
  
  // Profile names are not supported on ChromeOS.
@@ -3610,7 +3610,7 @@ Subject: source code fixes for enable_extensions=true
    size_t num_of_profiles =
        g_browser_process->profile_manager()->GetNumberOfProfiles();
    if (num_of_profiles > 1 || !profile_attributes->IsUsingDefaultName()) {
-@@ -501,7 +492,7 @@ void ProfileMenuView::BuildSyncInfo() {
+@@ -503,7 +494,7 @@ void ProfileMenuView::BuildSyncInfo() {
          base::BindRepeating(&ProfileMenuView::OnSigninAccountButtonClicked,
                              base::Unretained(this), account_info.value()));
    } else {
@@ -3619,7 +3619,7 @@ Subject: source code fixes for enable_extensions=true
      // There is always an account on ChromeOS.
      NOTREACHED();
  #else
-@@ -554,7 +545,7 @@ void ProfileMenuView::BuildFeatureButton
+@@ -556,7 +547,7 @@ void ProfileMenuView::BuildFeatureButton
          vector_icons::kCloseIcon);
    }
  
@@ -3628,7 +3628,7 @@ Subject: source code fixes for enable_extensions=true
    const bool has_primary_account =
        !is_guest && identity_manager->HasPrimaryAccount();
    // The sign-out button is always at the bottom.
-@@ -568,7 +559,7 @@ void ProfileMenuView::BuildFeatureButton
+@@ -570,7 +561,7 @@ void ProfileMenuView::BuildFeatureButton
  #endif
  }
  
@@ -5110,7 +5110,7 @@ Subject: source code fixes for enable_extensions=true
  #endif
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -5742,7 +5742,7 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -5753,7 +5753,7 @@ const FeatureEntry kFeatureEntries[] = {
       flag_descriptions::kMediaHistoryDescription, kOsAll,
       FEATURE_VALUE_TYPE(media::kUseMediaHistoryStore)},
  
@@ -9502,7 +9502,7 @@ Subject: source code fixes for enable_extensions=true
 +#endif  // UI_BASE_DRAGDROP_OS_EXCHANGE_DATA_PROVIDER_ANDROID_H_
 --- a/chrome/browser/renderer_context_menu/render_view_context_menu.cc
 +++ b/chrome/browser/renderer_context_menu/render_view_context_menu.cc
-@@ -1700,16 +1700,6 @@ void RenderViewContextMenu::AppendLangua
+@@ -1702,16 +1702,6 @@ void RenderViewContextMenu::AppendLangua
  #if defined(OS_MACOSX)
    menu_model_.AddItemWithStringId(IDC_CONTENT_CONTEXT_LANGUAGE_SETTINGS,
                                    IDS_CONTENT_CONTEXT_LANGUAGE_SETTINGS);
