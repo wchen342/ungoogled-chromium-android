@@ -1,3 +1,6 @@
+# 85.0.4183.121-1
+* Upstream update
+
 # 85.0.4183.83-1
 * All versions:
   * Update building targets. Now the two versions will be one for Android 5.0+ and one for Android 10+. Note that `Trichrome` produce two apks, you need to install both.
