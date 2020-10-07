@@ -1182,7 +1182,7 @@ Subject: add download prompt for installing extensions
    "java/src/org/chromium/chrome/browser/externalauth/VerifiedHandler.java",
 --- a/chrome/browser/ui/BUILD.gn
 +++ b/chrome/browser/ui/BUILD.gn
-@@ -3285,8 +3285,8 @@ static_library("ui") {
+@@ -3283,8 +3283,8 @@ static_library("ui") {
        "views/extensions/extension_context_menu_controller.h",
        "views/extensions/extension_install_blocked_dialog_view.cc",
        "views/extensions/extension_install_blocked_dialog_view.h",
