@@ -5,9 +5,7 @@ data='{'\
 '  "ref":"master",'\
 '  "inputs": {'\
 '    "github_ref":"'"${GITHUB_REF}"'",'\
-'    "github_sha":"'"${GITHUB_SHA}"'",'\
-'    "arch":"'"${ARCH}"'",'\
-'    "target":"'"${TARGET}"'"'\
+'    "github_sha":"'"${GITHUB_SHA}"'"'\
 '  }'\
 '}'
 

@@ -5,11 +5,6 @@ jobs:
   build:
     name: Send workflow dispatch to runner repo
     runs-on: ubuntu-latest
-    strategy:
-        fail-fast: false
-        matrix:
-            arch: [arm, arm64]
-            target: [chrome_public_apk, monochrome_public_apk]
 
     steps:
       - uses: actions/checkout@v2
@@ -19,8 +14,6 @@ jobs:
           PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
           REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
           REPO_NAME: ${{ secrets.REPO_NAME }}
-          ARCH: ${{ matrix.arch }}
-          TARGET: ${{ matrix.target }}
           GITHUB_REF: ${{ github.ref }}
           GITHUB_SHA: ${{ github.sha }}
         run: |
