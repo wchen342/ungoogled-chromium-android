@@ -3,9 +3,9 @@
 
 set -o errexit -o nounset -o pipefail
 
-KEYSTORE=$PWD/../../keystore/ungoogled-chromium-release-key-1.keystore
-KEYSTORE_PASS=$PWD/../../keystore/keystore_pass
-APKSIGNER=$PWD/third_party/android_sdk/public/build-tools/29.0.2/apksigner
+KEYSTORE=$PWD/../../uc_keystore/uc-release-key.keystore
+KEYSTORE_PASS=$PWD/../../uc_keystore/keystore_pass
+APKSIGNER=$PWD/third_party/android_sdk/public/build-tools/30.0.1/apksigner
 BUNDLETOOL=$PWD/build/android/gyp/bundletool.py
 AAPT2=$PWD/third_party/android_build_tools/aapt2/aapt2
 
@@ -76,11 +76,9 @@ fi
 case "$TARGET" in
     "$chrome_modern_target")
         FILENAME="ChromeModernPublic"
-        break
         ;;
     "$trichrome_chrome_bundle_target")
         FILENAME="TrichromeChrome"
-        break
         ;;
     *)
         echo "Filename parsing error"
@@ -96,7 +94,7 @@ rm -rf release
 mkdir release
 cd release
 
-$BUNDLETOOL build-apks --aapt2 $AAPT2 --bundle ../"$FILENAME".aab --output "$FILENAME".apks --mode=universal --ks $KEYSTORE --ks-pass file:$KEYSTORE_PASS --ks-key-alias uc_release
+$BUNDLETOOL build-apks --aapt2 $AAPT2 --bundle ../"$FILENAME".aab --output "$FILENAME".apks --mode=universal --ks $KEYSTORE --ks-pass file:$KEYSTORE_PASS --ks-key-alias uc
 unzip "$FILENAME".apks universal.apk
 mv universal.apk "$FILENAME".apk
 

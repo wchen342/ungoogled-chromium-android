@@ -265,7 +265,7 @@ pushd src
 mkdir -p out/Default
 if [ "$DEBUG" = n ] ; then
     cat ../ungoogled-chromium/flags.gn ../android_flags.gn ../android_flags.release.gn > out/Default/args.gn
-    cat ../../keystore/keystore.gn >> out/Default/args.gn
+    cat ../../uc_keystore/keystore.gn >> out/Default/args.gn
 else
     cat ../android_flags.gn ../android_flags.debug.gn > out/Default/args.gn
 fi
@@ -283,9 +283,12 @@ export CXX=${CXX:=clang++}
 ## Build
 pushd src
 ninja -C out/Default $TARGET
+if [[ "$TARGET" == "$trichrome_chrome_bundle_target" ]]; then
+  ninja -C out/Default "$trichrome_chrome_apk_target"
+fi
 popd
 
 # Extract apk from aab for Trichrome
 pushd src
-../trichrome_generate_apk.sh
+../bundle_generate_apk.sh -o out/Default -t $TARGET
 popd

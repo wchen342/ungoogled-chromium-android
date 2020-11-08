@@ -24,6 +24,7 @@ For more information on `ungoogled-chromium`, please visit the original repo: [E
 * [TODO List](#todo-list)
 * [Credits](#credits)
 * [Related Projects](#related-projects)
+* [Sponsors](#sponsors)
 * [License](#license)
 
 ## Differences from ungoogled-chromium
@@ -113,6 +114,10 @@ You can use f-Droid client and add [this repository](https://www.droidware.info/
 ## Related Projects
 
 * [Bromite](https://github.com/bromite/bromite) (Another build for Android. Has some own features.)
+
+## Sponsors
+
+* Thanks to [Gandi.net](https://www.gandi.net/) for kindly providing us with building servers.
 
 ## License
 
