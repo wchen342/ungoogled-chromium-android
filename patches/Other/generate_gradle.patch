@@ -9,12 +9,12 @@ Subject: Use system ninja
 diff --git a/src/build/android/gradle/generate_gradle.py b/src/build/android/gradle/generate_gradle.py
 --- a/src/build/android/gradle/generate_gradle.py
 +++ b/src/build/android/gradle/generate_gradle.py
-@@ -126,7 +126,7 @@ def _RunGnGen(output_dir, args=None):
- 
+@@ -120,7 +120,7 @@
  def _RunNinja(output_dir, args):
-   cmd = [
--      'autoninja',
-+      'ninja',
-       '-C',
-       output_dir,
-   ]
+   # Don't use version within _DEPOT_TOOLS_PATH, since most devs don't use
+   # that one when building.
+-  cmd = ['autoninja', '-C', output_dir]
++  cmd = ['ninja', '-C', output_dir]
+   cmd.extend(args)
+   logging.info('Running: %r', cmd)
+   subprocess.check_call(cmd)

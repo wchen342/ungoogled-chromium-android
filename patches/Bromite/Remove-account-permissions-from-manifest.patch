@@ -9,7 +9,7 @@ Subject: Remove all sync and account permissions/features from manifest
 
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
-@@ -43,23 +43,17 @@ by a child template that "extends" this
+@@ -44,23 +44,17 @@
      {% if target_sdk_version|int > 27 or target_sdk_version == "Q" %}
          <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
      {% endif %}
@@ -33,7 +33,7 @@ Subject: Remove all sync and account permissions/features from manifest
      {% set enable_vr = enable_vr|default(0) %}
      {% if enable_vr == "true" %}
      <!-- Indicates use of Android's VR-mode, available only on Android N+. -->
-@@ -95,8 +89,6 @@ by a child template that "extends" this
+@@ -96,8 +90,6 @@
      <uses-permission android:name="com.android.browser.permission.WRITE_HISTORY_BOOKMARKS"/>
      <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT"/>
  
@@ -42,7 +42,7 @@ Subject: Remove all sync and account permissions/features from manifest
      {% block extra_uses_permissions %}
      {% endblock %}
  
-@@ -840,16 +832,6 @@ by a child template that "extends" this
+@@ -851,16 +843,6 @@
                  android:resource="@xml/file_paths" />
          </provider>
  
@@ -59,24 +59,9 @@ Subject: Remove all sync and account permissions/features from manifest
          <!-- Broadcast receiver that will be notified of account changes -->
          <receiver android:name="org.chromium.chrome.browser.services.AccountsChangedReceiver">
              <intent-filter>
-@@ -918,14 +900,6 @@ by a child template that "extends" this
-             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|mcc|mnc|screenLayout|smallestScreenSize"
-             android:hardwareAccelerated="false" />
- 
--        <!-- Notification service for sync. -->
--        <service android:name="com.google.ipc.invalidation.ticl.android2.TiclService"
--            android:exported="false"/>
--        <receiver android:name="com.google.ipc.invalidation.ticl.android2.AndroidInternalScheduler$AlarmReceiver"
--            android:exported="false"/>
--        <receiver android:name="com.google.ipc.invalidation.external.client.contrib.AndroidListener$AlarmReceiver"
--            android:exported="false"/>
--
-         <!-- Android Notification service listener -->
-         <service android:name="org.chromium.chrome.browser.notifications.NotificationService"
-             android:exported="false"/>
 --- a/chrome/android/java/src/org/chromium/chrome/browser/sync/AndroidSyncSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/AndroidSyncSettings.java
-@@ -313,7 +313,7 @@ public class AndroidSyncSettings {
+@@ -318,7 +318,7 @@
                  mIsSyncable = false;
                  mChromeSyncEnabled = false;
              }

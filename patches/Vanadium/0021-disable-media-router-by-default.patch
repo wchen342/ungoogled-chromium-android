@@ -10,9 +10,9 @@ Subject: [PATCH 21/30] disable media router by default
 
 --- a/chrome/browser/media/router/media_router_feature.cc
 +++ b/chrome/browser/media/router/media_router_feature.cc
-@@ -50,17 +50,16 @@ const PrefService::Preference* GetMediaR
+@@ -67,17 +67,16 @@
+ #endif  // !defined(OFFICIAL_BUILD) && !defined(OS_ANDROID)
  
- bool MediaRouterEnabled(content::BrowserContext* context) {
  #if defined(OS_ANDROID) || BUILDFLAG(ENABLE_EXTENSIONS)
 -  const PrefService::Preference* pref = GetMediaRouterPref(context);
 -  // Only use the pref value if it set from a mandatory policy.
@@ -38,7 +38,7 @@ Subject: [PATCH 21/30] disable media router by default
  #endif  // defined(OS_ANDROID) || BUILDFLAG(ENABLE_EXTENSIONS)
 --- a/chrome/browser/profiles/profile_impl.cc
 +++ b/chrome/browser/profiles/profile_impl.cc
-@@ -411,7 +411,7 @@ void ProfileImpl::RegisterProfilePrefs(
+@@ -411,7 +411,7 @@
  #endif
  
    registry->RegisterBooleanPref(prefs::kForceEphemeralProfiles, false);

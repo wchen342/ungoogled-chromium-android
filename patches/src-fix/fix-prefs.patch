@@ -10,30 +10,32 @@ Subject: fix build error with prefs.h
  
 --- a/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninFragmentBase.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninFragmentBase.java
-@@ -428,7 +428,7 @@ public abstract class SigninFragmentBase
+@@ -430,8 +430,7 @@
      private void runStateMachineAndSignin(boolean settingsClicked) {
          mConfirmSyncDataStateMachine = new ConfirmSyncDataStateMachine(
                  new ConfirmSyncDataStateMachineDelegate(getChildFragmentManager()),
--                PrefServiceBridge.getInstance().getString(Pref.GOOGLE_SERVICES_LAST_USERNAME),
+-                UserPrefs.get(Profile.getLastUsedRegularProfile())
+-                        .getString(Pref.GOOGLE_SERVICES_LAST_USERNAME),
 +                "",
                  mSelectedAccountName, new ConfirmSyncDataStateMachine.Listener() {
                      @Override
                      public void onConfirm(boolean wipeData) {
 --- a/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninPromoUtil.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninPromoUtil.java
-@@ -44,8 +44,7 @@ public class SigninPromoUtil {
- 
-         SigninPreferencesManager preferencesManager = SigninPreferencesManager.getInstance();
-         int currentMajorVersion = ChromeVersionInfo.getProductMajorVersion();
--        boolean wasSignedIn = TextUtils.isEmpty(
--                PrefServiceBridge.getInstance().getString(Pref.GOOGLE_SERVICES_LAST_USERNAME));
+@@ -49,9 +49,7 @@
+         boolean isSignedIn = IdentityServicesProvider.get()
+                                      .getIdentityManager(Profile.getLastUsedRegularProfile())
+                                      .hasPrimaryAccount();
+-        boolean wasSignedIn =
+-                TextUtils.isEmpty(UserPrefs.get(Profile.getLastUsedRegularProfile())
+-                                          .getString(Pref.GOOGLE_SERVICES_LAST_USERNAME));
 +        boolean wasSignedIn = true;
-         List<String> accountNames = AccountUtils.toAccountNames(
-                 AccountManagerFacadeProvider.getInstance().tryGetGoogleAccounts());
-         Supplier<Set<String>> accountNamesSupplier = () -> new ArraySet<>(accountNames);
+         Set<String> accountNames = new ArraySet<>(AccountUtils.toAccountNames(
+                 AccountManagerFacadeProvider.getInstance().tryGetGoogleAccounts()));
+         if (!shouldLaunchSigninPromo(preferencesManager, currentMajorVersion, isSignedIn,
 --- a/chrome/browser/preferences/BUILD.gn
 +++ b/chrome/browser/preferences/BUILD.gn
-@@ -35,7 +35,6 @@ java_cpp_strings("java_pref_names_srcjar
+@@ -35,7 +35,6 @@
      "//components/offline_pages/core/prefetch/prefetch_prefs.cc",
      "//components/password_manager/core/common/password_manager_pref_names.cc",
      "//components/payments/core/payment_prefs.cc",

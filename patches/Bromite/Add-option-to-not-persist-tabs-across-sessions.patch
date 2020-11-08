@@ -3,18 +3,18 @@ Date: Sat, 7 Sep 2019 15:07:42 +0200
 Subject: Add option to not persist tabs across sessions
 
 ---
- chrome/android/java/res/values/values.xml                                                 |    3 ++
- chrome/android/java/res/xml/privacy_preferences.xml                                       |    5 ++++
- chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java             |    4 ++-
- chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java |   12 ++++++++++
- chrome/browser/ui/android/strings/android_chrome_strings.grd                              |    6 +++++
- 5 files changed, 29 insertions(+), 1 deletion(-)
+ chrome/android/java/res/values/values.xml            |  3 +++
+ chrome/android/java/res/xml/privacy_preferences.xml  |  5 +++++
+ .../chrome/browser/ChromeTabbedActivity.java         |  4 +++-
+ .../browser/privacy/settings/PrivacySettings.java    | 12 ++++++++++--
+ .../ui/android/strings/android_chrome_strings.grd    |  6 ++++++
+ 5 files changed, 27 insertions(+), 3 deletions(-)
 
 --- a/chrome/android/java/res/values/values.xml
 +++ b/chrome/android/java/res/values/values.xml
-@@ -57,6 +57,9 @@
-     <!-- TODO(peconn): Add help section. -->
-     <!-- <string name="help_context_suggestions">mobile_content_suggestions</string> -->
+@@ -32,6 +32,9 @@
+     <integer name="reload_button_level_reload">0</integer>
+     <integer name="reload_button_level_stop">1</integer>
  
 +    <string name="close_tabs_on_exit_title">Close tabs on exit</string>
 +    <string name="close_tabs_on_exit_summary">Don\'t persist tabs between browsing sessions</string>
@@ -24,21 +24,20 @@ Subject: Add option to not persist tabs across sessions
  
 --- a/chrome/android/java/res/xml/privacy_preferences.xml
 +++ b/chrome/android/java/res/xml/privacy_preferences.xml
-@@ -19,6 +19,11 @@
-         android:key="usage_stats_reporting"
-         android:title="@string/usage_stats_setting_title"
-         android:persistent="false" />
+@@ -45,4 +45,10 @@
+         android:summary="@string/prefs_safe_browsing_summary"
+         android:fragment="org.chromium.chrome.browser.safe_browsing.settings.SecuritySettingsFragment"
+         android:order="6"/>
 +    <org.chromium.components.browser_ui.settings.ChromeBaseCheckBoxPreference
 +        android:key="close_tabs_on_exit"
 +        android:title="@string/close_tabs_on_exit_title"
 +        android:summary="@string/close_tabs_on_exit_summary"
-+        android:defaultValue="false" />
-     <Preference
-         android:fragment="org.chromium.chrome.browser.privacy.settings.DoNotTrackSettings"
-         android:key="do_not_track"
++        android:defaultValue="false"
++        android:order="7"/>
+ </PreferenceScreen>
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-@@ -1181,8 +1181,10 @@ public class ChromeTabbedActivity extend
+@@ -1044,8 +1044,10 @@
              boolean hadCipherData =
                      CipherFactory.getInstance().restoreFromBundle(getSavedInstanceState());
  
@@ -60,15 +59,15 @@ Subject: Add option to not persist tabs across sessions
  import android.os.Bundle;
  import android.view.Menu;
  import android.view.MenuInflater;
-@@ -14,6 +15,7 @@ import androidx.preference.Preference;
+@@ -14,6 +15,7 @@
  import androidx.preference.PreferenceFragmentCompat;
  import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
  
 +import org.chromium.base.ContextUtils;
  import org.chromium.base.BuildInfo;
  import org.chromium.chrome.R;
- import org.chromium.chrome.browser.help.HelpAndFeedback;
-@@ -40,6 +42,7 @@ import java.util.List;
+ import org.chromium.chrome.browser.flags.ChromeFeatureList;
+@@ -41,6 +43,7 @@
   */
  public class PrivacySettings
          extends PreferenceFragmentCompat implements Preference.OnPreferenceChangeListener {
@@ -76,32 +75,31 @@ Subject: Add option to not persist tabs across sessions
      private static final String PREF_CAN_MAKE_PAYMENT = "can_make_payment";
      private static final String PREF_NETWORK_PREDICTIONS = "preload_pages";
      private static final String PREF_SECURE_DNS = "secure_dns";
-@@ -90,6 +93,10 @@ public class PrivacySettings
-                     Pref.CAN_MAKE_PAYMENT_ENABLED, (boolean) newValue);
-         } else if (PREF_NETWORK_PREDICTIONS.equals(key)) {
-             PrivacyPreferencesManager.getInstance().setNetworkPredictionEnabled((boolean) newValue);
-+        } else if (PREF_CLOSE_TABS_ON_EXIT.equals(key)) {
+@@ -51,7 +54,7 @@
+     private static final String PREF_CLEAR_BROWSING_DATA = "clear_browsing_data";
+     private static final String[] NEW_PRIVACY_PREFERENCE_ORDER = {PREF_CLEAR_BROWSING_DATA,
+             PREF_SAFE_BROWSING, PREF_CAN_MAKE_PAYMENT, PREF_NETWORK_PREDICTIONS, PREF_USAGE_STATS,
+-            PREF_SECURE_DNS, PREF_DO_NOT_TRACK, PREF_SYNC_AND_SERVICES_LINK};
++            PREF_SECURE_DNS, PREF_DO_NOT_TRACK, PREF_SYNC_AND_SERVICES_LINK, PREF_CLOSE_TABS_ON_EXIT};
+ 
+     private ManagedPreferenceDelegate mManagedPreferenceDelegate;
+ 
+@@ -119,7 +122,11 @@
+     @Override
+     public boolean onPreferenceChange(Preference preference, Object newValue) {
+         String key = preference.getKey();
+-        if (PREF_CAN_MAKE_PAYMENT.equals(key)) {
++        if (PREF_CLOSE_TABS_ON_EXIT.equals(key)) {
 +            SharedPreferences.Editor sharedPreferencesEditor = ContextUtils.getAppSharedPreferences().edit();
 +            sharedPreferencesEditor.putBoolean(PREF_CLOSE_TABS_ON_EXIT, (boolean)newValue);
 +            sharedPreferencesEditor.apply();
-         }
- 
-         return true;
-@@ -164,6 +171,11 @@ public class PrivacySettings
-                 getPreferenceScreen().removePreference(usageStatsPref);
-             }
-         }
-+
-+        ChromeBaseCheckBoxPreference closeTabsOnExitPref =
-+                (ChromeBaseCheckBoxPreference) findPreference(PREF_CLOSE_TABS_ON_EXIT);
-+        closeTabsOnExitPref.setOnPreferenceChangeListener(this);
-+        closeTabsOnExitPref.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
-     }
- 
-     private ChromeManagedPreferenceDelegate createManagedPreferenceDelegate() {
++        } else if (PREF_CAN_MAKE_PAYMENT.equals(key)) {
+             UserPrefs.get(Profile.getLastUsedRegularProfile())
+                     .setBoolean(Pref.CAN_MAKE_PAYMENT_ENABLED, (boolean) newValue);
+         } else if (PREF_NETWORK_PREDICTIONS.equals(key)) {
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -3357,6 +3357,12 @@ To change this setting, <ph name="BEGIN_
+@@ -3522,6 +3522,12 @@
        <message name="IDS_CONTEXTMENU_IMAGE_TITLE" desc="The title of a context menu tab when the item pressed contains more than one type. This indicates that all the actions are related to the image.">
          IMAGE
        </message>

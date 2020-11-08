@@ -4,35 +4,56 @@ Subject: Add exit menu item
 
 Corrected Exit functionality
 ---
- chrome/android/java/res/menu/main_menu.xml                                             |    4 ++++
- chrome/android/java/src/org/chromium/chrome/browser/ChromeActivity.java                |    5 +++++
- chrome/android/java/src/org/chromium/chrome/browser/init/ChromeLifetimeController.java |    6 +++++-
- chrome/browser/ui/android/strings/android_chrome_strings.grd                           |    3 +++
- 4 files changed, 17 insertions(+), 1 deletion(-)
+ chrome/android/java/res/menu/main_menu.xml                  | 4 ++++
+ chrome/android/java/res/menu/main_menu_regroup.xml          | 3 +++
+ .../src/org/chromium/chrome/browser/app/ChromeActivity.java | 6 ++++++
+ .../chrome/browser/init/ChromeLifetimeController.java       | 6 +++++-
+ .../browser/ui/android/strings/android_chrome_strings.grd   | 3 +++
+ 5 files changed, 21 insertions(+), 1 deletion(-)
 
 --- a/chrome/android/java/res/menu/main_menu.xml
 +++ b/chrome/android/java/res/menu/main_menu.xml
-@@ -85,6 +85,8 @@
-             android:title="@string/menu_settings" />
-         <item android:id="@+id/enter_vr_id"
-             android:title="@string/enter_vr" />
+@@ -113,6 +113,8 @@
+             android:icon="@drawable/vr_headset" />
+         <item android:id="@+id/managed_by_menu_id"
+             android:title="@string/managed" />
 +        <item android:id="@+id/exit_id"
 +            android:title="@string/menu_exit" />
      </group>
  
      <!-- Items shown only in the tab switcher -->
-@@ -102,6 +104,8 @@
-             android:title="@string/menu_group_tabs" />
+@@ -136,6 +138,8 @@
          <item android:id="@id/preferences_id"
-             android:title="@string/menu_settings" />
+             android:title="@string/menu_settings"
+             android:icon="@drawable/settings_cog" />
 +        <item android:id="@+id/exit_id"
 +            android:title="@string/menu_exit" />
      </group>
  
      <!-- Items shown only in the tab switcher when start surface is enabled -->
---- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeActivity.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeActivity.java
-@@ -1930,6 +1930,11 @@ public abstract class ChromeActivity<C e
+--- a/chrome/android/java/res/menu/main_menu_regroup.xml
++++ b/chrome/android/java/res/menu/main_menu_regroup.xml
+@@ -133,6 +133,9 @@
+             android:icon="@drawable/vr_headset" />
+         <item android:id="@+id/managed_by_menu_id"
+             android:title="@string/managed" />
++        <item android:id="@+id/exit_id"
++            android:title="@string/menu_exit"
++            android:icon="@drawable/ic_exit_to_app_white_24dp"/>
+     </group>
+ 
+     <!-- Items shown only in the tab switcher -->
+--- a/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
+@@ -53,6 +53,7 @@
+ import org.chromium.chrome.R;
+ import org.chromium.chrome.browser.ActivityTabProvider;
+ import org.chromium.chrome.browser.AppHooks;
++import org.chromium.chrome.browser.ApplicationLifetime;
+ import org.chromium.chrome.browser.ChromeActivitySessionTracker;
+ import org.chromium.chrome.browser.ChromeApplication;
+ import org.chromium.chrome.browser.ChromeVersionInfo;
+@@ -1908,6 +1909,11 @@
              RecordUserAction.record("MobileMenuSettings");
          }
  
@@ -46,7 +67,7 @@ Corrected Exit functionality
              return true;
 --- a/chrome/android/java/src/org/chromium/chrome/browser/init/ChromeLifetimeController.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/init/ChromeLifetimeController.java
-@@ -82,7 +82,11 @@ class ChromeLifetimeController implement
+@@ -82,7 +82,11 @@
  
          // Kick off a timer to kill the process after a delay, which fires only if the Activities
          // take too long to be finished.
@@ -61,7 +82,7 @@ Corrected Exit functionality
      @Override
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -2584,6 +2584,9 @@ To change this setting, <ph name="BEGIN_
+@@ -2731,6 +2731,9 @@
        <message name="IDS_MENU_SETTINGS" desc="Menu item for opening browser settings. [CHAR-LIMIT=27]">
          Settings
        </message>

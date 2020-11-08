@@ -34,13 +34,13 @@
 +import org.chromium.base.Log;
 +import org.chromium.base.task.AsyncTask;
 +import org.chromium.base.task.PostTask;
-+import org.chromium.chrome.browser.ChromeActivity;
++import org.chromium.chrome.browser.app.ChromeActivity;
 +import org.chromium.chrome.browser.ChromeVersionInfo;
 +import org.chromium.chrome.browser.omaha.OmahaBase;
 +import org.chromium.chrome.browser.omaha.UpdateStatusProvider;
 +import org.chromium.chrome.browser.omaha.VersionNumber;
 +import org.chromium.chrome.browser.tab.TabLaunchType;
-+import org.chromium.chrome.browser.tabmodel.TabCreatorManager;
++import org.chromium.chrome.browser.tabmodel.TabCreator;
 +import org.chromium.content_public.browser.LoadUrlParams;
 +import org.chromium.content_public.browser.UiThreadTaskTraits;
 +import org.chromium.ui.base.PageTransition;
@@ -106,8 +106,8 @@
 +        assert ChromeActivity.class.isInstance(activity);
 +        ChromeActivity thisActivity = (ChromeActivity) activity;
 +        String downloadUrl = getDownloadUrl();
-+// Always open in new normal tab
-+        TabCreatorManager.TabCreator tabCreator = thisActivity.getTabCreator(false);
++        // Always open in new normal tab
++        TabCreator tabCreator = thisActivity.getTabCreator(false);
 +        tabCreator.createNewTab(new LoadUrlParams(downloadUrl, PageTransition.AUTO_BOOKMARK),
 +                TabLaunchType.FROM_LINK, thisActivity.getActivityTab());
 +        Log.d(TAG, "startUpdate: New tab opened");
@@ -239,7 +239,7 @@
 +}
 --- a/chrome/android/chrome_java_sources.gni
 +++ b/chrome/android/chrome_java_sources.gni
-@@ -520,6 +520,7 @@ chrome_java_sources = [
+@@ -531,6 +531,7 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/dom_distiller/ReaderModeManager.java",
    "java/src/org/chromium/chrome/browser/dom_distiller/TabDistillabilityProvider.java",
    "java/src/org/chromium/chrome/browser/download/ChromeDownloadDelegate.java",
@@ -247,7 +247,7 @@
    "java/src/org/chromium/chrome/browser/download/DownloadActivity.java",
    "java/src/org/chromium/chrome/browser/download/DownloadBroadcastManager.java",
    "java/src/org/chromium/chrome/browser/download/DownloadController.java",
-@@ -1075,6 +1076,7 @@ chrome_java_sources = [
+@@ -1079,6 +1080,7 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateController.java",
    "java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateControllerFactory.java",
    "java/src/org/chromium/chrome/browser/omaha/inline/NoopInlineUpdateController.java",
@@ -314,7 +314,7 @@
  }
 --- a/chrome/android/java/src/org/chromium/chrome/browser/omaha/UpdateStatusProvider.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/omaha/UpdateStatusProvider.java
-@@ -27,6 +27,7 @@ import org.chromium.base.ApplicationStat
+@@ -25,6 +25,7 @@ import org.chromium.base.ApplicationStat
  import org.chromium.base.BuildInfo;
  import org.chromium.base.Callback;
  import org.chromium.base.ContextUtils;
@@ -322,7 +322,7 @@
  import org.chromium.base.ObserverList;
  import org.chromium.base.ThreadUtils;
  import org.chromium.base.metrics.RecordHistogram;
-@@ -297,13 +298,19 @@ public class UpdateStatusProvider implem
+@@ -295,13 +296,19 @@ public class UpdateStatusProvider implem
  
      private void resolveStatus() {
          if (mOmahaQuery.getStatus() != Status.FINISHED || mInlineController.getStatus() == null) {
@@ -343,7 +343,7 @@
              if (mStatus.mIsInlineSimulated) {
                  @UpdateState
                  int inlineState = mInlineController.getStatus();
-@@ -319,8 +326,13 @@ public class UpdateStatusProvider implem
+@@ -317,8 +324,13 @@ public class UpdateStatusProvider implem
              int omahaState = mOmahaQuery.getResult().updateState;
              @UpdateState
              int inlineState = mInlineController.getStatus();
@@ -357,7 +357,7 @@
          }
  
          if (!mRecordedInitialStatus) {
-@@ -341,11 +353,11 @@ public class UpdateStatusProvider implem
+@@ -339,11 +351,11 @@ public class UpdateStatusProvider implem
              case UpdateConfigs.UpdateFlowConfiguration.NEVER_SHOW:
                  return UpdateState.NONE;
              case UpdateConfigs.UpdateFlowConfiguration.INLINE_ONLY:
@@ -371,7 +371,7 @@
                  if (inlineState == UpdateState.NONE) return omahaState;
                  return inlineState;
              case UpdateConfigs.UpdateFlowConfiguration.INTENT_ONLY: // Intentional fall through.
-@@ -376,6 +388,8 @@ public class UpdateStatusProvider implem
+@@ -374,6 +386,8 @@ public class UpdateStatusProvider implem
          @Override
          protected UpdateStatus doInBackground() {
              UpdateStatus testStatus = getTestStatus();
@@ -382,7 +382,7 @@
          }
 --- a/chrome/browser/flags/android/chrome_feature_list.cc
 +++ b/chrome/browser/flags/android/chrome_feature_list.cc
-@@ -493,6 +493,7 @@ const base::Feature kImmersiveUiMode{"Im
+@@ -514,6 +514,7 @@ const base::Feature kImmersiveUiMode{"Im
  
  const base::Feature kInlineUpdateFlow{"InlineUpdateFlow",
                                        base::FEATURE_DISABLED_BY_DEFAULT};
@@ -392,17 +392,17 @@
                                    base::FEATURE_DISABLED_BY_DEFAULT};
 --- a/chrome/browser/updates/update_notification_config.cc
 +++ b/chrome/browser/updates/update_notification_config.cc
-@@ -30,7 +30,7 @@ bool GetFinchConfigBool(const std::strin
+@@ -25,7 +25,7 @@ bool GetFinchConfigBool(const std::strin
  }  // namespace
  
- // Default update notification schedule interval in days.
--constexpr int kDefaultUpdateNotificationInterval = 21;
-+constexpr int kDefaultUpdateNotificationInterval = 2;
+ // Default update notification schedule initial interval in days.
+-constexpr int kDefaultUpdateNotificationInitInterval = 21;
++constexpr int kDefaultUpdateNotificationInitInterval = 2;
  
- // Default start clock of deliver window in the morning.
- constexpr int kDefaultDeliverWindowMorningStart = 5;
-@@ -51,7 +51,7 @@ constexpr double kDefaultThrottleInterva
- constexpr double kDefaultThrottleIntervalOffset = 0.0;
+ // Default update notification schedule maximum interval in days.
+ constexpr int kDefaultUpdateNotificationMaxInterval = 90;
+@@ -43,7 +43,7 @@ constexpr int kDefaultDeliverWindowEveni
+ constexpr int kDefaultDeliverWindowEveningEnd = 20;
  
  // Default update notification state.
 -constexpr bool kDefaultUpdateNotificationState = false;
@@ -412,7 +412,7 @@
    return std::make_unique<UpdateNotificationConfig>();
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
-@@ -1078,7 +1078,7 @@ by a child template that "extends" this
+@@ -1082,7 +1082,7 @@ by a child template that "extends" this
          <service android:name="org.chromium.chrome.browser.tracing.TracingNotificationService"
              android:exported="false"/>
  
@@ -423,7 +423,7 @@
          <meta-data android:name="org.chromium.content.browser.SMART_CLIP_PROVIDER"
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -1696,7 +1696,7 @@ To change this setting, <ph name="BEGIN_
+@@ -1864,7 +1864,7 @@ To change this setting, <ph name="BEGIN_
          Update Chrome
        </message>
        <message name="IDS_UPDATE_NOTIFICATION_TEXT_BODY_DEFAULT" desc="Default text showing in the update notification body, kindly telling user to update to the latest version of Chrome.">
@@ -590,9 +590,9 @@
 +}
 --- a/chrome/browser/flag_descriptions.cc
 +++ b/chrome/browser/flag_descriptions.cc
-@@ -2964,10 +2964,9 @@ const char kUsageStatsDescription[] =
-     "to websites in order to enforce user-defined time limits.";
- const char kUsageStatsName[] = "Share Usage Stats with Digital Wellbeing";
+@@ -3190,10 +3190,9 @@ const char kUseChimeAndroidSdkName[] = "
+ const char kVideoTutorialsName[] = "Enable video tutorials";
+ const char kVideoTutorialsDescription[] = "Show video tutorials in Chrome";
  
 -const char kInlineUpdateFlowName[] = "Enable Google Play inline update flow";
 +const char kInlineUpdateFlowName[] = "Enable inline update flow";

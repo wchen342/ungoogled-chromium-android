@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
-set -eux -o pipefail
+set -eu -o pipefail
 
-# Required tools: protobuf python python2 gperf wget rsync tar unzip curl gnupg maven yasm npm ninja gn nodejs git clang lld gn llvm jdk8-openjdk jre8-openjdk-headless jdk10-openjdk lib32-glibc multilib-devel
-# Assuming default python to be python2.
+# Required packages: passwd protobuf java-1.8.0-openjdk-headless java-1.8.0-openjdk-devel gperf wget rsync tar unzip gnupg2 curl maven yasm npm ninja-build nodejs git clang lld llvm flex bison libdrm-devel nss-devel dbus-devel libstdc++-static libatomic-static krb5-devel glib2 glib2-devel glibc.i686 glibc-devel.i686 fakeroot-libs.i686 libgcc.i686 libtool-ltdl.i686 libtool-ltdl-devel.i686
+# gn from OpenSUSE Tumbleweed.
+# Assuming python2.
 
-chrome_modern_apk_target=chrome_modern_public_apk
+chrome_modern_target=chrome_modern_public_bundle
 trichrome_chrome_bundle_target=trichrome_chrome_bundle
+trichrome_chrome_apk_target=trichrome_library_apk
 webview_target=system_webview_apk
 
-chromium_version=85.0.4183.121
+chromium_version=86.0.4240.111
 ungoogled_chromium_revision=1
 
 # Argument parser from https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash/29754866#29754866
@@ -69,7 +71,7 @@ if [[ "$ARCH" != "arm64" ]] && [[ "$ARCH" != "arm" ]] && [[ "$ARCH" != "x86" ]];
     exit 4
 fi
 
-if [[ "$TARGET" != "$chrome_modern_apk_target" ]] && [[ "$TARGET" != "$trichrome_chrome_bundle_target" ]] && [[ "$TARGET" != "$webview_target" ]]; then
+if [[ "$TARGET" != "$chrome_modern_target" ]] && [[ "$TARGET" != "$trichrome_chrome_bundle_target" ]] && [[ "$TARGET" != "$webview_target" ]]; then
     echo "Wrong target"
     exit 5
 fi
@@ -136,7 +138,6 @@ mkdir -p src/third_party/node/linux/node-linux-x64/bin
 ln -s /usr/bin/node src/third_party/node/linux/node-linux-x64/bin/
 src/third_party/node/update_npm_deps
 # Remove bundled jdk
-# java8 bundled with Arch seems to be a little outdated, so actually need to use java and javac from java10
 pushd src && patch -p1 --ignore-whitespace -i ../patches/Other/remove-jdk.patch --no-backup-if-mismatch && popd
 rm -rf src/third_party/jdk
 mkdir -p src/third_party/jdk/current/bin
@@ -144,8 +145,9 @@ ln -s /usr/bin/java src/third_party/jdk/current/bin/
 ln -s /usr/bin/javac src/third_party/jdk/current/bin/
 ln -s /usr/bin/javap src/third_party/jdk/current/bin/
 # jre
-mkdir -p src/third_party/jdk/extras/java_8
-ln -s /usr/lib/jvm/java-8-openjdk/jre src/third_party/jdk/extras/java_8
+mkdir -p src/third_party/jdk/extras/java_8 && pushd src/third_party/jdk/extras/java_8
+ln -s /usr/lib/jvm/jre-1.8.0 jre
+popd
 
 # Link to system clang tools
 pushd src/buildtools/linux64
@@ -185,22 +187,16 @@ SDK_DIR="android-sdk_eng.10.0.0_r14_linux-x86"
 
 # Create symbol links to sdk folders
 # The rebuild sdk has a different folder structure from the checked out version, so it is easier to create symbol links
-#pushd src/third_party/android_build_tools
-#rm -rf aapt2
-#ln -s ../../../android-sdk/android-sdk_user.9.0.0_r21_linux-x86/build-tools/android-9 aapt2
-#popd
 DIRECTORY="src/third_party/android_sdk/public"
 if [[ -d "$DIRECTORY" ]]; then
-  rm -rf "$DIRECTORY"
+  find $DIRECTORY -mindepth 1 -maxdepth 1 -not -name cmdline-tools -exec rm -rf '{}' \;
 fi
-mkdir "${DIRECTORY}" && pushd ${DIRECTORY}
-# rm -rf add-ons emulator licenses platforms sources tools-lint build-tools ndk-bundle platform-tools tools
-mkdir build-tools && ln -s ../../../../../android-sdk/${SDK_DIR}/build-tools/android-10 build-tools/29.0.2
+pushd ${DIRECTORY}
+mkdir build-tools && ln -s ../../../../../android-sdk/${SDK_DIR}/build-tools/android-10 build-tools/30.0.1
 mkdir platforms
-ln -s ../../../../../android-sdk/${SDK_DIR}/platforms/android-10 platforms/android-29
+ln -s ../../../../../android-sdk/${SDK_DIR}/platforms/android-10 platforms/android-30
 ln -s ../../../../android-sdk/${SDK_DIR}/platform-tools platform-tools
 ln -s ../../../../android-sdk/${SDK_DIR}/tools tools
-#TODO: Regression: third_party/android_sdk/public/cmdline-tools doesn't yet have a rebuilt counterpart, so the folder needs to be copied manually from the synced source
 popd
 
 # remove ndk folders
@@ -250,7 +246,6 @@ popd
 # Additional Source Patches
 ## Extra fixes for Chromium source
 python3 ungoogled-chromium/utils/patches.py apply src patches
-#patch -p1 --ignore-whitespace -i patches/aapt2-param.patch --no-backup-if-mismatch
 ## Second pruning list
 pruning_list_2="pruning_2.list"
 python3 ungoogled-chromium/utils/prune_binaries.py src ${pruning_list_2} || true

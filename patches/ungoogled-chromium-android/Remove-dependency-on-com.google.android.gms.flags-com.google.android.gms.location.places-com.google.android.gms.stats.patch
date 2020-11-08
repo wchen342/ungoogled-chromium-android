@@ -9,7 +9,7 @@ Subject: Remove dependency on com.google.android.gms.flags,
 
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -1986,54 +1986,6 @@ java_prebuilt("com_github_kevinstern_sof
+@@ -2080,54 +2080,6 @@
  }
  
  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.

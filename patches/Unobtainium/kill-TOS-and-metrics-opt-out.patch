@@ -9,9 +9,9 @@ Subject: kill TOS and metrics opt-out
 
 --- a/chrome/android/java/res/layout/fre_tosanduma.xml
 +++ b/chrome/android/java/res/layout/fre_tosanduma.xml
-@@ -62,7 +62,7 @@
-                         android:layout_marginBottom="@dimen/fre_vertical_spacing"
-                         android:gravity="center"
+@@ -83,7 +83,7 @@
+                         android:layout_height="wrap_content"
+                         android:layout_marginBottom="@dimen/fre_tos_bottom_margin"
                          android:lineSpacingMultiplier="1.4"
 -                        android:textAppearance="@style/TextAppearance.TextMedium.Primary" />
 +                        android:textAppearance="@style/TextAppearance.TextMedium.Primary"  android:visibility="gone" />
@@ -20,7 +20,7 @@ Subject: kill TOS and metrics opt-out
                          android:id="@+id/send_report_checkbox"
 --- a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivityBase.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivityBase.java
-@@ -36,7 +36,7 @@ public abstract class FirstRunActivityBa
+@@ -38,7 +38,7 @@
      static final String SHOW_SEARCH_ENGINE_PAGE = "ShowSearchEnginePage";
      static final String SHOW_SIGNIN_PAGE = "ShowSignIn";
  

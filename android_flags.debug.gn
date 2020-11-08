@@ -25,7 +25,6 @@ google_default_client_secret=""
 is_component_build=true
 is_debug=true
 is_official_build=false
-java_warnings_as_errors=false
 optimize_webui=false
 proprietary_codecs=true
 safe_browsing_mode=0

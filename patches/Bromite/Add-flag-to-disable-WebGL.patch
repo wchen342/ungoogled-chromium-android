@@ -3,14 +3,14 @@ Date: Sat, 16 Nov 2019 11:18:09 +0100
 Subject: Add flag to disable WebGL
 
 ---
- chrome/browser/about_flags.cc       |    3 +++
- chrome/browser/flag_descriptions.cc |    4 ++++
- chrome/browser/flag_descriptions.h  |    3 +++
+ chrome/browser/about_flags.cc       | 3 +++
+ chrome/browser/flag_descriptions.cc | 4 ++++
+ chrome/browser/flag_descriptions.h  | 3 +++
  3 files changed, 10 insertions(+)
 
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -2078,6 +2078,9 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -2343,6 +2343,9 @@
       flag_descriptions::kAccelerated2dCanvasName,
       flag_descriptions::kAccelerated2dCanvasDescription, kOsAll,
       SINGLE_DISABLE_VALUE_TYPE(switches::kDisableAccelerated2dCanvas)},
@@ -22,9 +22,9 @@ Subject: Add flag to disable WebGL
       SINGLE_VALUE_TYPE(cc::switches::kShowCompositedLayerBorders)},
 --- a/chrome/browser/flag_descriptions.cc
 +++ b/chrome/browser/flag_descriptions.cc
-@@ -484,6 +484,10 @@ const char kDeviceDiscoveryNotifications
- const char kDeviceDiscoveryNotificationsDescription[] =
-     "Device discovery notifications on local network.";
+@@ -517,6 +517,10 @@
+     "content, instead of a warning message. Note: chrome://devices is "
+     "no longer supported, and this flag will be permanently removed in M88.";
  
 +const char kDisableWebGLName[] = "Disable all versions of WebGL";
 +
@@ -35,9 +35,9 @@ Subject: Add flag to disable WebGL
      "With this flag on, tasks of the lowest priority will not be executed "
 --- a/chrome/browser/flag_descriptions.h
 +++ b/chrome/browser/flag_descriptions.h
-@@ -301,6 +301,9 @@ extern const char kDebugShortcutsDescrip
- extern const char kDeviceDiscoveryNotificationsName[];
- extern const char kDeviceDiscoveryNotificationsDescription[];
+@@ -318,6 +318,9 @@
+ extern const char kForceEnableDevicesPageName[];
+ extern const char kForceEnableDevicesPageDescription[];
  
 +extern const char kDisableWebGLName[];
 +extern const char kDisableWebGLDescription[];

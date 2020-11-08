@@ -19,7 +19,7 @@ Subject: Remove dependency on com.google.android.gms.auth
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -272,7 +272,6 @@ android_library("chrome_java") {
+@@ -265,7 +265,6 @@
      ":partner_location_descriptor_proto_java",
      ":update_proto_java",
      ":usage_stats_proto_java",
@@ -29,7 +29,7 @@ Subject: Remove dependency on com.google.android.gms.auth
      "$google_play_services_package:google_play_services_cast_framework_java",
 --- a/components/signin/core/browser/android/BUILD.gn
 +++ b/components/signin/core/browser/android/BUILD.gn
-@@ -14,7 +14,6 @@ generate_jni("jni_headers") {
+@@ -14,7 +14,6 @@
  
  android_library("java") {
    deps = [
@@ -39,7 +39,7 @@ Subject: Remove dependency on com.google.android.gms.auth
      "//base:base_java",
 --- a/components/signin/core/browser/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java
 +++ b/components/signin/core/browser/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java
-@@ -83,17 +83,7 @@ public class SystemAccountManagerDelegat
+@@ -83,17 +83,7 @@
      }
  
      protected void checkCanUseGooglePlayServices() throws AccountManagerDelegateException {
@@ -58,7 +58,7 @@ Subject: Remove dependency on com.google.android.gms.auth
      }
  
      @Override
-@@ -128,15 +118,6 @@ public class SystemAccountManagerDelegat
+@@ -128,15 +118,6 @@
  
      @Override
      public void invalidateAuthToken(String authToken) throws AuthException {
@@ -74,7 +74,7 @@ Subject: Remove dependency on com.google.android.gms.auth
      }
  
      @Override
-@@ -215,22 +196,13 @@ public class SystemAccountManagerDelegat
+@@ -215,22 +196,13 @@
      @Nullable
      @Override
      public String getAccountGaiaId(String accountEmail) {
@@ -101,7 +101,7 @@ Subject: Remove dependency on com.google.android.gms.auth
      protected boolean hasGetAccountsPermission() {
 --- a/content/public/android/BUILD.gn
 +++ b/content/public/android/BUILD.gn
-@@ -72,7 +72,6 @@ action_with_pydeps("generate_sandboxed_s
+@@ -72,7 +72,6 @@
  android_library("content_java") {
    deps = [
      ":content_java_resources",
@@ -111,7 +111,7 @@ Subject: Remove dependency on com.google.android.gms.auth
      "$google_play_services_package:google_play_services_tasks_java",
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -997,53 +997,6 @@ java_prebuilt("com_android_tools_build_j
+@@ -1139,53 +1139,6 @@
  }
  
  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
@@ -167,7 +167,7 @@ Subject: Remove dependency on com.google.android.gms.auth
    info_path = "libs/com_google_android_gms_play_services_base/com_google_android_gms_play_services_base.info"
 --- a/content/public/android/java/src/org/chromium/content/browser/sms/Wrappers.java
 +++ b/content/public/android/java/src/org/chromium/content/browser/sms/Wrappers.java
-@@ -10,8 +10,6 @@ import android.content.ContextWrapper;
+@@ -10,8 +10,6 @@
  import android.content.Intent;
  import android.content.IntentFilter;
  
@@ -176,7 +176,7 @@ Subject: Remove dependency on com.google.android.gms.auth
  
  class Wrappers {
      // Prevent instantiation.
-@@ -21,11 +19,9 @@ class Wrappers {
+@@ -21,11 +19,9 @@
       * Wraps com.google.android.gms.auth.api.phone.SmsRetrieverClient.
       */
      static class SmsRetrieverClientWrapper {
@@ -189,7 +189,7 @@ Subject: Remove dependency on com.google.android.gms.auth
          }
  
          public void setContext(SmsReceiverContext context) {
-@@ -35,14 +31,6 @@ class Wrappers {
+@@ -35,14 +31,6 @@
          public SmsReceiverContext getContext() {
              return mContext;
          }
@@ -206,7 +206,7 @@ Subject: Remove dependency on com.google.android.gms.auth
      /**
 --- a/components/background_task_scheduler/BUILD.gn
 +++ b/components/background_task_scheduler/BUILD.gn
-@@ -120,7 +120,6 @@ if (is_android) {
+@@ -121,7 +121,6 @@
  
      deps = [
        ":background_task_scheduler_task_ids_java",
@@ -216,19 +216,20 @@ Subject: Remove dependency on com.google.android.gms.auth
        "$google_play_services_package:google_play_services_tasks_java",
 --- a/content/public/android/java/src/org/chromium/content/browser/sms/SmsUserConsentReceiver.java
 +++ b/content/public/android/java/src/org/chromium/content/browser/sms/SmsUserConsentReceiver.java
-@@ -12,11 +12,6 @@ import android.content.IntentFilter;
+@@ -12,12 +12,6 @@
  
  import androidx.annotation.VisibleForTesting;
  
 -import com.google.android.gms.auth.api.phone.SmsRetriever;
 -import com.google.android.gms.common.api.CommonStatusCodes;
 -import com.google.android.gms.common.api.Status;
+-import com.google.android.gms.tasks.OnFailureListener;
 -import com.google.android.gms.tasks.Task;
 -
  import org.chromium.base.ContextUtils;
  import org.chromium.base.Log;
  import org.chromium.base.annotations.CalledByNative;
-@@ -55,7 +50,6 @@ public class SmsUserConsentReceiver exte
+@@ -56,7 +50,6 @@
          // this registration expire after the SMS message is received.
          if (DEBUG) Log.d(TAG, "Registering intent filters.");
          IntentFilter filter = new IntentFilter();
@@ -236,7 +237,7 @@ Subject: Remove dependency on com.google.android.gms.auth
          mContext.registerReceiver(this, filter);
      }
  
-@@ -82,61 +76,24 @@ public class SmsUserConsentReceiver exte
+@@ -83,68 +76,23 @@
              return;
          }
  
@@ -247,7 +248,7 @@ Subject: Remove dependency on com.google.android.gms.auth
          if (intent.getExtras() == null) {
              return;
          }
- 
+-
 -        final Status status;
 -
 -        try {
@@ -280,14 +281,22 @@ Subject: Remove dependency on com.google.android.gms.auth
 -            String message = data.getStringExtra(SmsRetriever.EXTRA_SMS_MESSAGE);
 -            SmsUserConsentReceiverJni.get().onReceive(mSmsProviderAndroid, message);
 -        } else if (resultCode == Activity.RESULT_CANCELED) {
-             if (DEBUG) Log.d(TAG, "Activity result cancelled.");
+-            if (DEBUG) Log.d(TAG, "Activity result cancelled.");
 -        }
++        if (DEBUG) Log.d(TAG, "Activity result cancelled.");
      }
  
      @CalledByNative
      private void listen(WindowAndroid windowAndroid) {
          mWindowAndroid = windowAndroid;
 -        Task<Void> task = getClient().startSmsUserConsent(null);
+-
+-        task.addOnFailureListener(new OnFailureListener() {
+-            @Override
+-            public void onFailure(Exception e) {
+-                Log.e(TAG, "Task failed to start", e);
+-            }
+-        });
          if (DEBUG) Log.d(TAG, "Installed task");
      }
  
@@ -301,7 +310,7 @@ Subject: Remove dependency on com.google.android.gms.auth
      @VisibleForTesting
 --- a/content/public/android/java/src/org/chromium/content/browser/sms/SmsVerificationReceiver.java
 +++ b/content/public/android/java/src/org/chromium/content/browser/sms/SmsVerificationReceiver.java
-@@ -11,11 +11,6 @@ import android.content.IntentFilter;
+@@ -11,11 +11,6 @@
  
  import androidx.annotation.VisibleForTesting;
  
@@ -313,7 +322,7 @@ Subject: Remove dependency on com.google.android.gms.auth
  import org.chromium.base.ContextUtils;
  import org.chromium.base.Log;
  import org.chromium.base.annotations.CalledByNative;
-@@ -52,7 +47,6 @@ public class SmsVerificationReceiver ext
+@@ -52,7 +47,6 @@
          // this registration expire after the SMS message is received.
          if (DEBUG) Log.d(TAG, "Registering intent filters.");
          IntentFilter filter = new IntentFilter();
@@ -321,7 +330,7 @@ Subject: Remove dependency on com.google.android.gms.auth
          mContext.registerReceiver(this, filter);
      }
  
-@@ -77,40 +71,15 @@ public class SmsVerificationReceiver ext
+@@ -77,40 +71,15 @@
              return;
          }
  
@@ -362,7 +371,7 @@ Subject: Remove dependency on com.google.android.gms.auth
  
          if (DEBUG) Log.d(TAG, "Installed task");
      }
-@@ -119,8 +88,7 @@ public class SmsVerificationReceiver ext
+@@ -119,8 +88,7 @@
          if (mClient != null) {
              return mClient;
          }
@@ -374,7 +383,7 @@ Subject: Remove dependency on com.google.android.gms.auth
      @VisibleForTesting
 --- a/content/test/BUILD.gn
 +++ b/content/test/BUILD.gn
-@@ -2511,7 +2511,6 @@ if (is_android) {
+@@ -2531,7 +2531,6 @@
      testonly = true
      sources = content_java_sources_needing_jni
      deps = [
@@ -384,7 +393,7 @@ Subject: Remove dependency on com.google.android.gms.auth
        "$google_play_services_package:google_play_services_tasks_java",
 --- a/remoting/android/java/src/org/chromium/chromoting/OAuthTokenConsumer.java
 +++ b/remoting/android/java/src/org/chromium/chromoting/OAuthTokenConsumer.java
-@@ -8,9 +8,6 @@ import android.content.Context;
+@@ -8,9 +8,6 @@
  import android.os.Handler;
  import android.os.Looper;
  
@@ -394,7 +403,7 @@ Subject: Remove dependency on com.google.android.gms.auth
  import org.chromium.chromoting.base.OAuthTokenFetcher;
  
  import java.io.IOException;
-@@ -96,7 +93,6 @@ public class OAuthTokenConsumer {
+@@ -96,7 +93,6 @@
      public void revokeLatestToken(final OAuthTokenFetcher.Callback callback) {
          OAuthTokenFetcher.TASK_RUNNER.postTask(() -> {
              try {
@@ -402,7 +411,7 @@ Subject: Remove dependency on com.google.android.gms.auth
                  mLatestToken = null;
                  if (callback != null) {
                      new Handler(Looper.getMainLooper()).post(new Runnable() {
-@@ -106,11 +102,6 @@ public class OAuthTokenConsumer {
+@@ -106,11 +102,6 @@
                          }
                      });
                  }
@@ -416,7 +425,7 @@ Subject: Remove dependency on com.google.android.gms.auth
                      handleErrorOnMainThread(callback, OAuthTokenFetcher.Error.NETWORK);
 --- a/remoting/android/java/src/org/chromium/chromoting/base/OAuthTokenFetcher.java
 +++ b/remoting/android/java/src/org/chromium/chromoting/base/OAuthTokenFetcher.java
-@@ -12,10 +12,6 @@ import android.os.Looper;
+@@ -12,10 +12,6 @@
  
  import androidx.annotation.IntDef;
  
@@ -427,7 +436,7 @@ Subject: Remove dependency on com.google.android.gms.auth
  import org.chromium.base.task.PostTask;
  import org.chromium.base.task.TaskRunner;
  import org.chromium.base.task.TaskTraits;
-@@ -107,21 +103,6 @@ public class OAuthTokenFetcher {
+@@ -107,21 +103,6 @@
  
      private void fetchImpl(final String expiredToken) {
          TASK_RUNNER.postTask(() -> {
@@ -449,7 +458,7 @@ Subject: Remove dependency on com.google.android.gms.auth
          });
      }
  
-@@ -142,20 +123,4 @@ public class OAuthTokenFetcher {
+@@ -142,20 +123,4 @@
              }
          });
      }

@@ -1,0 +1,115 @@
+From: Wengling Chen <feiyu2817@gmail.com>
+Mon, 20 Apr 2020 22:31:08 -0400
+Subject: Remove Android R code since SDK is not ready
+
+---
+ base/android/java/src/org/chromium/base/compat/ApiHelperForR.java                                            |    4 ---
+ content/public/android/java/src/org/chromium/content/browser/accessibility/RWebContentsAccessibility.java    |   11 ----------
+ content/public/android/java/src/org/chromium/content/browser/accessibility/WebContentsAccessibilityImpl.java |    4 ---
+ content/public/android/java/src/org/chromium/content/browser/input/ImeUtils.java                             |    6 -----
+ ui/android/java/src/org/chromium/ui/display/DisplayAndroidManager.java                                       |   10 ---------
+ 5 files changed, 2 insertions(+), 33 deletions(-)
+
+--- a/base/android/java/src/org/chromium/base/compat/ApiHelperForR.java
++++ b/base/android/java/src/org/chromium/base/compat/ApiHelperForR.java
+@@ -16,12 +16,10 @@ import org.chromium.base.annotations.Ver
+  * separate class so that Android framework can successfully verify classes without
+  * encountering the new APIs.
+  */
+-@VerifiesOnR
+-@TargetApi(Build.VERSION_CODES.R)
+ public final class ApiHelperForR {
+     private ApiHelperForR() {}
+ 
+     public static Display getDisplay(Context context) throws UnsupportedOperationException {
+-        return context.getDisplay();
++        return null;
+     }
+ }
+--- a/content/public/android/java/src/org/chromium/content/browser/accessibility/RWebContentsAccessibility.java
++++ b/content/public/android/java/src/org/chromium/content/browser/accessibility/RWebContentsAccessibility.java
+@@ -15,7 +15,6 @@ import org.chromium.content_public.brows
+  * Subclass of WebContentsAccessibility for R
+  */
+ @JNINamespace("content")
+-@TargetApi(Build.VERSION_CODES.R)
+ public class RWebContentsAccessibility extends PieWebContentsAccessibility {
+     RWebContentsAccessibility(WebContents webContents) {
+         super(webContents);
+@@ -27,15 +26,5 @@ public class RWebContentsAccessibility e
+             int[] suggestionEnds, String[] suggestions, String stateDescription) {
+         super.setAccessibilityNodeInfoText(node, text, annotateAsLink, isEditableText, language,
+                 suggestionStarts, suggestionEnds, suggestions, stateDescription);
+-
+-        // For Android R and higher, we will not rely on concatenating text and stateDescription,
+-        // and will instead revert text to original content and set stateDescription separately.
+-        if (stateDescription != null && !stateDescription.isEmpty()) {
+-            CharSequence computedText = computeText(
+-                    text, isEditableText, language, suggestionStarts, suggestionEnds, suggestions);
+-
+-            node.setText(computedText);
+-            node.setStateDescription(stateDescription);
+-        }
+     }
+ }
+--- a/ui/android/java/src/org/chromium/ui/display/DisplayAndroidManager.java
++++ b/ui/android/java/src/org/chromium/ui/display/DisplayAndroidManager.java
+@@ -98,16 +98,6 @@ public class DisplayAndroidManager {
+     }
+ 
+     public static Display getDefaultDisplayForContext(Context context) {
+-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+-            Display display = null;
+-            try {
+-                display = ApiHelperForR.getDisplay(context);
+-            } catch (UnsupportedOperationException e) {
+-                // Context is not associated with a display.
+-            }
+-            if (display != null) return display;
+-            return getGlobalDefaultDisplay();
+-        }
+         return getDisplayForContextNoChecks(context);
+     }
+ 
+--- a/content/public/android/java/src/org/chromium/content/browser/input/ImeUtils.java
++++ b/content/public/android/java/src/org/chromium/content/browser/input/ImeUtils.java
+@@ -35,8 +35,6 @@ public class ImeUtils {
+      * https://source.chromium.org/chromium/chromium/src/+/master:build/android/docs/class_verification_failures.md
+      * for details.
+      */
+-    @VerifiesOnR
+-    @TargetApi(Build.VERSION_CODES.R)
+     private static final class HelperForR {
+         /** see {@link EditorInfo#setInitialSurroundingText(EditorInfo, String)} */
+         public static void setInitialSurroundingText(EditorInfo outAttrs, String lastText) {
+@@ -44,7 +42,6 @@ public class ImeUtils {
+             // sending it to the IMM service. In the future, if we consider limiting the number of
+             // chars between renderer and browser, then consider calling
+             // setInitialSurroundingSubText() instead.
+-            outAttrs.setInitialSurroundingText(lastText);
+         }
+     }
+ 
+@@ -159,9 +156,6 @@ public class ImeUtils {
+ 
+         outAttrs.initialSelStart = initialSelStart;
+         outAttrs.initialSelEnd = initialSelEnd;
+-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+-            HelperForR.setInitialSurroundingText(outAttrs, lastText);
+-        }
+     }
+ 
+     private static int getImeAction(int inputType, int inputFlags, int inputMode, int inputAction,
+--- a/content/public/android/java/src/org/chromium/content/browser/accessibility/WebContentsAccessibilityImpl.java
++++ b/content/public/android/java/src/org/chromium/content/browser/accessibility/WebContentsAccessibilityImpl.java
+@@ -203,9 +203,7 @@ public class WebContentsAccessibilityImp
+     private static class Factory implements UserDataFactory<WebContentsAccessibilityImpl> {
+         @Override
+         public WebContentsAccessibilityImpl create(WebContents webContents) {
+-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+-                return new RWebContentsAccessibility(webContents);
+-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
++            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                 return new PieWebContentsAccessibility(webContents);
+             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                 return new OWebContentsAccessibility(webContents);

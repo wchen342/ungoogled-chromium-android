@@ -4,17 +4,17 @@ Subject: Revert "flags: remove disable-pull-to-refresh-effect"
 
 This reverts commit 4e598f38a0e6dd3dbede009c6a99b2a520a94e1f.
 ---
- chrome/browser/about_flags.cc       |    4 ++++
- chrome/browser/flag-metadata.json   |    5 +++++
- chrome/browser/flag_descriptions.cc |    4 ++++
- chrome/browser/flag_descriptions.h  |    3 +++
+ chrome/browser/about_flags.cc       | 4 ++++
+ chrome/browser/flag-metadata.json   | 5 +++++
+ chrome/browser/flag_descriptions.cc | 4 ++++
+ chrome/browser/flag_descriptions.h  | 3 +++
  4 files changed, 16 insertions(+)
 
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -2654,6 +2654,10 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -2924,6 +2924,10 @@
       SINGLE_VALUE_TYPE(switches::kHostedAppQuitNotification)},
- #endif  // OS_MACOSX
+ #endif  // OS_MAC
  #if defined(OS_ANDROID)
 +    {"disable-pull-to-refresh-effect",
 +     flag_descriptions::kPullToRefreshEffectName,
@@ -25,7 +25,7 @@ This reverts commit 4e598f38a0e6dd3dbede009c6a99b2a520a94e1f.
       flag_descriptions::kTranslateForceTriggerOnEnglishDescription, kOsAndroid,
 --- a/chrome/browser/flag-metadata.json
 +++ b/chrome/browser/flag-metadata.json
-@@ -946,6 +946,11 @@
+@@ -891,6 +891,11 @@
      "expiry_milestone": -1
    },
    {
@@ -39,7 +39,7 @@ This reverts commit 4e598f38a0e6dd3dbede009c6a99b2a520a94e1f.
      "expiry_milestone": 83
 --- a/chrome/browser/flag_descriptions.cc
 +++ b/chrome/browser/flag_descriptions.cc
-@@ -2839,6 +2839,10 @@ const char kQueryTilesInstantFetchName[]
+@@ -3044,6 +3044,10 @@
  const char kQueryTilesInstantFetchDescription[] =
      "Immediately schedule background task to fetch query tiles";
  
@@ -52,7 +52,7 @@ This reverts commit 4e598f38a0e6dd3dbede009c6a99b2a520a94e1f.
      "Determines what pages the Reader Mode infobar is shown on.";
 --- a/chrome/browser/flag_descriptions.h
 +++ b/chrome/browser/flag_descriptions.h
-@@ -1644,6 +1644,9 @@ extern const char kQueryTilesCountryCode
+@@ -1756,6 +1756,9 @@
  extern const char kQueryTilesInstantFetchName[];
  extern const char kQueryTilesInstantFetchDescription[];
  

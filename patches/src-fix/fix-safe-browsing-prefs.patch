@@ -3,33 +3,38 @@ Date: Fri, 10 Jan 2020 18:01:56 -0500
 Subject: Fix build error caused by the removal of safe_browsing_prefs.h
 
 ---
- android_webview/browser/aw_browser_context.cc                                                  |    2 
- android_webview/browser/safe_browsing/aw_safe_browsing_blocking_page.cc                        |   10 
- chrome/android/BUILD.gn                                                                        |    1 
- chrome/android/java/src/org/chromium/chrome/browser/sync/settings/GoogleServicesSettings.java  |   21 -
- chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java |   19 -
- chrome/browser/android/tab_web_contents_delegate_android.cc                                    |    2 
- chrome/browser/preferences/BUILD.gn                                                            |    1 
- chrome/browser/safe_browsing/BUILD.gn                                                          |    1 
- weblayer/browser/browser_context_impl.cc                                                       |    2 
- weblayer/browser/browser_process.cc                                                            |   10 
- weblayer/browser/browser_process.h                                                             |    4 
- weblayer/browser/content_browser_client_impl.cc                                                |   20 -
- weblayer/browser/profile_impl.cc                                                               |   15 
- weblayer/browser/safe_browsing/safe_browsing_blocking_page.cc                                  |    8 
- weblayer/browser/safe_browsing/safe_browsing_service.cc                                        |  169 ----------
- 15 files changed, 17 insertions(+), 268 deletions(-)
+ android_webview/browser/aw_browser_context.cc                                                                                                |    2 
+ android_webview/browser/safe_browsing/aw_safe_browsing_blocking_page.cc                                                                      |   10 
+ chrome/android/BUILD.gn                                                                                                                      |    1 
+ chrome/android/java/src/org/chromium/chrome/browser/sync/settings/GoogleServicesSettings.java                                                |   24 -
+ chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java                                               |   24 -
+ chrome/browser/android/tab_web_contents_delegate_android.cc                                                                                  |    2 
+ chrome/browser/preferences/BUILD.gn                                                                                                          |    1 
+ chrome/browser/safe_browsing/BUILD.gn                                                                                                        |    1 
+ chrome/browser/safe_browsing/android/BUILD.gn                                                                                                |    1 
+ chrome/browser/safe_browsing/android/java/src/org/chromium/chrome/browser/safe_browsing/SafeBrowsingBridge.java                              |   31 -
+ chrome/browser/safe_browsing/android/java/src/org/chromium/chrome/browser/safe_browsing/settings/RadioButtonGroupSafeBrowsingPreference.java |   37 --
+ chrome/browser/safe_browsing/android/java/src/org/chromium/chrome/browser/safe_browsing/settings/SecuritySettingsFragment.java               |   66 ---
+ chrome/browser/safe_browsing/android/java/src/org/chromium/chrome/browser/safe_browsing/settings/StandardProtectionSettingsFragment.java     |    8 
+ weblayer/browser/browser_context_impl.cc                                                                                                     |    2 
+ weblayer/browser/browser_process.cc                                                                                                          |   11 
+ weblayer/browser/browser_process.h                                                                                                           |    4 
+ weblayer/browser/content_browser_client_impl.cc                                                                                              |   20 -
+ weblayer/browser/profile_impl.cc                                                                                                             |   16 
+ weblayer/browser/safe_browsing/safe_browsing_blocking_page.cc                                                                                |    8 
+ weblayer/browser/safe_browsing/safe_browsing_service.cc                                                                                      |  175 ----------
+ 20 files changed, 43 insertions(+), 401 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -316,7 +316,6 @@ android_library("chrome_java") {
-     "//chrome/browser/performance_hints/android:java",
+@@ -314,7 +314,6 @@ android_library("chrome_java") {
      "//chrome/browser/preferences:java",
+     "//chrome/browser/privacy:java",
      "//chrome/browser/profiles/android:java",
 -    "//chrome/browser/safe_browsing/android:java",
      "//chrome/browser/safety_check/android:java",
      "//chrome/browser/settings:java",
-     "//chrome/browser/share/android:java_resources",
+     "//chrome/browser/share:java",
 --- a/android_webview/browser/aw_browser_context.cc
 +++ b/android_webview/browser/aw_browser_context.cc
 @@ -233,7 +233,7 @@ base::FilePath AwBrowserContext::GetCont
@@ -63,7 +68,7 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
            "cpn_safe_browsing_wv");  // help_center_article_link
 --- a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
-@@ -48,7 +48,6 @@ import org.chromium.chrome.browser.prefe
+@@ -47,7 +47,6 @@ import org.chromium.chrome.browser.prefe
  import org.chromium.chrome.browser.preferences.SharedPreferencesManager;
  import org.chromium.chrome.browser.privacy.settings.PrivacyPreferencesManager;
  import org.chromium.chrome.browser.profiles.Profile;
@@ -71,36 +76,42 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
  import org.chromium.chrome.browser.settings.ChromeManagedPreferenceDelegate;
  import org.chromium.chrome.browser.settings.SettingsActivity;
  import org.chromium.chrome.browser.signin.IdentityServicesProvider;
-@@ -360,16 +359,8 @@ public class SyncAndServicesSettings ext
+@@ -378,19 +377,9 @@ public class SyncAndServicesSettings ext
              PostTask.postTask(UiThreadTaskTraits.DEFAULT, this::updatePreferences);
          } else if (PREF_SEARCH_SUGGESTIONS.equals(key)) {
-             mPrefServiceBridge.setBoolean(Pref.SEARCH_SUGGEST_ENABLED, (boolean) newValue);
+             mPrefService.setBoolean(Pref.SEARCH_SUGGEST_ENABLED, (boolean) newValue);
 -        } else if (PREF_SAFE_BROWSING.equals(key)) {
--            mPrefServiceBridge.setBoolean(Pref.SAFE_BROWSING_ENABLED, (boolean) newValue);
+-            assert !mIsSecurityPreferenceRemoved;
+-            mPrefService.setBoolean(Pref.SAFE_BROWSING_ENABLED, (boolean) newValue);
 -            // Toggling the safe browsing preference impacts the leak detection and the
 -            // safe browsing reporting preferences as well.
 -            PostTask.postTask(UiThreadTaskTraits.DEFAULT,
 -                    this::updateLeakDetectionAndSafeBrowsingReportingPreferences);
          } else if (PREF_PASSWORD_LEAK_DETECTION.equals(key)) {
-             mPrefServiceBridge.setBoolean(Pref.PASSWORD_LEAK_DETECTION_ENABLED, (boolean) newValue);
+             assert !mIsSecurityPreferenceRemoved;
+             mPrefService.setBoolean(Pref.PASSWORD_LEAK_DETECTION_ENABLED, (boolean) newValue);
 -        } else if (PREF_SAFE_BROWSING_SCOUT_REPORTING.equals(key)) {
+-            assert !mIsSecurityPreferenceRemoved;
 -            SafeBrowsingBridge.setSafeBrowsingExtendedReportingEnabled((boolean) newValue);
          } else if (PREF_NAVIGATION_ERROR.equals(key)) {
-             mPrefServiceBridge.setBoolean(Pref.ALTERNATE_ERROR_PAGES_ENABLED, (boolean) newValue);
+             mPrefService.setBoolean(Pref.ALTERNATE_ERROR_PAGES_ENABLED, (boolean) newValue);
          } else if (PREF_USAGE_AND_CRASH_REPORTING.equals(key)) {
-@@ -551,7 +542,6 @@ public class SyncAndServicesSettings ext
-         mSearchSuggestions.setChecked(mPrefServiceBridge.getBoolean(Pref.SEARCH_SUGGEST_ENABLED));
-         mNavigationError.setChecked(
-                 mPrefServiceBridge.getBoolean(Pref.ALTERNATE_ERROR_PAGES_ENABLED));
--        mSafeBrowsing.setChecked(mPrefServiceBridge.getBoolean(Pref.SAFE_BROWSING_ENABLED));
+@@ -569,10 +558,6 @@ public class SyncAndServicesSettings ext
  
-         updateLeakDetectionAndSafeBrowsingReportingPreferences();
+         mSearchSuggestions.setChecked(mPrefService.getBoolean(Pref.SEARCH_SUGGEST_ENABLED));
+         mNavigationError.setChecked(mPrefService.getBoolean(Pref.ALTERNATE_ERROR_PAGES_ENABLED));
+-        if (!mIsSecurityPreferenceRemoved) {
+-            mSafeBrowsing.setChecked(mPrefService.getBoolean(Pref.SAFE_BROWSING_ENABLED));
+-            updateLeakDetectionAndSafeBrowsingReportingPreferences();
+-        }
  
-@@ -623,10 +613,9 @@ public class SyncAndServicesSettings ext
-      * its appearance needs to be updated. The same goes for safe browsing reporting.
+         mUsageAndCrashReporting.setChecked(
+                 mPrivacyPrefManager.isUsageAndCrashReportingPermittedByUser());
+@@ -641,10 +626,9 @@ public class SyncAndServicesSettings ext
       */
      private void updateLeakDetectionAndSafeBrowsingReportingPreferences() {
--        boolean safe_browsing_enabled = mPrefServiceBridge.getBoolean(Pref.SAFE_BROWSING_ENABLED);
+         assert !mIsSecurityPreferenceRemoved;
+-        boolean safe_browsing_enabled = mPrefService.getBoolean(Pref.SAFE_BROWSING_ENABLED);
 +        boolean safe_browsing_enabled = false;
          mSafeBrowsingReporting.setEnabled(safe_browsing_enabled);
 -        mSafeBrowsingReporting.setChecked(safe_browsing_enabled
@@ -109,19 +120,19 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
  
          boolean has_token_for_leak_check = PasswordUIView.hasAccountForLeakCheckRequest();
          boolean leak_detection_enabled =
-@@ -654,10 +643,10 @@ public class SyncAndServicesSettings ext
-                 return mPrefServiceBridge.isManagedPreference(Pref.SEARCH_SUGGEST_ENABLED);
+@@ -672,10 +656,10 @@ public class SyncAndServicesSettings ext
+                 return mPrefService.isManagedPreference(Pref.SEARCH_SUGGEST_ENABLED);
              }
              if (PREF_SAFE_BROWSING_SCOUT_REPORTING.equals(key)) {
 -                return SafeBrowsingBridge.isSafeBrowsingExtendedReportingManaged();
 +                return false;
              }
              if (PREF_SAFE_BROWSING.equals(key)) {
--                return mPrefServiceBridge.isManagedPreference(Pref.SAFE_BROWSING_ENABLED);
+-                return mPrefService.isManagedPreference(Pref.SAFE_BROWSING_ENABLED);
 +                return false;
              }
              if (PREF_PASSWORD_LEAK_DETECTION.equals(key)) {
-                 return mPrefServiceBridge.isManagedPreference(Pref.PASSWORD_LEAK_DETECTION_ENABLED);
+                 return mPrefService.isManagedPreference(Pref.PASSWORD_LEAK_DETECTION_ENABLED);
 --- a/weblayer/browser/browser_context_impl.cc
 +++ b/weblayer/browser/browser_context_impl.cc
 @@ -18,7 +18,6 @@
@@ -132,7 +143,7 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
  #include "components/security_interstitials/content/stateful_ssl_host_state_delegate.h"
  #include "components/site_isolation/pref_names.h"
  #include "components/site_isolation/site_isolation_policy.h"
-@@ -252,7 +251,6 @@ void BrowserContextImpl::RegisterPrefs(
+@@ -263,7 +262,6 @@ void BrowserContextImpl::RegisterPrefs(
  
    StatefulSSLHostStateDelegate::RegisterProfilePrefs(pref_registry);
    HostContentSettingsMap::RegisterProfilePrefs(pref_registry);
@@ -142,7 +153,7 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
    blocked_content::SafeBrowsingTriggeredPopupBlocker::RegisterProfilePrefs(
 --- a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/GoogleServicesSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/GoogleServicesSettings.java
-@@ -28,7 +28,6 @@ import org.chromium.chrome.browser.prefe
+@@ -27,7 +27,6 @@ import org.chromium.chrome.browser.prefe
  import org.chromium.chrome.browser.preferences.SharedPreferencesManager;
  import org.chromium.chrome.browser.privacy.settings.PrivacyPreferencesManager;
  import org.chromium.chrome.browser.profiles.Profile;
@@ -150,36 +161,42 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
  import org.chromium.chrome.browser.settings.ChromeManagedPreferenceDelegate;
  import org.chromium.chrome.browser.signin.UnifiedConsentServiceBridge;
  import org.chromium.components.browser_ui.settings.ChromeSwitchPreference;
-@@ -158,16 +157,8 @@ public class GoogleServicesSettings
+@@ -175,19 +174,9 @@ public class GoogleServicesSettings
          String key = preference.getKey();
          if (PREF_SEARCH_SUGGESTIONS.equals(key)) {
-             mPrefServiceBridge.setBoolean(Pref.SEARCH_SUGGEST_ENABLED, (boolean) newValue);
+             mPrefService.setBoolean(Pref.SEARCH_SUGGEST_ENABLED, (boolean) newValue);
 -        } else if (PREF_SAFE_BROWSING.equals(key)) {
--            mPrefServiceBridge.setBoolean(Pref.SAFE_BROWSING_ENABLED, (boolean) newValue);
+-            assert !mIsSecurityPreferenceRemoved;
+-            mPrefService.setBoolean(Pref.SAFE_BROWSING_ENABLED, (boolean) newValue);
 -            // Toggling the safe browsing preference impacts the leak detection and the
 -            // safe browsing reporting preferences as well.
 -            PostTask.postTask(UiThreadTaskTraits.DEFAULT,
 -                    this::updateLeakDetectionAndSafeBrowsingReportingPreferences);
          } else if (PREF_PASSWORD_LEAK_DETECTION.equals(key)) {
-             mPrefServiceBridge.setBoolean(Pref.PASSWORD_LEAK_DETECTION_ENABLED, (boolean) newValue);
+             assert !mIsSecurityPreferenceRemoved;
+             mPrefService.setBoolean(Pref.PASSWORD_LEAK_DETECTION_ENABLED, (boolean) newValue);
 -        } else if (PREF_SAFE_BROWSING_SCOUT_REPORTING.equals(key)) {
+-            assert !mIsSecurityPreferenceRemoved;
 -            SafeBrowsingBridge.setSafeBrowsingExtendedReportingEnabled((boolean) newValue);
          } else if (PREF_NAVIGATION_ERROR.equals(key)) {
-             mPrefServiceBridge.setBoolean(Pref.ALTERNATE_ERROR_PAGES_ENABLED, (boolean) newValue);
+             mPrefService.setBoolean(Pref.ALTERNATE_ERROR_PAGES_ENABLED, (boolean) newValue);
          } else if (PREF_USAGE_AND_CRASH_REPORTING.equals(key)) {
-@@ -190,7 +181,6 @@ public class GoogleServicesSettings
-         mSearchSuggestions.setChecked(mPrefServiceBridge.getBoolean(Pref.SEARCH_SUGGEST_ENABLED));
-         mNavigationError.setChecked(
-                 mPrefServiceBridge.getBoolean(Pref.ALTERNATE_ERROR_PAGES_ENABLED));
--        mSafeBrowsing.setChecked(mPrefServiceBridge.getBoolean(Pref.SAFE_BROWSING_ENABLED));
+@@ -209,10 +198,6 @@ public class GoogleServicesSettings
+     private void updatePreferences() {
+         mSearchSuggestions.setChecked(mPrefService.getBoolean(Pref.SEARCH_SUGGEST_ENABLED));
+         mNavigationError.setChecked(mPrefService.getBoolean(Pref.ALTERNATE_ERROR_PAGES_ENABLED));
+-        if (!mIsSecurityPreferenceRemoved) {
+-            mSafeBrowsing.setChecked(mPrefService.getBoolean(Pref.SAFE_BROWSING_ENABLED));
+-            updateLeakDetectionAndSafeBrowsingReportingPreferences();
+-        }
  
-         updateLeakDetectionAndSafeBrowsingReportingPreferences();
- 
-@@ -216,10 +206,9 @@ public class GoogleServicesSettings
-      * its appearance needs to be updated. The same goes for safe browsing reporting.
+         mUsageAndCrashReporting.setChecked(
+                 mPrivacyPrefManager.isUsageAndCrashReportingPermittedByUser());
+@@ -237,10 +222,9 @@ public class GoogleServicesSettings
       */
      private void updateLeakDetectionAndSafeBrowsingReportingPreferences() {
--        boolean safe_browsing_enabled = mPrefServiceBridge.getBoolean(Pref.SAFE_BROWSING_ENABLED);
+         assert !mIsSecurityPreferenceRemoved;
+-        boolean safe_browsing_enabled = mPrefService.getBoolean(Pref.SAFE_BROWSING_ENABLED);
 +        boolean safe_browsing_enabled = false;
          mSafeBrowsingReporting.setEnabled(safe_browsing_enabled);
 -        mSafeBrowsingReporting.setChecked(safe_browsing_enabled
@@ -188,19 +205,19 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
  
          boolean has_token_for_leak_check = PasswordUIView.hasAccountForLeakCheckRequest();
          boolean leak_detection_enabled =
-@@ -246,12 +235,6 @@ public class GoogleServicesSettings
-             if (PREF_SEARCH_SUGGESTIONS.equals(key)) {
-                 return mPrefServiceBridge.isManagedPreference(Pref.SEARCH_SUGGEST_ENABLED);
+@@ -268,10 +252,10 @@ public class GoogleServicesSettings
+                 return mPrefService.isManagedPreference(Pref.SEARCH_SUGGEST_ENABLED);
              }
--            if (PREF_SAFE_BROWSING_SCOUT_REPORTING.equals(key)) {
+             if (PREF_SAFE_BROWSING_SCOUT_REPORTING.equals(key)) {
 -                return SafeBrowsingBridge.isSafeBrowsingExtendedReportingManaged();
--            }
--            if (PREF_SAFE_BROWSING.equals(key)) {
--                return mPrefServiceBridge.isManagedPreference(Pref.SAFE_BROWSING_ENABLED);
--            }
-             if (PREF_PASSWORD_LEAK_DETECTION.equals(key)) {
-                 return mPrefServiceBridge.isManagedPreference(Pref.PASSWORD_LEAK_DETECTION_ENABLED);
++                return false;
              }
+             if (PREF_SAFE_BROWSING.equals(key)) {
+-                return mPrefService.isManagedPreference(Pref.SAFE_BROWSING_ENABLED);
++                return false;
+             }
+             if (PREF_PASSWORD_LEAK_DETECTION.equals(key)) {
+                 return mPrefService.isManagedPreference(Pref.PASSWORD_LEAK_DETECTION_ENABLED);
 --- a/chrome/browser/safe_browsing/BUILD.gn
 +++ b/chrome/browser/safe_browsing/BUILD.gn
 @@ -274,7 +274,6 @@ static_library("safe_browsing") {
@@ -223,7 +240,7 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
    ]
 --- a/chrome/browser/android/tab_web_contents_delegate_android.cc
 +++ b/chrome/browser/android/tab_web_contents_delegate_android.cc
-@@ -175,8 +175,6 @@ void TabWebContentsDelegateAndroid::Port
+@@ -176,8 +176,6 @@ void TabWebContentsDelegateAndroid::Port
    InfoBarService::CreateForWebContents(portal_contents);
    PrefsTabHelper::CreateForWebContents(portal_contents);
    DataReductionProxyTabHelper::CreateForWebContents(portal_contents);
@@ -234,7 +251,7 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
  void TabWebContentsDelegateAndroid::RunFileChooser(
 --- a/weblayer/browser/content_browser_client_impl.cc
 +++ b/weblayer/browser/content_browser_client_impl.cc
-@@ -377,8 +377,7 @@ ContentBrowserClientImpl::CreateURLLoade
+@@ -397,8 +397,7 @@ ContentBrowserClientImpl::CreateURLLoade
  #if defined(OS_ANDROID)
      BrowserContextImpl* browser_context_impl =
          static_cast<BrowserContextImpl*>(browser_context);
@@ -244,7 +261,7 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
  
      if (is_safe_browsing_enabled) {
        bool is_real_time_lookup_enabled =
-@@ -589,18 +588,6 @@ ContentBrowserClientImpl::CreateThrottle
+@@ -684,18 +683,6 @@ ContentBrowserClientImpl::CreateThrottle
  
  #if defined(OS_ANDROID)
    if (handle->IsInMainFrame()) {
@@ -263,7 +280,7 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
    }
  #endif
    return throttles;
-@@ -651,11 +638,6 @@ void ContentBrowserClientImpl::ExposeInt
+@@ -746,11 +733,6 @@ void ContentBrowserClientImpl::ExposeInt
        };
    registry->AddInterface(base::BindRepeating(create_spellcheck_host),
                           content::GetUIThreadTaskRunner({}));
@@ -323,7 +340,7 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
  
    if (!is_safe_browsing_enabled)
      return;
-@@ -74,165 +68,4 @@ void MaybeCreateSafeBrowsing(
+@@ -74,171 +68,4 @@ void MaybeCreateSafeBrowsing(
  
  }  // namespace
  
@@ -481,6 +498,12 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
 -  }
 -}
 -
+-network::mojom::NetworkContext* SafeBrowsingService::GetNetworkContext() {
+-  if (!network_context_)
+-    return nullptr;
+-  return network_context_->GetNetworkContext();
+-}
+-
 -scoped_refptr<network::SharedURLLoaderFactory>
 -SafeBrowsingService::GetURLLoaderFactory() {
 -  if (!network_context_)
@@ -491,26 +514,27 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
  }  // namespace weblayer
 --- a/weblayer/browser/profile_impl.cc
 +++ b/weblayer/browser/profile_impl.cc
-@@ -42,7 +42,6 @@
+@@ -48,7 +48,6 @@
  #include "base/android/jni_array.h"
  #include "base/android/jni_string.h"
  #include "base/android/scoped_java_ref.h"
 -#include "components/safe_browsing/core/common/safe_browsing_prefs.h"
  #include "components/unified_consent/pref_names.h"
+ #include "ui/gfx/android/java_bitmap.h"
  #include "weblayer/browser/browser_process.h"
- #include "weblayer/browser/java/jni/ProfileImpl_jni.h"
-@@ -512,10 +511,6 @@ void ProfileImpl::SetBooleanSetting(Sett
+@@ -568,11 +567,6 @@ void ProfileImpl::SetBooleanSetting(Sett
    auto* pref_service = GetBrowserContext()->pref_service();
    switch (type) {
      case SettingType::BASIC_SAFE_BROWSING_ENABLED:
 -#if defined(OS_ANDROID)
--      pref_service->SetBoolean(::prefs::kSafeBrowsingEnabled, value);
--      pref_service->SetBoolean(::prefs::kSafeBrowsingEnhanced, false);
+-      safe_browsing::SetSafeBrowsingState(
+-          pref_service, value ? safe_browsing::STANDARD_PROTECTION
+-                              : safe_browsing::NO_SAFE_BROWSING);
 -#endif
        break;
      case SettingType::UKM_ENABLED: {
  #if defined(OS_ANDROID)
-@@ -530,10 +525,6 @@ void ProfileImpl::SetBooleanSetting(Sett
+@@ -587,10 +581,6 @@ void ProfileImpl::SetBooleanSetting(Sett
        break;
      }
      case SettingType::EXTENDED_REPORTING_SAFE_BROWSING_ENABLED:
@@ -521,7 +545,7 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
        break;
      case SettingType::REAL_TIME_SAFE_BROWSING_ENABLED:
  #if defined(OS_ANDROID)
-@@ -550,16 +541,12 @@ bool ProfileImpl::GetBooleanSetting(Sett
+@@ -609,16 +599,12 @@ bool ProfileImpl::GetBooleanSetting(Sett
    switch (type) {
      case SettingType::BASIC_SAFE_BROWSING_ENABLED:
  #if defined(OS_ANDROID)
@@ -541,14 +565,15 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
  #if defined(OS_ANDROID)
 --- a/weblayer/browser/browser_process.cc
 +++ b/weblayer/browser/browser_process.cc
-@@ -101,19 +101,9 @@ void BrowserProcess::CreateNetworkQualit
+@@ -101,20 +101,9 @@ void BrowserProcess::CreateNetworkQualit
+ 
  #if defined(OS_ANDROID)
- SafeBrowsingService* BrowserProcess::GetSafeBrowsingService(
-     std::string user_agent) {
+ SafeBrowsingService* BrowserProcess::GetSafeBrowsingService() {
 -  if (!safe_browsing_service_) {
 -    // Create and initialize safe_browsing_service on first get.
 -    // Note: Initialize() needs to happen on UI thread.
--    safe_browsing_service_ = std::make_unique<SafeBrowsingService>(user_agent);
+-    safe_browsing_service_ =
+-        std::make_unique<SafeBrowsingService>(GetUserAgent());
 -    safe_browsing_service_->Initialize();
 -  }
 -  return safe_browsing_service_.get();
@@ -574,3 +599,336 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
    SEQUENCE_CHECKER(sequence_checker_);
  
    DISALLOW_COPY_AND_ASSIGN(BrowserProcess);
+--- a/chrome/browser/safe_browsing/android/BUILD.gn
++++ b/chrome/browser/safe_browsing/android/BUILD.gn
+@@ -104,7 +104,6 @@ android_resources("java_resources") {
+ 
+ java_cpp_enum("safe_browsing_enums") {
+   sources = [
+-    "//components/safe_browsing/core/common/safe_browsing_prefs.h",
+     "//components/safe_browsing/core/common/safe_browsing_settings_metrics.h",
+   ]
+ }
+--- a/chrome/browser/safe_browsing/android/java/src/org/chromium/chrome/browser/safe_browsing/SafeBrowsingBridge.java
++++ b/chrome/browser/safe_browsing/android/java/src/org/chromium/chrome/browser/safe_browsing/SafeBrowsingBridge.java
+@@ -19,44 +19,42 @@ public final class SafeBrowsingBridge {
+      * @return The UMA value for the file.
+      */
+     public static int umaValueForFile(String path) {
+-        return SafeBrowsingBridgeJni.get().umaValueForFile(path);
++        return 0;
+     }
+ 
+     /**
+      * @return Whether Safe Browsing Extended Reporting is currently enabled.
+      */
+     public static boolean isSafeBrowsingExtendedReportingEnabled() {
+-        return SafeBrowsingBridgeJni.get().getSafeBrowsingExtendedReportingEnabled();
++        return false;
+     }
+ 
+     /**
+      * @param enabled Whether Safe Browsing Extended Reporting should be enabled.
+      */
+     public static void setSafeBrowsingExtendedReportingEnabled(boolean enabled) {
+-        SafeBrowsingBridgeJni.get().setSafeBrowsingExtendedReportingEnabled(enabled);
+     }
+ 
+     /**
+      * @return Whether Safe Browsing Extended Reporting is managed
+      */
+     public static boolean isSafeBrowsingExtendedReportingManaged() {
+-        return SafeBrowsingBridgeJni.get().getSafeBrowsingExtendedReportingManaged();
++        return false;
+     }
+ 
+     /**
+      * @return The Safe Browsing state. It can be Enhanced Protection, Standard Protection, or No
+      *         Protection.
+      */
+-    public static @SafeBrowsingState int getSafeBrowsingState() {
+-        return SafeBrowsingBridgeJni.get().getSafeBrowsingState();
++    public static int getSafeBrowsingState() {
++        return 0;
+     }
+ 
+     /**
+      * @param state Set the Safe Browsing state. It can be Enhanced Protection, Standard Protection,
+      *         or No Protection.
+      */
+-    public static void setSafeBrowsingState(@SafeBrowsingState int state) {
+-        SafeBrowsingBridgeJni.get().setSafeBrowsingState(state);
++    public static void setSafeBrowsingState(int state) {
+     }
+ 
+     /**
+@@ -64,26 +62,13 @@ public final class SafeBrowsingBridge {
+      * the SafeBrowsingEnabled policy(legacy) or the SafeBrowsingProtectionLevel policy(new).
+      */
+     public static boolean isSafeBrowsingManaged() {
+-        return SafeBrowsingBridgeJni.get().isSafeBrowsingManaged();
++        return false;
+     }
+ 
+     /**
+      * @return Whether there is a Google account to use for the leak detection check.
+      */
+     public static boolean hasAccountForLeakCheckRequest() {
+-        return SafeBrowsingBridgeJni.get().hasAccountForLeakCheckRequest();
+-    }
+-
+-    @NativeMethods
+-    interface Natives {
+-        int umaValueForFile(String path);
+-        boolean getSafeBrowsingExtendedReportingEnabled();
+-        void setSafeBrowsingExtendedReportingEnabled(boolean enabled);
+-        boolean getSafeBrowsingExtendedReportingManaged();
+-        @SafeBrowsingState
+-        int getSafeBrowsingState();
+-        void setSafeBrowsingState(@SafeBrowsingState int state);
+-        boolean hasAccountForLeakCheckRequest();
+-        boolean isSafeBrowsingManaged();
++        return false;
+     }
+ }
+--- a/chrome/browser/safe_browsing/android/java/src/org/chromium/chrome/browser/safe_browsing/settings/RadioButtonGroupSafeBrowsingPreference.java
++++ b/chrome/browser/safe_browsing/android/java/src/org/chromium/chrome/browser/safe_browsing/settings/RadioButtonGroupSafeBrowsingPreference.java
+@@ -14,7 +14,6 @@ import androidx.annotation.VisibleForTes
+ import androidx.preference.Preference;
+ import androidx.preference.PreferenceViewHolder;
+ 
+-import org.chromium.chrome.browser.safe_browsing.SafeBrowsingState;
+ import org.chromium.components.browser_ui.settings.ManagedPreferenceDelegate;
+ import org.chromium.components.browser_ui.settings.ManagedPreferencesUtils;
+ import org.chromium.components.browser_ui.widget.RadioButtonWithDescription;
+@@ -45,13 +44,13 @@ public class RadioButtonGroupSafeBrowsin
+          * Notify that details of a Safe Browsing mode are requested.
+          * @param safeBrowsingState The Safe Browsing mode that is requested for more details.
+          */
+-        void onSafeBrowsingModeDetailsRequested(@SafeBrowsingState int safeBrowsingState);
++        void onSafeBrowsingModeDetailsRequested(int safeBrowsingState);
+     }
+ 
+     private @Nullable RadioButtonWithDescriptionAndAuxButton mEnhancedProtection;
+     private RadioButtonWithDescriptionAndAuxButton mStandardProtection;
+     private RadioButtonWithDescription mNoProtection;
+-    private @SafeBrowsingState int mSafeBrowsingState;
++    private int mSafeBrowsingState;
+     private boolean mIsEnhancedProtectionEnabled;
+     private OnSafeBrowsingModeDetailsRequested mSafeBrowsingModeDetailsRequestedListener;
+     private ManagedPreferenceDelegate mManagedPrefDelegate;
+@@ -67,25 +66,14 @@ public class RadioButtonGroupSafeBrowsin
+      * @param isEnhancedProtectionEnabled Whether to show the Enhanced Protection button.
+      */
+     public void init(
+-            @SafeBrowsingState int safeBrowsingState, boolean isEnhancedProtectionEnabled) {
++            int safeBrowsingState, boolean isEnhancedProtectionEnabled) {
+         mSafeBrowsingState = safeBrowsingState;
+         mIsEnhancedProtectionEnabled = isEnhancedProtectionEnabled;
+-        assert ((mSafeBrowsingState != SafeBrowsingState.ENHANCED_PROTECTION)
+-                || mIsEnhancedProtectionEnabled)
+-            : "Safe Browsing state shouldn't be enhanced protection when the flag is disabled.";
+     }
+ 
+     @Override
+     public void onCheckedChanged(RadioGroup group, int checkedId) {
+-        if (mIsEnhancedProtectionEnabled && checkedId == mEnhancedProtection.getId()) {
+-            mSafeBrowsingState = SafeBrowsingState.ENHANCED_PROTECTION;
+-        } else if (checkedId == mStandardProtection.getId()) {
+-            mSafeBrowsingState = SafeBrowsingState.STANDARD_PROTECTION;
+-        } else if (checkedId == mNoProtection.getId()) {
+-            mSafeBrowsingState = SafeBrowsingState.NO_SAFE_BROWSING;
+-        } else {
+-            assert false : "Should not be reached.";
+-        }
++        mSafeBrowsingState = 0;
+         callChangeListener(mSafeBrowsingState);
+     }
+ 
+@@ -124,11 +112,7 @@ public class RadioButtonGroupSafeBrowsin
+         assert mSafeBrowsingModeDetailsRequestedListener
+                 != null : "The listener should be set if the aux button is clickable.";
+         if (mIsEnhancedProtectionEnabled && clickedButtonId == mEnhancedProtection.getId()) {
+-            mSafeBrowsingModeDetailsRequestedListener.onSafeBrowsingModeDetailsRequested(
+-                    SafeBrowsingState.ENHANCED_PROTECTION);
+         } else if (clickedButtonId == mStandardProtection.getId()) {
+-            mSafeBrowsingModeDetailsRequestedListener.onSafeBrowsingModeDetailsRequested(
+-                    SafeBrowsingState.STANDARD_PROTECTION);
+         } else {
+             assert false : "Should not be reached.";
+         }
+@@ -157,20 +141,17 @@ public class RadioButtonGroupSafeBrowsin
+      * @param checkedState Set the radio button of checkedState to checked, and set the radio
+      *         buttons of other states to unchecked.
+      */
+-    public void setCheckedState(@SafeBrowsingState int checkedState) {
++    public void setCheckedState(int checkedState) {
+         mSafeBrowsingState = checkedState;
+-        assert ((checkedState != SafeBrowsingState.ENHANCED_PROTECTION)
+-                || mIsEnhancedProtectionEnabled)
+-            : "Checked state shouldn't be enhanced protection when the flag is disabled.";
+         if (mIsEnhancedProtectionEnabled) {
+-            mEnhancedProtection.setChecked(checkedState == SafeBrowsingState.ENHANCED_PROTECTION);
++            mEnhancedProtection.setChecked(false);
+         }
+-        mStandardProtection.setChecked(checkedState == SafeBrowsingState.STANDARD_PROTECTION);
+-        mNoProtection.setChecked(checkedState == SafeBrowsingState.NO_SAFE_BROWSING);
++        mStandardProtection.setChecked(false);
++        mNoProtection.setChecked(true);
+     }
+ 
+     @VisibleForTesting
+-    public @SafeBrowsingState int getSafeBrowsingStateForTesting() {
++    public int getSafeBrowsingStateForTesting() {
+         return mSafeBrowsingState;
+     }
+ 
+--- a/chrome/browser/safe_browsing/android/java/src/org/chromium/chrome/browser/safe_browsing/settings/SecuritySettingsFragment.java
++++ b/chrome/browser/safe_browsing/android/java/src/org/chromium/chrome/browser/safe_browsing/settings/SecuritySettingsFragment.java
+@@ -14,7 +14,6 @@ import org.chromium.base.IntentUtils;
+ import org.chromium.base.metrics.RecordHistogram;
+ import org.chromium.chrome.browser.flags.ChromeFeatureList;
+ import org.chromium.chrome.browser.safe_browsing.SafeBrowsingBridge;
+-import org.chromium.chrome.browser.safe_browsing.SafeBrowsingState;
+ import org.chromium.chrome.browser.safe_browsing.metrics.SettingsAccessPoint;
+ import org.chromium.chrome.browser.safe_browsing.metrics.UserAction;
+ import org.chromium.chrome.browser.settings.ChromeManagedPreferenceDelegate;
+@@ -46,21 +45,9 @@ public class SecuritySettingsFragment ex
+      * @return A summary that describes the current Safe Browsing state.
+      */
+     public static String getSafeBrowsingSummaryString(Context context) {
+-        @SafeBrowsingState
+         int safeBrowsingState = SafeBrowsingBridge.getSafeBrowsingState();
+         String safeBrowsingStateString = "";
+-        if (safeBrowsingState == SafeBrowsingState.ENHANCED_PROTECTION) {
+-            safeBrowsingStateString =
+-                    context.getString(R.string.safe_browsing_enhanced_protection_title);
+-        } else if (safeBrowsingState == SafeBrowsingState.STANDARD_PROTECTION) {
+-            safeBrowsingStateString =
+-                    context.getString(R.string.safe_browsing_standard_protection_title);
+-        } else if (safeBrowsingState == SafeBrowsingState.NO_SAFE_BROWSING) {
+-            return context.getString(R.string.prefs_safe_browsing_no_protection_summary);
+-        } else {
+-            assert false : "Should not be reached";
+-        }
+-        return context.getString(R.string.prefs_safe_browsing_summary, safeBrowsingStateString);
++        return context.getString(R.string.prefs_safe_browsing_no_protection_summary);
+     }
+ 
+     /**
+@@ -102,17 +89,8 @@ public class SecuritySettingsFragment ex
+     }
+ 
+     @Override
+-    public void onSafeBrowsingModeDetailsRequested(@SafeBrowsingState int safeBrowsingState) {
++    public void onSafeBrowsingModeDetailsRequested(int safeBrowsingState) {
+         recordUserActionHistogramForStateDetailsClicked(safeBrowsingState);
+-        if (safeBrowsingState == SafeBrowsingState.ENHANCED_PROTECTION) {
+-            mSettingsLauncher.launchSettingsActivity(
+-                    getActivity(), EnhancedProtectionSettingsFragment.class);
+-        } else if (safeBrowsingState == SafeBrowsingState.STANDARD_PROTECTION) {
+-            mSettingsLauncher.launchSettingsActivity(
+-                    getActivity(), StandardProtectionSettingsFragment.class);
+-        } else {
+-            assert false : "Should not be reached";
+-        }
+     }
+ 
+     @Override
+@@ -136,9 +114,7 @@ public class SecuritySettingsFragment ex
+     public boolean onPreferenceChange(Preference preference, Object newValue) {
+         String key = preference.getKey();
+         assert PREF_SAFE_BROWSING.equals(key) : "Unexpected preference key.";
+-        @SafeBrowsingState
+         int newState = (int) newValue;
+-        @SafeBrowsingState
+         int currentState = SafeBrowsingBridge.getSafeBrowsingState();
+         if (newState == currentState) {
+             return true;
+@@ -146,7 +122,7 @@ public class SecuritySettingsFragment ex
+         recordUserActionHistogramForNewStateClicked(newState);
+         // If the user selects no protection from another Safe Browsing state, show a confirmation
+         // dialog to double check if they want to select no protection.
+-        if (newState == SafeBrowsingState.NO_SAFE_BROWSING) {
++        if (true) {
+             // The user hasn't confirmed to select no protection, keep the radio button / UI checked
+             // state at the currently selected level.
+             mSafeBrowsingPreference.setCheckedState(currentState);
+@@ -154,15 +130,6 @@ public class SecuritySettingsFragment ex
+                     .create(getContext(),
+                             (didConfirm) -> {
+                                 recordUserActionHistogramForNoProtectionConfirmation(didConfirm);
+-                                if (didConfirm) {
+-                                    // The user has confirmed to select no protection, set Safe
+-                                    // Browsing pref to no protection, and change the radio button /
+-                                    // UI checked state to no protection.
+-                                    SafeBrowsingBridge.setSafeBrowsingState(
+-                                            SafeBrowsingState.NO_SAFE_BROWSING);
+-                                    mSafeBrowsingPreference.setCheckedState(
+-                                            SafeBrowsingState.NO_SAFE_BROWSING);
+-                                }
+                                 // No-ops if the user denies.
+                             })
+                     .show();
+@@ -173,34 +140,11 @@ public class SecuritySettingsFragment ex
+     }
+ 
+     private void recordUserActionHistogramForNewStateClicked(
+-            @SafeBrowsingState int safeBrowsingState) {
+-        switch (safeBrowsingState) {
+-            case (SafeBrowsingState.ENHANCED_PROTECTION):
+-                recordUserActionHistogram(UserAction.ENHANCED_PROTECTION_CLICKED);
+-                break;
+-            case (SafeBrowsingState.STANDARD_PROTECTION):
+-                recordUserActionHistogram(UserAction.STANDARD_PROTECTION_CLICKED);
+-                break;
+-            case (SafeBrowsingState.NO_SAFE_BROWSING):
+-                recordUserActionHistogram(UserAction.DISABLE_SAFE_BROWSING_CLICKED);
+-                break;
+-            default:
+-                assert false : "Should not be reached.";
+-        }
++            int safeBrowsingState) {
+     }
+ 
+     private void recordUserActionHistogramForStateDetailsClicked(
+-            @SafeBrowsingState int safeBrowsingState) {
+-        switch (safeBrowsingState) {
+-            case (SafeBrowsingState.ENHANCED_PROTECTION):
+-                recordUserActionHistogram(UserAction.ENHANCED_PROTECTION_EXPAND_ARROW_CLICKED);
+-                break;
+-            case (SafeBrowsingState.STANDARD_PROTECTION):
+-                recordUserActionHistogram(UserAction.STANDARD_PROTECTION_EXPAND_ARROW_CLICKED);
+-                break;
+-            default:
+-                assert false : "Should not be reached.";
+-        }
++            int safeBrowsingState) {
+     }
+ 
+     private void recordUserActionHistogramForNoProtectionConfirmation(boolean didConfirm) {
+--- a/chrome/browser/safe_browsing/android/java/src/org/chromium/chrome/browser/safe_browsing/settings/StandardProtectionSettingsFragment.java
++++ b/chrome/browser/safe_browsing/android/java/src/org/chromium/chrome/browser/safe_browsing/settings/StandardProtectionSettingsFragment.java
+@@ -12,7 +12,6 @@ import androidx.preference.Preference;
+ import org.chromium.chrome.browser.preferences.Pref;
+ import org.chromium.chrome.browser.profiles.Profile;
+ import org.chromium.chrome.browser.safe_browsing.SafeBrowsingBridge;
+-import org.chromium.chrome.browser.safe_browsing.SafeBrowsingState;
+ import org.chromium.chrome.browser.settings.ChromeManagedPreferenceDelegate;
+ import org.chromium.components.browser_ui.settings.ChromeSwitchPreference;
+ import org.chromium.components.browser_ui.settings.ManagedPreferenceDelegate;
+@@ -63,12 +62,9 @@ public class StandardProtectionSettingsF
+      * forced enabled in ENHANCED_PROTECTION mode and forced disabled in NO_SAFE_BROWSING mode.
+      */
+     private void updateLeakDetectionAndExtendedReportingPreferences() {
+-        @SafeBrowsingState
+         int safe_browsing_state = SafeBrowsingBridge.getSafeBrowsingState();
+-        boolean is_enhanced_protection =
+-                safe_browsing_state == SafeBrowsingState.ENHANCED_PROTECTION;
+-        boolean is_standard_protection =
+-                safe_browsing_state == SafeBrowsingState.STANDARD_PROTECTION;
++        boolean is_enhanced_protection = false;
++        boolean is_standard_protection = false;
+ 
+         boolean extended_reporting_checked = is_enhanced_protection
+                 || (is_standard_protection

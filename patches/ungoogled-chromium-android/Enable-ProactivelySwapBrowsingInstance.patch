@@ -9,18 +9,18 @@ Subject: Enable experimental ProactivelySwapBrowsingInstance feature
 
 --- a/content/public/common/content_features.cc
 +++ b/content/public/common/content_features.cc
-@@ -451,7 +451,7 @@ const base::Feature kPrioritizeBootstrap
+@@ -490,7 +490,7 @@
  // HTTP(S) navigations when the BrowsingInstance doesn't contain any other
  // windows.
  const base::Feature kProactivelySwapBrowsingInstance{
 -    "ProactivelySwapBrowsingInstance", base::FEATURE_DISABLED_BY_DEFAULT};
 +    "ProactivelySwapBrowsingInstance", base::FEATURE_ENABLED_BY_DEFAULT};
  
- // Reduce the amount of information in the default 'referer' header for
- // cross-origin requests.
+ // Fires the `pushsubscriptionchange` event defined here:
+ // https://w3c.github.io/push-api/#the-pushsubscriptionchange-event
 --- a/content/common/content_navigation_policy.cc
 +++ b/content/common/content_navigation_policy.cc
-@@ -53,7 +53,7 @@ const base::FeatureParam<ProactivelySwap
+@@ -89,7 +89,7 @@
      proactively_swap_browsing_instance_level{
          &features::kProactivelySwapBrowsingInstance,
          kProactivelySwapBrowsingInstanceLevelParameterName,

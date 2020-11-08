@@ -1,0 +1,18 @@
+description: fix base::Feature import error
+author: Wengling Chen <feiyu2817@gmail.com>
+
+---
+---
+ chrome/app/android/chrome_main_delegate_android.cc |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/chrome/app/android/chrome_main_delegate_android.cc
++++ b/chrome/app/android/chrome_main_delegate_android.cc
+@@ -6,6 +6,7 @@
+ 
+ #include "base/android/jni_android.h"
+ #include "base/base_paths_android.h"
++#include "base/feature_list.h"
+ #include "base/files/file_path.h"
+ #include "base/files/file_util.h"
+ #include "base/logging.h"

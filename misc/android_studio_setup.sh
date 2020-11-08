@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-set -eux -o pipefail
+set -eu -o pipefail
 
-chromium_version=85.0.4183.83
-chrome_modern_apk_target=chrome_modern_public_apk
+chrome_modern_target=chrome_modern_public_bundle
 trichrome_chrome_bundle_target=trichrome_chrome_bundle
+trichrome_chrome_apk_target=trichrome_library_apk
 webview_target=system_webview_apk
 
 # Create symbol links to gn, depot-tools
@@ -58,16 +58,12 @@ output_folder=out/Debug_apk
 mkdir -p ${output_folder}
 cat ../android_flags.debug.gn ../android_flags.gn > ${output_folder}/args.gn
 printf '\ntarget_cpu="x86"\n' >> ${output_folder}/args.gn
-popd
 
 # Run gn first
-pushd src
 gn gen ${output_folder} --fail-on-unused-args
-popd
 
 # Compile apk
-pushd src
-ninja -C ${output_folder} ${chrome_modern_apk_target}
+ninja -C ${output_folder} ${chrome_modern_target}
 popd
 
 ###
@@ -87,5 +83,6 @@ pushd ..
 patch -p1 --ignore-whitespace -i patches/Other/generate_gradle.patch --no-backup-if-mismatch
 popd
 # patch -p1 --ignore-whitespace -i ../patches/src-fix/fix-unkown-warning-clang-9.patch --no-backup-if-mismatch
-python build/android/gradle/generate_gradle.py --target //chrome/android:${chrome_modern_apk_target} --output-directory ${output_folder}
+# The following doesn't work since v86. Most likely GN problem.
+#python build/android/gradle/generate_gradle.py --target //chrome/android:${chrome_modern_target} --output-directory ${output_folder}
 popd
