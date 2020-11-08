@@ -121,4 +121,6 @@ You can use f-Droid client and add [this repository](https://www.droidware.info/
 
 ## License
 
-See [LICENSE](LICENSE.md)
+See [LICENSE](LICENSE.md).
+
+Starting from commit `d86c4905e078944bddbea77f8bc916cca14279b0` and upon everything is licensed under GPLv3. Older commits are still licensed under BSD 3-clause.

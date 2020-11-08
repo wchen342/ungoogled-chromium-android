@@ -13,6 +13,13 @@ webview_target=system_webview_apk
 chromium_version=86.0.4240.111
 ungoogled_chromium_revision=1
 
+# Show env
+pwd
+env
+whoami
+echo $PATH
+echo $HOME
+
 # Argument parser from https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash/29754866#29754866
 # -allow a command to fail with !’s side effect on errexit
 # -use return value from ${PIPESTATUS[0]}, because ! hosed $?

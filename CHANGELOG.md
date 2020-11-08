@@ -1,6 +1,7 @@
 # 86.0.4240.111-1
 * Custom DoH setting is removed since it is supported natively.
 * `ChromeModernPublic` is also generated from bundle file now since Google removed the `apk` target.
+* Add a fix for android-sdk building tools thanks to @Niek
 * Other minor fixes.
 * Note: *apk signatures are changed* as I lost access to my `keystore` file during my move, so it is normal to see `Wrong signature` while installing. GPG keys for signing binary releases are still valid.
 
