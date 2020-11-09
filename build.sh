@@ -78,7 +78,7 @@ if [[ "$ARCH" != "arm64" ]] && [[ "$ARCH" != "arm" ]] && [[ "$ARCH" != "x86" ]];
     exit 4
 fi
 
-if [[ "$TARGET" != "$chrome_modern_target" ]] && [[ "$TARGET" != "$trichrome_chrome_bundle_target" ]] && [[ "$TARGET" != "$webview_target" ]]; then
+if [[ "$TARGET" != "$chrome_modern_target" ]] && [[ "$TARGET" != "$trichrome_chrome_bundle_target" ]] && [[ "$TARGET" != "$webview_target" ]] && [[ "$TARGET" != - ]]; then
     echo "Wrong target"
     exit 5
 fi
@@ -269,15 +269,16 @@ python3 ungoogled-chromium/utils/domain_substitution.py apply -r ungoogled-chrom
 ## Configure output folder
 export PATH=$OLD_PATH  # remove depot_tools from PATH
 pushd src
-mkdir -p out/Default
+output_folder="out/Default"
+mkdir -p "${output_folder}"
 if [ "$DEBUG" = n ] ; then
-    cat ../ungoogled-chromium/flags.gn ../android_flags.gn ../android_flags.release.gn > out/Default/args.gn
-    cat ../../uc_keystore/keystore.gn >> out/Default/args.gn
+    cat ../ungoogled-chromium/flags.gn ../android_flags.gn ../android_flags.release.gn > "${output_folder}"/args.gn
+    cat ../../uc_keystore/keystore.gn >> "${output_folder}"/args.gn
 else
-    cat ../android_flags.gn ../android_flags.debug.gn > out/Default/args.gn
+    cat ../android_flags.gn ../android_flags.debug.gn > "${output_folder}"/args.gn
 fi
-printf '\ntarget_cpu="'"$ARCH"'"\n' >> out/Default/args.gn
-gn gen out/Default --fail-on-unused-args
+printf '\ntarget_cpu="'"$ARCH"'"\n' >> "${output_folder}"/args.gn
+gn gen "${output_folder}" --fail-on-unused-args
 popd
 
 
@@ -288,14 +289,30 @@ export CC=${CC:=clang}
 export CXX=${CXX:=clang++}
 
 ## Build
+apk_out_folder="apk_out"
+mkdir "${apk_out_folder}"
 pushd src
-ninja -C out/Default $TARGET
-if [[ "$TARGET" == "$trichrome_chrome_bundle_target" ]]; then
-  ninja -C out/Default "$trichrome_chrome_apk_target"
-fi
-popd
+if [[ "$TARGET" != - ]]; then
+  ninja -C "${output_folder}" $TARGET
+  if [[ "$TARGET" == "$trichrome_chrome_bundle_target" ]]; then
+    ninja -C "${output_folder}" "$trichrome_chrome_apk_target"
+  fi
+  ../bundle_generate_apk.sh -o "${output_folder}" -t $TARGET
+  find . -iname "*.apk" -exec cp {} ../"${apk_out_folder}" \;
+else
+  ninja -C out/Default $chrome_modern_target
+  ../bundle_generate_apk.sh -o "${output_folder}" -t $chrome_modern_target
+  ninja -C out/Default $webview_target
 
-# Extract apk from aab for Trichrome
-pushd src
-../bundle_generate_apk.sh -o out/Default -t $TARGET
+  # arm64 needs to clean before build trichrome otherwise will fail
+  if [[ "$ARCH" == "arm64" ]]; then
+    find . -iname "*.apk" -exec cp {} ../"${apk_out_folder}" \;
+    ninja -C "${output_folder}" -t clean
+  fi
+
+  ninja -C "${output_folder}" "$trichrome_chrome_bundle_target"
+  ninja -C "${output_folder}" "$trichrome_chrome_apk_target"
+
+  find . -iname "*.apk" -exec cp {} ../"${apk_out_folder}" \;
+fi
 popd
