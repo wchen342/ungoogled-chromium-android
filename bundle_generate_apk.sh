@@ -3,16 +3,16 @@
 
 set -o errexit -o nounset -o pipefail
 
+chrome_modern_target=chrome_modern_public_bundle
+trichrome_chrome_bundle_target=trichrome_chrome_bundle
+trichrome_chrome_apk_target=trichrome_library_apk
+webview_target=system_webview_apk
+
 KEYSTORE=$PWD/../../uc_keystore/uc-release-key.keystore
 KEYSTORE_PASS=$PWD/../../uc_keystore/keystore_pass
 APKSIGNER=$PWD/third_party/android_sdk/public/build-tools/30.0.1/apksigner
 BUNDLETOOL=$PWD/build/android/gyp/bundletool.py
 AAPT2=$PWD/third_party/android_build_tools/aapt2/aapt2
-
-chrome_modern_target=chrome_modern_public_bundle
-trichrome_chrome_bundle_target=trichrome_chrome_bundle
-trichrome_chrome_apk_target=trichrome_library_apk
-webview_target=system_webview_apk
 
 # Argument parser from https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash/29754866#29754866
 # -allow a command to fail with !’s side effect on errexit
@@ -101,7 +101,7 @@ mv universal.apk "$FILENAME".apk
 if [[ "$TARGET" == "$trichrome_chrome_bundle_target" ]]; then
     for app in TrichromeLibrary TrichromeWebView; do
         if [ -f ../${app}.apk ]; then
-            $APKSIGNER sign --ks $KEYSTORE --ks-pass file:$KEYSTORE_PASS --ks-key-alias uc_release --in ../${app}.apk --out $app.apk
+            $APKSIGNER sign --ks $KEYSTORE --ks-pass file:$KEYSTORE_PASS --ks-key-alias uc --in ../${app}.apk --out ${app}.apk
         fi
     done
 fi

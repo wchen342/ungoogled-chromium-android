@@ -1,3 +1,5 @@
+Note: if you are on a mobile device, go [here](https://github.com/ungoogled-software/ungoogled-chromium-android/issues) instead. Text input doesn't work correctly in mobile browsers.
+
 Please choose between bug report/feature request accroding to your need.
 
 ---

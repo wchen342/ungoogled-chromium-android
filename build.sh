@@ -78,7 +78,7 @@ if [[ "$ARCH" != "arm64" ]] && [[ "$ARCH" != "arm" ]] && [[ "$ARCH" != "x86" ]];
     exit 4
 fi
 
-if [[ "$TARGET" != "$chrome_modern_target" ]] && [[ "$TARGET" != "$trichrome_chrome_bundle_target" ]] && [[ "$TARGET" != "$webview_target" ]] && [[ "$TARGET" != - ]]; then
+if [[ "$TARGET" != "$chrome_modern_target" ]] && [[ "$TARGET" != "$trichrome_chrome_bundle_target" ]] && [[ "$TARGET" != "$webview_target" ]] && [[ "$TARGET" != "all" ]]; then
     echo "Wrong target"
     exit 5
 fi
@@ -292,27 +292,23 @@ export CXX=${CXX:=clang++}
 apk_out_folder="apk_out"
 mkdir "${apk_out_folder}"
 pushd src
-if [[ "$TARGET" != - ]]; then
-  ninja -C "${output_folder}" $TARGET
-  if [[ "$TARGET" == "$trichrome_chrome_bundle_target" ]]; then
-    ninja -C "${output_folder}" "$trichrome_chrome_apk_target"
+if [[ "$TARGET" != "all" ]]; then
+  ninja -C "${output_folder}" "$TARGET"
+  if [[ "$TARGET" == "$trichrome_chrome_bundle_target" ]] || [[ "$TARGET" == "$chrome_modern_target" ]]; then
+    ../bundle_generate_apk.sh -o "${output_folder}" -t "$TARGET"
   fi
-  ../bundle_generate_apk.sh -o "${output_folder}" -t $TARGET
-  find . -iname "*.apk" -exec cp {} ../"${apk_out_folder}" \;
+  find . -iname "*.apk" -exec cp -f {} ../"${apk_out_folder}" \;
 else
-  ninja -C out/Default $chrome_modern_target
-  ../bundle_generate_apk.sh -o "${output_folder}" -t $chrome_modern_target
-  ninja -C out/Default $webview_target
+  ninja -C out/Default "$chrome_modern_target"
+  ../bundle_generate_apk.sh -o "${output_folder}" -t "$chrome_modern_target"
+  ninja -C out/Default "$webview_target"
+  find . -iname "*.apk" -exec cp -f {} ../"${apk_out_folder}" \;
 
-  # arm64 needs to clean before build trichrome otherwise will fail
-  if [[ "$ARCH" == "arm64" ]]; then
-    find . -iname "*.apk" -exec cp {} ../"${apk_out_folder}" \;
-    ninja -C "${output_folder}" -t clean
+  # arm64+TriChrome needs to be run separately, otherwise it will fail
+  if [[ "$ARCH" != "arm64" ]]; then
+    ninja -C "${output_folder}" "$trichrome_chrome_bundle_target"
+    ../bundle_generate_apk.sh -o "${output_folder}" -t "$trichrome_chrome_bundle_target"
+    find . -iname "*.apk" -exec cp -f {} ../"${apk_out_folder}" \;
   fi
-
-  ninja -C "${output_folder}" "$trichrome_chrome_bundle_target"
-  ninja -C "${output_folder}" "$trichrome_chrome_apk_target"
-
-  find . -iname "*.apk" -exec cp {} ../"${apk_out_folder}" \;
 fi
 popd
