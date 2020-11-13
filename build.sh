@@ -85,88 +85,101 @@ fi
 
 echo "arch: $ARCH, target: $TARGET, debug: $DEBUG"
 
-## Clone ungoogled-chromium repo
-git clone https://github.com/Eloston/ungoogled-chromium.git -b ${chromium_version}-${ungoogled_chromium_revision}
+function prepare_repos {
+  declare -a arr=("depot_tools" "src" "ungoogled-chromium" ".cipd")
+  for dname in "${arr[@]}"
+  do
+    if [[ -d "$dname" ]]
+    then
+      echo "Removing $dname"
+      rm -rf "$dname"
+    fi
+  done
 
-## Clone chromium repo
-git clone --depth 1 --no-tags https://chromium.googlesource.com/chromium/src.git -b ${chromium_version}
+  ## Clone ungoogled-chromium repo
+  git clone https://github.com/Eloston/ungoogled-chromium.git -b ${chromium_version}-${ungoogled_chromium_revision} || return $?
 
-## Fetch depot-tools
-depot_tools_commit=$(grep 'depot_tools.git' src/DEPS | cut -d\' -f8)
-mkdir -p depot_tools
-pushd depot_tools
-git init
-git remote add origin https://chromium.googlesource.com/chromium/tools/depot_tools.git
-git fetch --depth 1 --no-tags origin "${depot_tools_commit}"
-git reset --hard FETCH_HEAD
-popd
-OLD_PATH=$PATH
-export PATH="$(pwd -P)/depot_tools:$PATH"
-pushd src/third_party
-ln -s ../../depot_tools
-popd
+  ## Clone chromium repo
+  git clone --depth 1 --no-tags https://chromium.googlesource.com/chromium/src.git -b ${chromium_version} || return $?
+
+  ## Fetch depot-tools
+  depot_tools_commit=$(grep 'depot_tools.git' src/DEPS | cut -d\' -f8)
+  mkdir -p depot_tools
+  pushd depot_tools
+  git init
+  git remote add origin https://chromium.googlesource.com/chromium/tools/depot_tools.git
+  git fetch --depth 1 --no-tags origin "${depot_tools_commit}" || return $?
+  git reset --hard FETCH_HEAD
+  popd
+  OLD_PATH=$PATH
+  export PATH="$(pwd -P)/depot_tools:$PATH"
+  pushd src/third_party
+  ln -s ../../depot_tools
+  popd
+
+  ## Sync files
+  # third_party/android_deps and some other overrides doesn't work
+  gclient.py sync --nohooks --no-history --shallow --revision=${chromium_version} || { s=$? && export PATH=$OLD_PATH && return $s; }
+
+  ## Fix repos
+  webrtc_commit=$(grep 'webrtc_git.*/src\.git' src/DEPS | cut -d\' -f8)
+  mkdir src/third_party/webrtc
+  pushd src/third_party/webrtc
+  git init
+  git remote add origin https://webrtc.googlesource.com/src.git
+  git fetch --depth 1 --no-tags origin "${webrtc_commit}" || return $?
+  git reset --hard FETCH_HEAD
+  popd
+
+  libsync_commit=$(grep 'libsync\.git' src/DEPS | cut -d\' -f10)
+  mkdir src/third_party/libsync/src
+  pushd src/third_party/libsync/src
+  git init
+  git remote add origin https://chromium.googlesource.com/aosp/platform/system/core/libsync.git
+  git fetch --depth 1 --no-tags origin "${libsync_commit}" || return $?
+  git reset --hard FETCH_HEAD
+  popd
+
+  fontconfig_commit=$(grep 'fontconfig\.git' src/DEPS | cut -d\' -f10)
+  mkdir src/third_party/fontconfig/src
+  pushd src/third_party/fontconfig/src
+  git init
+  git remote add origin https://chromium.googlesource.com/external/fontconfig.git
+  git fetch --depth 1 --no-tags origin "${fontconfig_commit}" || return $?
+  git reset --hard FETCH_HEAD
+  popd
+
+  # update node
+  mkdir -p src/third_party/node/linux/node-linux-x64/bin
+  ln -s /usr/bin/node src/third_party/node/linux/node-linux-x64/bin/
+  ( src/third_party/node/update_npm_deps ) || return $?
+  # Remove bundled jdk
+  pushd src && patch -p1 --ignore-whitespace -i ../patches/Other/remove-jdk.patch --no-backup-if-mismatch && popd
+  rm -rf src/third_party/jdk
+  mkdir -p src/third_party/jdk/current/bin
+  ln -s /usr/bin/java src/third_party/jdk/current/bin/
+  ln -s /usr/bin/javac src/third_party/jdk/current/bin/
+  ln -s /usr/bin/javap src/third_party/jdk/current/bin/
+  # jre
+  mkdir -p src/third_party/jdk/extras/java_8 && pushd src/third_party/jdk/extras/java_8
+  ln -s /usr/lib/jvm/jre-1.8.0 jre
+  popd
+
+  # Link to system clang tools
+  pushd src/buildtools/linux64
+  ln -s /usr/bin/clang-format
+  popd
+
+  ## Hooks
+  python src/build/util/lastchange.py -o src/build/util/LASTCHANGE
+  python src/tools/download_optimization_profile.py --newest_state=src/chrome/android/profiles/newest.txt --local_state=src/chrome/android/profiles/local.txt --output_name=src/chrome/android/profiles/afdo.prof --gs_url_base=chromeos-prebuilt/afdo-job/llvm || return $?
+  python src/build/util/lastchange.py -m GPU_LISTS_VERSION --revision-id-only --header src/gpu/config/gpu_lists_version.h
+  python src/build/util/lastchange.py -m SKIA_COMMIT_HASH -s src/third_party/skia --header src/skia/ext/skia_commit_hash.h
+}
 
 
-## Sync files
-# third_party/android_deps and some other overrides doesn't work
-gclient.py sync --nohooks --no-history --shallow --revision=${chromium_version}
-
-
-## Fix repos
-webrtc_commit=$(grep 'webrtc_git.*/src\.git' src/DEPS | cut -d\' -f8)
-mkdir src/third_party/webrtc
-pushd src/third_party/webrtc
-git init
-git remote add origin https://webrtc.googlesource.com/src.git
-git fetch --depth 1 --no-tags origin "${webrtc_commit}"
-git reset --hard FETCH_HEAD
-popd
-
-libsync_commit=$(grep 'libsync\.git' src/DEPS | cut -d\' -f10)
-mkdir src/third_party/libsync/src
-pushd src/third_party/libsync/src
-git init
-git remote add origin https://chromium.googlesource.com/aosp/platform/system/core/libsync.git
-git fetch --depth 1 --no-tags origin "${libsync_commit}"
-git reset --hard FETCH_HEAD
-popd
-
-fontconfig_commit=$(grep 'fontconfig\.git' src/DEPS | cut -d\' -f10)
-mkdir src/third_party/fontconfig/src
-pushd src/third_party/fontconfig/src
-git init
-git remote add origin https://chromium.googlesource.com/external/fontconfig.git
-git fetch --depth 1 --no-tags origin "${fontconfig_commit}"
-git reset --hard FETCH_HEAD
-popd
-
-# New binary dependency: node
-mkdir -p src/third_party/node/linux/node-linux-x64/bin
-ln -s /usr/bin/node src/third_party/node/linux/node-linux-x64/bin/
-src/third_party/node/update_npm_deps
-# Remove bundled jdk
-pushd src && patch -p1 --ignore-whitespace -i ../patches/Other/remove-jdk.patch --no-backup-if-mismatch && popd
-rm -rf src/third_party/jdk
-mkdir -p src/third_party/jdk/current/bin
-ln -s /usr/bin/java src/third_party/jdk/current/bin/
-ln -s /usr/bin/javac src/third_party/jdk/current/bin/
-ln -s /usr/bin/javap src/third_party/jdk/current/bin/
-# jre
-mkdir -p src/third_party/jdk/extras/java_8 && pushd src/third_party/jdk/extras/java_8
-ln -s /usr/lib/jvm/jre-1.8.0 jre
-popd
-
-# Link to system clang tools
-pushd src/buildtools/linux64
-ln -s /usr/bin/clang-format
-popd
-
-## Hooks
-python src/build/util/lastchange.py -o src/build/util/LASTCHANGE
-python src/tools/download_optimization_profile.py --newest_state=src/chrome/android/profiles/newest.txt --local_state=src/chrome/android/profiles/local.txt --output_name=src/chrome/android/profiles/afdo.prof --gs_url_base=chromeos-prebuilt/afdo-job/llvm
-python src/build/util/lastchange.py -m GPU_LISTS_VERSION --revision-id-only --header src/gpu/config/gpu_lists_version.h
-python src/build/util/lastchange.py -m SKIA_COMMIT_HASH -s src/third_party/skia --header src/skia/ext/skia_commit_hash.h
-
+# Run preparation
+for i in $(seq 1 10); do prepare_repos && s=0 && break || s=$? && sleep 120; done; (exit $s)
 
 ## Run ungoogled-chromium scripts
 # Patch prune list and domain substitution
@@ -227,9 +240,9 @@ mkdir android-rebuilds
 mkdir android-sdk
 mkdir android-ndk
 pushd android-rebuilds
-for i in $(seq 1 5); do curl -O ${sdk_link} && unzip -qqo android-sdk_eng.10.0.0_r14_linux-x86.zip -d ../android-sdk && rm -f android-sdk_eng.10.0.0_r14_linux-x86.zip && s=0 && break || s=$? && sleep 15; done; (exit $s)
-for i in $(seq 1 5); do curl -O ${sdk_tools_link} && unzip -qqo sdk-repo-linux-tools-26.1.1.zip -d ../android-sdk/android-sdk_eng.10.0.0_r14_linux-x86 && rm -f sdk-repo-linux-tools-26.1.1.zip && s=0 && break || s=$? && sleep 15; done; (exit $s)
-for i in $(seq 1 5); do curl -O ${ndk_link} && tar xjf android-ndk-r20b-linux-x86_64.tar.bz2 -C ../android-ndk && rm -f android-ndk-r20b-linux-x86_64.tar.bz2 && s=0 && break || s=$? && sleep 15; done; (exit $s)
+for i in $(seq 1 5); do curl -O ${sdk_link} && unzip -qqo android-sdk_eng.10.0.0_r14_linux-x86.zip -d ../android-sdk && rm -f android-sdk_eng.10.0.0_r14_linux-x86.zip && s=0 && break || s=$? && sleep 60; done; (exit $s)
+for i in $(seq 1 5); do curl -O ${sdk_tools_link} && unzip -qqo sdk-repo-linux-tools-26.1.1.zip -d ../android-sdk/android-sdk_eng.10.0.0_r14_linux-x86 && rm -f sdk-repo-linux-tools-26.1.1.zip && s=0 && break || s=$? && sleep 60; done; (exit $s)
+for i in $(seq 1 5); do curl -O ${ndk_link} && tar xjf android-ndk-r20b-linux-x86_64.tar.bz2 -C ../android-ndk && rm -f android-ndk-r20b-linux-x86_64.tar.bz2 && s=0 && break || s=$? && sleep 60; done; (exit $s)
 popd
 
 # Move ndk files into place
@@ -242,7 +255,7 @@ rm -rf "ndk_temp"
 # eu-strip is re-compiled with -Wno-error
 patch -p1 --ignore-whitespace -i patches/Other/eu-strip-build-script.patch --no-backup-if-mismatch
 pushd src/buildtools/third_party/eu-strip
-./build.sh
+for i in $(seq 1 5); do ./build.sh && s=0 && break || s=$? && sleep 60; done; (exit $s)
 popd
 # Some of the support libraries can be grabbed from maven https://android.googlesource.com/platform/prebuilts/maven_repo/android/+/master/com/android/support/
 
