@@ -8,13 +8,13 @@ Subject: add download prompt for installing extensions
  base/files/file_path.cc                                                                              |    8 
  base/files/file_util.cc                                                                              |    9 
  base/files/file_util_posix.cc                                                                        |   10 
- chrome/android/BUILD.gn                                                                              |    2 
+ chrome/android/BUILD.gn                                                                              |    1 
+ chrome/android/chrome_java_resources.gni                                                             |    1 
  chrome/android/chrome_java_sources.gni                                                               |    2 
- chrome/android/java/src/org/chromium/chrome/browser/extensions/ExtensionInstallCustomScrollView.java |  130 ++++
- chrome/android/java/src/org/chromium/chrome/browser/extensions/ExtensionInstallDialogViewBridge.java |  156 +++++
+ chrome/android/java/res/layout/extension_install_dialog.xml                                          |  103 +++
+ chrome/android/java/src/org/chromium/chrome/browser/extensions/ExtensionInstallCustomScrollView.java |  129 ++++
+ chrome/android/java/src/org/chromium/chrome/browser/extensions/ExtensionInstallDialogViewBridge.java |  155 +++++
  chrome/browser/download/download_crx_util.cc                                                         |   19 
- chrome/browser/extensions/android/BUILD.gn                                                           |   20 
- chrome/browser/extensions/android/java/res/layout/extension_install_dialog.xml                       |  103 +++
  chrome/browser/extensions/crx_installer.cc                                                           |    7 
  chrome/browser/extensions/extension_install_prompt.cc                                                |    1 
  chrome/browser/extensions/unpacked_installer.cc                                                      |   32 +
@@ -27,11 +27,11 @@ Subject: add download prompt for installing extensions
  components/crx_file/crx_verifier.cc                                                                  |   12 
  extensions/browser/sandboxed_unpacker.cc                                                             |   18 
  extensions/common/file_util.cc                                                                       |   22 
- 23 files changed, 896 insertions(+), 32 deletions(-)
+ 23 files changed, 874 insertions(+), 32 deletions(-)
 
 --- a/base/files/file_util_posix.cc
 +++ b/base/files/file_util_posix.cc
-@@ -362,8 +362,13 @@ std::string AppendModeCharacter(StringPi
+@@ -363,8 +363,13 @@ std::string AppendModeCharacter(StringPi
  FilePath MakeAbsoluteFilePath(const FilePath& input) {
    ScopedBlockingCall scoped_blocking_call(FROM_HERE, BlockingType::MAY_BLOCK);
    char full_path[PATH_MAX];
@@ -46,15 +46,15 @@ Subject: add download prompt for installing extensions
    return FilePath(full_path);
  }
  
-@@ -823,6 +828,7 @@ FILE* OpenFile(const FilePath& filename,
+@@ -830,6 +835,7 @@ FILE* OpenFile(const FilePath& filename,
    DCHECK(
        strchr(mode, 'e') == nullptr ||
        (strchr(mode, ',') != nullptr && strchr(mode, 'e') > strchr(mode, ',')));
 +  //LOG(INFO) << "file_util_posix.cc: OpenFile: mode: " << mode;
    ScopedBlockingCall scoped_blocking_call(FROM_HERE, BlockingType::MAY_BLOCK);
    FILE* result = nullptr;
- #if defined(OS_MACOSX)
-@@ -832,9 +838,11 @@ FILE* OpenFile(const FilePath& filename,
+ #if defined(OS_APPLE)
+@@ -839,9 +845,11 @@ FILE* OpenFile(const FilePath& filename,
  #else
    std::string mode_with_e(AppendModeCharacter(mode, 'e'));
    const char* the_mode = mode_with_e.c_str();
@@ -64,7 +64,7 @@ Subject: add download prompt for installing extensions
      result = fopen(filename.value().c_str(), the_mode);
 +    //LOG(INFO) << "file_util_posix.cc: OpenFile: result: " << result;
    } while (!result && errno == EINTR);
- #if defined(OS_MACOSX)
+ #if defined(OS_APPLE)
    // Mark the descriptor as close-on-exec.
 --- a/chrome/browser/extensions/unpacked_installer.cc
 +++ b/chrome/browser/extensions/unpacked_installer.cc
@@ -73,12 +73,12 @@ Subject: add download prompt for installing extensions
    const std::vector<base::FilePath> reserved_filepaths =
        file_util::GetReservedMetadataFilePaths(extension_path);
 -  for (const auto& file : reserved_filepaths)
--    base::DeleteFile(file, true /*recursive*/);
+-    base::DeletePathRecursively(file);
 +  for (const auto& file : reserved_filepaths) {
 +    LOG(INFO) << "unpacked_installer.cc: MaybeCleanupMetadataFolder: file: " << file;
 +    LOG(INFO) << "unpacked_installer.cc: MaybeCleanupMetadataFolder: PathExists: " << (base::PathExists(file));
 +    if (base::PathExists(file))
-+      base::DeleteFile(file, true /*recursive*/);
++      base::DeletePathRecursively(file);
 +  }
  
    const base::FilePath& metadata_dir = extension_path.Append(kMetadataFolder);
@@ -86,7 +86,7 @@ Subject: add download prompt for installing extensions
 +  if (base::PathExists(metadata_dir) && base::IsDirectoryEmpty(metadata_dir)) {
 +    LOG(INFO) << "unpacked_installer.cc: MaybeCleanupMetadataFolder: metadata_dir: " << metadata_dir;
 +    LOG(INFO) << "unpacked_installer.cc: MaybeCleanupMetadataFolder: PathExists(metadata_dir): " << (base::PathExists(metadata_dir));
-     base::DeleteFileRecursively(metadata_dir);
+     base::DeletePathRecursively(metadata_dir);
 +  }
  }
  
@@ -111,7 +111,7 @@ Subject: add download prompt for installing extensions
  
    if (!IsLoadingUnpackedAllowed()) {
 +    LOG(INFO) << "unpacked_installer.cc: !IsLoadingUnpackedAllowed";
-     ReportExtensionLoadError(kUnpackedExtensionsBlacklistedError);
+     ReportExtensionLoadError(kUnpackedExtensionsBlocklistedError);
      return false;
    }
  
@@ -170,7 +170,7 @@ Subject: add download prompt for installing extensions
    return extension() &&
           extension_l10n_util::ValidateExtensionLocales(
               extension_path_, extension()->manifest()->value(), error) &&
-@@ -294,7 +316,9 @@ bool UnpackedInstaller::IsLoadingUnpacke
+@@ -295,7 +317,9 @@ bool UnpackedInstaller::IsLoadingUnpacke
  }
  
  void UnpackedInstaller::GetAbsolutePath() {
@@ -279,7 +279,7 @@ Subject: add download prompt for installing extensions
  #include "base/posix/eintr_wrapper.h"
  #include "base/strings/string_piece.h"
  #include "base/strings/string_util.h"
-@@ -231,11 +232,15 @@ bool ReadFileToStringWithMaxSize(const F
+@@ -223,11 +224,15 @@ bool ReadFileToStringWithMaxSize(const F
                                   size_t max_size) {
    if (contents)
      contents->clear();
@@ -332,9 +332,9 @@ Subject: add download prompt for installing extensions
  
 --- a/extensions/browser/sandboxed_unpacker.cc
 +++ b/extensions/browser/sandboxed_unpacker.cc
-@@ -224,27 +224,38 @@ void SandboxedUnpacker::StartWithCrx(con
+@@ -225,28 +225,39 @@ void SandboxedUnpacker::StartWithCrx(con
    DCHECK(unpacker_io_task_runner_->RunsTasksInCurrentSequence());
- 
+   client_->OnStageChanged(InstallationStage::kVerification);
    std::string expected_hash;
 +  LOG(INFO) << "sandboxed_unpacker.cc: StartWithCrx: expected_hash: " << crx_info.expected_hash;
    if (!crx_info.expected_hash.empty() &&
@@ -366,6 +366,7 @@ Subject: add download prompt for installing extensions
      return;  // ValidateSignature() already reported the error.
 +  }
  
+   client_->OnStageChanged(InstallationStage::kCopying);
    // Copy the crx file into our working directory.
    base::FilePath temp_crx_path =
        temp_dir_.GetPath().Append(crx_info.path.BaseName());
@@ -373,7 +374,7 @@ Subject: add download prompt for installing extensions
  
    if (!base::CopyFile(crx_info.path, temp_crx_path)) {
      // Failed to copy extension file to temporary directory.
-@@ -286,6 +297,7 @@ void SandboxedUnpacker::StartWithCrx(con
+@@ -288,6 +299,7 @@ void SandboxedUnpacker::StartWithCrx(con
    }
  
    Unzip(link_free_crx_path, unzipped_dir);
@@ -381,7 +382,7 @@ Subject: add download prompt for installing extensions
  }
  
  void SandboxedUnpacker::StartWithDirectory(const std::string& extension_id,
-@@ -807,7 +819,9 @@ bool SandboxedUnpacker::ValidateSignatur
+@@ -809,7 +821,9 @@ bool SandboxedUnpacker::ValidateSignatur
      const crx_file::VerifierFormat required_format) {
    std::vector<uint8_t> hash;
    if (!expected_hash.empty()) {
@@ -393,7 +394,7 @@ Subject: add download prompt for installing extensions
        return false;
 --- a/chrome/browser/extensions/crx_installer.cc
 +++ b/chrome/browser/extensions/crx_installer.cc
-@@ -165,6 +165,7 @@ CrxInstaller::~CrxInstaller() {
+@@ -166,6 +166,7 @@ CrxInstaller::~CrxInstaller() {
  }
  
  void CrxInstaller::InstallCrx(const base::FilePath& source_file) {
@@ -401,7 +402,7 @@ Subject: add download prompt for installing extensions
    crx_file::VerifierFormat format =
        off_store_install_allow_reason_ == OffStoreInstallDisallowed
            ? GetWebstoreVerifierFormat(
-@@ -182,6 +183,7 @@ void CrxInstaller::InstallCrxFile(const
+@@ -183,6 +184,7 @@ void CrxInstaller::InstallCrxFile(const
    NotifyCrxInstallBegin();
  
    source_file_ = source_file.path;
@@ -409,7 +410,7 @@ Subject: add download prompt for installing extensions
  
    auto unpacker = base::MakeRefCounted<SandboxedUnpacker>(
        install_source_, creation_flags_, install_directory_,
-@@ -569,6 +571,7 @@ void CrxInstaller::OnUnpackSuccess(
+@@ -571,6 +573,7 @@ void CrxInstaller::OnUnpackSuccess(
      return;
    }
  
@@ -417,7 +418,7 @@ Subject: add download prompt for installing extensions
    if (!content::GetUIThreadTaskRunner({})->PostTask(
            FROM_HERE, base::BindOnce(&CrxInstaller::CheckInstall, this)))
      NOTREACHED();
-@@ -630,6 +633,7 @@ void CrxInstaller::CheckInstall() {
+@@ -636,6 +639,7 @@ void CrxInstaller::CheckInstall() {
  
    // Skip the checks if the extension is a bookmark app.
    if (extension()->from_bookmark()) {
@@ -425,7 +426,7 @@ Subject: add download prompt for installing extensions
      ConfirmInstall();
      return;
    }
-@@ -656,6 +660,7 @@ void CrxInstaller::OnInstallChecksComple
+@@ -662,6 +666,7 @@ void CrxInstaller::OnInstallChecksComple
      return;
  
    if (errors.empty()) {
@@ -433,7 +434,7 @@ Subject: add download prompt for installing extensions
      ConfirmInstall();
      return;
    }
-@@ -711,6 +716,7 @@ void CrxInstaller::OnInstallChecksComple
+@@ -717,6 +722,7 @@ void CrxInstaller::OnInstallChecksComple
      return;
    }
  
@@ -441,7 +442,7 @@ Subject: add download prompt for installing extensions
    ConfirmInstall();
  }
  
-@@ -762,6 +768,7 @@ void CrxInstaller::ConfirmInstall() {
+@@ -769,6 +775,7 @@ void CrxInstaller::ConfirmInstall() {
        (!allow_silent_install_ || !approved_) &&
        !update_from_settings_page_) {
      AddRef();  // Balanced in OnInstallPromptDone().
@@ -505,7 +506,7 @@ Subject: add download prompt for installing extensions
      return false;
 --- a/chrome/browser/extensions/extension_install_prompt.cc
 +++ b/chrome/browser/extensions/extension_install_prompt.cc
-@@ -663,6 +663,7 @@ void ExtensionInstallPrompt::ShowConfirm
+@@ -665,6 +665,7 @@ void ExtensionInstallPrompt::ShowConfirm
      show_dialog_callback_ = GetDefaultShowDialogCallback();
    // TODO(https://crbug.com/957713): Use OnceCallback and eliminate the need for
    // a callback on the stack.
@@ -528,9 +529,9 @@ Subject: add download prompt for installing extensions
 +
 +import org.chromium.base.annotations.CalledByNative;
 +import org.chromium.base.annotations.NativeMethods;
-+import org.chromium.chrome.browser.ChromeActivity;
-+import org.chromium.chrome.extensions.R;
++import org.chromium.chrome.browser.app.ChromeActivity;
 +import org.chromium.chrome.browser.download.dialogs.DownloadLocationCustomView;
++import org.chromium.chrome.R;
 +import org.chromium.ui.base.WindowAndroid;
 +import org.chromium.ui.modaldialog.DialogDismissalCause;
 +import org.chromium.ui.modaldialog.ModalDialogManager;
@@ -673,7 +674,7 @@ Subject: add download prompt for installing extensions
 +    }
 +}
 --- /dev/null
-+++ b/chrome/browser/extensions/android/java/res/layout/extension_install_dialog.xml
++++ b/chrome/android/java/res/layout/extension_install_dialog.xml
 @@ -0,0 +1,103 @@
 +<?xml version="1.0" encoding="utf-8"?>
 +<!-- Copyright 2020 The Ungoogled-Chromium Authors. All rights reserved.
@@ -766,7 +767,7 @@ Subject: add download prompt for installing extensions
 +        </ScrollView>
 +
 +        <CheckBox
-+            style="@style/TextAppearance.TextMedium.Tertiary"
++            style="@style/TextAppearance.TextSmall.Primary"
 +            android:id="@+id/withhold_permission_checkbox"
 +            android:visibility="gone"
 +            android:layout_width="match_parent"
@@ -780,7 +781,7 @@ Subject: add download prompt for installing extensions
 +
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -1191,6 +1191,11 @@ Your Google account may have other forms
+@@ -1335,6 +1335,11 @@ Your Google account may have other forms
        </message>
  
        <!-- About Chrome preferences -->
@@ -1153,15 +1154,7 @@ Subject: add download prompt for installing extensions
 +#endif  // CHROME_BROWSER_UI_VIEWS_EXTENSIONS_EXTENSION_INSTALL_DIALOG_VIEW_H_
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -306,6 +306,7 @@ android_library("chrome_java") {
-     "//chrome/browser/download/android:java",
-     "//chrome/browser/download/android:java_resources",
-     "//chrome/browser/enterprise/util:java",
-+    "//chrome/browser/extensions/android:java_resources",
-     "//chrome/browser/flags:java",
-     "//chrome/browser/fullscreen/android:java",
-     "//chrome/browser/image_editor/public:java",
-@@ -2946,6 +2947,7 @@ generate_jni("chrome_jni_headers") {
+@@ -2976,6 +2976,7 @@ generate_jni("chrome_jni_headers") {
      "java/src/org/chromium/chrome/browser/explore_sites/ExploreSitesCategory.java",
      "java/src/org/chromium/chrome/browser/explore_sites/ExploreSitesCategoryTile.java",
      "java/src/org/chromium/chrome/browser/explore_sites/ExploreSitesSite.java",
@@ -1171,7 +1164,7 @@ Subject: add download prompt for installing extensions
      "java/src/org/chromium/chrome/browser/feedback/ProcessIdFeedbackSource.java",
 --- a/chrome/android/chrome_java_sources.gni
 +++ b/chrome/android/chrome_java_sources.gni
-@@ -676,6 +676,8 @@ chrome_java_sources = [
+@@ -686,6 +686,8 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/explore_sites/ExploreSitesSite.java",
    "java/src/org/chromium/chrome/browser/explore_sites/ExploreSitesTileView.java",
    "java/src/org/chromium/chrome/browser/explore_sites/StableScrollLayoutManager.java",
@@ -1182,7 +1175,7 @@ Subject: add download prompt for installing extensions
    "java/src/org/chromium/chrome/browser/externalauth/VerifiedHandler.java",
 --- a/chrome/browser/ui/BUILD.gn
 +++ b/chrome/browser/ui/BUILD.gn
-@@ -3283,8 +3283,8 @@ static_library("ui") {
+@@ -3373,8 +3373,8 @@ static_library("ui") {
        "views/extensions/extension_context_menu_controller.h",
        "views/extensions/extension_install_blocked_dialog_view.cc",
        "views/extensions/extension_install_blocked_dialog_view.h",
@@ -1204,29 +1197,6 @@ Subject: add download prompt for installing extensions
  
  #include <string>
  #include <utility>
---- /dev/null
-+++ b/chrome/browser/extensions/android/BUILD.gn
-@@ -0,0 +1,20 @@
-+# Copyright 2019 The Chromium Authors. All rights reserved.
-+# Use of this source code is governed by a BSD-style license that can be
-+# found in the LICENSE file.
-+
-+import("//build/config/android/rules.gni")
-+
-+android_resources("java_resources") {
-+  sources = [
-+    "java/res/layout/extension_install_dialog.xml",
-+  ]
-+  deps = [
-+    "//chrome/browser/ui/android/strings:ui_strings_grd",
-+    "//components/browser_ui/modaldialog/android:java_resources",
-+    "//components/browser_ui/strings/android:browser_ui_strings_grd",
-+    "//components/browser_ui/styles/android:java_resources",
-+    "//components/browser_ui/widget/android:java_resources",
-+    "//ui/android:ui_java_resources",
-+  ]
-+  custom_package = "org.chromium.chrome.extensions"
-+}
 --- a/chrome/browser/ui/extensions/extension_install_ui_default.cc
 +++ b/chrome/browser/ui/extensions/extension_install_ui_default.cc
 @@ -46,13 +46,7 @@ namespace {
@@ -1336,9 +1306,9 @@ Subject: add download prompt for installing extensions
 +
 +import androidx.annotation.Nullable;
 +
++import org.chromium.chrome.R;
 +import org.chromium.chrome.browser.download.DownloadUtils;
 +import org.chromium.chrome.browser.download.settings.DownloadDirectoryAdapter;
-+import org.chromium.chrome.extensions.R;
 +import org.chromium.components.browser_ui.widget.text.AlertDialogEditText;
 +
 +import java.io.File;
@@ -1448,3 +1418,13 @@ Subject: add download prompt for installing extensions
 +        mWithholdPermissionChecked = isChecked;
 +    }
 +}
+--- a/chrome/android/chrome_java_resources.gni
++++ b/chrome/android/chrome_java_resources.gni
+@@ -909,6 +909,7 @@ chrome_java_resources = [
+   "java/res/layout/explore_sites_page_layout.xml",
+   "java/res/layout/explore_sites_section.xml",
+   "java/res/layout/explore_sites_tile_view.xml",
++  "java/res/layout/extension_install_dialog.xml",
+   "java/res/layout/fake_search_box_layout.xml",
+   "java/res/layout/find_in_page.xml",
+   "java/res/layout/find_toolbar.xml",
