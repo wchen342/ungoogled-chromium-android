@@ -24,7 +24,7 @@ Subject: add folder selection mode picker
  import androidx.annotation.VisibleForTesting;
  
  import org.chromium.base.ContentUriUtils;
-@@ -40,6 +43,8 @@ import org.chromium.ui.UiUtils;
+@@ -39,6 +42,8 @@ import org.chromium.ui.UiUtils;
  
  import java.io.File;
  import java.io.IOException;
@@ -33,7 +33,7 @@ Subject: add folder selection mode picker
  import java.util.ArrayList;
  import java.util.Arrays;
  import java.util.List;
-@@ -96,6 +101,7 @@ public class SelectFileDialog implements
+@@ -95,6 +100,7 @@ public class SelectFileDialog implements
  
      private final long mNativeSelectFileDialog;
      private List<String> mFileTypes;
@@ -41,7 +41,7 @@ Subject: add folder selection mode picker
      private boolean mCapture;
      private boolean mAllowMultiple;
      private Uri mCameraOutputUri;
-@@ -143,9 +149,10 @@ public class SelectFileDialog implements
+@@ -161,9 +167,10 @@ public class SelectFileDialog implements
      @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
      @CalledByNative
      private void selectFile(
@@ -53,7 +53,7 @@ Subject: add folder selection mode picker
          mAllowMultiple = multiple;
          mWindowAndroid = (sOverrideWindowAndroid == null) ? window : sOverrideWindowAndroid;
  
-@@ -237,6 +244,12 @@ public class SelectFileDialog implements
+@@ -255,6 +262,12 @@ public class SelectFileDialog implements
          RecordHistogram.recordEnumeratedHistogram("Android.SelectFileDialogScope",
                  determineSelectFileDialogScope(), SELECT_FILE_DIALOG_SCOPE_COUNT);
  
@@ -66,7 +66,7 @@ Subject: add folder selection mode picker
          boolean hasCameraPermission = mWindowAndroid.hasPermission(Manifest.permission.CAMERA);
          Intent camcorder = null;
          if (mSupportsVideoCapture && hasCameraPermission) {
-@@ -281,15 +294,22 @@ public class SelectFileDialog implements
+@@ -297,15 +310,22 @@ public class SelectFileDialog implements
              // Create a chooser based on the accept type that was specified in the webpage. Note
              // that if the web page specified multiple accept types, we will have built a generic
              // chooser above.
@@ -92,7 +92,7 @@ Subject: add folder selection mode picker
              }
  
              // If any types are specified, then only accept openable files, as coercing
-@@ -300,13 +320,20 @@ public class SelectFileDialog implements
+@@ -316,13 +336,20 @@ public class SelectFileDialog implements
          if (extraIntents.isEmpty()) {
              // We couldn't resolve an accept type, so fallback to a generic chooser.
              getContentIntent.setType(ANY_TYPES);
@@ -116,7 +116,7 @@ Subject: add folder selection mode picker
              chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS,
                      extraIntents.toArray(new Intent[] { }));
          }
-@@ -738,6 +765,18 @@ public class SelectFileDialog implements
+@@ -754,6 +781,18 @@ public class SelectFileDialog implements
              String[] displayNames = new String[mUris.length];
              try {
                  for (int i = 0; i < mUris.length; i++) {
@@ -135,7 +135,7 @@ Subject: add folder selection mode picker
                      // The selected files must be returned as a list of absolute paths. A MIUI 8.5
                      // device was observed to return a file:// URI instead, so convert if necessary.
                      // See https://crbug.com/752834 for context.
-@@ -746,8 +785,13 @@ public class SelectFileDialog implements
+@@ -762,8 +801,13 @@ public class SelectFileDialog implements
                      } else {
                          mFilePaths[i] = mUris[i].toString();
                      }
@@ -151,7 +151,7 @@ Subject: add folder selection mode picker
                  }
              }  catch (SecurityException e) {
                  // Some third party apps will present themselves as being able
-@@ -844,4 +888,95 @@ public class SelectFileDialog implements
+@@ -877,4 +921,95 @@ public class SelectFileDialog implements
          void onContactsSelected(
                  long nativeSelectFileDialogImpl, SelectFileDialog caller, String contacts);
      }
