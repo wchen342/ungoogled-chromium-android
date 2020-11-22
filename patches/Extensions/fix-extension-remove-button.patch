@@ -6,18 +6,18 @@ Subject: fix remove button for extensions
 ---
 ---
  chrome/android/BUILD.gn                                                                                |    1 
+ chrome/android/chrome_java_resources.gni                                                               |    1 
  chrome/android/chrome_java_sources.gni                                                                 |    2 
- chrome/android/java/src/org/chromium/chrome/browser/extensions/ExtensionUninstallCustomScrollView.java |   63 +++
- chrome/android/java/src/org/chromium/chrome/browser/extensions/ExtensionUninstallDialogBridge.java     |  146 ++++++++
- chrome/browser/extensions/android/BUILD.gn                                                             |    1 
- chrome/browser/extensions/android/java/res/layout/extension_uninstall_dialog.xml                       |   38 ++
+ chrome/android/java/res/layout/extension_uninstall_dialog.xml                                          |   38 ++
+ chrome/android/java/src/org/chromium/chrome/browser/extensions/ExtensionUninstallCustomScrollView.java |   61 +++
+ chrome/android/java/src/org/chromium/chrome/browser/extensions/ExtensionUninstallDialogBridge.java     |  145 ++++++++
  chrome/browser/extensions/chrome_extension_function_details.cc                                         |   17 
  chrome/browser/ui/BUILD.gn                                                                             |    3 
  chrome/browser/ui/android/strings/android_chrome_strings.grd                                           |    5 
  chrome/browser/ui/views/extensions/extension_uninstall_dialog_view.cc                                  |    4 
  chrome/browser/ui/views/extensions/extension_uninstall_dialog_view_android.cc                          |  176 ++++++++++
  chrome/browser/ui/views/extensions/extension_uninstall_dialog_view_android.h                           |   87 ++++
- 12 files changed, 536 insertions(+), 7 deletions(-)
+ 12 files changed, 533 insertions(+), 7 deletions(-)
 
 --- a/chrome/browser/extensions/chrome_extension_function_details.cc
 +++ b/chrome/browser/extensions/chrome_extension_function_details.cc
@@ -69,7 +69,7 @@ Subject: fix remove button for extensions
  }
 --- a/chrome/browser/ui/views/extensions/extension_uninstall_dialog_view.cc
 +++ b/chrome/browser/ui/views/extensions/extension_uninstall_dialog_view.cc
-@@ -127,13 +127,16 @@ ExtensionUninstallDialogViews::~Extensio
+@@ -121,13 +121,16 @@ ExtensionUninstallDialogViews::~Extensio
  }
  
  void ExtensionUninstallDialogViews::Show() {
@@ -86,7 +86,7 @@ Subject: fix remove button for extensions
    if (container) {
      anchor_view = container->GetViewForId(extension()->id());
    } else if (browser_view &&
-@@ -147,6 +150,7 @@ void ExtensionUninstallDialogViews::Show
+@@ -141,6 +144,7 @@ void ExtensionUninstallDialogViews::Show
      if (reference_view && reference_view->GetVisible())
        anchor_view = reference_view;
    }
@@ -112,7 +112,7 @@ Subject: fix remove button for extensions
 +import android.widget.ScrollView;
 +import android.widget.TextView;
 +
-+import org.chromium.chrome.extensions.R;
++import org.chromium.chrome.R;
 +
 +/**
 + * Dialog that is displayed to ask user whether they want to remove the extension.
@@ -160,7 +160,6 @@ Subject: fix remove button for extensions
 +        mCheckboxChecked = isChecked;
 +    }
 +}
-\ No newline at end of file
 --- /dev/null
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/extensions/ExtensionUninstallDialogBridge.java
 @@ -0,0 +1,146 @@
@@ -176,8 +175,8 @@ Subject: fix remove button for extensions
 +
 +import org.chromium.base.annotations.CalledByNative;
 +import org.chromium.base.annotations.NativeMethods;
-+import org.chromium.chrome.browser.ChromeActivity;
-+import org.chromium.chrome.extensions.R;
++import org.chromium.chrome.browser.app.ChromeActivity;
++import org.chromium.chrome.R;
 +import org.chromium.ui.base.WindowAndroid;
 +import org.chromium.ui.modaldialog.DialogDismissalCause;
 +import org.chromium.ui.modaldialog.ModalDialogManager;
@@ -312,7 +311,7 @@ Subject: fix remove button for extensions
 +}
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -1189,11 +1189,12 @@ Your Google account may have other forms
+@@ -1333,11 +1333,12 @@ Your Google account may have other forms
        <message name="IDS_RENAME_EXTENSION_MESSAGE" desc="Message to warn users the danger of changing file extension.">
          If you change the file extension, the file may open in a different application and potentially be a hazard to your device.
        </message>
@@ -328,7 +327,7 @@ Subject: fix remove button for extensions
        <!-- About Chrome preferences -->
        <message name="IDS_PREFS_ABOUT_CHROME" desc="Title for the About Chrome page. [CHAR-LIMIT=32]">
 --- /dev/null
-+++ b/chrome/browser/extensions/android/java/res/layout/extension_uninstall_dialog.xml
++++ b/chrome/android/java/res/layout/extension_uninstall_dialog.xml
 @@ -0,0 +1,38 @@
 +<?xml version="1.0" encoding="utf-8"?>
 +<!-- Copyright 2020 The Ungoogled Chromium Authors. All rights reserved.
@@ -356,7 +355,7 @@ Subject: fix remove button for extensions
 +            android:layout_marginBottom="16dp" />
 +
 +        <CheckBox
-+            style="@style/TextAppearance.TextMedium.Tertiary"
++            style="@style/TextAppearance.TextSmall.Primary"
 +            android:id="@+id/checkbox"
 +            android:visibility="gone"
 +            android:layout_width="match_parent"
@@ -370,7 +369,7 @@ Subject: fix remove button for extensions
 +
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -2948,6 +2948,7 @@ generate_jni("chrome_jni_headers") {
+@@ -2977,6 +2977,7 @@ generate_jni("chrome_jni_headers") {
      "java/src/org/chromium/chrome/browser/explore_sites/ExploreSitesCategoryTile.java",
      "java/src/org/chromium/chrome/browser/explore_sites/ExploreSitesSite.java",
      "java/src/org/chromium/chrome/browser/extensions/ExtensionInstallDialogViewBridge.java",
@@ -380,7 +379,7 @@ Subject: fix remove button for extensions
      "java/src/org/chromium/chrome/browser/feedback/ProcessIdFeedbackSource.java",
 --- a/chrome/android/chrome_java_sources.gni
 +++ b/chrome/android/chrome_java_sources.gni
-@@ -678,6 +678,8 @@ chrome_java_sources = [
+@@ -688,6 +688,8 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/explore_sites/StableScrollLayoutManager.java",
    "java/src/org/chromium/chrome/browser/extensions/ExtensionInstallDialogViewBridge.java",
    "java/src/org/chromium/chrome/browser/extensions/ExtensionInstallCustomScrollView.java",
@@ -570,7 +569,7 @@ Subject: fix remove button for extensions
 +}
 --- a/chrome/browser/ui/BUILD.gn
 +++ b/chrome/browser/ui/BUILD.gn
-@@ -3290,7 +3290,8 @@ static_library("ui") {
+@@ -3380,7 +3380,8 @@ static_library("ui") {
        "views/extensions/extension_keybinding_registry_views.h",
        "views/extensions/extension_permissions_view.cc",
        "views/extensions/extension_permissions_view.h",
@@ -580,16 +579,6 @@ Subject: fix remove button for extensions
        "views/extensions/extensions_menu_button.cc",
        "views/extensions/extensions_menu_button.h",
        "views/extensions/extensions_menu_item_view.cc",
---- a/chrome/browser/extensions/android/BUILD.gn
-+++ b/chrome/browser/extensions/android/BUILD.gn
-@@ -7,6 +7,7 @@ import("//build/config/android/rules.gni
- android_resources("java_resources") {
-   sources = [
-     "java/res/layout/extension_install_dialog.xml",
-+    "java/res/layout/extension_uninstall_dialog.xml",
-   ]
-   deps = [
-     "//chrome/browser/ui/android/strings:ui_strings_grd",
 --- /dev/null
 +++ b/chrome/browser/ui/views/extensions/extension_uninstall_dialog_view_android.h
 @@ -0,0 +1,87 @@
@@ -680,3 +669,13 @@ Subject: fix remove button for extensions
 +}
 +
 +#endif  // CHROME_BROWSER_UI_VIEWS_EXTENSIONS_EXTENSION_UNINSTALL_DIALOG_VIEW_ANDROID_H_
+--- a/chrome/android/chrome_java_resources.gni
++++ b/chrome/android/chrome_java_resources.gni
+@@ -910,6 +910,7 @@ chrome_java_resources = [
+   "java/res/layout/explore_sites_section.xml",
+   "java/res/layout/explore_sites_tile_view.xml",
+   "java/res/layout/extension_install_dialog.xml",
++  "java/res/layout/extension_uninstall_dialog.xml",
+   "java/res/layout/fake_search_box_layout.xml",
+   "java/res/layout/find_in_page.xml",
+   "java/res/layout/find_toolbar.xml",
