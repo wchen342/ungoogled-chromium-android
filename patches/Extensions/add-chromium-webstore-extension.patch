@@ -16,7 +16,7 @@ Subject: bundle chromium-web-store
 
 --- a/chrome/browser/browser_resources.grd
 +++ b/chrome/browser/browser_resources.grd
-@@ -208,6 +208,7 @@
+@@ -215,6 +215,7 @@
        <include name="IDR_WEB_FOOTER_EXPERIMENT_HTML" file="resources\web_footer_experiment\index.html" type="BINDATA" />
        <include name="IDR_WEBSTORE_MANIFEST" file="resources\webstore_app\manifest.json" type="BINDATA" />
        <include name="IDR_CRYPTOTOKEN_MANIFEST" file="resources\cryptotoken\manifest.json" type="BINDATA" />
@@ -36,7 +36,7 @@ Subject: bundle chromium-web-store
      case IDR_HANGOUT_SERVICES_MANIFEST:
 --- a/chrome/browser/extensions/component_loader.cc
 +++ b/chrome/browser/extensions/component_loader.cc
-@@ -575,6 +575,9 @@ void ComponentLoader::AddDefaultComponen
+@@ -580,6 +580,9 @@ void ComponentLoader::AddDefaultComponen
  
    Add(IDR_CRYPTOTOKEN_MANIFEST,
        base::FilePath(FILE_PATH_LITERAL("cryptotoken")));
@@ -48,7 +48,7 @@ Subject: bundle chromium-web-store
  void ComponentLoader::
 --- a/chrome/browser/resources/component_extension_resources.grd
 +++ b/chrome/browser/resources/component_extension_resources.grd
-@@ -170,6 +170,25 @@
+@@ -178,6 +178,25 @@
        <include name="IDR_CRYPTOTOKEN_CRYPTOTOKENAPPROVEDORIGIN_JS" file="cryptotoken/cryptotokenapprovedorigins.js" type="BINDATA" />
        <include name="IDR_CRYPTOTOKEN_CRYPTOTOKENORIGINCHECK_JS" file="cryptotoken/cryptotokenorigincheck.js" type="BINDATA" />
        <include name="IDR_CRYPTOTOKEN_CRYPTOTOKENBACKGROUND_JS" file="cryptotoken/cryptotokenbackground.js" type="BINDATA" />
@@ -233,7 +233,7 @@ Subject: bundle chromium-web-store
  
 --- a/extensions/common/file_util.cc
 +++ b/extensions/common/file_util.cc
-@@ -545,12 +545,17 @@ MessageBundle* LoadMessageBundle(
+@@ -541,12 +541,17 @@ MessageBundle* LoadMessageBundle(
      const std::string& default_locale,
      extension_l10n_util::GzippedMessagesPermission gzip_permission,
      std::string* error) {
@@ -251,7 +251,7 @@ Subject: bundle chromium-web-store
    std::set<std::string> chrome_locales;
    extension_l10n_util::GetAllLocales(&chrome_locales);
  
-@@ -563,6 +568,7 @@ MessageBundle* LoadMessageBundle(
+@@ -559,6 +564,7 @@ MessageBundle* LoadMessageBundle(
      return nullptr;
    }
  
