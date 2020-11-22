@@ -9,7 +9,7 @@ Subject: fix for enable_supervised_users=false
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -2896,7 +2896,6 @@ generate_jni("chrome_jni_headers") {
+@@ -2927,7 +2927,6 @@ generate_jni("chrome_jni_headers") {
      "java/src/org/chromium/chrome/browser/browsing_data/BrowsingDataCounterBridge.java",
      "java/src/org/chromium/chrome/browser/browsing_data/UrlFilterBridge.java",
      "java/src/org/chromium/chrome/browser/childaccounts/ChildAccountFeedbackReporter.java",
