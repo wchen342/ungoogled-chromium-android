@@ -8,21 +8,20 @@ Subject: Remove dependency on
  chrome/android/BUILD.gn                                                                                                          |    8 
  chrome/android/features/cablev2_authenticator/BUILD.gn                                                                           |    2 
  chrome/android/features/cablev2_authenticator/java/src/org/chromium/chrome/browser/webauth/authenticator/CableAuthenticator.java |    2 
- chrome/android/features/media_router/BUILD.gn                                                                                    |    2 
- chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/ChromeMediaRouter.java                    |   12 -
  chrome/android/java/AndroidManifest.xml                                                                                          |    9 -
  chrome/android/java/src/org/chromium/chrome/browser/AppHooks.java                                                                |   14 -
- chrome/android/java/src/org/chromium/chrome/browser/ChromeVersionInfo.java                                                       |   12 -
+ chrome/android/java/src/org/chromium/chrome/browser/PlayServicesVersionInfo.java                                                 |   12 -
  chrome/android/java/src/org/chromium/chrome/browser/component_updater/UpdateScheduler.java                                       |    8 
  chrome/android/java/src/org/chromium/chrome/browser/externalauth/ExternalAuthUtils.java                                          |   14 -
  chrome/android/java/src/org/chromium/chrome/browser/externalauth/UserRecoverableErrorHandler.java                                |    7 
  chrome/android/java/src/org/chromium/chrome/browser/gcore/ChromeGoogleApiClientImpl.java                                         |   25 ---
  chrome/android/java/src/org/chromium/chrome/browser/gcore/GoogleApiClientHelper.java                                             |   82 ----------
  chrome/android/java/src/org/chromium/chrome/browser/omaha/UpdateStatusProvider.java                                              |   10 -
- chrome/android/java/src/org/chromium/chrome/browser/password_manager/PasswordManagerLauncher.java                                |   13 -
  chrome/test/android/BUILD.gn                                                                                                     |    2 
  components/background_task_scheduler/BUILD.gn                                                                                    |    3 
  components/background_task_scheduler/internal/BUILD.gn                                                                           |    6 
+ components/media_router/browser/android/BUILD.gn                                                                                 |    1 
+ components/media_router/browser/android/java/src/org/chromium/components/media_router/BrowserMediaRouter.java                    |   18 --
  components/signin/core/browser/android/BUILD.gn                                                                                  |    2 
  components/signin/core/browser/android/java/src/org/chromium/components/signin/GmsAvailabilityException.java                     |    4 
  content/public/android/BUILD.gn                                                                                                  |    3 
@@ -33,11 +32,11 @@ Subject: Remove dependency on
  services/device/geolocation/BUILD.gn                                                                                             |    2 
  services/shape_detection/BUILD.gn                                                                                                |    2 
  third_party/android_deps/BUILD.gn                                                                                                |    4 
- 28 files changed, 19 insertions(+), 241 deletions(-)
+ 27 files changed, 17 insertions(+), 235 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -265,9 +265,6 @@ android_library("chrome_java") {
+@@ -282,9 +282,6 @@ android_library("chrome_java") {
      ":partner_location_descriptor_proto_java",
      ":update_proto_java",
      ":usage_stats_proto_java",
@@ -47,7 +46,7 @@ Subject: Remove dependency on
      "//base:base_java",
      "//base:jni_java",
      "//chrome/android/features/keyboard_accessory:public_java",
-@@ -742,8 +739,6 @@ junit_binary("chrome_junit_tests") {
+@@ -759,8 +756,6 @@ junit_binary("chrome_junit_tests") {
      ":chrome_app_java_resources",
      ":chrome_java",
      ":partner_location_descriptor_proto_java",
@@ -56,9 +55,9 @@ Subject: Remove dependency on
      "//base:base_java",
      "//base:base_java_test_support",
      "//base:base_junit_test_support",
-@@ -931,9 +926,6 @@ android_library("chrome_test_java") {
+@@ -952,9 +947,6 @@ android_library("chrome_test_java") {
+     ":chrome_app_java_resources",
      ":chrome_test_util_java",
-     ":native_java_unittests_java",
      ":partner_location_descriptor_proto_java",
 -    "$google_play_services_package:google_play_services_base_java",
 -    "$google_play_services_package:google_play_services_basement_java",
@@ -66,50 +65,21 @@ Subject: Remove dependency on
      "//base:base_java",
      "//base:base_java_test_support",
      "//base:jni_java",
---- a/chrome/android/features/media_router/BUILD.gn
-+++ b/chrome/android/features/media_router/BUILD.gn
-@@ -11,8 +11,6 @@ android_library("java") {
-   resources_package = "org.chromium.chrome.media.router"
+--- a/components/media_router/browser/android/BUILD.gn
++++ b/components/media_router/browser/android/BUILD.gn
+@@ -10,7 +10,6 @@ android_library("java") {
+   resources_package = "org.chromium.components.media_router"
    deps = [
      ":java_resources",
 -    "$google_play_services_package:google_play_services_base_java",
--    "$google_play_services_package:google_play_services_basement_java",
      "//base:base_java",
      "//base:jni_java",
-     "//chrome/android:chrome_java",
---- a/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/ChromeMediaRouter.java
-+++ b/chrome/android/features/media_router/java/src/org/chromium/chrome/browser/media/router/ChromeMediaRouter.java
-@@ -8,9 +8,6 @@ import androidx.annotation.Nullable;
- import androidx.annotation.VisibleForTesting;
- import androidx.mediarouter.media.MediaRouter;
- 
--import com.google.android.gms.common.ConnectionResult;
--import com.google.android.gms.common.GoogleApiAvailability;
--
- import org.chromium.base.ContextUtils;
- import org.chromium.base.Log;
- import org.chromium.base.StrictModeContext;
-@@ -39,13 +36,8 @@ public class ChromeMediaRouter implement
-             new MediaRouteProvider.Factory() {
-                 @Override
-                 public void addProviders(MediaRouteManager manager) {
--                    int googleApiAvailabilityResult =
--                            GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(
--                                    ContextUtils.getApplicationContext(),
--                                    MIN_GOOGLE_PLAY_SERVICES_APK_VERSION);
--                    if (googleApiAvailabilityResult != ConnectionResult.SUCCESS) {
--                        GoogleApiAvailability.getInstance().showErrorNotification(
--                                ContextUtils.getApplicationContext(), googleApiAvailabilityResult);
-+                    int googleApiAvailabilityResult = 0;
-+                    if (true) {
-                         return;
-                     }
-                     MediaRouteProvider cafProvider = CafMediaRouteProvider.create(manager);
+     "//components/browser_ui/media/android:java",
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
-@@ -766,15 +766,6 @@ by a child template that "extends" this
+@@ -795,15 +795,6 @@ by a child template that "extends" this
              </intent-filter>
-           </activity>
+         </activity>
  
 -        <!-- Activity for dispatching intents to Instant Apps. -->
 -        <activity
@@ -135,7 +105,7 @@ Subject: Remove dependency on
  import org.chromium.base.ContextUtils;
  import org.chromium.base.annotations.CalledByNative;
  import org.chromium.chrome.browser.banners.AppDetailsDelegate;
-@@ -325,16 +322,7 @@ public abstract class AppHooks {
+@@ -333,16 +330,7 @@ public abstract class AppHooks {
       * same as {@link GoogleApiAvailability#isGooglePlayServicesAvailable()}.
       */
      public int isGoogleApiAvailableWithMinApkVersion(int minApkVersion) {
@@ -153,40 +123,6 @@ Subject: Remove dependency on
      }
  
      /**
---- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeVersionInfo.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeVersionInfo.java
-@@ -7,8 +7,6 @@ package org.chromium.chrome.browser;
- import android.content.Context;
- import android.content.pm.PackageManager;
- 
--import com.google.android.gms.common.GoogleApiAvailability;
--
- import org.chromium.base.ContextUtils;
- import org.chromium.base.annotations.CalledByNative;
- import org.chromium.chrome.browser.externalauth.ExternalAuthUtils;
-@@ -95,7 +93,7 @@ public class ChromeVersionInfo {
-     public static String getGmsInfo() {
-         Context context = ContextUtils.getApplicationContext();
- 
--        final long sdkVersion = GoogleApiAvailability.GOOGLE_PLAY_SERVICES_VERSION_CODE;
-+        final long sdkVersion = 12600000;
-         final long installedGmsVersion = getPlayServicesApkVersionNumber(context);
- 
-         final String accessType;
-@@ -118,12 +116,6 @@ public class ChromeVersionInfo {
-      *         package is not found.
-      */
-     public static int getPlayServicesApkVersionNumber(Context context) {
--        try {
--            return context.getPackageManager()
--                    .getPackageInfo(GoogleApiAvailability.GOOGLE_PLAY_SERVICES_PACKAGE, 0)
--                    .versionCode;
--        } catch (PackageManager.NameNotFoundException e) {
--            return 0;
--        }
-+        return 0;
-     }
- }
 --- a/chrome/android/java/src/org/chromium/chrome/browser/component_updater/UpdateScheduler.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/component_updater/UpdateScheduler.java
 @@ -6,9 +6,6 @@ package org.chromium.chrome.browser.comp
@@ -223,7 +159,7 @@ Subject: Remove dependency on
  import org.chromium.base.CommandLine;
  import org.chromium.base.ContextUtils;
  import org.chromium.base.Log;
-@@ -168,9 +165,7 @@ public class ExternalAuthUtils {
+@@ -158,9 +155,7 @@ public class ExternalAuthUtils {
       *         when it is updating.
       */
      public boolean isGooglePlayServicesMissing(final Context context) {
@@ -234,7 +170,7 @@ Subject: Remove dependency on
      }
  
      /**
-@@ -192,7 +187,6 @@ public class ExternalAuthUtils {
+@@ -182,7 +177,6 @@ public class ExternalAuthUtils {
  
          Context context = ContextUtils.getApplicationContext();
          final int resultCode = checkGooglePlayServicesAvailable(context);
@@ -242,7 +178,7 @@ Subject: Remove dependency on
          // resultCode is some kind of error.
          Log.v(TAG, "Unable to use Google Play Services: %s", describeError(resultCode));
          if (isUserRecoverableError(resultCode)) {
-@@ -262,7 +256,7 @@ public class ExternalAuthUtils {
+@@ -251,7 +245,7 @@ public class ExternalAuthUtils {
      protected int checkGooglePlayServicesAvailable(final Context context) {
          // TODO(crbug.com/577190): Temporarily allowing disk access until more permanent fix is in.
          try (StrictModeContext ignored = StrictModeContext.allowDiskWrites()) {
@@ -251,7 +187,7 @@ Subject: Remove dependency on
          }
      }
  
-@@ -274,7 +268,7 @@ public class ExternalAuthUtils {
+@@ -263,7 +257,7 @@ public class ExternalAuthUtils {
       * @return true If the code represents a user-recoverable error
       */
      protected boolean isUserRecoverableError(final int errorCode) {
@@ -260,7 +196,7 @@ Subject: Remove dependency on
      }
  
      /**
-@@ -284,6 +278,6 @@ public class ExternalAuthUtils {
+@@ -273,6 +267,6 @@ public class ExternalAuthUtils {
       * @return a textual description of the error code
       */
      protected String describeError(final int errorCode) {
@@ -310,16 +246,16 @@ Subject: Remove dependency on
 -
  import org.chromium.base.Log;
  import org.chromium.base.TraceEvent;
- import org.chromium.chrome.browser.externalauth.ExternalAuthUtils;
-@@ -22,7 +19,6 @@ public class ChromeGoogleApiClientImpl i
+ import org.chromium.chrome.browser.AppHooks;
+@@ -23,7 +20,6 @@ public class ChromeGoogleApiClientImpl i
      private static final String TAG = "Icing";
  
      private final Context mApplicationContext;
 -    private final GoogleApiClient mClient;
+     private final ExternalAuthUtils mExternalAuthUtils;
  
      /**
-      * @param context its application context will be exposed through
-@@ -31,10 +27,9 @@ public class ChromeGoogleApiClientImpl i
+@@ -33,10 +29,9 @@ public class ChromeGoogleApiClientImpl i
       * @param requireFirstPartyBuild true if the given client can only be used in a first-party
       *            build.
       */
@@ -328,10 +264,10 @@ Subject: Remove dependency on
              boolean requireFirstPartyBuild) {
          mApplicationContext = context.getApplicationContext();
 -        mClient = client;
-         if (requireFirstPartyBuild && !ExternalAuthUtils.getInstance().isChromeGoogleSigned()) {
+         mExternalAuthUtils = AppHooks.get().getExternalAuthUtils();
+         if (requireFirstPartyBuild && !mExternalAuthUtils.isChromeGoogleSigned()) {
              throw new IllegalStateException("GoogleApiClient requires first-party build");
-         }
-@@ -42,7 +37,6 @@ public class ChromeGoogleApiClientImpl i
+@@ -45,7 +40,6 @@ public class ChromeGoogleApiClientImpl i
  
      @Override
      public void disconnect() {
@@ -339,7 +275,7 @@ Subject: Remove dependency on
      }
  
      @Override
-@@ -58,24 +52,11 @@ public class ChromeGoogleApiClientImpl i
+@@ -61,24 +55,11 @@ public class ChromeGoogleApiClientImpl i
      @Override
      public boolean connectWithTimeout(long timeout) {
          TraceEvent.begin("ChromeGoogleApiClientImpl:connectWithTimeout");
@@ -534,9 +470,9 @@ Subject: Remove dependency on
          private long getSize(StatFs statFs) {
 --- a/chrome/test/android/BUILD.gn
 +++ b/chrome/test/android/BUILD.gn
-@@ -249,8 +249,6 @@ android_library("chrome_java_test_suppor
-     "javatests/src/org/chromium/chrome/test/util/browser/webapps/WebappTestPage.java",
+@@ -259,8 +259,6 @@ android_library("chrome_java_test_suppor
    ]
+ 
    deps = [
 -    "$google_play_services_package:google_play_services_base_java",
 -    "$google_play_services_package:google_play_services_basement_java",
@@ -587,7 +523,7 @@ Subject: Remove dependency on
  }
 --- a/content/public/android/BUILD.gn
 +++ b/content/public/android/BUILD.gn
-@@ -72,9 +72,6 @@ action_with_pydeps("generate_sandboxed_s
+@@ -71,9 +71,6 @@ action_with_pydeps("generate_sandboxed_s
  android_library("content_java") {
    deps = [
      ":content_java_resources",
@@ -599,7 +535,7 @@ Subject: Remove dependency on
      "//components/download/public/common:public_java",
 --- a/content/test/BUILD.gn
 +++ b/content/test/BUILD.gn
-@@ -2531,9 +2531,6 @@ if (is_android) {
+@@ -2541,9 +2541,6 @@ if (is_android) {
      testonly = true
      sources = content_java_sources_needing_jni
      deps = [
@@ -611,7 +547,7 @@ Subject: Remove dependency on
        "//ui/android:ui_full_java",
 --- a/device/BUILD.gn
 +++ b/device/BUILD.gn
-@@ -394,8 +394,6 @@ if (is_android) {
+@@ -405,8 +405,6 @@ if (is_android) {
    junit_binary("device_junit_tests") {
      sources = [ "gamepad/android/junit/src/org/chromium/device/gamepad/GamepadMappingsTest.java" ]
      deps = [
@@ -634,7 +570,7 @@ Subject: Remove dependency on
  
 --- a/services/BUILD.gn
 +++ b/services/BUILD.gn
-@@ -103,8 +103,6 @@ if (is_android) {
+@@ -105,8 +105,6 @@ if (is_android) {
        "shape_detection/android/junit/src/org/chromium/shape_detection/BitmapUtilsTest.java",
      ]
      deps = [
@@ -643,7 +579,7 @@ Subject: Remove dependency on
        "//base:base_java",
        "//base:base_java_test_support",
        "//base:base_junit_test_support",
-@@ -133,8 +131,6 @@ if (is_android) {
+@@ -135,8 +133,6 @@ if (is_android) {
        "shape_detection/android/javatests/src/org/chromium/shape_detection/TextDetectionImplTest.java",
      ]
      deps = [
@@ -654,7 +590,7 @@ Subject: Remove dependency on
        "//mojo/public/java:base_java",
 --- a/services/device/geolocation/BUILD.gn
 +++ b/services/device/geolocation/BUILD.gn
-@@ -156,8 +156,6 @@ if (is_android) {
+@@ -164,8 +164,6 @@ if (is_android) {
  
      deps = [
        ":geolocation_jni_headers",
@@ -665,7 +601,7 @@ Subject: Remove dependency on
        "//components/location/android:location_java",
 --- a/services/shape_detection/BUILD.gn
 +++ b/services/shape_detection/BUILD.gn
-@@ -89,8 +89,6 @@ if (is_android) {
+@@ -97,8 +97,6 @@ if (is_android) {
      ]
  
      deps = [
@@ -674,34 +610,6 @@ Subject: Remove dependency on
        "//base:base_java",
        "//mojo/public/java:base_java",
        "//mojo/public/java:bindings_java",
---- a/chrome/android/java/src/org/chromium/chrome/browser/password_manager/PasswordManagerLauncher.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/password_manager/PasswordManagerLauncher.java
-@@ -6,9 +6,6 @@ package org.chromium.chrome.browser.pass
- 
- import android.app.Activity;
- 
--import com.google.android.gms.common.ConnectionResult;
--import com.google.android.gms.common.GoogleApiAvailability;
--
- import org.chromium.base.ContextUtils;
- import org.chromium.base.annotations.CalledByNative;
- import org.chromium.base.metrics.RecordHistogram;
-@@ -101,14 +98,6 @@ public class PasswordManagerLauncher {
-                 GOOGLE_ACCOUNT_PWM_UI, MIN_GOOGLE_PLAY_SERVICES_VERSION_PARAM,
-                 DEFAULT_MIN_GOOGLE_PLAY_SERVICES_APK_VERSION);
- 
--        if (GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(
--                    ContextUtils.getApplicationContext(), minGooglePlayServicesVersion)
--                != ConnectionResult.SUCCESS) {
--            return false;
--        }
--
--        if (!ChromeFeatureList.isEnabled(GOOGLE_ACCOUNT_PWM_UI)) return false;
--
--        return googlePasswordManagerUIProvider.showGooglePasswordManager(activity);
-+        return false;
-     }
- }
 --- a/components/background_task_scheduler/internal/BUILD.gn
 +++ b/components/background_task_scheduler/internal/BUILD.gn
 @@ -27,9 +27,6 @@ if (is_android) {
@@ -737,18 +645,18 @@ Subject: Remove dependency on
      "//chrome/android:chrome_java",
 --- a/chrome/android/features/cablev2_authenticator/java/src/org/chromium/chrome/browser/webauth/authenticator/CableAuthenticator.java
 +++ b/chrome/android/features/cablev2_authenticator/java/src/org/chromium/chrome/browser/webauth/authenticator/CableAuthenticator.java
-@@ -14,8 +14,6 @@ import android.net.Uri;
- import android.os.Bundle;
- import android.util.Base64;
+@@ -22,8 +22,6 @@ import android.util.Base64;
+ import androidx.core.app.NotificationCompat;
+ import androidx.core.app.NotificationManagerCompat;
  
 -import com.google.android.gms.tasks.Task;
 -
+ import org.chromium.base.ContextUtils;
  import org.chromium.base.Log;
  import org.chromium.base.annotations.CalledByNative;
- import org.chromium.base.annotations.NativeMethods;
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -1146,8 +1146,6 @@ android_aar_prebuilt("google_play_servic
+@@ -1055,8 +1055,6 @@ android_aar_prebuilt("google_play_servic
      ":androidx_collection_collection_java",
      ":androidx_core_core_java",
      ":androidx_fragment_fragment_java",
@@ -757,7 +665,7 @@ Subject: Remove dependency on
    ]
  
    # Removing drawables from GMS .aars as they are unused bloat.
-@@ -1173,7 +1171,7 @@ android_aar_prebuilt("google_play_servic
+@@ -1082,7 +1080,7 @@ android_aar_prebuilt("google_play_servic
  android_aar_prebuilt("google_play_services_tasks_java") {
    aar_path = "libs/com_google_android_gms_play_services_tasks/play-services-tasks-17.0.0.aar"
    info_path = "libs/com_google_android_gms_play_services_tasks/com_google_android_gms_play_services_tasks.info"
@@ -766,3 +674,71 @@ Subject: Remove dependency on
  
    # Removing drawables from GMS .aars as they are unused bloat.
    strip_drawables = true
+--- a/chrome/android/java/src/org/chromium/chrome/browser/PlayServicesVersionInfo.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/PlayServicesVersionInfo.java
+@@ -7,8 +7,6 @@ package org.chromium.chrome.browser;
+ import android.content.Context;
+ import android.content.pm.PackageManager;
+ 
+-import com.google.android.gms.common.GoogleApiAvailability;
+-
+ import org.chromium.base.ContextUtils;
+ import org.chromium.base.annotations.CalledByNative;
+ import org.chromium.chrome.browser.externalauth.ExternalAuthUtils;
+@@ -29,7 +27,7 @@ public class PlayServicesVersionInfo {
+     public static String getGmsInfo() {
+         Context context = ContextUtils.getApplicationContext();
+ 
+-        final long sdkVersion = GoogleApiAvailability.GOOGLE_PLAY_SERVICES_VERSION_CODE;
++        final long sdkVersion = 12600000;
+         final long installedGmsVersion = getApkVersionNumber(context);
+ 
+         final String accessType;
+@@ -53,12 +51,6 @@ public class PlayServicesVersionInfo {
+      *         package is not found.
+      */
+     public static int getApkVersionNumber(Context context) {
+-        try {
+-            return context.getPackageManager()
+-                    .getPackageInfo(GoogleApiAvailability.GOOGLE_PLAY_SERVICES_PACKAGE, 0)
+-                    .versionCode;
+-        } catch (PackageManager.NameNotFoundException e) {
+-            return 0;
+-        }
++        return 0;
+     }
+ }
+--- a/components/media_router/browser/android/java/src/org/chromium/components/media_router/BrowserMediaRouter.java
++++ b/components/media_router/browser/android/java/src/org/chromium/components/media_router/BrowserMediaRouter.java
+@@ -10,9 +10,6 @@ import androidx.annotation.Nullable;
+ import androidx.annotation.VisibleForTesting;
+ import androidx.mediarouter.media.MediaRouter;
+ 
+-import com.google.android.gms.common.ConnectionResult;
+-import com.google.android.gms.common.GoogleApiAvailability;
+-
+ import org.chromium.base.ContextUtils;
+ import org.chromium.base.Log;
+ import org.chromium.base.StrictModeContext;
+@@ -42,20 +39,7 @@ public class BrowserMediaRouter implemen
+             new MediaRouteProvider.Factory() {
+                 @Override
+                 public void addProviders(MediaRouteManager manager) {
+-                    int googleApiAvailabilityResult =
+-                            GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(
+-                                    ContextUtils.getApplicationContext(),
+-                                    MIN_GOOGLE_PLAY_SERVICES_APK_VERSION);
+-                    if (googleApiAvailabilityResult != ConnectionResult.SUCCESS) {
+-                        GoogleApiAvailability.getInstance().showErrorNotification(
+-                                ContextUtils.getApplicationContext(), googleApiAvailabilityResult);
+-                        return;
+-                    }
+-                    MediaRouteProvider cafProvider = CafMediaRouteProvider.create(manager);
+-                    manager.addMediaRouteProvider(cafProvider);
+-                    MediaRouteProvider remotingProvider =
+-                            CafRemotingMediaRouteProvider.create(manager);
+-                    manager.addMediaRouteProvider(remotingProvider);
++                    return;
+                 }
+             };
+ 

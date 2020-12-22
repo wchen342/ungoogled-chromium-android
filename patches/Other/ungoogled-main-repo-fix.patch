@@ -4,12 +4,12 @@ author: Wengling Chen <feiyu2817@gmail.com>
 
 ---
  flags.gn     | 1 -
- pruning.list | 5 -----
- 2 files changed, 6 deletions(-)
+ pruning.list | 6 ------
+ 2 files changed, 7 deletions(-)
  
 --- a/ungoogled-chromium/pruning.list
 +++ b/ungoogled-chromium/pruning.list
-@@ -16,7 +16,6 @@ base/test/data/tzdata/2019a/44/le/metaZones.res
+@@ -26,7 +26,6 @@ base/test/data/tzdata/2019a/44/le/metaZones.res
  base/test/data/tzdata/2019a/44/le/timezoneTypes.res
  base/test/data/tzdata/2019a/44/le/zoneinfo64.res
  build/android/CheckInstallApk-debug.apk
@@ -17,10 +17,10 @@ author: Wengling Chen <feiyu2817@gmail.com>
  build/android/stacktrace/java_deobfuscate.jar
  build/android/tests/symbolize/liba.so
  build/android/tests/symbolize/libb.so
-@@ -15168,12 +15167,8 @@ third_party/hunspell/fuzz/bdict_corpus/en-US-7-1.bdic
- third_party/hunspell/fuzz/bdict_corpus/en-US-8-0.bdic
- third_party/hunspell/fuzz/bdict_corpus/f95048cdc0fc231dd712bad106578a9eeecd869b
- third_party/hunspell/fuzz/bdict_corpus/fda69541054125551c41ab3e591e0482405ca2dc
+@@ -15582,12 +15581,8 @@ third_party/hyphenation-patterns/hyb/hyph-ta.hyb
+ third_party/hyphenation-patterns/hyb/hyph-te.hyb
+ third_party/hyphenation-patterns/hyb/hyph-tk.hyb
+ third_party/hyphenation-patterns/hyb/hyph-und-ethi.hyb
 -third_party/icu/android/icudtl.dat
 -third_party/icu/android_small/icudtl.dat
 -third_party/icu/android_small/icudtl_extra.dat
@@ -30,7 +30,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
  third_party/icu/flutter/icudtl.dat
  third_party/icu/ios/icudtl.dat
  third_party/icu/source/data/in/coll/ucadata-implicithan.icu
-@@ -15191,7 +15187,6 @@ third_party/icu/source/data/in/uts46.nrm
+@@ -15605,7 +15600,6 @@ third_party/icu/source/data/in/uts46.nrm
  third_party/icu/tzres/metaZones.res
  third_party/icu/tzres/timezoneTypes.res
  third_party/icu/tzres/zoneinfo64.res
@@ -40,7 +40,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
  third_party/libavif/src/tests/data/kodim23_yuv420_8bpc.y4m
 --- a/ungoogled-chromium/flags.gn
 +++ b/ungoogled-chromium/flags.gn
-@@ -11,7 +11,6 @@
+@@ -12,7 +12,6 @@ enable_remoting=false
  enable_reporting=false
  enable_service_discovery=false
  enable_widevine=true

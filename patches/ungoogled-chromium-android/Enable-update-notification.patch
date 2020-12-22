@@ -239,7 +239,7 @@
 +}
 --- a/chrome/android/chrome_java_sources.gni
 +++ b/chrome/android/chrome_java_sources.gni
-@@ -531,6 +531,7 @@ chrome_java_sources = [
+@@ -522,6 +522,7 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/dom_distiller/ReaderModeManager.java",
    "java/src/org/chromium/chrome/browser/dom_distiller/TabDistillabilityProvider.java",
    "java/src/org/chromium/chrome/browser/download/ChromeDownloadDelegate.java",
@@ -382,7 +382,7 @@
          }
 --- a/chrome/browser/flags/android/chrome_feature_list.cc
 +++ b/chrome/browser/flags/android/chrome_feature_list.cc
-@@ -514,6 +514,7 @@ const base::Feature kImmersiveUiMode{"Im
+@@ -489,6 +489,7 @@ const base::Feature kImmersiveUiMode{"Im
  
  const base::Feature kInlineUpdateFlow{"InlineUpdateFlow",
                                        base::FEATURE_DISABLED_BY_DEFAULT};
@@ -412,7 +412,7 @@
    return std::make_unique<UpdateNotificationConfig>();
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
-@@ -1082,7 +1082,7 @@ by a child template that "extends" this
+@@ -1076,7 +1076,7 @@ by a child template that "extends" this
          <service android:name="org.chromium.chrome.browser.tracing.TracingNotificationService"
              android:exported="false"/>
  
@@ -423,7 +423,7 @@
          <meta-data android:name="org.chromium.content.browser.SMART_CLIP_PROVIDER"
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -1864,7 +1864,7 @@ To change this setting, <ph name="BEGIN_
+@@ -1949,7 +1949,7 @@ To change this setting, <ph name="BEGIN_
          Update Chrome
        </message>
        <message name="IDS_UPDATE_NOTIFICATION_TEXT_BODY_DEFAULT" desc="Default text showing in the update notification body, kindly telling user to update to the latest version of Chrome.">
@@ -590,7 +590,7 @@
 +}
 --- a/chrome/browser/flag_descriptions.cc
 +++ b/chrome/browser/flag_descriptions.cc
-@@ -3190,10 +3190,9 @@ const char kUseChimeAndroidSdkName[] = "
+@@ -3239,10 +3239,9 @@ const char kUseChimeAndroidSdkName[] = "
  const char kVideoTutorialsName[] = "Enable video tutorials";
  const char kVideoTutorialsDescription[] = "Show video tutorials in Chrome";
  

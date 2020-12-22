@@ -12,7 +12,7 @@ Barcode, face and text detection APIs
 
 --- a/services/shape_detection/BUILD.gn
 +++ b/services/shape_detection/BUILD.gn
-@@ -84,14 +84,8 @@ if (is_android) {
+@@ -92,14 +92,8 @@ if (is_android) {
  
    android_library("shape_detection_java") {
      sources = [

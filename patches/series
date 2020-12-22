@@ -4,6 +4,7 @@ src-fix/fix-unkown-warning-clang.patch
 src-fix/fix-safe-browsing-prefs.patch
 src-fix/fix-prefs.patch
 src-fix/fix-base-feature.patch
+src-fix/fix-local-modifications.patch
 Vanadium/0020-disable-media-router-media-remoting-by-default.patch
 Vanadium/0021-disable-media-router-by-default.patch
 Unobtainium/kill-Auth.patch
@@ -40,6 +41,7 @@ Bromite/Add-flag-to-disable-WebGL.patch
 Bromite/Add-flags-to-disable-device-motion-orientation-APIs.patch
 Bromite/Add-option-to-not-persist-tabs-across-sessions.patch
 Bromite/Change-default-webRTC-policy-to-not-use-any-address.patch
+Bromite/DoH-secure-mode-by-default.patch
 Bromite/Remove-account-permissions-from-manifest.patch
 Bromite/Revert-flags-remove-disable-pull-to-refresh-effect.patch
 Bromite/updater-disable-updater-pings.patch

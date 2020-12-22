@@ -7,13 +7,12 @@ Subject: Remove dependency on com.google.android.play
  chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/FakeAppUpdateManagerWrapper.java   |   60 --
  chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateControllerFactory.java |   16 
  chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/PlayInlineUpdateController.java    |  226 ----------
- components/module_installer/android/BUILD.gn                                                        |    1 
  third_party/google_android_play_core/BUILD.gn                                                       |    5 
- 6 files changed, 3 insertions(+), 306 deletions(-)
+ 5 files changed, 3 insertions(+), 305 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -476,7 +476,6 @@
+@@ -503,7 +503,6 @@ android_library("chrome_java") {
      "//third_party/blink/public/mojom:android_mojo_bindings_java",
      "//third_party/blink/public/mojom:mojom_platform_java",
      "//third_party/gif_player:gif_player_java",
@@ -23,7 +22,7 @@ Subject: Remove dependency on com.google.android.play
      "//ui/gfx/geometry/mojom:mojom_java",
 --- a/chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/FakeAppUpdateManagerWrapper.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/FakeAppUpdateManagerWrapper.java
-@@ -11,11 +11,6 @@
+@@ -11,11 +11,6 @@ import android.os.Message;
  
  import androidx.annotation.IntDef;
  
@@ -35,7 +34,7 @@ Subject: Remove dependency on com.google.android.play
  import org.chromium.base.ContextUtils;
  import org.chromium.base.task.PostTask;
  import org.chromium.chrome.browser.app.ChromeActivity;
-@@ -31,7 +26,7 @@
+@@ -31,7 +26,7 @@ import java.lang.ref.WeakReference;
   * wrapper isn't meant to be used for a full integration test, but simulating all of the possible
   * error cases is a bit easier to do here.
   */
@@ -44,7 +43,7 @@ Subject: Remove dependency on com.google.android.play
      private static final int RESULT_IN_APP_UPDATE_FAILED = 1;
      private static final int STEP_DELAY_MS = 5000;
      private static final int TOAST_DURATION_MS = 2000;
-@@ -108,15 +103,12 @@
+@@ -108,15 +103,12 @@ public class FakeAppUpdateManagerWrapper
              switch (event) {
                  case Event.UPDATE_AVAILABLE:
                      w.toast("Making app update available.");
@@ -60,7 +59,7 @@ Subject: Remove dependency on com.google.android.play
                      return;
                  case Event.TRIGGER_DOWNLOAD:
                      w.toast("Triggering download.");
-@@ -124,27 +116,21 @@
+@@ -124,27 +116,21 @@ public class FakeAppUpdateManagerWrapper
                      return;
                  case Event.DOWNLOAD_STARTS:
                      w.toast("Download has started.");
@@ -88,7 +87,7 @@ Subject: Remove dependency on com.google.android.play
                      return;
                  default:
                      w.toast("Unknown event.");
-@@ -159,56 +145,12 @@
+@@ -159,56 +145,12 @@ public class FakeAppUpdateManagerWrapper
       * @param endState at which point should the inline update flow end.
       */
      FakeAppUpdateManagerWrapper(@Type int endState) {
@@ -156,7 +155,7 @@ Subject: Remove dependency on com.google.android.play
  import org.chromium.base.ContextUtils;
  import org.chromium.chrome.browser.flags.ChromeFeatureList;
  import org.chromium.chrome.browser.omaha.UpdateConfigs;
-@@ -20,20 +18,6 @@
+@@ -20,20 +18,6 @@ public class InlineUpdateControllerFacto
      public static InlineUpdateController create(Runnable callback) {
          @FakeAppUpdateManagerWrapper.Type
          int mockInlineEndState = UpdateConfigs.getMockInlineScenarioEndState();
@@ -179,7 +178,7 @@ Subject: Remove dependency on com.google.android.play
          // controller with no functionality.
 --- a/chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/PlayInlineUpdateController.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/PlayInlineUpdateController.java
-@@ -10,15 +10,6 @@
+@@ -10,15 +10,6 @@ import android.content.IntentSender.Send
  import androidx.annotation.IntDef;
  import androidx.annotation.Nullable;
  
@@ -195,7 +194,7 @@ Subject: Remove dependency on com.google.android.play
  import org.chromium.base.Log;
  import org.chromium.base.metrics.RecordHistogram;
  import org.chromium.chrome.browser.omaha.UpdateStatusProvider.UpdateState;
-@@ -32,7 +23,7 @@
+@@ -32,7 +23,7 @@ import java.lang.annotation.RetentionPol
   * in the foreground.
   */
  public class PlayInlineUpdateController
@@ -204,7 +203,7 @@ Subject: Remove dependency on com.google.android.play
      /**
       * Converts Play's InstallErrorCode enum to a stable monotomically incrementing Chrome enum.
       * This is used for metric stability.
-@@ -127,26 +118,9 @@
+@@ -127,26 +118,9 @@ public class PlayInlineUpdateController
      private static final int RESULT_IN_APP_UPDATE_FAILED = 1;
      private static final int REQUEST_CODE = 8123;
  
@@ -231,7 +230,7 @@ Subject: Remove dependency on com.google.android.play
      // InlineUpdateController implementation.
      @Override
      public void setEnabled(boolean enabled) {
-@@ -155,10 +129,8 @@
+@@ -155,10 +129,8 @@ public class PlayInlineUpdateController
  
          if (mEnabled) {
              mUpdateState = UpdateState.NONE;
@@ -242,7 +241,7 @@ Subject: Remove dependency on com.google.android.play
          }
      }
  
-@@ -169,220 +141,26 @@
+@@ -169,220 +141,26 @@ public class PlayInlineUpdateController
  
      @Override
      public void startUpdate(Activity activity) {

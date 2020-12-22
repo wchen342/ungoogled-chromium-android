@@ -4,7 +4,6 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
 
 ---
  build/config/compiler/BUILD.gn                                                      |    7 +----
- cc/trees/layer_tree_host_impl.cc                                                    |    3 --
  components/omnibox/browser/autocomplete_controller.cc                               |    3 --
  components/omnibox/browser/autocomplete_match.cc                                    |   10 --------
  components/omnibox/browser/autocomplete_result.cc                                   |    7 -----
@@ -14,12 +13,12 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  components/signin/internal/identity_manager/profile_oauth2_token_service_builder.cc |    1 
  content/common/input/input_event_stream_validator.cc                                |    3 --
  services/network/network_context.cc                                                 |    1 
- url/gurl.cc                                                                         |    3 +-
- 12 files changed, 4 insertions(+), 50 deletions(-)
+ url/gurl.cc                                                                         |    2 -
+ 11 files changed, 3 insertions(+), 47 deletions(-)
 
 --- a/components/signin/internal/identity_manager/primary_account_manager.cc
 +++ b/components/signin/internal/identity_manager/primary_account_manager.cc
-@@ -137,18 +137,6 @@
+@@ -138,18 +138,6 @@ void PrimaryAccountManager::SetAuthentic
    DCHECK(!account_info.account_id.empty());
    DCHECK(!IsAuthenticated());
  
@@ -40,7 +39,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  
 --- a/build/config/compiler/BUILD.gn
 +++ b/build/config/compiler/BUILD.gn
-@@ -228,7 +228,7 @@
+@@ -224,7 +224,7 @@ config("compiler") {
    cflags_cc = []
    cflags_objc = []
    cflags_objcc = []
@@ -49,7 +48,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
    defines = []
    configs = []
  
-@@ -1957,8 +1957,6 @@
+@@ -1941,8 +1941,6 @@ if (is_win) {
  
        # Put data and code in their own sections, so that unused symbols
        # can be removed at link time with --gc-sections.
@@ -58,7 +57,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
      ]
  
      common_optimize_on_ldflags += [
-@@ -1966,7 +1964,6 @@
+@@ -1950,7 +1948,6 @@ if (is_win) {
        # See http://lwn.net/Articles/192624/ .
        # -O2 enables string tail merge optimization in gold and lld.
        "-Wl,-O2",
@@ -66,7 +65,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
      ]
    }
  }
-@@ -2334,7 +2331,7 @@
+@@ -2331,7 +2328,7 @@ config("symbols") {
          # sections (llvm.org/PR34820).
          cflags += [ "-ggnu-pubnames" ]
        }
@@ -77,7 +76,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  }
 --- a/components/policy/core/browser/configuration_policy_handler.cc
 +++ b/components/policy/core/browser/configuration_policy_handler.cc
-@@ -359,7 +359,6 @@
+@@ -359,7 +359,6 @@ SchemaValidatingPolicyHandler::SchemaVal
      Schema schema,
      SchemaOnErrorStrategy strategy)
      : NamedPolicyHandler(policy_name), schema_(schema), strategy_(strategy) {
@@ -87,7 +86,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  SchemaValidatingPolicyHandler::~SchemaValidatingPolicyHandler() {}
 --- a/components/signin/internal/identity_manager/profile_oauth2_token_service_builder.cc
 +++ b/components/signin/internal/identity_manager/profile_oauth2_token_service_builder.cc
-@@ -177,7 +177,6 @@
+@@ -177,7 +177,6 @@ std::unique_ptr<ProfileOAuth2TokenServic
    // device ID is needed on the network thread, but can only be generated on the
    // main thread.
    std::string device_id = signin::GetSigninScopedDeviceId(pref_service);
@@ -97,8 +96,8 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
    return std::make_unique<ProfileOAuth2TokenService>(
 --- a/components/omnibox/browser/autocomplete_match.cc
 +++ b/components/omnibox/browser/autocomplete_match.cc
-@@ -1264,16 +1264,6 @@
-   return false;
+@@ -1268,16 +1268,6 @@ bool AutocompleteMatch::IsEmptyAutocompl
+   return inline_autocompletion.empty() && prefix_autocompletion.empty();
  }
  
 -#if DCHECK_IS_ON()
@@ -116,7 +115,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
      const base::string16& text,
 --- a/components/omnibox/browser/autocomplete_result.cc
 +++ b/components/omnibox/browser/autocomplete_result.cc
-@@ -634,13 +634,6 @@
+@@ -704,13 +704,6 @@ void AutocompleteResult::CopyFrom(const
    matches_ = other.matches_;
  }
  
@@ -132,7 +131,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
      const AutocompleteInput& input,
 --- a/components/omnibox/browser/shortcuts_backend.cc
 +++ b/components/omnibox/browser/shortcuts_backend.cc
-@@ -119,9 +119,6 @@
+@@ -119,9 +119,6 @@ void ShortcutsBackend::RemoveObserver(Sh
  
  void ShortcutsBackend::AddOrUpdateShortcut(const base::string16& text,
                                             const AutocompleteMatch& match) {
@@ -144,7 +143,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
    for (ShortcutMap::const_iterator it(
 --- a/components/omnibox/browser/autocomplete_controller.cc
 +++ b/components/omnibox/browser/autocomplete_controller.cc
-@@ -717,9 +717,6 @@
+@@ -716,9 +716,6 @@ void AutocompleteController::UpdateResul
  
    // Need to validate before invoking CopyOldMatches as the old matches are not
    // valid against the current input.
@@ -156,7 +155,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
      // This conditional needs to match the conditional in Start that invokes
 --- a/content/common/input/input_event_stream_validator.cc
 +++ b/content/common/input/input_event_stream_validator.cc
-@@ -29,9 +29,6 @@
+@@ -29,9 +29,6 @@ void InputEventStreamValidator::Validate
    if (!enabled_)
      return;
  
@@ -168,7 +167,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  bool InputEventStreamValidator::ValidateImpl(
 --- a/services/network/network_context.cc
 +++ b/services/network/network_context.cc
-@@ -917,7 +917,6 @@
+@@ -919,7 +919,6 @@ void NetworkContext::QueueReport(const s
                                   const GURL& url,
                                   const base::Optional<std::string>& user_agent,
                                   base::Value body) {
@@ -178,7 +177,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  void NetworkContext::QueueSignedExchangeReport(
 --- a/url/gurl.cc
 +++ b/url/gurl.cc
-@@ -158,7 +158,7 @@
+@@ -158,7 +158,7 @@ const std::string& GURL::spec() const {
    if (is_valid_ || spec_.empty())
      return spec_;
  

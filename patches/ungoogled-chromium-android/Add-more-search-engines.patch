@@ -38,7 +38,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      },
 --- a/components/search_engines/template_url_prepopulate_data.cc
 +++ b/components/search_engines/template_url_prepopulate_data.cc
-@@ -33,6 +33,8 @@ namespace {
+@@ -30,6 +30,8 @@ namespace {
  // Default (for countries with no better engine set)
  const PrepopulatedEngine* const engines_default[] = {
      &searx,
@@ -47,7 +47,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -44,6 +46,8 @@ const PrepopulatedEngine* const engines_
+@@ -41,6 +43,8 @@ const PrepopulatedEngine* const engines_
  // United Arab Emirates
  const PrepopulatedEngine* const engines_AE[] = {
      &searx,
@@ -56,7 +56,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -54,6 +58,8 @@ const PrepopulatedEngine* const engines_
+@@ -51,6 +55,8 @@ const PrepopulatedEngine* const engines_
  // Albania
  const PrepopulatedEngine* const engines_AL[] = {
      &searx,
@@ -65,7 +65,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &yahoo,
-@@ -64,6 +70,8 @@ const PrepopulatedEngine* const engines_
+@@ -61,6 +67,8 @@ const PrepopulatedEngine* const engines_
  // Argentina
  const PrepopulatedEngine* const engines_AR[] = {
      &searx,
@@ -74,7 +74,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -74,6 +82,8 @@ const PrepopulatedEngine* const engines_
+@@ -71,6 +79,8 @@ const PrepopulatedEngine* const engines_
  // Austria
  const PrepopulatedEngine* const engines_AT[] = {
      &searx,
@@ -83,7 +83,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -84,6 +94,8 @@ const PrepopulatedEngine* const engines_
+@@ -81,6 +91,8 @@ const PrepopulatedEngine* const engines_
  // Australia
  const PrepopulatedEngine* const engines_AU[] = {
      &searx,
@@ -92,7 +92,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -94,6 +106,8 @@ const PrepopulatedEngine* const engines_
+@@ -91,6 +103,8 @@ const PrepopulatedEngine* const engines_
  // Bosnia and Herzegovina
  const PrepopulatedEngine* const engines_BA[] = {
      &searx,
@@ -101,7 +101,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -104,6 +118,8 @@ const PrepopulatedEngine* const engines_
+@@ -101,6 +115,8 @@ const PrepopulatedEngine* const engines_
  // Belgium
  const PrepopulatedEngine* const engines_BE[] = {
      &searx,
@@ -110,7 +110,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -114,6 +130,8 @@ const PrepopulatedEngine* const engines_
+@@ -111,6 +127,8 @@ const PrepopulatedEngine* const engines_
  // Bulgaria
  const PrepopulatedEngine* const engines_BG[] = {
      &searx,
@@ -119,7 +119,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -124,6 +142,8 @@ const PrepopulatedEngine* const engines_
+@@ -121,6 +139,8 @@ const PrepopulatedEngine* const engines_
  // Bahrain
  const PrepopulatedEngine* const engines_BH[] = {
      &searx,
@@ -128,7 +128,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -135,6 +155,8 @@ const PrepopulatedEngine* const engines_
+@@ -132,6 +152,8 @@ const PrepopulatedEngine* const engines_
  // Burundi
  const PrepopulatedEngine* const engines_BI[] = {
      &searx,
@@ -137,7 +137,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -146,6 +168,8 @@ const PrepopulatedEngine* const engines_
+@@ -143,6 +165,8 @@ const PrepopulatedEngine* const engines_
  // Brunei
  const PrepopulatedEngine* const engines_BN[] = {
      &searx,
@@ -146,7 +146,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -156,6 +180,8 @@ const PrepopulatedEngine* const engines_
+@@ -153,6 +177,8 @@ const PrepopulatedEngine* const engines_
  // Bolivia
  const PrepopulatedEngine* const engines_BO[] = {
      &searx,
@@ -155,7 +155,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -166,6 +192,8 @@ const PrepopulatedEngine* const engines_
+@@ -163,6 +189,8 @@ const PrepopulatedEngine* const engines_
  // Brazil
  const PrepopulatedEngine* const engines_BR[] = {
      &searx,
@@ -164,7 +164,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -176,6 +204,8 @@ const PrepopulatedEngine* const engines_
+@@ -173,6 +201,8 @@ const PrepopulatedEngine* const engines_
  // Belarus
  const PrepopulatedEngine* const engines_BY[] = {
      &searx,
@@ -173,7 +173,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &yandex_by,
-@@ -187,6 +217,8 @@ const PrepopulatedEngine* const engines_
+@@ -184,6 +214,8 @@ const PrepopulatedEngine* const engines_
  // Belize
  const PrepopulatedEngine* const engines_BZ[] = {
      &searx,
@@ -182,7 +182,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -197,6 +229,8 @@ const PrepopulatedEngine* const engines_
+@@ -194,6 +226,8 @@ const PrepopulatedEngine* const engines_
  // Canada
  const PrepopulatedEngine* const engines_CA[] = {
      &searx,
@@ -191,7 +191,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -207,6 +241,8 @@ const PrepopulatedEngine* const engines_
+@@ -204,6 +238,8 @@ const PrepopulatedEngine* const engines_
  // Switzerland
  const PrepopulatedEngine* const engines_CH[] = {
      &searx,
@@ -200,7 +200,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -217,6 +253,8 @@ const PrepopulatedEngine* const engines_
+@@ -214,6 +250,8 @@ const PrepopulatedEngine* const engines_
  // Chile
  const PrepopulatedEngine* const engines_CL[] = {
      &searx,
@@ -209,7 +209,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -227,6 +265,8 @@ const PrepopulatedEngine* const engines_
+@@ -224,6 +262,8 @@ const PrepopulatedEngine* const engines_
  // China
  const PrepopulatedEngine* const engines_CN[] = {
      &searx,
@@ -218,7 +218,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &baidu,
      &sogou,
-@@ -238,6 +278,8 @@ const PrepopulatedEngine* const engines_
+@@ -235,6 +275,8 @@ const PrepopulatedEngine* const engines_
  // Colombia
  const PrepopulatedEngine* const engines_CO[] = {
      &searx,
@@ -227,7 +227,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -248,6 +290,8 @@ const PrepopulatedEngine* const engines_
+@@ -245,6 +287,8 @@ const PrepopulatedEngine* const engines_
  // Costa Rica
  const PrepopulatedEngine* const engines_CR[] = {
      &searx,
@@ -236,7 +236,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -258,6 +302,8 @@ const PrepopulatedEngine* const engines_
+@@ -255,6 +299,8 @@ const PrepopulatedEngine* const engines_
  // Czech Republic
  const PrepopulatedEngine* const engines_CZ[] = {
      &searx,
@@ -245,7 +245,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &seznam_cz,
-@@ -268,6 +314,8 @@ const PrepopulatedEngine* const engines_
+@@ -265,6 +311,8 @@ const PrepopulatedEngine* const engines_
  // Germany
  const PrepopulatedEngine* const engines_DE[] = {
      &searx,
@@ -254,7 +254,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -278,6 +326,8 @@ const PrepopulatedEngine* const engines_
+@@ -275,6 +323,8 @@ const PrepopulatedEngine* const engines_
  // Denmark
  const PrepopulatedEngine* const engines_DK[] = {
      &searx,
@@ -263,7 +263,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -288,6 +338,8 @@ const PrepopulatedEngine* const engines_
+@@ -285,6 +335,8 @@ const PrepopulatedEngine* const engines_
  // Dominican Republic
  const PrepopulatedEngine* const engines_DO[] = {
      &searx,
@@ -272,7 +272,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -298,6 +350,8 @@ const PrepopulatedEngine* const engines_
+@@ -295,6 +347,8 @@ const PrepopulatedEngine* const engines_
  // Algeria
  const PrepopulatedEngine* const engines_DZ[] = {
      &searx,
@@ -281,7 +281,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &yahoo,
-@@ -308,6 +362,8 @@ const PrepopulatedEngine* const engines_
+@@ -305,6 +359,8 @@ const PrepopulatedEngine* const engines_
  // Ecuador
  const PrepopulatedEngine* const engines_EC[] = {
      &searx,
@@ -290,7 +290,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -318,6 +374,8 @@ const PrepopulatedEngine* const engines_
+@@ -315,6 +371,8 @@ const PrepopulatedEngine* const engines_
  // Estonia
  const PrepopulatedEngine* const engines_EE[] = {
      &searx,
@@ -299,7 +299,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -329,6 +387,8 @@ const PrepopulatedEngine* const engines_
+@@ -326,6 +384,8 @@ const PrepopulatedEngine* const engines_
  // Egypt
  const PrepopulatedEngine* const engines_EG[] = {
      &searx,
@@ -308,7 +308,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &yahoo,
-@@ -339,6 +399,8 @@ const PrepopulatedEngine* const engines_
+@@ -336,6 +396,8 @@ const PrepopulatedEngine* const engines_
  // Spain
  const PrepopulatedEngine* const engines_ES[] = {
      &searx,
@@ -317,7 +317,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -349,6 +411,8 @@ const PrepopulatedEngine* const engines_
+@@ -346,6 +408,8 @@ const PrepopulatedEngine* const engines_
  // Finland
  const PrepopulatedEngine* const engines_FI[] = {
      &searx,
@@ -326,7 +326,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -359,6 +423,8 @@ const PrepopulatedEngine* const engines_
+@@ -356,6 +420,8 @@ const PrepopulatedEngine* const engines_
  // Faroe Islands
  const PrepopulatedEngine* const engines_FO[] = {
      &searx,
@@ -335,7 +335,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -369,6 +435,8 @@ const PrepopulatedEngine* const engines_
+@@ -366,6 +432,8 @@ const PrepopulatedEngine* const engines_
  // France
  const PrepopulatedEngine* const engines_FR[] = {
      &searx,
@@ -344,7 +344,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -380,6 +448,8 @@ const PrepopulatedEngine* const engines_
+@@ -377,6 +445,8 @@ const PrepopulatedEngine* const engines_
  // United Kingdom
  const PrepopulatedEngine* const engines_GB[] = {
      &searx,
@@ -353,7 +353,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -390,6 +460,8 @@ const PrepopulatedEngine* const engines_
+@@ -387,6 +457,8 @@ const PrepopulatedEngine* const engines_
  // Greece
  const PrepopulatedEngine* const engines_GR[] = {
      &searx,
@@ -362,7 +362,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -400,6 +472,8 @@ const PrepopulatedEngine* const engines_
+@@ -397,6 +469,8 @@ const PrepopulatedEngine* const engines_
  // Guatemala
  const PrepopulatedEngine* const engines_GT[] = {
      &searx,
@@ -371,7 +371,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -410,6 +484,8 @@ const PrepopulatedEngine* const engines_
+@@ -407,6 +481,8 @@ const PrepopulatedEngine* const engines_
  // Hong Kong
  const PrepopulatedEngine* const engines_HK[] = {
      &searx,
@@ -380,7 +380,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &yahoo_hk,
-@@ -421,6 +497,8 @@ const PrepopulatedEngine* const engines_
+@@ -418,6 +494,8 @@ const PrepopulatedEngine* const engines_
  // Honduras
  const PrepopulatedEngine* const engines_HN[] = {
      &searx,
@@ -389,7 +389,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -431,6 +509,8 @@ const PrepopulatedEngine* const engines_
+@@ -428,6 +506,8 @@ const PrepopulatedEngine* const engines_
  // Croatia
  const PrepopulatedEngine* const engines_HR[] = {
      &searx,
@@ -398,7 +398,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -441,6 +521,8 @@ const PrepopulatedEngine* const engines_
+@@ -438,6 +518,8 @@ const PrepopulatedEngine* const engines_
  // Hungary
  const PrepopulatedEngine* const engines_HU[] = {
      &searx,
@@ -407,7 +407,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -451,6 +533,8 @@ const PrepopulatedEngine* const engines_
+@@ -448,6 +530,8 @@ const PrepopulatedEngine* const engines_
  // Indonesia
  const PrepopulatedEngine* const engines_ID[] = {
      &searx,
@@ -416,7 +416,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &yahoo_id,
-@@ -461,6 +545,8 @@ const PrepopulatedEngine* const engines_
+@@ -458,6 +542,8 @@ const PrepopulatedEngine* const engines_
  // Ireland
  const PrepopulatedEngine* const engines_IE[] = {
      &searx,
@@ -425,7 +425,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -471,6 +557,8 @@ const PrepopulatedEngine* const engines_
+@@ -468,6 +554,8 @@ const PrepopulatedEngine* const engines_
  // Israel
  const PrepopulatedEngine* const engines_IL[] = {
      &searx,
@@ -434,7 +434,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -481,6 +569,8 @@ const PrepopulatedEngine* const engines_
+@@ -478,6 +566,8 @@ const PrepopulatedEngine* const engines_
  // India
  const PrepopulatedEngine* const engines_IN[] = {
      &searx,
@@ -443,7 +443,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &yahoo_in,
-@@ -491,6 +581,8 @@ const PrepopulatedEngine* const engines_
+@@ -488,6 +578,8 @@ const PrepopulatedEngine* const engines_
  // Iraq
  const PrepopulatedEngine* const engines_IQ[] = {
      &searx,
@@ -452,7 +452,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &yahoo,
-@@ -501,6 +593,8 @@ const PrepopulatedEngine* const engines_
+@@ -498,6 +590,8 @@ const PrepopulatedEngine* const engines_
  // Iran
  const PrepopulatedEngine* const engines_IR[] = {
      &searx,
@@ -461,7 +461,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -512,6 +606,8 @@ const PrepopulatedEngine* const engines_
+@@ -509,6 +603,8 @@ const PrepopulatedEngine* const engines_
  // Iceland
  const PrepopulatedEngine* const engines_IS[] = {
      &searx,
@@ -470,7 +470,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -522,6 +618,8 @@ const PrepopulatedEngine* const engines_
+@@ -519,6 +615,8 @@ const PrepopulatedEngine* const engines_
  // Italy
  const PrepopulatedEngine* const engines_IT[] = {
      &searx,
@@ -479,7 +479,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -532,6 +630,8 @@ const PrepopulatedEngine* const engines_
+@@ -529,6 +627,8 @@ const PrepopulatedEngine* const engines_
  // Jamaica
  const PrepopulatedEngine* const engines_JM[] = {
      &searx,
@@ -488,7 +488,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -542,6 +642,8 @@ const PrepopulatedEngine* const engines_
+@@ -539,6 +639,8 @@ const PrepopulatedEngine* const engines_
  // Jordan
  const PrepopulatedEngine* const engines_JO[] = {
      &searx,
@@ -497,7 +497,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -552,17 +654,20 @@ const PrepopulatedEngine* const engines_
+@@ -549,17 +651,20 @@ const PrepopulatedEngine* const engines_
  // Japan
  const PrepopulatedEngine* const engines_JP[] = {
      &searx,
@@ -519,7 +519,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -573,6 +678,8 @@ const PrepopulatedEngine* const engines_
+@@ -570,6 +675,8 @@ const PrepopulatedEngine* const engines_
  // South Korea
  const PrepopulatedEngine* const engines_KR[] = {
      &searx,
@@ -528,7 +528,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &naver,
-@@ -584,6 +691,8 @@ const PrepopulatedEngine* const engines_
+@@ -581,6 +688,8 @@ const PrepopulatedEngine* const engines_
  // Kuwait
  const PrepopulatedEngine* const engines_KW[] = {
      &searx,
@@ -537,7 +537,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -594,6 +703,8 @@ const PrepopulatedEngine* const engines_
+@@ -591,6 +700,8 @@ const PrepopulatedEngine* const engines_
  // Kazakhstan
  const PrepopulatedEngine* const engines_KZ[] = {
      &searx,
@@ -546,7 +546,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &yandex_kz,
-@@ -605,6 +716,8 @@ const PrepopulatedEngine* const engines_
+@@ -602,6 +713,8 @@ const PrepopulatedEngine* const engines_
  // Lebanon
  const PrepopulatedEngine* const engines_LB[] = {
      &searx,
@@ -555,7 +555,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -615,6 +728,8 @@ const PrepopulatedEngine* const engines_
+@@ -612,6 +725,8 @@ const PrepopulatedEngine* const engines_
  // Liechtenstein
  const PrepopulatedEngine* const engines_LI[] = {
      &searx,
@@ -564,7 +564,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -625,6 +740,8 @@ const PrepopulatedEngine* const engines_
+@@ -622,6 +737,8 @@ const PrepopulatedEngine* const engines_
  // Lithuania
  const PrepopulatedEngine* const engines_LT[] = {
      &searx,
@@ -573,7 +573,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -635,6 +752,8 @@ const PrepopulatedEngine* const engines_
+@@ -632,6 +749,8 @@ const PrepopulatedEngine* const engines_
  // Luxembourg
  const PrepopulatedEngine* const engines_LU[] = {
      &searx,
@@ -582,7 +582,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -645,6 +764,8 @@ const PrepopulatedEngine* const engines_
+@@ -642,6 +761,8 @@ const PrepopulatedEngine* const engines_
  // Latvia
  const PrepopulatedEngine* const engines_LV[] = {
      &searx,
@@ -591,7 +591,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &yandex_ru,
-@@ -655,6 +776,8 @@ const PrepopulatedEngine* const engines_
+@@ -652,6 +773,8 @@ const PrepopulatedEngine* const engines_
  // Libya
  const PrepopulatedEngine* const engines_LY[] = {
      &searx,
@@ -600,7 +600,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &yahoo,
-@@ -665,6 +788,8 @@ const PrepopulatedEngine* const engines_
+@@ -662,6 +785,8 @@ const PrepopulatedEngine* const engines_
  // Morocco
  const PrepopulatedEngine* const engines_MA[] = {
      &searx,
@@ -609,7 +609,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &yahoo,
-@@ -675,6 +800,8 @@ const PrepopulatedEngine* const engines_
+@@ -672,6 +797,8 @@ const PrepopulatedEngine* const engines_
  // Monaco
  const PrepopulatedEngine* const engines_MC[] = {
      &searx,
@@ -618,7 +618,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -685,6 +812,8 @@ const PrepopulatedEngine* const engines_
+@@ -682,6 +809,8 @@ const PrepopulatedEngine* const engines_
  // Moldova
  const PrepopulatedEngine* const engines_MD[] = {
      &searx,
@@ -627,7 +627,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &yandex_ru,
-@@ -695,6 +824,8 @@ const PrepopulatedEngine* const engines_
+@@ -692,6 +821,8 @@ const PrepopulatedEngine* const engines_
  // Montenegro
  const PrepopulatedEngine* const engines_ME[] = {
      &searx,
@@ -636,7 +636,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -705,6 +836,8 @@ const PrepopulatedEngine* const engines_
+@@ -702,6 +833,8 @@ const PrepopulatedEngine* const engines_
  // Macedonia
  const PrepopulatedEngine* const engines_MK[] = {
      &searx,
@@ -645,7 +645,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -715,6 +848,8 @@ const PrepopulatedEngine* const engines_
+@@ -712,6 +845,8 @@ const PrepopulatedEngine* const engines_
  // Mexico
  const PrepopulatedEngine* const engines_MX[] = {
      &searx,
@@ -654,7 +654,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -725,6 +860,8 @@ const PrepopulatedEngine* const engines_
+@@ -722,6 +857,8 @@ const PrepopulatedEngine* const engines_
  // Malaysia
  const PrepopulatedEngine* const engines_MY[] = {
      &searx,
@@ -663,7 +663,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -735,6 +872,8 @@ const PrepopulatedEngine* const engines_
+@@ -732,6 +869,8 @@ const PrepopulatedEngine* const engines_
  // Nicaragua
  const PrepopulatedEngine* const engines_NI[] = {
      &searx,
@@ -672,7 +672,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -745,6 +884,8 @@ const PrepopulatedEngine* const engines_
+@@ -742,6 +881,8 @@ const PrepopulatedEngine* const engines_
  // Netherlands
  const PrepopulatedEngine* const engines_NL[] = {
      &searx,
@@ -681,7 +681,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -755,6 +896,8 @@ const PrepopulatedEngine* const engines_
+@@ -752,6 +893,8 @@ const PrepopulatedEngine* const engines_
  // Norway
  const PrepopulatedEngine* const engines_NO[] = {
      &searx,
@@ -690,7 +690,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -765,6 +908,8 @@ const PrepopulatedEngine* const engines_
+@@ -762,6 +905,8 @@ const PrepopulatedEngine* const engines_
  // New Zealand
  const PrepopulatedEngine* const engines_NZ[] = {
      &searx,
@@ -699,7 +699,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -775,6 +920,8 @@ const PrepopulatedEngine* const engines_
+@@ -772,6 +917,8 @@ const PrepopulatedEngine* const engines_
  // Oman
  const PrepopulatedEngine* const engines_OM[] = {
      &searx,
@@ -708,7 +708,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -785,6 +932,8 @@ const PrepopulatedEngine* const engines_
+@@ -782,6 +929,8 @@ const PrepopulatedEngine* const engines_
  // Panama
  const PrepopulatedEngine* const engines_PA[] = {
      &searx,
@@ -717,7 +717,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -795,6 +944,8 @@ const PrepopulatedEngine* const engines_
+@@ -792,6 +941,8 @@ const PrepopulatedEngine* const engines_
  // Peru
  const PrepopulatedEngine* const engines_PE[] = {
      &searx,
@@ -726,7 +726,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -805,6 +956,8 @@ const PrepopulatedEngine* const engines_
+@@ -802,6 +953,8 @@ const PrepopulatedEngine* const engines_
  // Philippines
  const PrepopulatedEngine* const engines_PH[] = {
      &searx,
@@ -735,7 +735,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &yahoo_ph,
-@@ -815,6 +968,8 @@ const PrepopulatedEngine* const engines_
+@@ -812,6 +965,8 @@ const PrepopulatedEngine* const engines_
  // Pakistan
  const PrepopulatedEngine* const engines_PK[] = {
      &searx,
@@ -744,7 +744,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &yahoo,
-@@ -825,6 +980,8 @@ const PrepopulatedEngine* const engines_
+@@ -822,6 +977,8 @@ const PrepopulatedEngine* const engines_
  // Poland
  const PrepopulatedEngine* const engines_PL[] = {
      &searx,
@@ -753,7 +753,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -835,6 +992,8 @@ const PrepopulatedEngine* const engines_
+@@ -832,6 +989,8 @@ const PrepopulatedEngine* const engines_
  // Puerto Rico
  const PrepopulatedEngine* const engines_PR[] = {
      &searx,
@@ -762,7 +762,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -845,6 +1004,8 @@ const PrepopulatedEngine* const engines_
+@@ -842,6 +1001,8 @@ const PrepopulatedEngine* const engines_
  // Portugal
  const PrepopulatedEngine* const engines_PT[] = {
      &searx,
@@ -771,7 +771,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -855,6 +1016,8 @@ const PrepopulatedEngine* const engines_
+@@ -852,6 +1013,8 @@ const PrepopulatedEngine* const engines_
  // Paraguay
  const PrepopulatedEngine* const engines_PY[] = {
      &searx,
@@ -780,7 +780,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -865,6 +1028,8 @@ const PrepopulatedEngine* const engines_
+@@ -862,6 +1025,8 @@ const PrepopulatedEngine* const engines_
  // Qatar
  const PrepopulatedEngine* const engines_QA[] = {
      &searx,
@@ -789,7 +789,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -875,6 +1040,8 @@ const PrepopulatedEngine* const engines_
+@@ -872,6 +1037,8 @@ const PrepopulatedEngine* const engines_
  // Romania
  const PrepopulatedEngine* const engines_RO[] = {
      &searx,
@@ -798,7 +798,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -885,6 +1052,8 @@ const PrepopulatedEngine* const engines_
+@@ -882,6 +1049,8 @@ const PrepopulatedEngine* const engines_
  // Serbia
  const PrepopulatedEngine* const engines_RS[] = {
      &searx,
@@ -807,7 +807,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &yahoo,
-@@ -895,6 +1064,8 @@ const PrepopulatedEngine* const engines_
+@@ -892,6 +1061,8 @@ const PrepopulatedEngine* const engines_
  // Russia
  const PrepopulatedEngine* const engines_RU[] = {
      &searx,
@@ -816,7 +816,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &yandex_ru,
-@@ -906,6 +1077,8 @@ const PrepopulatedEngine* const engines_
+@@ -903,6 +1074,8 @@ const PrepopulatedEngine* const engines_
  // Rwanda
  const PrepopulatedEngine* const engines_RW[] = {
      &searx,
@@ -825,7 +825,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -916,6 +1089,8 @@ const PrepopulatedEngine* const engines_
+@@ -913,6 +1086,8 @@ const PrepopulatedEngine* const engines_
  // Saudi Arabia
  const PrepopulatedEngine* const engines_SA[] = {
      &searx,
@@ -834,7 +834,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -926,6 +1101,8 @@ const PrepopulatedEngine* const engines_
+@@ -923,6 +1098,8 @@ const PrepopulatedEngine* const engines_
  // Sweden
  const PrepopulatedEngine* const engines_SE[] = {
      &searx,
@@ -843,7 +843,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -936,6 +1113,8 @@ const PrepopulatedEngine* const engines_
+@@ -933,6 +1110,8 @@ const PrepopulatedEngine* const engines_
  // Singapore
  const PrepopulatedEngine* const engines_SG[] = {
      &searx,
@@ -852,7 +852,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -947,6 +1126,8 @@ const PrepopulatedEngine* const engines_
+@@ -944,6 +1123,8 @@ const PrepopulatedEngine* const engines_
  // Slovenia
  const PrepopulatedEngine* const engines_SI[] = {
      &searx,
@@ -861,7 +861,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -957,6 +1138,8 @@ const PrepopulatedEngine* const engines_
+@@ -954,6 +1135,8 @@ const PrepopulatedEngine* const engines_
  // Slovakia
  const PrepopulatedEngine* const engines_SK[] = {
      &searx,
@@ -870,7 +870,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -967,6 +1150,8 @@ const PrepopulatedEngine* const engines_
+@@ -964,6 +1147,8 @@ const PrepopulatedEngine* const engines_
  // El Salvador
  const PrepopulatedEngine* const engines_SV[] = {
      &searx,
@@ -879,7 +879,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -977,6 +1162,8 @@ const PrepopulatedEngine* const engines_
+@@ -974,6 +1159,8 @@ const PrepopulatedEngine* const engines_
  // Syria
  const PrepopulatedEngine* const engines_SY[] = {
      &searx,
@@ -888,7 +888,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -987,6 +1174,8 @@ const PrepopulatedEngine* const engines_
+@@ -984,6 +1171,8 @@ const PrepopulatedEngine* const engines_
  // Thailand
  const PrepopulatedEngine* const engines_TH[] = {
      &searx,
@@ -897,7 +897,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &yahoo_th,
-@@ -997,6 +1186,8 @@ const PrepopulatedEngine* const engines_
+@@ -994,6 +1183,8 @@ const PrepopulatedEngine* const engines_
  // Tunisia
  const PrepopulatedEngine* const engines_TN[] = {
      &searx,
@@ -906,7 +906,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &yahoo,
-@@ -1007,6 +1198,8 @@ const PrepopulatedEngine* const engines_
+@@ -1004,6 +1195,8 @@ const PrepopulatedEngine* const engines_
  // Turkey
  const PrepopulatedEngine* const engines_TR[] = {
      &searx,
@@ -915,7 +915,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &yandex_tr,
-@@ -1017,6 +1210,8 @@ const PrepopulatedEngine* const engines_
+@@ -1014,6 +1207,8 @@ const PrepopulatedEngine* const engines_
  // Trinidad and Tobago
  const PrepopulatedEngine* const engines_TT[] = {
      &searx,
@@ -924,7 +924,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -1027,6 +1222,8 @@ const PrepopulatedEngine* const engines_
+@@ -1024,6 +1219,8 @@ const PrepopulatedEngine* const engines_
  // Taiwan
  const PrepopulatedEngine* const engines_TW[] = {
      &searx,
@@ -933,7 +933,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &yahoo_tw,
-@@ -1038,6 +1235,8 @@ const PrepopulatedEngine* const engines_
+@@ -1035,6 +1232,8 @@ const PrepopulatedEngine* const engines_
  // Tanzania
  const PrepopulatedEngine* const engines_TZ[] = {
      &searx,
@@ -942,7 +942,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -1048,6 +1247,8 @@ const PrepopulatedEngine* const engines_
+@@ -1045,6 +1244,8 @@ const PrepopulatedEngine* const engines_
  // Ukraine
  const PrepopulatedEngine* const engines_UA[] = {
      &searx,
@@ -951,7 +951,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &yandex_ua,
-@@ -1059,6 +1260,8 @@ const PrepopulatedEngine* const engines_
+@@ -1056,6 +1257,8 @@ const PrepopulatedEngine* const engines_
  // United States
  const PrepopulatedEngine* const engines_US[] = {
      &searx,
@@ -960,7 +960,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -1069,6 +1272,8 @@ const PrepopulatedEngine* const engines_
+@@ -1066,6 +1269,8 @@ const PrepopulatedEngine* const engines_
  // Uruguay
  const PrepopulatedEngine* const engines_UY[] = {
      &searx,
@@ -969,7 +969,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -1079,6 +1284,8 @@ const PrepopulatedEngine* const engines_
+@@ -1076,6 +1281,8 @@ const PrepopulatedEngine* const engines_
  // Venezuela
  const PrepopulatedEngine* const engines_VE[] = {
      &searx,
@@ -978,7 +978,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &yahoo_ve,
-@@ -1089,6 +1296,8 @@ const PrepopulatedEngine* const engines_
+@@ -1086,6 +1293,8 @@ const PrepopulatedEngine* const engines_
  // Vietnam
  const PrepopulatedEngine* const engines_VN[] = {
      &searx,
@@ -987,7 +987,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &coccoc,
-@@ -1100,6 +1309,8 @@ const PrepopulatedEngine* const engines_
+@@ -1097,6 +1306,8 @@ const PrepopulatedEngine* const engines_
  // Yemen
  const PrepopulatedEngine* const engines_YE[] = {
      &searx,
@@ -996,7 +996,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -1110,6 +1321,8 @@ const PrepopulatedEngine* const engines_
+@@ -1107,6 +1318,8 @@ const PrepopulatedEngine* const engines_
  // South Africa
  const PrepopulatedEngine* const engines_ZA[] = {
      &searx,
@@ -1005,7 +1005,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
      &google,
      &bing,
-@@ -1120,6 +1333,8 @@ const PrepopulatedEngine* const engines_
+@@ -1117,6 +1330,8 @@ const PrepopulatedEngine* const engines_
  // Zimbabwe
  const PrepopulatedEngine* const engines_ZW[] = {
      &searx,

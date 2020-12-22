@@ -9,7 +9,7 @@ Subject: Enable legacy TLS warnings and mark-http-as-dangerous by default
 
 --- a/components/security_state/core/features.cc
 +++ b/components/security_state/core/features.cc
-@@ -16,7 +16,7 @@
+@@ -16,7 +16,7 @@ const char kMarkHttpAsParameterWarningAn
  const char kMarkHttpAsParameterDangerWarning[] = "danger-warning";
  
  const base::Feature kLegacyTLSWarnings{"LegacyTLSWarnings",
@@ -20,11 +20,11 @@ Subject: Enable legacy TLS warnings and mark-http-as-dangerous by default
                                   base::FEATURE_DISABLED_BY_DEFAULT};
 --- a/components/security_state/core/security_state.cc
 +++ b/components/security_state/core/security_state.cc
-@@ -41,7 +41,7 @@
- 
-   // Default to dangerous on editing form fields and otherwise
-   // warning.
--  return input_events.insecure_field_edited ? DANGEROUS : WARNING;
+@@ -37,7 +37,7 @@ SecurityLevel GetSecurityLevelForNonSecu
+       return input_events.insecure_field_edited ? DANGEROUS : WARNING;
+     }
+   }
+-  return WARNING;
 +  return DANGEROUS;
  }
  

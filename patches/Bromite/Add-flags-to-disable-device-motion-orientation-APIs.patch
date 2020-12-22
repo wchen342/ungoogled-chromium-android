@@ -5,21 +5,21 @@ Subject: Add flags to disable device motion/orientation APIs
 Both flags will be disabled by default and prevent usage of gyroscope and
 legacy acceleration events.
 ---
- chrome/browser/about_flags.cc                          |  6 ++++++
- chrome/browser/flag_descriptions.cc                    |  8 ++++++++
- chrome/browser/flag_descriptions.h                     |  6 ++++++
- content/child/runtime_features.cc                      |  3 +++
- content/public/common/content_features.cc              | 10 ++++++++++
- content/public/common/content_features.h               |  2 ++
- .../blink/public/platform/web_runtime_features.h       |  2 ++
- .../blink/renderer/modules/modules_initializer.cc      | 10 +++++++---
- .../renderer/platform/exported/web_runtime_features.cc |  8 ++++++++
- .../renderer/platform/runtime_enabled_features.json5   |  8 ++++++++
+ chrome/browser/about_flags.cc                                        |    6 ++++++
+ chrome/browser/flag_descriptions.cc                                  |    8 ++++++++
+ chrome/browser/flag_descriptions.h                                   |    6 ++++++
+ content/child/runtime_features.cc                                    |    3 +++
+ content/public/common/content_features.cc                            |   10 ++++++++++
+ content/public/common/content_features.h                             |    2 ++
+ third_party/blink/public/platform/web_runtime_features.h             |    2 ++
+ third_party/blink/renderer/modules/modules_initializer.cc            |   10 +++++++---
+ third_party/blink/renderer/platform/exported/web_runtime_features.cc |    8 ++++++++
+ third_party/blink/renderer/platform/runtime_enabled_features.json5   |    8 ++++++++
  10 files changed, 60 insertions(+), 3 deletions(-)
 
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -2561,6 +2561,12 @@
+@@ -2678,6 +2678,12 @@ const FeatureEntry kFeatureEntries[] = {
      {"enable-gpu-rasterization", flag_descriptions::kGpuRasterizationName,
       flag_descriptions::kGpuRasterizationDescription, kOsAll,
       MULTI_VALUE_TYPE(kEnableGpuRasterizationChoices)},
@@ -34,7 +34,7 @@ legacy acceleration events.
       MULTI_VALUE_TYPE(kEnableOopRasterizationChoices)},
 --- a/chrome/browser/flag_descriptions.cc
 +++ b/chrome/browser/flag_descriptions.cc
-@@ -743,6 +743,14 @@
+@@ -739,6 +739,14 @@ const char kWinrtSensorsImplementationDe
      "Enables usage of the Windows.Devices.Sensors WinRT APIs on Windows for "
      "sensors";
  
@@ -51,7 +51,7 @@ legacy acceleration events.
  const char kEnableGenericSensorExtraClassesDescription[] =
 --- a/chrome/browser/flag_descriptions.h
 +++ b/chrome/browser/flag_descriptions.h
-@@ -442,6 +442,12 @@
+@@ -439,6 +439,12 @@ extern const char kWinrtGeolocationImple
  extern const char kWinrtSensorsImplementationName[];
  extern const char kWinrtSensorsImplementationDescription[];
  
@@ -66,7 +66,7 @@ legacy acceleration events.
  
 --- a/content/child/runtime_features.cc
 +++ b/content/child/runtime_features.cc
-@@ -94,6 +94,9 @@
+@@ -93,6 +93,9 @@ void SetRuntimeFeatureDefaultsForPlatfor
        command_line.HasSwitch(
            blink::switches::kEnableGpuMemoryBufferCompositorResources) &&
        !command_line.HasSwitch(switches::kDisableWebGLImageChromium) &&
@@ -78,7 +78,7 @@ legacy acceleration events.
  #else
 --- a/content/public/common/content_features.cc
 +++ b/content/public/common/content_features.cc
-@@ -833,6 +833,16 @@
+@@ -856,6 +856,16 @@ const base::Feature kWebOtpBackend{"kWeb
  // TODO(rouslan): Remove this.
  const base::Feature kWebPayments{"WebPayments",
                                   base::FEATURE_ENABLED_BY_DEFAULT};
@@ -97,7 +97,7 @@ legacy acceleration events.
  const base::Feature kWebPaymentsMinimalUI{"WebPaymentsMinimalUI",
 --- a/content/public/common/content_features.h
 +++ b/content/public/common/content_features.h
-@@ -180,6 +180,8 @@
+@@ -183,6 +183,8 @@ CONTENT_EXPORT extern const base::Featur
  CONTENT_EXPORT extern const base::Feature kWebXrHitTest;
  CONTENT_EXPORT extern const base::Feature kWebXrIncubations;
  
@@ -108,7 +108,7 @@ legacy acceleration events.
  CONTENT_EXPORT extern const base::Feature
 --- a/third_party/blink/public/platform/web_runtime_features.h
 +++ b/third_party/blink/public/platform/web_runtime_features.h
-@@ -99,6 +99,8 @@
+@@ -99,6 +99,8 @@ class WebRuntimeFeatures {
    BLINK_PLATFORM_EXPORT static void EnableCSSHexAlphaColor(bool);
    BLINK_PLATFORM_EXPORT static void EnableSameSiteByDefaultCookies(bool);
    BLINK_PLATFORM_EXPORT static void EnableScrollTopLeftInterop(bool);
@@ -119,7 +119,7 @@ legacy acceleration events.
    BLINK_PLATFORM_EXPORT static void EnableDecodeJpeg420ImagesToYUV(bool);
 --- a/third_party/blink/renderer/modules/modules_initializer.cc
 +++ b/third_party/blink/renderer/modules/modules_initializer.cc
-@@ -226,9 +226,13 @@
+@@ -228,9 +228,13 @@ void ModulesInitializer::OnClearWindowOb
      Document& document,
      const Settings& settings) const {
    LocalDOMWindow& window = *document.domWindow();
@@ -138,7 +138,7 @@ legacy acceleration events.
    // TODO(nhiroki): Figure out why ServiceWorkerContainer needs to be eagerly
 --- a/third_party/blink/renderer/platform/exported/web_runtime_features.cc
 +++ b/third_party/blink/renderer/platform/exported/web_runtime_features.cc
-@@ -189,6 +189,14 @@
+@@ -187,6 +187,14 @@ void WebRuntimeFeatures::EnableScrollTop
    RuntimeEnabledFeatures::SetScrollTopLeftInteropEnabled(enable);
  }
  
@@ -155,7 +155,7 @@ legacy acceleration events.
  }
 --- a/third_party/blink/renderer/platform/runtime_enabled_features.json5
 +++ b/third_party/blink/renderer/platform/runtime_enabled_features.json5
-@@ -1304,6 +1304,14 @@
+@@ -1314,6 +1314,14 @@
        status: "experimental",
      },
      {

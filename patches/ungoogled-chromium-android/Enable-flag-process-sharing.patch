@@ -4,7 +4,7 @@
 
 --- a/chrome/browser/flag-metadata.json
 +++ b/chrome/browser/flag-metadata.json
-@@ -1950,12 +1950,12 @@
+@@ -1980,12 +1980,12 @@
    {
      "name": "enable-process-sharing-with-default-site-instances",
      "owners": [ "acolwell" ],
@@ -18,4 +18,4 @@
 +    "expiry_milestone": -1
    },
    {
-     "name": "enable-quic",
+     "name": "enable-profiles-ui-revamp",

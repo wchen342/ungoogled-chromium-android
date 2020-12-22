@@ -3,14 +3,14 @@ Date: Thu, 20 Feb 2020 22:24:35 -0500
 Subject: fix build error with prefs.h
 
 ---
- chrome/android/java/src/org/chromium/chrome/browser/signin/SigninFragmentBase.java |    2 +-
- chrome/android/java/src/org/chromium/chrome/browser/signin/SigninPromoUtil.java    |    3 +--
+ chrome/android/java/src/org/chromium/chrome/browser/signin/SigninFragmentBase.java |    3 +--
+ chrome/android/java/src/org/chromium/chrome/browser/signin/SigninPromoUtil.java    |    4 +---
  chrome/browser/preferences/BUILD.gn                                                |    1 -
- 3 files changed, 2 insertions(+), 4 deletions(-)
+ 3 files changed, 2 insertions(+), 6 deletions(-)
  
 --- a/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninFragmentBase.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninFragmentBase.java
-@@ -430,8 +430,7 @@
+@@ -430,8 +430,7 @@ public abstract class SigninFragmentBase
      private void runStateMachineAndSignin(boolean settingsClicked) {
          mConfirmSyncDataStateMachine = new ConfirmSyncDataStateMachine(
                  new ConfirmSyncDataStateMachineDelegate(getChildFragmentManager()),
@@ -22,7 +22,7 @@ Subject: fix build error with prefs.h
                      public void onConfirm(boolean wipeData) {
 --- a/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninPromoUtil.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninPromoUtil.java
-@@ -49,9 +49,7 @@
+@@ -51,9 +51,7 @@ public class SigninPromoUtil {
          boolean isSignedIn = IdentityServicesProvider.get()
                                       .getIdentityManager(Profile.getLastUsedRegularProfile())
                                       .hasPrimaryAccount();
@@ -35,7 +35,7 @@ Subject: fix build error with prefs.h
          if (!shouldLaunchSigninPromo(preferencesManager, currentMajorVersion, isSignedIn,
 --- a/chrome/browser/preferences/BUILD.gn
 +++ b/chrome/browser/preferences/BUILD.gn
-@@ -35,7 +35,6 @@
+@@ -36,7 +36,6 @@ java_cpp_strings("java_pref_names_srcjar
      "//components/offline_pages/core/prefetch/prefetch_prefs.cc",
      "//components/password_manager/core/common/password_manager_pref_names.cc",
      "//components/payments/core/payment_prefs.cc",

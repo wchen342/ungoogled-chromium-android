@@ -4,15 +4,15 @@ Subject: Revert "flags: remove disable-pull-to-refresh-effect"
 
 This reverts commit 4e598f38a0e6dd3dbede009c6a99b2a520a94e1f.
 ---
- chrome/browser/about_flags.cc       | 4 ++++
- chrome/browser/flag-metadata.json   | 5 +++++
- chrome/browser/flag_descriptions.cc | 4 ++++
- chrome/browser/flag_descriptions.h  | 3 +++
+ chrome/browser/about_flags.cc       |    4 ++++
+ chrome/browser/flag-metadata.json   |    5 +++++
+ chrome/browser/flag_descriptions.cc |    4 ++++
+ chrome/browser/flag_descriptions.h  |    3 +++
  4 files changed, 16 insertions(+)
 
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -2924,6 +2924,10 @@
+@@ -3036,6 +3036,10 @@ const FeatureEntry kFeatureEntries[] = {
       SINGLE_VALUE_TYPE(switches::kHostedAppQuitNotification)},
  #endif  // OS_MAC
  #if defined(OS_ANDROID)
@@ -25,7 +25,7 @@ This reverts commit 4e598f38a0e6dd3dbede009c6a99b2a520a94e1f.
       flag_descriptions::kTranslateForceTriggerOnEnglishDescription, kOsAndroid,
 --- a/chrome/browser/flag-metadata.json
 +++ b/chrome/browser/flag-metadata.json
-@@ -891,6 +891,11 @@
+@@ -906,6 +906,11 @@
      "expiry_milestone": -1
    },
    {
@@ -39,7 +39,7 @@ This reverts commit 4e598f38a0e6dd3dbede009c6a99b2a520a94e1f.
      "expiry_milestone": 83
 --- a/chrome/browser/flag_descriptions.cc
 +++ b/chrome/browser/flag_descriptions.cc
-@@ -3044,6 +3044,10 @@
+@@ -3077,6 +3077,10 @@ const char kQueryTilesInstantFetchName[]
  const char kQueryTilesInstantFetchDescription[] =
      "Immediately schedule background task to fetch query tiles";
  
@@ -52,7 +52,7 @@ This reverts commit 4e598f38a0e6dd3dbede009c6a99b2a520a94e1f.
      "Determines what pages the Reader Mode infobar is shown on.";
 --- a/chrome/browser/flag_descriptions.h
 +++ b/chrome/browser/flag_descriptions.h
-@@ -1756,6 +1756,9 @@
+@@ -1771,6 +1771,9 @@ extern const char kQueryTilesLocalOrderi
  extern const char kQueryTilesInstantFetchName[];
  extern const char kQueryTilesInstantFetchDescription[];
  
