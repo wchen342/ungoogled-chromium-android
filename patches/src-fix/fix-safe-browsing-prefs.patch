@@ -4,7 +4,7 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
 
 ---
  android_webview/browser/aw_browser_context.cc                                                                                                |    2 
- android_webview/browser/safe_browsing/aw_safe_browsing_blocking_page.cc                                                                      |   10 
+ android_webview/browser/safe_browsing/aw_safe_browsing_blocking_page.cc                                                                      |   13 
  chrome/android/BUILD.gn                                                                                                                      |    1 
  chrome/android/java/src/org/chromium/chrome/browser/ntp/cards/promo/enhanced_protection/EnhancedProtectionPromoController.java               |    6 
  chrome/android/java/src/org/chromium/chrome/browser/ntp/cards/promo/enhanced_protection/EnhancedProtectionPromoUtils.java                    |    4 
@@ -28,7 +28,7 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
  weblayer/browser/profile_impl.cc                                                                                                             |   16 
  weblayer/browser/safe_browsing/safe_browsing_blocking_page.cc                                                                                |    8 
  weblayer/browser/safe_browsing/safe_browsing_service.cc                                                                                      |  175 ----------
- 25 files changed, 46 insertions(+), 433 deletions(-)
+ 25 files changed, 47 insertions(+), 435 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
@@ -53,7 +53,15 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
    // The default value '0' represents the latest Chrome major version on which
 --- a/android_webview/browser/safe_browsing/aw_safe_browsing_blocking_page.cc
 +++ b/android_webview/browser/safe_browsing/aw_safe_browsing_blocking_page.cc
-@@ -102,12 +102,12 @@ AwSafeBrowsingBlockingPage* AwSafeBrowsi
+@@ -16,7 +16,6 @@
+ #include "base/metrics/histogram_macros.h"
+ #include "components/prefs/pref_service.h"
+ #include "components/safe_browsing/content/browser/threat_details.h"
+-#include "components/safe_browsing/core/common/safe_browsing_prefs.h"
+ #include "components/safe_browsing/core/common/safebrowsing_constants.h"
+ #include "components/safe_browsing/core/features.h"
+ #include "components/safe_browsing/core/triggers/trigger_manager.h"
+@@ -102,16 +101,16 @@ AwSafeBrowsingBlockingPage* AwSafeBrowsi
    BaseSafeBrowsingErrorUI::SBErrorDisplayOptions display_options =
        BaseSafeBrowsingErrorUI::SBErrorDisplayOptions(
            IsMainPageLoadBlocked(unsafe_resources),
@@ -71,6 +79,11 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
            false,  // should_open_links_in_new_tab
            false,  // always_show_back_to_safety
            false,  // is_enhanced_protection_message_enabled
+-          safe_browsing::IsSafeBrowsingPolicyManaged(*pref_service),
++          false,
+           "cpn_safe_browsing_wv");  // help_center_article_link
+ 
+   ErrorUiType errorType =
 --- a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
 @@ -47,7 +47,6 @@ import org.chromium.chrome.browser.prefe

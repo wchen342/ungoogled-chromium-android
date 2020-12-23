@@ -1,3 +1,7 @@
+# 87.0.4280.88-1
+* Add DoH patch back
+* There is a problem about [leaking connections](https://github.com/Eloston/ungoogled-chromium/issues/1297). It is being investigated.
+
 # 86.0.4240.111-1
 * Custom DoH setting is removed since it is supported natively.
 * `ChromeModernPublic` is also generated from bundle file now since Google removed the `apk` target.
