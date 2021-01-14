@@ -5,7 +5,7 @@ Subject: bundle chromium-web-store
 
 ---
  chrome/browser/browser_resources.grd                                  |    1 
- chrome/browser/extensions/component_extensions_whitelist/whitelist.cc |    1 
+ chrome/browser/extensions/component_extensions_allowlist/allowlist.cc |    1 
  chrome/browser/extensions/component_loader.cc                         |    3 
  chrome/browser/resources/component_extension_resources.grd            |   19 ++++
  extensions/common/extension.cc                                        |    2 
@@ -16,7 +16,7 @@ Subject: bundle chromium-web-store
 
 --- a/chrome/browser/browser_resources.grd
 +++ b/chrome/browser/browser_resources.grd
-@@ -215,6 +215,7 @@
+@@ -219,6 +219,7 @@
        <include name="IDR_WEB_FOOTER_EXPERIMENT_HTML" file="resources\web_footer_experiment\index.html" type="BINDATA" />
        <include name="IDR_WEBSTORE_MANIFEST" file="resources\webstore_app\manifest.json" type="BINDATA" />
        <include name="IDR_CRYPTOTOKEN_MANIFEST" file="resources\cryptotoken\manifest.json" type="BINDATA" />
@@ -24,9 +24,9 @@ Subject: bundle chromium-web-store
        <if expr="chromeos">
          <!-- Edu account login resources -->
          <include name="IDR_EDU_LOGIN_EDU_LOGIN_HTML" file="resources\chromeos\edu_login\edu_login.html" allowexternalscript="true" type="BINDATA" />
---- a/chrome/browser/extensions/component_extensions_whitelist/whitelist.cc
-+++ b/chrome/browser/extensions/component_extensions_whitelist/whitelist.cc
-@@ -65,6 +65,7 @@ bool IsComponentExtensionWhitelisted(int
+--- a/chrome/browser/extensions/component_extensions_allowlist/allowlist.cc
++++ b/chrome/browser/extensions/component_extensions_allowlist/allowlist.cc
+@@ -65,6 +65,7 @@ bool IsComponentExtensionAllowlisted(int
      case IDR_CLOUDPRINT_MANIFEST:
  #endif
      case IDR_CRYPTOTOKEN_MANIFEST:
@@ -36,7 +36,7 @@ Subject: bundle chromium-web-store
      case IDR_HANGOUT_SERVICES_MANIFEST:
 --- a/chrome/browser/extensions/component_loader.cc
 +++ b/chrome/browser/extensions/component_loader.cc
-@@ -580,6 +580,9 @@ void ComponentLoader::AddDefaultComponen
+@@ -579,6 +579,9 @@ void ComponentLoader::AddDefaultComponen
  
    Add(IDR_CRYPTOTOKEN_MANIFEST,
        base::FilePath(FILE_PATH_LITERAL("cryptotoken")));
@@ -48,7 +48,7 @@ Subject: bundle chromium-web-store
  void ComponentLoader::
 --- a/chrome/browser/resources/component_extension_resources.grd
 +++ b/chrome/browser/resources/component_extension_resources.grd
-@@ -178,6 +178,25 @@
+@@ -179,6 +179,25 @@
        <include name="IDR_CRYPTOTOKEN_CRYPTOTOKENAPPROVEDORIGIN_JS" file="cryptotoken/cryptotokenapprovedorigins.js" type="BINDATA" />
        <include name="IDR_CRYPTOTOKEN_CRYPTOTOKENORIGINCHECK_JS" file="cryptotoken/cryptotokenorigincheck.js" type="BINDATA" />
        <include name="IDR_CRYPTOTOKEN_CRYPTOTOKENBACKGROUND_JS" file="cryptotoken/cryptotokenbackground.js" type="BINDATA" />
