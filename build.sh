@@ -10,7 +10,7 @@ trichrome_chrome_bundle_target=trichrome_chrome_bundle
 trichrome_chrome_apk_target=trichrome_library_apk
 webview_target=system_webview_apk
 
-chromium_version=87.0.4280.88
+chromium_version=87.0.4280.141
 ungoogled_chromium_revision=1
 
 # Show env

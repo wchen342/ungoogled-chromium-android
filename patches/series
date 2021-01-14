@@ -46,3 +46,4 @@ Bromite/Remove-account-permissions-from-manifest.patch
 Bromite/Revert-flags-remove-disable-pull-to-refresh-effect.patch
 Bromite/updater-disable-updater-pings.patch
 Bromite/Add-bookmark-import-export-actions.patch
+Bromite/Disable-DRM-media-origin-IDs-preprovisioning.patch

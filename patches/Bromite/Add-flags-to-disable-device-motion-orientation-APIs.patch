@@ -19,7 +19,7 @@ legacy acceleration events.
 
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -2678,6 +2678,12 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -2694,6 +2694,12 @@ const FeatureEntry kFeatureEntries[] = {
      {"enable-gpu-rasterization", flag_descriptions::kGpuRasterizationName,
       flag_descriptions::kGpuRasterizationDescription, kOsAll,
       MULTI_VALUE_TYPE(kEnableGpuRasterizationChoices)},

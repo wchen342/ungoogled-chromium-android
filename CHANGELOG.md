@@ -1,3 +1,6 @@
+# 87.0.4280.141-1
+* Prevent Google connections from DRM preprovisioning ([ungoogled-chromium/issues/1297](https://github.com/Eloston/ungoogled-chromium/issues/1297))
+
 # 87.0.4280.88-1
 * Add DoH patch back
 * There is a problem about [leaking connections](https://github.com/Eloston/ungoogled-chromium/issues/1297). It is being investigated.

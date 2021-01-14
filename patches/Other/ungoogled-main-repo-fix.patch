@@ -1,43 +1,11 @@
-description: remove some prune causing build to fail, modify GN flags
+description: modify GN flags and pruning list
 author: Wengling Chen <feiyu2817@gmail.com>
-
 
 ---
  flags.gn     | 1 -
- pruning.list | 6 ------
- 2 files changed, 7 deletions(-)
+ pruning.list     | 1 -
+ 2 files changed, 2 deletions(-)
  
---- a/ungoogled-chromium/pruning.list
-+++ b/ungoogled-chromium/pruning.list
-@@ -26,7 +26,6 @@ base/test/data/tzdata/2019a/44/le/metaZones.res
- base/test/data/tzdata/2019a/44/le/timezoneTypes.res
- base/test/data/tzdata/2019a/44/le/zoneinfo64.res
- build/android/CheckInstallApk-debug.apk
--build/android/chromium-debug.keystore
- build/android/stacktrace/java_deobfuscate.jar
- build/android/tests/symbolize/liba.so
- build/android/tests/symbolize/libb.so
-@@ -15582,12 +15581,8 @@ third_party/hyphenation-patterns/hyb/hyph-ta.hyb
- third_party/hyphenation-patterns/hyb/hyph-te.hyb
- third_party/hyphenation-patterns/hyb/hyph-tk.hyb
- third_party/hyphenation-patterns/hyb/hyph-und-ethi.hyb
--third_party/icu/android/icudtl.dat
--third_party/icu/android_small/icudtl.dat
--third_party/icu/android_small/icudtl_extra.dat
- third_party/icu/cast/icudtl.dat
- third_party/icu/chromeos/icudtl.dat
--third_party/icu/common/icudtb.dat
- third_party/icu/flutter/icudtl.dat
- third_party/icu/ios/icudtl.dat
- third_party/icu/source/data/in/coll/ucadata-implicithan.icu
-@@ -15605,7 +15600,6 @@ third_party/icu/source/data/in/uts46.nrm
- third_party/icu/tzres/metaZones.res
- third_party/icu/tzres/timezoneTypes.res
- third_party/icu/tzres/zoneinfo64.res
--third_party/jetifier_standalone/lib/jetifier-standalone.jar
- third_party/libavif/src/tests/data/cosmos1650_yuv444_10bpc_p3pq.y4m
- third_party/libavif/src/tests/data/kodim03_yuv420_8bpc.y4m
- third_party/libavif/src/tests/data/kodim23_yuv420_8bpc.y4m
 --- a/ungoogled-chromium/flags.gn
 +++ b/ungoogled-chromium/flags.gn
 @@ -12,7 +12,6 @@ enable_remoting=false
@@ -48,3 +16,13 @@ author: Wengling Chen <feiyu2817@gmail.com>
  fieldtrial_testing_like_official_build=true
  google_api_key=""
  google_default_client_id=""
+--- a/ungoogled-chromium/pruning.list
++++ b/ungoogled-chromium/pruning.list
+@@ -15581,7 +15581,6 @@ third_party/hyphenation-patterns/hyb/hyph-ta.hyb
+ third_party/hyphenation-patterns/hyb/hyph-te.hyb
+ third_party/hyphenation-patterns/hyb/hyph-tk.hyb
+ third_party/hyphenation-patterns/hyb/hyph-und-ethi.hyb
+-third_party/icu/android_small/icudtl_extra.dat
+ third_party/icu/cast/icudtl.dat
+ third_party/icu/chromeos/icudtl.dat
+ third_party/icu/flutter/icudtl.dat
