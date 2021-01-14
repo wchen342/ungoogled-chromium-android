@@ -36,6 +36,7 @@ ungoogled-chromium-android/Enable-ProactivelySwapBrowsingInstance.patch
 ungoogled-chromium-android/Disable-homepage-by-default.patch
 ungoogled-chromium-android/Remove-UI-elements.patch
 ungoogled-chromium-android/Disable-Android-R.patch
+ungoogled-chromium-android/Remove-ntp-sites.patch
 Bromite/Add-exit-menu-item.patch
 Bromite/Add-flag-to-disable-WebGL.patch
 Bromite/Add-flags-to-disable-device-motion-orientation-APIs.patch

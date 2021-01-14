@@ -1,0 +1,57 @@
+From: Wengling Chen <feiyu2817@gmail.com>
+Thu, 14 Jan 2021 12:13:01 +0200
+Subject: Remove sites on ntp
+
+---
+ components/ntp_tiles/resources/default_popular_sites.json |   30 ++------------
+ 1 file changed, 5 insertions(+), 25 deletions(-)
+
+--- a/components/ntp_tiles/resources/default_popular_sites.json
++++ b/components/ntp_tiles/resources/default_popular_sites.json
+@@ -1,23 +1,8 @@
+ [
+     {
+-        "large_icon_url": "https://www.ch40m1um.qjz9zk/_/rsrc/1484148948583/apple-touch-icon.png",
+-        "title": "The Chromium Projects `",
+-        "url": "https://www.ch40m1um.qjz9zk/"
+-    },
+-    {
+-        "favicon_url": "https://codereview.ch40m1um.qjz9zk/static/favicon.ico",
+-        "title": "Chromium Code Reviews",
+-        "url": "https://codereview.ch40m1um.qjz9zk/"
+-    },
+-    {
+-        "large_icon_url": "https://www.ch40m1um.qjz9zk/_/rsrc/1484148948583/apple-touch-icon.png",
+-        "title": "Git Repositories on chromium",
+-        "url": "https://chromium.9oo91esource.qjz9zk/"
+-    },
+-    {
+-        "large_icon_url": "https://developers.9oo91e.qjz9zk/_static/9bce7b6017/images/touch-icon.png",
+-        "title": "Google Open Source Programs Office",
+-        "url": "https://developers.9oo91e.qjz9zk/open-source/"
++        "large_icon_url": "",
++        "title": "Ungoogled Chromium",
++        "url": "https://ungoogled-software.github.io/"
+     },
+     {
+         "large_icon_url": "https://freenode.net/static/img/logos/coloured-alphabg-sq-120.png",
+@@ -25,17 +10,12 @@
+         "url": "https://freenode.net/"
+     },
+     {
+-        "large_icon_url": "https://assets-cdn.github.com/pinned-octocat.svg",
+-        "title": "Github Page of the Chromium Project",
+-        "url": "https://github.com/chromium/"
+-    },
+-    {
+-        "large_icon_url": "https://cdn2.iconfinder.com/data/icons/minimalism/512/Chromium.png",
++        "large_icon_url": "",
+         "title": "Chrome Flags",
+         "url": "chrome://flags"
+     },
+     {
+-        "large_icon_url": "https://cdn2.iconfinder.com/data/icons/minimalism/512/Chromium.png",
++        "large_icon_url": "",
+         "title": "Chrome Version",
+         "url": "chrome://version/"
+     }
