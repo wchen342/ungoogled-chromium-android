@@ -33,7 +33,7 @@ Subject: add folder selection mode picker
  import java.util.ArrayList;
  import java.util.Arrays;
  import java.util.List;
-@@ -95,6 +100,7 @@ public class SelectFileDialog implements
+@@ -92,6 +97,7 @@ public class SelectFileDialog implements
  
      private final long mNativeSelectFileDialog;
      private List<String> mFileTypes;
@@ -41,7 +41,7 @@ Subject: add folder selection mode picker
      private boolean mCapture;
      private boolean mAllowMultiple;
      private Uri mCameraOutputUri;
-@@ -161,9 +167,10 @@ public class SelectFileDialog implements
+@@ -153,9 +159,10 @@ public class SelectFileDialog implements
      @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
      @CalledByNative
      private void selectFile(
@@ -53,7 +53,7 @@ Subject: add folder selection mode picker
          mAllowMultiple = multiple;
          mWindowAndroid = (sOverrideWindowAndroid == null) ? window : sOverrideWindowAndroid;
  
-@@ -255,6 +262,12 @@ public class SelectFileDialog implements
+@@ -247,6 +254,12 @@ public class SelectFileDialog implements
          RecordHistogram.recordEnumeratedHistogram("Android.SelectFileDialogScope",
                  determineSelectFileDialogScope(), SELECT_FILE_DIALOG_SCOPE_COUNT);
  
@@ -66,36 +66,36 @@ Subject: add folder selection mode picker
          boolean hasCameraPermission = mWindowAndroid.hasPermission(Manifest.permission.CAMERA);
          Intent camcorder = null;
          if (mSupportsVideoCapture && hasCameraPermission) {
-@@ -297,15 +310,22 @@ public class SelectFileDialog implements
-             // Create a chooser based on the accept type that was specified in the webpage. Note
-             // that if the web page specified multiple accept types, we will have built a generic
-             // chooser above.
+@@ -288,15 +301,22 @@ public class SelectFileDialog implements
+         if (acceptsSingleType()) {
+             // If one and only one category of accept type was specified (image, video, etc..),
+             // then update the intent to specifically target that request.
 -            if (shouldShowImageTypes()) {
 +            if (shouldShowImageTypes() && !mIsFolder) {
 +                Log.d("SelectFileDialog.java", "shouldShowImageTypes");
                  if (camera != null) extraIntents.add(camera);
-                 getContentIntent.setType(ALL_IMAGE_TYPES);
+                 getContentIntent.setType(IMAGE_TYPE + "/*");
 -            } else if (shouldShowVideoTypes()) {
 +            } else if (shouldShowVideoTypes() && !mIsFolder) {
 +                Log.d("SelectFileDialog.java", "shouldShowVideoTypes");
                  if (camcorder != null) extraIntents.add(camcorder);
-                 getContentIntent.setType(ALL_VIDEO_TYPES);
+                 getContentIntent.setType(VIDEO_TYPE + "/*");
 -            } else if (shouldShowAudioTypes()) {
 +            } else if (shouldShowAudioTypes() && !mIsFolder) {
 +                Log.d("SelectFileDialog.java", "shouldShowAudioTypes");
                  if (soundRecorder != null) extraIntents.add(soundRecorder);
-                 getContentIntent.setType(ALL_AUDIO_TYPES);
+                 getContentIntent.setType(AUDIO_TYPE + "/*");
 +            } else if (mIsFolder) {
 +                Log.d("SelectFileDialog.java", "mIsFolder, add(folderSelector)");
 +                if (folderSelector != null) extraIntents.add(folderSelector);
-+                getContentIntent.setType(ANY_TYPES);
++                getContentIntent.setType(ALL_TYPES);
              }
  
              // If any types are specified, then only accept openable files, as coercing
-@@ -316,13 +336,20 @@ public class SelectFileDialog implements
+@@ -307,13 +327,20 @@ public class SelectFileDialog implements
          if (extraIntents.isEmpty()) {
-             // We couldn't resolve an accept type, so fallback to a generic chooser.
-             getContentIntent.setType(ANY_TYPES);
+             // We couldn't resolve a single accept type, so fallback to a generic chooser.
+             getContentIntent.setType(ALL_TYPES);
 -            if (camera != null) extraIntents.add(camera);
 -            if (camcorder != null) extraIntents.add(camcorder);
 -            if (soundRecorder != null) extraIntents.add(soundRecorder);
@@ -116,7 +116,7 @@ Subject: add folder selection mode picker
              chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS,
                      extraIntents.toArray(new Intent[] { }));
          }
-@@ -754,6 +781,18 @@ public class SelectFileDialog implements
+@@ -802,6 +829,18 @@ public class SelectFileDialog implements
              String[] displayNames = new String[mUris.length];
              try {
                  for (int i = 0; i < mUris.length; i++) {
@@ -135,7 +135,7 @@ Subject: add folder selection mode picker
                      // The selected files must be returned as a list of absolute paths. A MIUI 8.5
                      // device was observed to return a file:// URI instead, so convert if necessary.
                      // See https://crbug.com/752834 for context.
-@@ -762,8 +801,13 @@ public class SelectFileDialog implements
+@@ -810,8 +849,13 @@ public class SelectFileDialog implements
                      } else {
                          mFilePaths[i] = mUris[i].toString();
                      }
@@ -151,7 +151,7 @@ Subject: add folder selection mode picker
                  }
              }  catch (SecurityException e) {
                  // Some third party apps will present themselves as being able
-@@ -877,4 +921,95 @@ public class SelectFileDialog implements
+@@ -927,4 +971,95 @@ public class SelectFileDialog implements
          void onContactsSelected(
                  long nativeSelectFileDialogImpl, SelectFileDialog caller, String contacts);
      }

@@ -9,14 +9,14 @@ Subject: fix for enable_supervised_users=false
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -2927,7 +2927,6 @@ generate_jni("chrome_jni_headers") {
+@@ -3054,7 +3054,6 @@ generate_jni("chrome_jni_headers") {
      "java/src/org/chromium/chrome/browser/browsing_data/BrowsingDataCounterBridge.java",
      "java/src/org/chromium/chrome/browser/browsing_data/UrlFilterBridge.java",
      "java/src/org/chromium/chrome/browser/childaccounts/ChildAccountFeedbackReporter.java",
 -    "java/src/org/chromium/chrome/browser/childaccounts/ChildAccountService.java",
      "java/src/org/chromium/chrome/browser/complex_tasks/TaskTabHelper.java",
-     "java/src/org/chromium/chrome/browser/complex_tasks/endpoint_fetcher/EndpointFetcher.java",
-     "java/src/org/chromium/chrome/browser/complex_tasks/endpoint_fetcher/EndpointResponse.java",
+     "java/src/org/chromium/chrome/browser/component_updater/UpdateScheduler.java",
+     "java/src/org/chromium/chrome/browser/compositor/CompositorView.java",
 --- a/chrome/android/java/src/org/chromium/chrome/browser/childaccounts/ChildAccountService.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/childaccounts/ChildAccountService.java
 @@ -60,32 +60,18 @@ public class ChildAccountService {

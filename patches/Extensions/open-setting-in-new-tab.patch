@@ -13,7 +13,7 @@ Subject: make settings of extensions open in new tab
 
 --- a/chrome/browser/extensions/api/developer_private/developer_private_api.cc
 +++ b/chrome/browser/extensions/api/developer_private/developer_private_api.cc
-@@ -1886,12 +1886,14 @@ ExtensionFunction::ResponseAction Develo
+@@ -1927,12 +1927,14 @@ ExtensionFunction::ResponseAction Develo
      return RespondNow(Error(kNoOptionsPageForExtensionError));
  
    content::WebContents* web_contents = GetSenderWebContents();
@@ -31,7 +31,7 @@ Subject: make settings of extensions open in new tab
  
 --- a/chrome/browser/extensions/extension_tab_util.cc
 +++ b/chrome/browser/extensions/extension_tab_util.cc
-@@ -877,30 +877,28 @@ bool ExtensionTabUtil::OpenOptionsPageFr
+@@ -867,30 +867,28 @@ bool ExtensionTabUtil::OpenOptionsPageFr
    // that's the only place it's running.
    DCHECK(!profile->IsOffTheRecord() || IncognitoInfo::IsSplitMode(extension));
    Browser* browser = chrome::FindBrowserWithProfile(profile);
@@ -69,7 +69,7 @@ Subject: make settings of extensions open in new tab
    GURL url_to_navigate;
    bool open_in_tab = OptionsPageInfo::ShouldOpenInTab(extension);
    if (open_in_tab) {
-@@ -917,17 +915,14 @@ bool ExtensionTabUtil::OpenOptionsPage(c
+@@ -907,17 +905,14 @@ bool ExtensionTabUtil::OpenOptionsPage(c
      url_to_navigate = url_to_navigate.ReplaceComponents(replacements);
    }
  
@@ -97,7 +97,7 @@ Subject: make settings of extensions open in new tab
  
 --- a/chrome/browser/extensions/extension_tab_util.h
 +++ b/chrome/browser/extensions/extension_tab_util.h
-@@ -244,7 +244,7 @@ class ExtensionTabUtil {
+@@ -240,7 +240,7 @@ class ExtensionTabUtil {
    // Open the extension's options page. Returns true if an options page was
    // successfully opened (though it may not necessarily *load*, e.g. if the
    // URL does not exist).
@@ -116,7 +116,7 @@ Subject: make settings of extensions open in new tab
 +      ExtensionTabUtil::OpenOptionsPage(extension, GetActiveWebContents());
        break;
      case TOGGLE_VISIBILITY: {
-       bool currently_visible = button_visibility_ == VISIBLE;
+       bool currently_visible = button_visibility_ == PINNED;
 --- a/chrome/browser/ui/webui/settings/people_handler.cc
 +++ b/chrome/browser/ui/webui/settings/people_handler.cc
 @@ -726,7 +726,6 @@ void PeopleHandler::HandleSignout(const
