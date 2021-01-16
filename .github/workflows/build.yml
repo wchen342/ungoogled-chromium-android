@@ -1,8 +1,8 @@
-name: Ungoogled-chromium-android build dispatch
+name: Ungoogled-chromium-android extensions build dispatch
 on:
   push:
     tags:
-      - '[0-9]+.[0-9]+.[0-9]+.[0-9]+-[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+.[0-9]+-[0-9]+-extensions'
 
 jobs:
   build:

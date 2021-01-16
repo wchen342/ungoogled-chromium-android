@@ -42,7 +42,10 @@ Subject: source code fixes for enable_extensions=true
  chrome/browser/extensions/system_display/display_info_provider_aura.h                                           |   12 
  chrome/browser/first_run/first_run_internal_posix.cc                                                            |    2 
  chrome/browser/first_run/upgrade_util.h                                                                         |    2 
+ chrome/browser/flag_descriptions.cc                                                                             |    1 
+ chrome/browser/flag_descriptions.h                                                                              |    1 
  chrome/browser/hid/hid_chooser_context.cc                                                                       |    5 
+ chrome/browser/intranet_redirect_detector.h                                                                     |    5 
  chrome/browser/lifetime/application_lifetime.cc                                                                 |   22 
  chrome/browser/lifetime/application_lifetime.h                                                                  |    4 
  chrome/browser/lifetime/browser_shutdown.cc                                                                     |    6 
@@ -66,17 +69,19 @@ Subject: source code fixes for enable_extensions=true
  chrome/browser/policy/chrome_browser_cloud_management_controller_desktop.cc                                     |    6 
  chrome/browser/policy/chrome_browser_policy_connector.cc                                                        |   10 
  chrome/browser/policy/chrome_browser_policy_connector.h                                                         |    6 
- chrome/browser/prefs/browser_prefs.cc                                                                           |    6 
+ chrome/browser/prefs/browser_prefs.cc                                                                           |    8 
  chrome/browser/profiles/chrome_browser_main_extra_parts_profiles.cc                                             |   32 
  chrome/browser/profiles/chrome_browser_main_extra_parts_profiles.h                                              |    2 
  chrome/browser/profiles/off_the_record_profile_impl.cc                                                          |    9 
  chrome/browser/profiles/off_the_record_profile_impl.h                                                           |   10 
  chrome/browser/profiles/profile.cc                                                                              |   10 
  chrome/browser/profiles/profile.h                                                                               |    6 
+ chrome/browser/profiles/profile_attributes_storage.cc                                                           |    4 
+ chrome/browser/profiles/profile_attributes_storage.h                                                            |    2 
  chrome/browser/profiles/profile_impl.cc                                                                         |    5 
  chrome/browser/profiles/profile_impl.h                                                                          |    6 
  chrome/browser/profiles/profile_manager.cc                                                                      |   21 
- chrome/browser/profiles/profile_manager.h                                                                       |    8 
+ chrome/browser/profiles/profile_manager.h                                                                       |   10 
  chrome/browser/profiles/profile_metrics.cc                                                                      |    6 
  chrome/browser/profiles/profile_window.cc                                                                       |    4 
  chrome/browser/profiles/profile_window.h                                                                        |    3 
@@ -86,6 +91,7 @@ Subject: source code fixes for enable_extensions=true
  chrome/browser/renderer_context_menu/render_view_context_menu.h                                                 |    8 
  chrome/browser/resource_coordinator/resource_coordinator_parts.cc                                               |    4 
  chrome/browser/resource_coordinator/resource_coordinator_parts.h                                                |    8 
+ chrome/browser/search/instant_service.cc                                                                        |    5 
  chrome/browser/search/instant_service.h                                                                         |    2 
  chrome/browser/search/instant_service_factory.h                                                                 |    2 
  chrome/browser/search/instant_service_observer.h                                                                |    2 
@@ -101,13 +107,17 @@ Subject: source code fixes for enable_extensions=true
  chrome/browser/ui/aura/native_window_tracker_aura.cc                                                            |   19 
  chrome/browser/ui/aura/native_window_tracker_aura.h                                                             |   21 
  chrome/browser/ui/bookmarks/bookmark_utils_desktop.cc                                                           |    6 
+ chrome/browser/ui/browser.cc                                                                                    |    6 
  chrome/browser/ui/browser.h                                                                                     |    4 
  chrome/browser/ui/browser_commands.cc                                                                           |    1 
  chrome/browser/ui/browser_content_setting_bubble_model_delegate.cc                                              |    3 
  chrome/browser/ui/browser_dialogs.cc                                                                            |    2 
  chrome/browser/ui/browser_instant_controller.h                                                                  |    2 
+ chrome/browser/ui/browser_list.h                                                                                |    4 
+ chrome/browser/ui/browser_list_observer.h                                                                       |    4 
  chrome/browser/ui/browser_navigator_params.cc                                                                   |    2 
  chrome/browser/ui/browser_navigator_params.h                                                                    |    6 
+ chrome/browser/ui/browser_tab_strip_model_delegate.cc                                                           |    4 
  chrome/browser/ui/browser_ui_prefs.cc                                                                           |    2 
  chrome/browser/ui/browser_window.h                                                                              |    2 
  chrome/browser/ui/chrome_pages.cc                                                                               |    4 
@@ -117,6 +127,7 @@ Subject: source code fixes for enable_extensions=true
  chrome/browser/ui/content_settings/content_setting_image_model.cc                                               |    2 
  chrome/browser/ui/global_error/global_error.cc                                                                  |    2 
  chrome/browser/ui/native_file_system_dialogs.cc                                                                 |    2 
+ chrome/browser/ui/omnibox/chrome_omnibox_navigation_observer.cc                                                 |   10 
  chrome/browser/ui/passwords/manage_passwords_view_utils.cc                                                      |    4 
  chrome/browser/ui/passwords/password_generation_popup_controller_impl.cc                                        |    2 
  chrome/browser/ui/passwords/password_generation_popup_controller_impl.h                                         |    6 
@@ -153,10 +164,10 @@ Subject: source code fixes for enable_extensions=true
  chrome/browser/ui/views/payments/cvc_unmask_view_controller.cc                                                  |   13 
  chrome/browser/ui/views/payments/cvc_unmask_view_controller.h                                                   |    5 
  chrome/browser/ui/views/payments/secure_payment_confirmation_view.cc                                            |    8 
+ chrome/browser/ui/views/permission_bubble/permission_prompt_bubble_view.cc                                      |    4 
  chrome/browser/ui/views/profiles/profile_menu_view.cc                                                           |   23 
  chrome/browser/ui/views/profiles/profile_menu_view.h                                                            |    4 
  chrome/browser/ui/views/status_icons/status_icon_button_linux.cc                                                |   16 
- chrome/browser/ui/views/tabs/tab_strip.cc                                                                       |    4 
  chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc                                                     |   14 
  chrome/browser/ui/webui/history/foreign_session_handler.cc                                                      |    1 
  chrome/browser/ui/webui/omnibox/omnibox_ui.cc                                                                   |    4 
@@ -276,7 +287,7 @@ Subject: source code fixes for enable_extensions=true
  ui/views/widget/widget.cc                                                                                       |    5 
  weblayer/browser/browser_context_impl.cc                                                                        |    2 
  weblayer/browser/browser_context_impl.h                                                                         |    2 
- 273 files changed, 930 insertions(+), 3122 deletions(-)
+ 284 files changed, 939 insertions(+), 3163 deletions(-)
 
 --- a/ui/base/dragdrop/os_exchange_data_provider_factory.cc
 +++ b/ui/base/dragdrop/os_exchange_data_provider_factory.cc
@@ -2633,6 +2644,15 @@ Subject: source code fixes for enable_extensions=true
    Profile* profile = browser->profile();
 --- a/chrome/browser/profiles/profile_manager.h
 +++ b/chrome/browser/profiles/profile_manager.h
+@@ -27,7 +27,7 @@
+ #include "content/public/browser/notification_observer.h"
+ #include "content/public/browser/notification_registrar.h"
+ 
+-#if !defined(OS_ANDROID)
++#if defined(OS_ANDROID)
+ #include "chrome/browser/ui/browser_list_observer.h"
+ #endif  // !defined(OS_ANDROID)
+ 
 @@ -202,7 +202,7 @@ class ProfileManager : public content::N
    // profile specfic desktop shortcuts.
    ProfileShortcutManager* profile_shortcut_manager();
@@ -2993,26 +3013,6 @@ Subject: source code fixes for enable_extensions=true
              mClient = client;
          }
  
---- a/chrome/browser/ui/views/tabs/tab_strip.cc
-+++ b/chrome/browser/ui/views/tabs/tab_strip.cc
-@@ -141,8 +141,6 @@ class TabHoverCardEventSniffer : public
- // On Mac, events should be added to the root view.
- #if defined(OS_MAC)
-   using OwnerView = views::View*;
--#else   // defined(OS_MAC)
--  using OwnerView = gfx::NativeWindow;
- #endif  // defined(OS_MAC)
- 
-  public:
-@@ -153,7 +151,7 @@ class TabHoverCardEventSniffer : public
- #if defined(OS_MAC)
-         owner_view_(tab_strip->GetWidget()->GetRootView()) {
- #else   // defined(OS_MAC)
--        owner_view_(tab_strip->GetWidget()->GetNativeWindow()) {
-+        {
- #endif  // defined(OS_MAC)
-     AddPreTargetHandler();
-   }
 --- a/components/omnibox/browser/autocomplete_match.cc
 +++ b/components/omnibox/browser/autocomplete_match.cc
 @@ -35,7 +35,7 @@
@@ -4198,7 +4198,7 @@ Subject: source code fixes for enable_extensions=true
        prefs::kRelaunchNotificationPeriod,
 --- a/chrome/browser/prefs/browser_prefs.cc
 +++ b/chrome/browser/prefs/browser_prefs.cc
-@@ -225,7 +225,6 @@
+@@ -225,11 +225,9 @@
  #include "components/permissions/contexts/geolocation_permission_context_android.h"
  #include "components/query_tiles/tile_service_prefs.h"
  #include "components/feed/core/common/pref_names.h"
@@ -4206,7 +4206,11 @@ Subject: source code fixes for enable_extensions=true
  #include "chrome/browser/accessibility/caption_controller.h"
  #include "chrome/browser/enterprise/reporting/prefs.h"
  #include "chrome/browser/gcm/gcm_product_util.h"
-@@ -614,7 +613,6 @@ void RegisterLocalState(PrefRegistrySimp
+-#include "chrome/browser/intranet_redirect_detector.h"
+ #include "chrome/browser/media/unified_autoplay_config.h"
+ #include "chrome/browser/metrics/tab_stats_tracker.h"
+ #include "chrome/browser/nearby_sharing/common/nearby_share_prefs.h"
+@@ -614,11 +612,9 @@ void RegisterLocalState(PrefRegistrySimp
    ::android::RegisterPrefs(registry);
  
    registry->RegisterIntegerPref(first_run::kTosDialogBehavior, 0);
@@ -4214,7 +4218,11 @@ Subject: source code fixes for enable_extensions=true
    enterprise_connectors::RegisterLocalStatePrefs(registry);
    enterprise_reporting::RegisterLocalStatePrefs(registry);
    gcm::RegisterPrefs(registry);
-@@ -870,7 +868,6 @@ void RegisterProfilePrefs(user_prefs::Pr
+-  IntranetRedirectDetector::RegisterPrefs(registry);
+   media_router::RegisterLocalStatePrefs(registry);
+   metrics::TabStatsTracker::RegisterPrefs(registry);
+   RegisterBrowserPrefs(registry);
+@@ -870,7 +866,6 @@ void RegisterProfilePrefs(user_prefs::Pr
    video_tutorials::RegisterPrefs(registry);
    feed::prefs::RegisterFeedSharedProfilePrefs(registry);
    feed::RegisterProfilePrefs(registry);
@@ -4222,7 +4230,7 @@ Subject: source code fixes for enable_extensions=true
    AppShortcutManager::RegisterProfilePrefs(registry);
    browser_sync::ForeignSessionHandler::RegisterProfilePrefs(registry);
    captions::CaptionController::RegisterProfilePrefs(registry);
-@@ -882,7 +879,6 @@ void RegisterProfilePrefs(user_prefs::Pr
+@@ -882,7 +877,6 @@ void RegisterProfilePrefs(user_prefs::Pr
    FeaturePromoSnoozeService::RegisterProfilePrefs(registry);
    first_run::RegisterProfilePrefs(registry);
    gcm::RegisterProfilePrefs(registry);
@@ -4230,7 +4238,7 @@ Subject: source code fixes for enable_extensions=true
    HistoryUI::RegisterProfilePrefs(registry);
    InstantService::RegisterProfilePrefs(registry);
    media_router::RegisterProfilePrefs(registry);
-@@ -977,7 +973,7 @@ void RegisterProfilePrefs(user_prefs::Pr
+@@ -977,7 +971,7 @@ void RegisterProfilePrefs(user_prefs::Pr
    browser_switcher::BrowserSwitcherPrefs::RegisterProfilePrefs(registry);
  #endif
  
@@ -9788,29 +9796,16 @@ Subject: source code fixes for enable_extensions=true
      ShowWidget();
    } else if (state == "close") {
      CloseWidget();
---- a/components/media_router/browser/android/media_router_android.cc
-+++ b/components/media_router/browser/android/media_router_android.cc
-@@ -345,6 +345,10 @@ void MediaRouterAndroid::RemoveRoute(con
-     observer.OnRoutesUpdated(active_routes_, std::vector<MediaRoute::Id>());
- }
- 
-+LoggerImpl* MediaRouterAndroid::GetLogger() {
-+  return &logger_;
-+}
-+
- std::unique_ptr<media::FlingingController>
- MediaRouterAndroid::GetFlingingController(const MediaRoute::Id& route_id) {
-   return bridge_->GetFlingingController(route_id);
 --- a/components/media_router/browser/android/media_router_android.h
 +++ b/components/media_router/browser/android/media_router_android.h
-@@ -15,6 +15,7 @@
+@@ -14,6 +14,7 @@
+ #include "base/macros.h"
  #include "base/observer_list.h"
  #include "components/media_router/browser/android/media_router_android_bridge.h"
++#include "components/media_router/browser/logger_impl.h"
  #include "components/media_router/browser/media_router_base.h"
-+#include "chrome/browser/media/router/logger_impl.h"
  #include "mojo/public/cpp/bindings/pending_remote.h"
  #include "mojo/public/cpp/bindings/receiver.h"
- #include "mojo/public/cpp/bindings/remote.h"
 @@ -88,6 +89,9 @@ class MediaRouterAndroid : public MediaR
    // Notifies the media router about a message received from the media route.
    void OnMessage(const MediaRoute::Id& route_id, const std::string& message);
@@ -9907,3 +9902,223 @@ Subject: source code fixes for enable_extensions=true
    base::Value GetState() const override;
    void GetProviderState(
        MediaRouteProviderId provider_id,
+--- a/chrome/browser/ui/browser_list_observer.h
++++ b/chrome/browser/ui/browser_list_observer.h
+@@ -7,10 +7,6 @@
+ 
+ #include "build/build_config.h"
+ 
+-#if defined(OS_ANDROID)
+-#error This file should only be included on desktop.
+-#endif
+-
+ class Browser;
+ 
+ class BrowserListObserver {
+--- a/chrome/browser/ui/browser_list.h
++++ b/chrome/browser/ui/browser_list.h
+@@ -16,10 +16,6 @@
+ #include "base/observer_list.h"
+ #include "build/build_config.h"
+ 
+-#if defined(OS_ANDROID)
+-#error This file should only be included on desktop.
+-#endif
+-
+ class Browser;
+ class Profile;
+ 
+--- a/components/media_router/browser/android/media_router_android.cc
++++ b/components/media_router/browser/android/media_router_android.cc
+@@ -345,6 +345,10 @@ void MediaRouterAndroid::RemoveRoute(con
+     observer.OnRoutesUpdated(active_routes_, std::vector<MediaRoute::Id>());
+ }
+ 
++LoggerImpl* MediaRouterAndroid::GetLogger() {
++  return &logger_;
++}
++
+ std::unique_ptr<media::FlingingController>
+ MediaRouterAndroid::GetFlingingController(const MediaRoute::Id& route_id) {
+   return bridge_->GetFlingingController(route_id);
+--- a/chrome/browser/ui/views/permission_bubble/permission_prompt_bubble_view.cc
++++ b/chrome/browser/ui/views/permission_bubble/permission_prompt_bubble_view.cc
+@@ -167,10 +167,6 @@ void PermissionPromptBubbleView::AddPerm
+       provider->GetDistanceMetric(views::DISTANCE_RELATED_LABEL_HORIZONTAL)));
+ 
+   constexpr int kPermissionIconSize = 18;
+-  auto* icon = line_container->AddChildView(
+-      std::make_unique<views::ColorTrackingIconView>(request->GetIconId(),
+-                                                     kPermissionIconSize));
+-  icon->SetVerticalAlignment(views::ImageView::Alignment::kLeading);
+ 
+   auto* label = line_container->AddChildView(
+       std::make_unique<views::Label>(request->GetMessageTextFragment()));
+--- a/chrome/browser/flag_descriptions.cc
++++ b/chrome/browser/flag_descriptions.cc
+@@ -3274,7 +3274,6 @@ const char kTabbedAppOverflowMenuThreeBu
+ 
+ // Non-Android -----------------------------------------------------------------
+ 
+-#else  // !defined(OS_ANDROID)
+ 
+ extern const char kAllowAllSitesToInitiateMirroringName[] =
+     "Allow all sites to initiate mirroring";
+--- a/chrome/browser/flag_descriptions.h
++++ b/chrome/browser/flag_descriptions.h
+@@ -1873,7 +1873,6 @@ extern const char kTabbedAppOverflowMenu
+ 
+ // Non-Android ----------------------------------------------------------------
+ 
+-#else  // !defined(OS_ANDROID)
+ 
+ extern const char kAllowAllSitesToInitiateMirroringName[];
+ extern const char kAllowAllSitesToInitiateMirroringDescription[];
+--- a/chrome/browser/intranet_redirect_detector.h
++++ b/chrome/browser/intranet_redirect_detector.h
+@@ -27,11 +27,6 @@ class SimpleURLLoader;
+ 
+ class PrefRegistrySimple;
+ 
+-#if !(defined(OS_MAC) || defined(OS_WIN) || defined(OS_LINUX) || \
+-      defined(OS_CHROMEOS))
+-#error "IntranetRedirectDetector should only be built on Desktop platforms."
+-#endif
+-
+ // This object is responsible for determining whether the user is on a network
+ // that redirects requests for intranet hostnames to another site, and if so,
+ // tracking what that site is (including across restarts via a pref).  For
+--- a/chrome/browser/profiles/profile_attributes_storage.cc
++++ b/chrome/browser/profiles/profile_attributes_storage.cc
+@@ -31,7 +31,7 @@
+ #include "ui/base/l10n/l10n_util.h"
+ #include "ui/gfx/image/image.h"
+ 
+-#if !defined(OS_ANDROID)
++#if defined(OS_ANDROID)
+ #include "chrome/browser/ui/browser_list.h"
+ #endif
+ 
+@@ -390,7 +390,7 @@ void ProfileAttributesStorage::RemoveObs
+   observer_list_.RemoveObserver(obs);
+ }
+ 
+-#if !defined(OS_ANDROID)
++#if defined(OS_ANDROID)
+ void ProfileAttributesStorage::RecordDeletedProfileState(
+     ProfileAttributesEntry* entry) {
+   DCHECK(entry);
+--- a/chrome/browser/profiles/profile_attributes_storage.h
++++ b/chrome/browser/profiles/profile_attributes_storage.h
+@@ -97,7 +97,7 @@ class ProfileAttributesStorage
+   bool IsDefaultProfileName(const base::string16& name,
+                             bool include_check_for_legacy_profile_name) const;
+ 
+-#if !defined(OS_ANDROID)
++#if defined(OS_ANDROID)
+   // Records statistics about a profile `entry` that is being deleted. If the
+   // profile has opened browser window(s) in the moment of deletion, this
+   // function must be called before these windows get closed.
+--- a/chrome/browser/ui/browser.cc
++++ b/chrome/browser/ui/browser.cc
+@@ -32,6 +32,7 @@
+ #include "base/time/time.h"
+ #include "build/build_config.h"
+ #include "chrome/app/chrome_command_ids.h"
++#include "chrome/browser/android/tab_android.h"
+ #include "chrome/browser/app_mode/app_mode_utils.h"
+ #include "chrome/browser/autofill/personal_data_manager_factory.h"
+ #include "chrome/browser/background/background_contents.h"
+@@ -132,7 +133,6 @@
+ #include "chrome/browser/ui/sync/browser_synced_window_delegate.h"
+ #include "chrome/browser/ui/tab_contents/core_tab_helper.h"
+ #include "chrome/browser/ui/tab_dialogs.h"
+-#include "chrome/browser/ui/tab_helpers.h"
+ #include "chrome/browser/ui/tab_modal_confirm_dialog.h"
+ #include "chrome/browser/ui/tabs/tab_group.h"
+ #include "chrome/browser/ui/tabs/tab_group_model.h"
+@@ -1867,7 +1867,7 @@ void Browser::WebContentsCreated(WebCont
+   // requests for its initial navigation will start immediately. The WebContents
+   // will later be inserted into this browser using Browser::Navigate via
+   // AddNewContents.
+-  TabHelpers::AttachTabHelpers(new_contents);
++  TabAndroid::AttachTabHelpers(new_contents);
+ 
+   // Make the tab show up in the task manager.
+   task_manager::WebContentsTags::CreateForTabContents(new_contents);
+@@ -1877,7 +1877,7 @@ void Browser::PortalWebContentsCreated(W
+   ChromeMetricsServiceAccessor::RegisterSyntheticFieldTrial("PortalsActive",
+                                                             "Enabled");
+ 
+-  TabHelpers::AttachTabHelpers(portal_web_contents);
++  TabAndroid::AttachTabHelpers(portal_web_contents);
+ 
+   // Make the portal show up in the task manager.
+   task_manager::WebContentsTags::CreateForPortal(portal_web_contents);
+--- a/chrome/browser/ui/browser_tab_strip_model_delegate.cc
++++ b/chrome/browser/ui/browser_tab_strip_model_delegate.cc
+@@ -8,6 +8,7 @@
+ 
+ #include "base/bind.h"
+ #include "base/command_line.h"
++#include "chrome/browser/android/tab_android.h"
+ #include "chrome/browser/profiles/profile.h"
+ #include "chrome/browser/sessions/tab_restore_service_factory.h"
+ #include "chrome/browser/task_manager/web_contents_tags.h"
+@@ -15,7 +16,6 @@
+ #include "chrome/browser/ui/browser_commands.h"
+ #include "chrome/browser/ui/browser_tabstrip.h"
+ #include "chrome/browser/ui/browser_window.h"
+-#include "chrome/browser/ui/tab_helpers.h"
+ #include "chrome/browser/ui/tabs/tab_group.h"
+ #include "chrome/browser/ui/tabs/tab_group_model.h"
+ #include "chrome/browser/ui/tabs/tab_strip_model.h"
+@@ -87,7 +87,7 @@ Browser* BrowserTabStripModelDelegate::C
+ 
+ void BrowserTabStripModelDelegate::WillAddWebContents(
+     content::WebContents* contents) {
+-  TabHelpers::AttachTabHelpers(contents);
++  TabAndroid::AttachTabHelpers(contents);
+ 
+   // Make the tab show up in the task manager.
+   task_manager::WebContentsTags::CreateForTabContents(contents);
+--- a/chrome/browser/ui/omnibox/chrome_omnibox_navigation_observer.cc
++++ b/chrome/browser/ui/omnibox/chrome_omnibox_navigation_observer.cc
+@@ -7,7 +7,6 @@
+ #include "base/bind.h"
+ #include "chrome/browser/autocomplete/shortcuts_backend_factory.h"
+ #include "chrome/browser/infobars/infobar_service.h"
+-#include "chrome/browser/intranet_redirect_detector.h"
+ #include "chrome/browser/search_engines/template_url_service_factory.h"
+ #include "chrome/browser/ui/omnibox/alternate_nav_infobar_delegate.h"
+ #include "components/omnibox/browser/shortcuts_backend.h"
+@@ -46,14 +45,7 @@ bool ResponseCodeIndicatesSuccess(int re
+ // Returns true if |final_url| doesn't represent an ISP hijack of
+ // |original_url|, based on the IntranetRedirectDetector's RedirectOrigin().
+ bool IsValidNavigation(const GURL& original_url, const GURL& final_url) {
+-  const GURL& redirect_url(IntranetRedirectDetector::RedirectOrigin());
+-  return !redirect_url.is_valid() ||
+-         net::registry_controlled_domains::SameDomainOrHost(
+-             original_url, final_url,
+-             net::registry_controlled_domains::EXCLUDE_PRIVATE_REGISTRIES) ||
+-         !net::registry_controlled_domains::SameDomainOrHost(
+-             final_url, redirect_url,
+-             net::registry_controlled_domains::EXCLUDE_PRIVATE_REGISTRIES);
++  return true;
+ }
+ 
+ // Returns true if |origin| is a http URL and |destination| is a https URL and
+--- a/chrome/browser/search/instant_service.cc
++++ b/chrome/browser/search/instant_service.cc
+@@ -417,11 +417,6 @@ void InstantService::UpdateMostVisitedIn
+ 
+ void InstantService::SendNewTabPageURLToRenderer(
+     content::RenderProcessHost* rph) {
+-  if (auto* channel = rph->GetChannel()) {
+-    mojo::AssociatedRemote<search::mojom::SearchBouncer> client;
+-    channel->GetRemoteAssociatedInterface(&client);
+-    client->SetNewTabPageURL(search::GetNewTabPageURL(profile_));
+-  }
+ }
+ 
+ void InstantService::ResetCustomBackgroundInfo() {
