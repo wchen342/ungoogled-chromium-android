@@ -1050,3 +1050,14 @@ Subject: resource fixes for enable_extensions=true
          <structure type="chrome_scaled_image" name="IDR_HISTORY_FAVICON" file="favicon_history.png" />
        </if>
        <structure type="chrome_scaled_image" name="IDR_SAD_WEBVIEW" file="webview-crash.png" />
+--- a/chrome/browser/browser_resources.grd
++++ b/chrome/browser/browser_resources.grd
+@@ -52,7 +52,7 @@
+       </if>
+     </structures>
+     <includes>
+-      <if expr="is_win or is_macosx or desktop_linux or chromeos">
++      <if expr="is_win or is_macosx or desktop_linux or chromeos or is_android">
+         <include name="IDR_COMMANDER_HTML" file="resources\commander\commander.html" type="BINDATA" />
+         <include name="IDR_DISCARDS_MOJO_API_JS" file="resources\discards\mojo_api.js" type="BINDATA" />
+         <include name="IDR_DISCARDS_DATABASE_TAB_JS" file="${root_gen_dir}\chrome\browser\resources\discards\database_tab.js" use_base_dir="false" type="BINDATA" />
