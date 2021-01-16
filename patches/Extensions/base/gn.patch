@@ -7,7 +7,7 @@ Subject: gn fixes for enable_extensions=true
  build/config/locales.gni                                             |    4 
  chrome/BUILD.gn                                                      |    4 
  chrome/android/BUILD.gn                                              |    1 
- chrome/browser/BUILD.gn                                              |   50 +----
+ chrome/browser/BUILD.gn                                              |   56 +-----
  chrome/browser/apps/platform_apps/api/music_manager_private/BUILD.gn |    5 
  chrome/browser/devtools/BUILD.gn                                     |   14 -
  chrome/browser/extensions/BUILD.gn                                   |   10 -
@@ -32,6 +32,7 @@ Subject: gn fixes for enable_extensions=true
  components/guest_view/browser/BUILD.gn                               |    2 
  components/guest_view/renderer/BUILD.gn                              |    2 
  components/keep_alive_registry/BUILD.gn                              |    2 
+ components/media_router/browser/BUILD.gn                             |    2 
  components/media_router/common/BUILD.gn                              |    2 
  components/performance_manager/BUILD.gn                              |    2 
  components/web_modal/BUILD.gn                                        |    2 
@@ -52,7 +53,7 @@ Subject: gn fixes for enable_extensions=true
  ui/message_center/BUILD.gn                                           |    4 
  ui/views/BUILD.gn                                                    |   19 ++
  ui/webui/resources/BUILD.gn                                          |    8 
- 49 files changed, 108 insertions(+), 202 deletions(-)
+ 50 files changed, 110 insertions(+), 208 deletions(-)
 
 --- a/apps/BUILD.gn
 +++ b/apps/BUILD.gn
@@ -511,16 +512,18 @@ Subject: gn fixes for enable_extensions=true
      sources += [
        "accessibility/caption_controller.cc",
        "accessibility/caption_controller.h",
-@@ -3448,8 +3449,6 @@ static_library("browser") {
+@@ -3448,10 +3449,6 @@ static_library("browser") {
        "importer/importer_uma.h",
        "importer/in_process_importer_bridge.cc",
        "importer/in_process_importer_bridge.h",
 -      "importer/profile_writer.cc",
 -      "importer/profile_writer.h",
-       "intranet_redirect_detector.cc",
-       "intranet_redirect_detector.h",
+-      "intranet_redirect_detector.cc",
+-      "intranet_redirect_detector.h",
        "lifetime/browser_close_manager.cc",
-@@ -3496,11 +3495,6 @@ static_library("browser") {
+       "lifetime/browser_close_manager.h",
+       "lifetime/termination_notification.cc",
+@@ -3496,11 +3493,6 @@ static_library("browser") {
        "media/webrtc/desktop_media_picker_factory_impl.h",
        "media/webrtc/display_media_access_handler.cc",
        "media/webrtc/display_media_access_handler.h",
@@ -532,7 +535,7 @@ Subject: gn fixes for enable_extensions=true
        "media/webrtc/tab_desktop_media_list.cc",
        "media/webrtc/tab_desktop_media_list.h",
        "media_galleries/fileapi/av_scanning_file_validator.cc",
-@@ -3558,7 +3552,6 @@ static_library("browser") {
+@@ -3558,7 +3550,6 @@ static_library("browser") {
        "metrics/desktop_session_duration/touch_mode_stats_tracker.h",
        "metrics/first_web_contents_profiler.cc",
        "metrics/first_web_contents_profiler.h",
@@ -540,7 +543,7 @@ Subject: gn fixes for enable_extensions=true
        "metrics/tab_stats_data_store.cc",
        "metrics/tab_stats_data_store.h",
        "metrics/tab_stats_tracker.cc",
-@@ -3764,16 +3757,6 @@ static_library("browser") {
+@@ -3764,16 +3755,6 @@ static_library("browser") {
        "sharesheet/sharesheet_service_delegate.h",
        "sharesheet/sharesheet_service_factory.cc",
        "sharesheet/sharesheet_service_factory.h",
@@ -557,7 +560,7 @@ Subject: gn fixes for enable_extensions=true
        "sharing/shared_clipboard/remote_copy_message_handler.cc",
        "sharing/shared_clipboard/remote_copy_message_handler.h",
        "sharing/shared_clipboard/shared_clipboard_context_menu_observer.cc",
-@@ -3927,6 +3910,7 @@ static_library("browser") {
+@@ -3927,6 +3908,7 @@ static_library("browser") {
        "upgrade_detector/build_state.cc",
        "upgrade_detector/build_state.h",
        "upgrade_detector/build_state_observer.h",
@@ -565,7 +568,7 @@ Subject: gn fixes for enable_extensions=true
        "upgrade_detector/upgrade_detector.cc",
        "upgrade_detector/upgrade_detector.h",
        "upgrade_detector/upgrade_observer.h",
-@@ -3949,6 +3933,10 @@ static_library("browser") {
+@@ -3949,6 +3931,10 @@ static_library("browser") {
        "webauthn/observable_authenticator_list.cc",
        "webauthn/observable_authenticator_list.h",
      ]
@@ -576,7 +579,7 @@ Subject: gn fixes for enable_extensions=true
      deps += [
        ":theme_properties",
        "//base/util/memory_pressure",
-@@ -3962,7 +3950,6 @@ static_library("browser") {
+@@ -3962,7 +3948,6 @@ static_library("browser") {
        "//chrome/browser/profile_resetter:profile_reset_report_proto",
        "//chrome/browser/resource_coordinator:intervention_policy_database_proto",
        "//chrome/browser/resource_coordinator:tab_metrics_event_proto",
@@ -584,7 +587,7 @@ Subject: gn fixes for enable_extensions=true
        "//chrome/browser/resources:component_extension_resources",
        "//chrome/browser/search:generated",
        "//chrome/browser/ui/color:color_headers",
-@@ -4017,7 +4004,6 @@ static_library("browser") {
+@@ -4017,7 +4002,6 @@ static_library("browser") {
          "chrome_browser_main_posix.cc",
          "chrome_browser_main_posix.h",
          "importer/firefox_profile_lock_posix.cc",
@@ -592,7 +595,7 @@ Subject: gn fixes for enable_extensions=true
          "task_manager/sampling/shared_sampler_posix.cc",
        ]
  
-@@ -4770,16 +4756,13 @@ static_library("browser") {
+@@ -4770,16 +4754,13 @@ static_library("browser") {
      ]
    }
  
@@ -611,7 +614,7 @@ Subject: gn fixes for enable_extensions=true
      if (use_aura) {
        deps += [ "//third_party/fontconfig" ]
        if (use_dbus) {
-@@ -4926,7 +4909,7 @@ static_library("browser") {
+@@ -4926,7 +4907,7 @@ static_library("browser") {
      ]
    }
  
@@ -620,8 +623,12 @@ Subject: gn fixes for enable_extensions=true
      sources += [
        "device_identity/device_oauth2_token_store_desktop.cc",
        "device_identity/device_oauth2_token_store_desktop.h",
-@@ -4955,8 +4938,6 @@ static_library("browser") {
-       "policy/chrome_browser_cloud_management_controller_desktop.h",
+@@ -4951,12 +4932,8 @@ static_library("browser") {
+       "notifications/screen_lock_notification_blocker.cc",
+       "notifications/screen_lock_notification_blocker.h",
+       "platform_util.cc",
+-      "policy/chrome_browser_cloud_management_controller_desktop.cc",
+-      "policy/chrome_browser_cloud_management_controller_desktop.h",
        "policy/chrome_browser_cloud_management_register_watcher.cc",
        "policy/chrome_browser_cloud_management_register_watcher.h",
 -      "policy/cloud/user_policy_signin_service.cc",
@@ -629,7 +636,7 @@ Subject: gn fixes for enable_extensions=true
        "policy/cloud/user_policy_signin_service_internal.h",
        "profiles/avatar_menu.cc",
        "profiles/avatar_menu.h",
-@@ -4990,7 +4971,6 @@ static_library("browser") {
+@@ -4990,7 +4967,6 @@ static_library("browser") {
        "upgrade_detector/upgrade_detector_impl.cc",
        "upgrade_detector/upgrade_detector_impl.h",
      ]
@@ -637,7 +644,16 @@ Subject: gn fixes for enable_extensions=true
      sources += [
        "installable/digital_asset_links/digital_asset_links_handler.cc",
        "installable/digital_asset_links/digital_asset_links_handler.h",
-@@ -5127,7 +5107,7 @@ static_library("browser") {
+@@ -5019,7 +4995,7 @@ static_library("browser") {
+     ]
+   }
+ 
+-  if (is_win || is_mac || is_linux || is_chromeos) {
++  if (is_win || is_mac || is_linux || is_chromeos || is_android) {
+     sources += [
+       "crash_upload_list/crash_upload_list_crashpad.cc",
+       "crash_upload_list/crash_upload_list_crashpad.h",
+@@ -5127,7 +5103,7 @@ static_library("browser") {
        sources += [ "background/background_mode_manager_aura.cc" ]
      }
    }
@@ -646,7 +662,7 @@ Subject: gn fixes for enable_extensions=true
      sources += [
        "background/background_contents_service.cc",
        "background/background_contents_service.h",
-@@ -5178,7 +5158,7 @@ static_library("browser") {
+@@ -5178,7 +5154,7 @@ static_library("browser") {
        sources += [ "printing/printer_manager_dialog_mac.mm" ]
      }
      if (is_linux || is_chromeos) {
@@ -655,7 +671,7 @@ Subject: gn fixes for enable_extensions=true
      }
      if (is_win || enable_print_preview) {
        deps += [ "//chrome/services/printing/public/mojom" ]
-@@ -5902,7 +5882,7 @@ static_library("browser") {
+@@ -5902,7 +5878,7 @@ static_library("browser") {
      }
    }
  
@@ -664,7 +680,7 @@ Subject: gn fixes for enable_extensions=true
      sources += [
        "sessions/session_restore.cc",
        "sessions/session_restore.h",
-@@ -6257,7 +6237,7 @@ grit("resources") {
+@@ -6257,7 +6233,7 @@ grit("resources") {
      }
    }
  
@@ -1475,3 +1491,14 @@ Subject: gn fixes for enable_extensions=true
      sources += [
        "discovery/media_sink_service_base.cc",
        "discovery/media_sink_service_base.h",
+--- a/components/media_router/browser/BUILD.gn
++++ b/components/media_router/browser/BUILD.gn
+@@ -81,7 +81,7 @@ source_set("browser") {
+       "android/media_router_dialog_controller_android.h",
+     ]
+     deps += [ "android:jni_headers" ]
+-  } else {
++
+     sources += [
+       "logger_impl.cc",
+       "logger_impl.h",
