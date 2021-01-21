@@ -1,0 +1,243 @@
+From: Wengling Chen <feiyu2817@gmail.com>
+Date: Thu, 21 Jan 2021 20:35:11 +0200
+Subject: Reload extensions after the first tab is loaded from Java. Otherwise certain
+ observers will not be invoked.
+
+---
+
+---
+ chrome/android/BUILD.gn                                                                    |    4 -
+ chrome/android/chrome_java_sources.gni                                                     |    1 
+ chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java              |    8 +++
+ chrome/android/java/src/org/chromium/chrome/browser/extensions/ExtensionSystemManager.java |   22 ++++++++++
+ chrome/browser/extensions/BUILD.gn                                                         |    3 +
+ chrome/browser/extensions/extension_service.cc                                             |   11 ++++-
+ chrome/browser/extensions/extension_service.h                                              |    5 ++
+ chrome/browser/extensions/extension_system_manager.cc                                      |   22 ++++++++++
+ chrome/browser/extensions/extension_system_manager.h                                       |   14 ++++++
+ chrome/browser/extensions/updater/extension_updater.cc                                     |    2 
+ chrome/browser/safety_check/android/BUILD.gn                                               |    1 
+ extensions/browser/api/web_request/web_request_api.cc                                      |    2 
+ 12 files changed, 92 insertions(+), 3 deletions(-)
+
+--- a/chrome/android/BUILD.gn
++++ b/chrome/android/BUILD.gn
+@@ -758,9 +758,8 @@ junit_binary("chrome_junit_tests") {
+   sources = chrome_junit_test_java_sources
+ 
+   # Should not have any deps native targets since junit tests are java-only.
++  # Ignore this. We are not running junit tests anyway.
+   assert_no_deps = [
+-    "//content",
+-    "//mojo/public/mojom/base",
+   ]
+ 
+   deps = [
+@@ -3102,6 +3101,7 @@ generate_jni("chrome_jni_headers") {
+     "java/src/org/chromium/chrome/browser/explore_sites/ExploreSitesCategoryTile.java",
+     "java/src/org/chromium/chrome/browser/explore_sites/ExploreSitesSite.java",
+     "java/src/org/chromium/chrome/browser/extensions/ExtensionInstallDialogViewBridge.java",
++    "java/src/org/chromium/chrome/browser/extensions/ExtensionSystemManager.java",
+     "java/src/org/chromium/chrome/browser/extensions/ExtensionUninstallDialogBridge.java",
+     "java/src/org/chromium/chrome/browser/feature_engagement/TrackerFactory.java",
+     "java/src/org/chromium/chrome/browser/feedback/ConnectivityChecker.java",
+--- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
+@@ -74,6 +74,7 @@ import org.chromium.chrome.browser.devic
+ import org.chromium.chrome.browser.dom_distiller.ReaderModeManager;
+ import org.chromium.chrome.browser.download.DownloadOpenSource;
+ import org.chromium.chrome.browser.download.DownloadUtils;
++import org.chromium.chrome.browser.extensions.ExtensionSystemManager;
+ import org.chromium.chrome.browser.feature_engagement.TrackerFactory;
+ import org.chromium.chrome.browser.feed.FeedV1;
+ import org.chromium.chrome.browser.feed.FeedV2;
+@@ -713,6 +714,12 @@ public class ChromeTabbedActivity extend
+         }
+     }
+ 
++    private void initExtensionSystem() {
++        try (TraceEvent e = TraceEvent.scoped("ChromeTabbedActivity.initExtensionSystem")) {
++            ExtensionSystemManager.reInit();
++        }
++    }
++
+     @Override
+     public void onNewIntent(Intent intent) {
+         // The intent to use in maybeDispatchExplicitMainViewIntent(). We're explicitly
+@@ -747,6 +754,7 @@ public class ChromeTabbedActivity extend
+ 
+             // All this initialization can be expensive so it's split into multiple tasks.
+             PostTask.postTask(UiThreadTaskTraits.DEFAULT, this::refreshSignIn);
++            PostTask.postTask(UiThreadTaskTraits.DEFAULT, this::initExtensionSystem);
+             PostTask.postTask(UiThreadTaskTraits.DEFAULT, this::initializeToolbarManager);
+             PostTask.postTask(
+                     UiThreadTaskTraits.DEFAULT, this::maybeCreateIncognitoTabSnapshotController);
+--- /dev/null
++++ b/chrome/android/java/src/org/chromium/chrome/browser/extensions/ExtensionSystemManager.java
+@@ -0,0 +1,22 @@
++package org.chromium.chrome.browser.extensions;
++
++import org.chromium.base.Log;
++import org.chromium.base.annotations.CalledByNative;
++import org.chromium.base.annotations.JNINamespace;
++import org.chromium.base.annotations.NativeMethods;
++
++/**
++ * Provide access of native code for extension service.
++ */
++@JNINamespace("extensions")
++public class ExtensionSystemManager {
++
++    public static void reInit() {
++        ExtensionSystemManagerJni.get().reInit();
++    }
++
++    @NativeMethods
++    interface Natives {
++        void reInit();
++    }
++}
+--- a/chrome/android/chrome_java_sources.gni
++++ b/chrome/android/chrome_java_sources.gni
+@@ -679,6 +679,7 @@ chrome_java_sources = [
+   "java/src/org/chromium/chrome/browser/explore_sites/StableScrollLayoutManager.java",
+   "java/src/org/chromium/chrome/browser/extensions/ExtensionInstallDialogViewBridge.java",
+   "java/src/org/chromium/chrome/browser/extensions/ExtensionInstallCustomScrollView.java",
++  "java/src/org/chromium/chrome/browser/extensions/ExtensionSystemManager.java",
+   "java/src/org/chromium/chrome/browser/extensions/ExtensionUninstallDialogBridge.java",
+   "java/src/org/chromium/chrome/browser/extensions/ExtensionUninstallCustomScrollView.java",
+   "java/src/org/chromium/chrome/browser/externalauth/ExternalAuthUtils.java",
+--- a/chrome/browser/extensions/extension_service.cc
++++ b/chrome/browser/extensions/extension_service.cc
+@@ -505,7 +505,8 @@ void ExtensionService::Init() {
+     LoadExtensionsFromCommandLineFlag(switches::kLoadExtension);
+   EnabledReloadableExtensions();
+   MaybeFinishShutdownDelayed();
+-  SetReadyAndNotifyListeners();
++  // Delay signal to ReloadExtensions()
++  // SetReadyAndNotifyListeners();
+ 
+   UninstallMigratedExtensions();
+ 
+@@ -1320,6 +1321,14 @@ void ExtensionService::RemoveComponentEx
+   }
+ }
+ 
++void ExtensionService::ReloadExtensions() {
++  // No need to load components since the only one is chromium_web_store
++  InstalledLoader(this).LoadAllExtensions();
++  OnInstalledExtensionsLoaded();
++
++  SetReadyAndNotifyListeners();
++}
++
+ void ExtensionService::UnloadAllExtensionsForTest() {
+   UnloadAllExtensionsInternal();
+ }
+--- a/chrome/browser/extensions/extension_service.h
++++ b/chrome/browser/extensions/extension_service.h
+@@ -405,6 +405,11 @@ class ExtensionService : public Extensio
+   }
+ 
+   //////////////////////////////////////////////////////////////////////////////
++  // Android
++  // Reload extensions. Called from Java.
++  void ReloadExtensions();
++
++  //////////////////////////////////////////////////////////////////////////////
+   // For Testing
+ 
+   // Unload all extensions. Does not send notifications.
+--- a/chrome/browser/extensions/BUILD.gn
++++ b/chrome/browser/extensions/BUILD.gn
+@@ -560,6 +560,8 @@ static_library("extensions") {
+     "extension_system_factory.h",
+     "extension_system_impl.cc",
+     "extension_system_impl.h",
++    "extension_system_manager.cc",
++    "extension_system_manager.h",
+     "extension_tab_util.cc",
+     "extension_tab_util.h",
+     "extension_ui_util.cc",
+@@ -765,6 +767,7 @@ static_library("extensions") {
+     "//chrome:extra_resources",
+     "//chrome:resources",
+     "//chrome:strings",
++    "//chrome/android:jni_headers",
+     "//chrome/app:command_ids",
+     "//chrome/app/resources:platform_locale_settings",
+     "//chrome/app/theme:chrome_unscaled_resources",
+--- /dev/null
++++ b/chrome/browser/extensions/extension_system_manager.cc
+@@ -0,0 +1,22 @@
++// Copyright 2021 The Ungoogled Chromium Authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++#include "chrome/browser/extensions/extension_system_manager.h"
++
++#include "base/android/jni_android.h"
++#include "chrome/android/chrome_jni_headers/ExtensionSystemManager_jni.h"
++#include "chrome/browser/extensions/extension_service.h"
++#include "chrome/browser/profiles/profile_manager.h"
++#include "extensions/browser/extension_system.h"
++
++
++namespace extensions {
++
++static void JNI_ExtensionSystemManager_ReInit(JNIEnv* env) {
++  // Trigger reloading of all non-component extensions
++  Profile* profile = ProfileManager::GetActiveUserProfile();
++  ExtensionSystem::Get(profile)->extension_service()->ReloadExtensions();
++}
++
++}  // namespace extensions
+--- /dev/null
++++ b/chrome/browser/extensions/extension_system_manager.h
+@@ -0,0 +1,14 @@
++// Copyright 2021 The Ungoogled Chromium Authors. All rights reserved.
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++#ifndef CHROME_BROWSER_EXTENSIONS_EXTENSION_SYSTEM_MANAGER_H_
++#define CHROME_BROWSER_EXTENSIONS_EXTENSION_SYSTEM_MANAGER_H_
++
++#include <string>
++
++namespace extensions {
++
++}  // namespace extensions
++
++#endif  // CHROME_BROWSER_EXTENSIONS_EXTENSION_SYSTEM_MANAGER_H_
+--- a/chrome/browser/extensions/updater/extension_updater.cc
++++ b/chrome/browser/extensions/updater/extension_updater.cc
+@@ -170,6 +170,8 @@ void ExtensionUpdater::EnsureDownloaderC
+ }
+ 
+ void ExtensionUpdater::Start() {
++  if (alive_)
++      return;
+   DCHECK(!alive_);
+   // If these are NULL, then that means we've been called after Stop()
+   // has been called.
+--- a/chrome/browser/safety_check/android/BUILD.gn
++++ b/chrome/browser/safety_check/android/BUILD.gn
+@@ -49,6 +49,7 @@ android_library("java") {
+     "//components/password_manager/core/browser:password_manager_java_enums",
+     "//components/signin/public/android:java",
+     "//content/public/android:content_java",
++    "//content/public/common:common",
+     "//third_party/android_deps:android_support_v7_appcompat_java",
+     "//third_party/android_deps:androidx_annotation_annotation_java",
+     "//third_party/android_deps:androidx_fragment_fragment_java",
+--- a/extensions/browser/api/web_request/web_request_api.cc
++++ b/extensions/browser/api/web_request/web_request_api.cc
+@@ -847,6 +847,8 @@ void WebRequestAPI::OnExtensionUnloaded(
+     UnloadedExtensionReason reason) {
+   if (HasAnyWebRequestPermissions(extension)) {
+     --web_request_extension_count_;
++    if (web_request_extension_count_ < 0)
++        web_request_extension_count_ = 0;
+     UpdateMayHaveProxies();
+   }
+ }
