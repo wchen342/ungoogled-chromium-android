@@ -3,7 +3,8 @@ Date: Tue, 26 May 2020 22:31:34 -0400
 Subject: Remove DCHECK and other lines causing Debug builds to fail
 
 ---
- build/config/compiler/BUILD.gn                                                      |    7 +----
+ base/logging.cc                                                                     |    2 -
+ build/config/compiler/BUILD.gn                                                      |    9 ++-----
  components/omnibox/browser/autocomplete_controller.cc                               |    3 --
  components/omnibox/browser/autocomplete_match.cc                                    |   10 --------
  components/omnibox/browser/autocomplete_result.cc                                   |    7 -----
@@ -14,7 +15,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  content/common/input/input_event_stream_validator.cc                                |    3 --
  services/network/network_context.cc                                                 |    1 
  url/gurl.cc                                                                         |    2 -
- 11 files changed, 3 insertions(+), 47 deletions(-)
+ 12 files changed, 5 insertions(+), 49 deletions(-)
 
 --- a/components/signin/internal/identity_manager/primary_account_manager.cc
 +++ b/components/signin/internal/identity_manager/primary_account_manager.cc
@@ -48,6 +49,15 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
    defines = []
    configs = []
  
+@@ -1725,7 +1725,7 @@ config("no_rtti") {
+ # (de)allocate memory on a different heap, which would spell trouble if pointers
+ # to heap-allocated memory are passed over shared library boundaries.
+ config("export_dynamic") {
+-  if (is_desktop_linux || export_libcxxabi_from_executables) {
++  if (is_desktop_linux || export_libcxxabi_from_executables || is_android) {
+     ldflags = [ "-rdynamic" ]
+   }
+ }
 @@ -1941,8 +1941,6 @@ if (is_win) {
  
        # Put data and code in their own sections, so that unused symbols
@@ -186,3 +196,14 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
    return base::EmptyString();
  }
  
+--- a/base/logging.cc
++++ b/base/logging.cc
+@@ -872,7 +872,7 @@ LogMessage::~LogMessage() {
+ #if defined(OFFICIAL_BUILD) && defined(NDEBUG)
+       IMMEDIATE_CRASH();
+ #else
+-      base::debug::BreakDebugger();
++      //base::debug::BreakDebugger();
+ #endif
+     }
+   }

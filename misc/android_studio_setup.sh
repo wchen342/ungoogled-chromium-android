@@ -22,6 +22,8 @@ export AR=${AR:=llvm-ar}
 export NM=${NM:=llvm-nm}
 export CC=${CC:=clang}
 export CXX=${CXX:=clang++}
+export CCACHE_CPP2=yes
+export CCACHE_SLOPPINESS=time_macros
 
 # Fix repos
 ui_automator_commit=$(grep 'ub-uiautomator\.git' src/DEPS | cut -d\' -f10)

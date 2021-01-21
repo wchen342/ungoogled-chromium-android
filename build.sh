@@ -300,6 +300,8 @@ export AR=${AR:=llvm-ar}
 export NM=${NM:=llvm-nm}
 export CC=${CC:=clang}
 export CXX=${CXX:=clang++}
+export CCACHE_CPP2=yes
+export CCACHE_SLOPPINESS=time_macros
 
 ## Build
 apk_out_folder="apk_out"

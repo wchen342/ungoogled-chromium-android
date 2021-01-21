@@ -31,4 +31,5 @@ safe_browsing_mode=0
 symbol_level=2
 treat_warnings_as_errors=false
 use_official_google_api_keys=false
+use_rtti=true
 use_unofficial_version_number=false
