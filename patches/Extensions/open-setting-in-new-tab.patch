@@ -127,3 +127,16 @@ Subject: make settings of extensions open in new tab
    auto* identity_manager = IdentityManagerFactory::GetForProfile(profile_);
    DCHECK(identity_manager->HasPrimaryAccount());
  
+--- a/chrome/browser/guest_view/extension_options/chrome_extension_options_guest_delegate.cc
++++ b/chrome/browser/guest_view/extension_options/chrome_extension_options_guest_delegate.cc
+@@ -36,9 +36,7 @@ bool ChromeExtensionOptionsGuestDelegate
+ 
+ content::WebContents* ChromeExtensionOptionsGuestDelegate::OpenURLInNewTab(
+     const content::OpenURLParams& params) {
+-  Browser* browser = chrome::FindBrowserWithWebContents(
+-      extension_options_guest()->embedder_web_contents());
+-  return browser->OpenURL(params);
++  return extension_options_guest()->embedder_web_contents()->OpenURL(params);
+ }
+ 
+ }  // namespace extensions
