@@ -1,0 +1,19 @@
+From: Wengling Chen <feiyu2817@gmail.com>
+Date: Thu, 21 Jan 2021 20:35:11 +0200
+Subject: Add android to list of oses
+
+---
+ chrome/browser/extensions/api/runtime/chrome_runtime_api_delegate.cc |    2 ++
+ 1 file changed, 2 insertions(+)
+
+--- a/chrome/browser/extensions/api/runtime/chrome_runtime_api_delegate.cc
++++ b/chrome/browser/extensions/api/runtime/chrome_runtime_api_delegate.cc
+@@ -286,6 +286,8 @@ bool ChromeRuntimeAPIDelegate::GetPlatfo
+     info->os = extensions::api::runtime::PLATFORM_OS_LINUX;
+   } else if (strcmp(os, "openbsd") == 0) {
+     info->os = extensions::api::runtime::PLATFORM_OS_OPENBSD;
++  } else if (strcmp(os, "android") == 0) {
++    info->os = extensions::api::runtime::PLATFORM_OS_ANDROID;
+   } else {
+     NOTREACHED();
+     return false;
