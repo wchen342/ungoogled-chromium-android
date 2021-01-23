@@ -5,67 +5,39 @@ Subject: add download prompt for installing extensions
 
 ---
  base/android/java/src/org/chromium/base/ContentUriUtils.java                                         |    1 
- base/files/file_path.cc                                                                              |    8 
  base/files/file_util.cc                                                                              |    9 
- base/files/file_util_posix.cc                                                                        |   10 
+ base/files/file_util_posix.cc                                                                        |    2 
  chrome/android/BUILD.gn                                                                              |    1 
  chrome/android/chrome_java_resources.gni                                                             |    1 
  chrome/android/chrome_java_sources.gni                                                               |    2 
- chrome/android/java/res/layout/extension_install_dialog.xml                                          |  103 +++
- chrome/android/java/src/org/chromium/chrome/browser/extensions/ExtensionInstallCustomScrollView.java |  130 ++++
- chrome/android/java/src/org/chromium/chrome/browser/extensions/ExtensionInstallDialogViewBridge.java |  156 +++++
- chrome/browser/download/download_crx_util.cc                                                         |   19 
- chrome/browser/extensions/crx_installer.cc                                                           |    7 
- chrome/browser/extensions/extension_install_prompt.cc                                                |    1 
- chrome/browser/extensions/unpacked_installer.cc                                                      |   32 +
+ chrome/android/java/res/layout/extension_install_dialog.xml                                          |  117 ++++
+ chrome/android/java/src/org/chromium/chrome/browser/extensions/ExtensionInstallCustomScrollView.java |  144 +++++
+ chrome/android/java/src/org/chromium/chrome/browser/extensions/ExtensionInstallDialogViewBridge.java |  170 ++++++
+ chrome/browser/download/download_crx_util.cc                                                         |   16 
+ chrome/browser/extensions/crx_installer.cc                                                           |    1 
+ chrome/browser/extensions/unpacked_installer.cc                                                      |   17 
  chrome/browser/ui/BUILD.gn                                                                           |    4 
  chrome/browser/ui/android/strings/android_chrome_strings.grd                                         |    5 
  chrome/browser/ui/extensions/extension_install_ui_default.cc                                         |   12 
  chrome/browser/ui/views/extensions/extension_install_dialog_view.cc                                  |    2 
- chrome/browser/ui/views/extensions/extension_install_dialog_view_android.cc                          |  264 ++++++++++
- chrome/browser/ui/views/extensions/extension_install_dialog_view_android.h                           |   89 +++
+ chrome/browser/ui/views/extensions/extension_install_dialog_view_android.cc                          |  278 ++++++++++
+ chrome/browser/ui/views/extensions/extension_install_dialog_view_android.h                           |  103 +++
  components/crx_file/crx_verifier.cc                                                                  |   12 
- extensions/browser/sandboxed_unpacker.cc                                                             |   18 
- extensions/common/file_util.cc                                                                       |   22 
- 23 files changed, 876 insertions(+), 32 deletions(-)
+ extensions/browser/sandboxed_unpacker.cc                                                             |    3 
+ extensions/common/file_util.cc                                                                       |    8 
+ 21 files changed, 877 insertions(+), 31 deletions(-)
 
 --- a/base/files/file_util_posix.cc
 +++ b/base/files/file_util_posix.cc
-@@ -363,8 +363,13 @@ std::string AppendModeCharacter(StringPi
- FilePath MakeAbsoluteFilePath(const FilePath& input) {
+@@ -364,7 +364,7 @@ FilePath MakeAbsoluteFilePath(const File
    ScopedBlockingCall scoped_blocking_call(FROM_HERE, BlockingType::MAY_BLOCK);
    char full_path[PATH_MAX];
--  if (realpath(input.value().c_str(), full_path) == nullptr)
-+  LOG(INFO) << "file_util_posix.cc: MakeAbsoluteFilePath: input: " << input;
-+  //LOG(INFO) << "file_util_posix.cc: MakeAbsoluteFilePath: PATH_MAX: " << PATH_MAX;
-+  if (realpath(input.value().c_str(), full_path) == nullptr) {
-+    LOG(INFO) << "file_util_posix.cc: MakeAbsoluteFilePath: realpath nullptr";
-     return FilePath();
-+  }
-+  LOG(INFO) << "file_util_posix.cc: MakeAbsoluteFilePath: full_path:" << full_path;
+   if (realpath(input.value().c_str(), full_path) == nullptr)
+-    return FilePath();
++    return FilePath();\
    return FilePath(full_path);
  }
  
-@@ -837,6 +842,7 @@ FILE* OpenFile(const FilePath& filename,
-   DCHECK(
-       strchr(mode, 'e') == nullptr ||
-       (strchr(mode, ',') != nullptr && strchr(mode, 'e') > strchr(mode, ',')));
-+  //LOG(INFO) << "file_util_posix.cc: OpenFile: mode: " << mode;
-   ScopedBlockingCall scoped_blocking_call(FROM_HERE, BlockingType::MAY_BLOCK);
-   FILE* result = nullptr;
- #if defined(OS_APPLE)
-@@ -846,9 +852,11 @@ FILE* OpenFile(const FilePath& filename,
- #else
-   std::string mode_with_e(AppendModeCharacter(mode, 'e'));
-   const char* the_mode = mode_with_e.c_str();
-+  //LOG(INFO) << "file_util_posix.cc: OpenFile: the_mode: " << the_mode;
- #endif
-   do {
-     result = fopen(filename.value().c_str(), the_mode);
-+    //LOG(INFO) << "file_util_posix.cc: OpenFile: result: " << result;
-   } while (!result && errno == EINTR);
- #if defined(OS_APPLE)
-   // Mark the descriptor as close-on-exec.
 --- a/chrome/browser/extensions/unpacked_installer.cc
 +++ b/chrome/browser/extensions/unpacked_installer.cc
 @@ -62,12 +62,19 @@ const char kImportNotSharedModule[] = "'
@@ -99,55 +71,7 @@ Subject: add download prompt for installing extensions
    DCHECK(extension_path_.empty());
    extension_path_ = path_in;
    GetExtensionFileTaskRunner()->PostTask(
-@@ -109,17 +117,21 @@ bool UnpackedInstaller::LoadFromCommandL
-   // Load extensions from the command line synchronously to avoid a race
-   // between extension loading and loading an URL from the command line.
-   base::ThreadRestrictions::ScopedAllowIO allow_io;
-+  LOG(INFO) << "unpacked_installer.cc: path_in: " << path_in;
- 
-   extension_path_ =
-       base::MakeAbsoluteFilePath(path_util::ResolveHomeDirectory(path_in));
-+  LOG(INFO) << "unpacked_installer.cc: extension_path_: " << extension_path_;
- 
-   if (!IsLoadingUnpackedAllowed()) {
-+    LOG(INFO) << "unpacked_installer.cc: !IsLoadingUnpackedAllowed";
-     ReportExtensionLoadError(kUnpackedExtensionsBlocklistedError);
-     return false;
-   }
- 
-   std::string error;
-   if (!LoadExtension(Manifest::COMMAND_LINE, GetFlags(), &error)) {
-+    LOG(INFO) << "unpacked_installer.cc: !LoadExtension";
-     ReportExtensionLoadError(error);
-     return false;
-   }
-@@ -130,6 +142,8 @@ bool UnpackedInstaller::LoadFromCommandL
-     return true;
- #else
-     // Defined here to avoid unused variable errors in official builds.
-+    LOG(INFO) << "unpacked_installer.cc: only_allow_apps: " << only_allow_apps;
-+    LOG(INFO) << "unpacked_installer.cc: !extension()->is_platform_app(): " << (!extension()->is_platform_app());
-     const char extension_instead_of_app_error[] =
-         "App loading flags cannot be used to load extensions. Please use "
-         "--load-extension instead.";
-@@ -139,12 +153,16 @@ bool UnpackedInstaller::LoadFromCommandL
-   }
- 
-   extension()->permissions_data()->BindToCurrentThread();
-+  LOG(INFO) << "unpacked_installer.cc: BindToCurrentThread";
-   PermissionsUpdater(
-       service_weak_->profile(), PermissionsUpdater::INIT_FLAG_TRANSIENT)
-       .InitializePermissions(extension());
-+  LOG(INFO) << "unpacked_installer.cc: PermissionsUpdater";
-   StartInstallChecks();
-+  LOG(INFO) << "unpacked_installer.cc: StartInstallChecks";
- 
-   *extension_id = extension()->id();
-+  LOG(INFO) << "unpacked_installer.cc: return";
-   return true;
- }
- 
-@@ -245,18 +263,22 @@ bool UnpackedInstaller::LoadExtension(Ma
+@@ -245,6 +253,7 @@ bool UnpackedInstaller::LoadExtension(Ma
    // warnings/errors and ensures we don't treat a user provided file as one by
    // the Extension system.
    MaybeCleanupMetadataFolder(extension_path_);
@@ -155,82 +79,31 @@ Subject: add download prompt for installing extensions
  
    // Treat presence of illegal filenames as a hard error for unpacked
    // extensions. Don't do so for command line extensions since this breaks
-   // Chrome OS autotests (crbug.com/764787).
-   if (location == Manifest::UNPACKED &&
-       !file_util::CheckForIllegalFilenames(extension_path_, error)) {
-+    LOG(INFO) << "unpacked_installer.cc: LoadExtension: CheckForIllegalFilenames";
-     return false;
-   }
- 
-+  LOG(INFO) << "unpacked_installer.cc: LoadExtension: before file_util::LoadExtension";
-   extension_ =
-       file_util::LoadExtension(extension_path_, location, flags, error);
- 
-+  LOG(INFO) << "unpacked_installer.cc: LoadExtension: after file_util::LoadExtension";
-   return extension() &&
-          extension_l10n_util::ValidateExtensionLocales(
-              extension_path_, extension()->manifest()->value(), error) &&
-@@ -295,7 +317,9 @@ bool UnpackedInstaller::IsLoadingUnpacke
+@@ -295,7 +304,7 @@ bool UnpackedInstaller::IsLoadingUnpacke
  }
  
  void UnpackedInstaller::GetAbsolutePath() {
 -  extension_path_ = base::MakeAbsoluteFilePath(extension_path_);
-+  LOG(INFO) << "unpacked_installer.cc: GetAbsolutePath: before: " << extension_path_;
 +  //extension_path_ = base::MakeAbsoluteFilePath(extension_path_);
-+  LOG(INFO) << "unpacked_installer.cc: GetAbsolutePath: after: " << extension_path_;
  
    // Set priority explicitly to avoid unwanted task priority inheritance.
    content::GetUIThreadTaskRunner({base::TaskPriority::USER_BLOCKING})
 --- a/extensions/common/file_util.cc
 +++ b/extensions/common/file_util.cc
-@@ -218,30 +218,40 @@ scoped_refptr<Extension> LoadExtension(
-     std::string* error) {
-   std::unique_ptr<base::DictionaryValue> manifest;
-   if (!manifest_file) {
-+    LOG(INFO) << "file_util.cc: LoadExtension: !manifest_file";
-     manifest = LoadManifest(extension_path, error);
-   } else {
-+    LOG(INFO) << "file_util.cc: LoadExtension: manifest_file";
-     manifest = LoadManifest(extension_path, manifest_file, error);
-   }
-   if (!manifest.get())
-     return nullptr;
- 
-+  LOG(INFO) << "file_util.cc: LoadExtension: manifest.get()";
-+
-   if (!extension_l10n_util::LocalizeExtension(
-           extension_path, manifest.get(),
-           extension_l10n_util::GetGzippedMessagesPermissionForLocation(
-               location),
-           error)) {
-+    LOG(INFO) << "file_util.cc: LoadExtension: extension_l10n_util";
-     return nullptr;
-   }
- 
-+  LOG(INFO) << "file_util.cc: LoadExtension: before Extension::Create";
-   scoped_refptr<Extension> extension(Extension::Create(
-       extension_path, location, *manifest, flags, extension_id, error));
-+  LOG(INFO) << "file_util.cc: LoadExtension: after Extension::Create";
-   if (!extension.get())
+@@ -239,8 +239,9 @@ scoped_refptr<Extension> LoadExtension(
      return nullptr;
  
    std::vector<InstallWarning> warnings;
 -  if (!ValidateExtension(extension.get(), error, &warnings))
 +  if (!ValidateExtension(extension.get(), error, &warnings)) {
-+    LOG(INFO) << "file_util.cc: LoadExtension: !ValidateExtension";
      return nullptr;
 +  }
    extension->AddInstallWarnings(std::move(warnings));
-+  LOG(INFO) << "file_util.cc: LoadExtension: return";
  
    return extension;
- }
-@@ -256,8 +266,12 @@ std::unique_ptr<base::DictionaryValue> L
-     const base::FilePath& extension_path,
+@@ -257,7 +258,9 @@ std::unique_ptr<base::DictionaryValue> L
      const base::FilePath::CharType* manifest_filename,
      std::string* error) {
-+  LOG(INFO) << "file_util.cc: LoadManifest: extension_path: " << extension_path;
-+  LOG(INFO) << "file_util.cc: LoadManifest: manifest_filename: " << manifest_filename;
    base::FilePath manifest_path = extension_path.Append(manifest_filename);
 +  LOG(INFO) << "file_util.cc: LoadManifest: manifest_path: " << manifest_path;
    if (!base::PathExists(manifest_path)) {
@@ -238,20 +111,16 @@ Subject: add download prompt for installing extensions
      *error = l10n_util::GetStringUTF8(IDS_EXTENSION_MANIFEST_UNREADABLE);
      return nullptr;
    }
-@@ -265,24 +279,30 @@ std::unique_ptr<base::DictionaryValue> L
-   JSONFileValueDeserializer deserializer(manifest_path);
+@@ -266,6 +269,7 @@ std::unique_ptr<base::DictionaryValue> L
    std::unique_ptr<base::Value> root(deserializer.Deserialize(nullptr, error));
    if (!root.get()) {
-+    LOG(INFO) << "file_util.cc: LoadManifest: !root.get()";
      if (error->empty()) {
 +      LOG(INFO) << "file_util.cc: LoadManifest: error->empty()";
        // If |error| is empty, than the file could not be read.
        // It would be cleaner to have the JSON reader give a specific error
        // in this case, but other code tests for a file error with
-       // error->empty().  For now, be consistent.
-       *error = l10n_util::GetStringUTF8(IDS_EXTENSION_MANIFEST_UNREADABLE);
+@@ -274,11 +278,13 @@ std::unique_ptr<base::DictionaryValue> L
      } else {
-+      LOG(INFO) << "file_util.cc: LoadManifest: !error->empty()";
        *error = base::StringPrintf(
            "%s  %s", manifest_errors::kManifestParseError, error->c_str());
 +      LOG(INFO) << "file_util.cc: LoadManifest: !error->empty(): error: " << *error;
@@ -264,11 +133,6 @@ Subject: add download prompt for installing extensions
      *error = l10n_util::GetStringUTF8(IDS_EXTENSION_MANIFEST_INVALID);
      return nullptr;
    }
- 
-+  LOG(INFO) << "file_util.cc: LoadManifest: return";
-   return base::DictionaryValue::From(std::move(root));
- }
- 
 --- a/base/files/file_util.cc
 +++ b/base/files/file_util.cc
 @@ -16,6 +16,7 @@
@@ -332,66 +196,17 @@ Subject: add download prompt for installing extensions
  
 --- a/extensions/browser/sandboxed_unpacker.cc
 +++ b/extensions/browser/sandboxed_unpacker.cc
-@@ -225,28 +225,39 @@ void SandboxedUnpacker::StartWithCrx(con
-   DCHECK(unpacker_io_task_runner_->RunsTasksInCurrentSequence());
-   client_->OnStageChanged(InstallationStage::kVerification);
-   std::string expected_hash;
-+  LOG(INFO) << "sandboxed_unpacker.cc: StartWithCrx: expected_hash: " << crx_info.expected_hash;
-   if (!crx_info.expected_hash.empty() &&
-       base::CommandLine::ForCurrentProcess()->HasSwitch(
-           extensions::switches::kEnableCrxHashCheck)) {
-+    LOG(INFO) << "sandboxed_unpacker.cc: StartWithCrx: crx_info.expected_hash.empty(): " << (crx_info.expected_hash.empty());
-+    LOG(INFO) << "sandboxed_unpacker.cc: StartWithCrx: kEnableCrxHashCheck: " << (base::CommandLine::ForCurrentProcess()->HasSwitch(extensions::switches::kEnableCrxHashCheck));
+@@ -231,8 +231,9 @@ void SandboxedUnpacker::StartWithCrx(con
      expected_hash = base::ToLowerASCII(crx_info.expected_hash);
    }
  
 -  if (!CreateTempDirectory())
 +  if (!CreateTempDirectory()) {
-+    LOG(INFO) << "sandboxed_unpacker.cc: StartWithCrx: CreateTempDirectory: " << (CreateTempDirectory());
      return;  // ReportFailure() already called.
 +  }
  
    // Initialize the path that will eventually contain the unpacked extension.
    extension_root_ = temp_dir_.GetPath().AppendASCII(kTempExtensionName);
-+  LOG(INFO) << "sandboxed_unpacker.cc: StartWithCrx: extension_root_: " << extension_root_;
- 
-   // Extract the public key and validate the package.
-   if (!ValidateSignature(crx_info.path, expected_hash,
-                          g_verifier_format_override_for_test.value_or(
--                             crx_info.required_format)))
-+                             crx_info.required_format))) {
-+    LOG(INFO) << "sandboxed_unpacker.cc: StartWithCrx: ValidateSignature: " << (ValidateSignature(crx_info.path, expected_hash,
-+                         g_verifier_format_override_for_test.value_or(
-+                             crx_info.required_format)));
-     return;  // ValidateSignature() already reported the error.
-+  }
- 
-   client_->OnStageChanged(InstallationStage::kCopying);
-   // Copy the crx file into our working directory.
-   base::FilePath temp_crx_path =
-       temp_dir_.GetPath().Append(crx_info.path.BaseName());
-+  LOG(INFO) << "sandboxed_unpacker.cc: StartWithCrx: temp_crx_path: " << temp_crx_path;
- 
-   if (!base::CopyFile(crx_info.path, temp_crx_path)) {
-     // Failed to copy extension file to temporary directory.
-@@ -288,6 +299,7 @@ void SandboxedUnpacker::StartWithCrx(con
-   }
- 
-   Unzip(link_free_crx_path, unzipped_dir);
-+  LOG(INFO) << "sandboxed_unpacker.cc: StartWithCrx: on_return";
- }
- 
- void SandboxedUnpacker::StartWithDirectory(const std::string& extension_id,
-@@ -812,7 +824,9 @@ bool SandboxedUnpacker::ValidateSignatur
-     const crx_file::VerifierFormat required_format) {
-   std::vector<uint8_t> hash;
-   if (!expected_hash.empty()) {
-+    LOG(INFO) << "sandboxed_unpacker.cc: ValidateSignature: !expected_hash.empty(): " << (expected_hash.empty());
-     if (!base::HexStringToBytes(expected_hash, &hash)) {
-+      LOG(INFO) << "sandboxed_unpacker.cc: ValidateSignature: CRX_EXPECTED_HASH_INVALID";
-       FailWithPackageError(
-           SandboxedUnpackerFailureReason::CRX_EXPECTED_HASH_INVALID);
-       return false;
 --- a/chrome/browser/extensions/crx_installer.cc
 +++ b/chrome/browser/extensions/crx_installer.cc
 @@ -166,6 +166,7 @@ CrxInstaller::~CrxInstaller() {
@@ -402,54 +217,6 @@ Subject: add download prompt for installing extensions
    crx_file::VerifierFormat format =
        off_store_install_allow_reason_ == OffStoreInstallDisallowed
            ? GetWebstoreVerifierFormat(
-@@ -183,6 +184,7 @@ void CrxInstaller::InstallCrxFile(const
-   NotifyCrxInstallBegin();
- 
-   source_file_ = source_file.path;
-+  LOG(INFO) << "crx_installer.cc: InstallCrxFile: source_file_: " << source_file_;
- 
-   auto unpacker = base::MakeRefCounted<SandboxedUnpacker>(
-       install_source_, creation_flags_, install_directory_,
-@@ -595,6 +597,7 @@ void CrxInstaller::OnUnpackSuccessOnShar
-     return;
-   }
- 
-+  LOG(INFO) << "crx_installer.cc: OnUnpackSuccess: BindOnce(&CrxInstaller::CheckInstall, this)";
-   if (!content::GetUIThreadTaskRunner({})->PostTask(
-           FROM_HERE, base::BindOnce(&CrxInstaller::CheckInstall, this)))
-     NOTREACHED();
-@@ -660,6 +663,7 @@ void CrxInstaller::CheckInstall() {
- 
-   // Skip the checks if the extension is a bookmark app.
-   if (extension()->from_bookmark()) {
-+    LOG(INFO) << "crx_installer.cc: CheckInstall: ConfirmInstall 1";
-     ConfirmInstall();
-     return;
-   }
-@@ -686,6 +690,7 @@ void CrxInstaller::OnInstallChecksComple
-     return;
- 
-   if (errors.empty()) {
-+    LOG(INFO) << "crx_installer.cc: CheckInstall: ConfirmInstall 2";
-     ConfirmInstall();
-     return;
-   }
-@@ -741,6 +746,7 @@ void CrxInstaller::OnInstallChecksComple
-     return;
-   }
- 
-+  LOG(INFO) << "crx_installer.cc: CheckInstall: ConfirmInstall 3";
-   ConfirmInstall();
- }
- 
-@@ -793,6 +799,7 @@ void CrxInstaller::ConfirmInstall() {
-       (!allow_silent_install_ || !approved_) &&
-       !update_from_settings_page_) {
-     AddRef();  // Balanced in OnInstallPromptDone().
-+    LOG(INFO) << "crx_installer.cc: ConfirmInstall: ShowDialog";
-     client_->ShowDialog(base::Bind(&CrxInstaller::OnInstallPromptDone, this),
-                         extension(), nullptr, show_dialog_callback_);
-   } else {
 --- a/chrome/browser/download/download_crx_util.cc
 +++ b/chrome/browser/download/download_crx_util.cc
 @@ -7,6 +7,9 @@
@@ -462,15 +229,7 @@ Subject: add download prompt for installing extensions
  #include "chrome/browser/chrome_notification_types.h"
  #include "chrome/browser/extensions/crx_installer.h"
  #include "chrome/browser/extensions/extension_install_prompt.h"
-@@ -42,6 +45,7 @@ ExtensionInstallPrompt* mock_install_pro
- std::unique_ptr<ExtensionInstallPrompt> CreateExtensionInstallPrompt(
-     Profile* profile,
-     const DownloadItem& download_item) {
-+  LOG(INFO) << "download_crx_util.cc: CreateExtensionInstallPrompt: download_item";
-   // Use a mock if one is present.  Otherwise, create a real extensions
-   // install UI.
-   if (mock_install_prompt_for_testing) {
-@@ -53,13 +57,13 @@ std::unique_ptr<ExtensionInstallPrompt>
+@@ -53,12 +56,10 @@ std::unique_ptr<ExtensionInstallPrompt>
          content::DownloadItemUtils::GetWebContents(
              const_cast<DownloadItem*>(&download_item));
      if (!web_contents) {
@@ -478,18 +237,15 @@ Subject: add download prompt for installing extensions
 -      if (!browser) {
 -        browser = new Browser(
 -            Browser::CreateParams(Browser::TYPE_NORMAL, profile, true));
-+      LOG(INFO) << "download_crx_util.cc: CreateExtensionInstallPrompt: !web_contents";
 +      for (size_t i = 0; i < TabModelList::size(); ++i) {
 +        if (TabModelList::get(i)->IsCurrentModel())
 +          web_contents = TabModelList::get(i)->GetActiveWebContents();
        }
 -      web_contents = browser->tab_strip_model()->GetActiveWebContents();
      }
-+    LOG(INFO) << "download_crx_util.cc: CreateExtensionInstallPrompt: on_return";
      return std::unique_ptr<ExtensionInstallPrompt>(
          new ExtensionInstallPrompt(web_contents));
-   }
-@@ -136,13 +140,10 @@ bool ShouldDownloadAsRegularFile() {
+@@ -136,13 +137,10 @@ bool ShouldDownloadAsRegularFile() {
  }
  
  bool IsExtensionDownload(const DownloadItem& download_item) {
@@ -504,22 +260,26 @@ Subject: add download prompt for installing extensions
      return !ShouldDownloadAsRegularFile();
    } else {
      return false;
---- a/chrome/browser/extensions/extension_install_prompt.cc
-+++ b/chrome/browser/extensions/extension_install_prompt.cc
-@@ -665,6 +665,7 @@ void ExtensionInstallPrompt::ShowConfirm
-     show_dialog_callback_ = GetDefaultShowDialogCallback();
-   // TODO(https://crbug.com/957713): Use OnceCallback and eliminate the need for
-   // a callback on the stack.
-+  LOG(INFO) << "extension_install_prompt.cc: ShowConfirmation: callbacks";
-   auto cb = std::move(done_callback_);
-   std::move(show_dialog_callback_)
-       .Run(show_params_.get(), cb, std::move(prompt_));
 --- /dev/null
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/extensions/ExtensionInstallDialogViewBridge.java
-@@ -0,0 +1,156 @@
-+// Copyright 2020 The Ungoogled-Chromium Authors. All rights reserved.
-+// Use of this source code is governed by a BSD-style license that can be
-+// found in the LICENSE file.
+@@ -0,0 +1,170 @@
++// Copyright 2021 The Ungoogled Chromium Authors. All rights reserved.
++//
++// This file is part of Ungoogled Chromium Android.
++//
++// Ungoogled Chromium Android is free software: you can redistribute it
++// and/or modify it under the terms of the GNU General Public License as
++// published by the Free Software Foundation, either version 3 of the
++// License, or any later version.
++//
++// Ungoogled Chromium Android is distributed in the hope that it will be
++// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
++// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License
++// along with Ungoogled Chromium Android.  If not,
++// see <https://www.gnu.org/licenses/>.
 +
 +package org.chromium.chrome.browser.extensions;
 +
@@ -675,11 +435,25 @@ Subject: add download prompt for installing extensions
 +}
 --- /dev/null
 +++ b/chrome/android/java/res/layout/extension_install_dialog.xml
-@@ -0,0 +1,103 @@
+@@ -0,0 +1,117 @@
 +<?xml version="1.0" encoding="utf-8"?>
-+<!-- Copyright 2020 The Ungoogled-Chromium Authors. All rights reserved.
-+     Use of this source code is governed by a BSD-style license that can be
-+     found in the LICENSE file. -->
++<!-- Copyright 2021 The Ungoogled Chromium Authors. All rights reserved.
++
++ This file is part of Ungoogled Chromium Android.
++
++ Ungoogled Chromium Android is free software: you can redistribute it
++ and/or modify it under the terms of the GNU General Public License as
++ published by the Free Software Foundation, either version 3 of the
++ License, or any later version.
++
++ Ungoogled Chromium Android is distributed in the hope that it will be
++ useful, but WITHOUT ANY WARRANTY; without even the implied warranty
++ of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ GNU General Public License for more details.
++
++ You should have received a copy of the GNU General Public License
++ along with Ungoogled Chromium Android.  If not,
++ see <https://www.gnu.org/licenses/>. -->
 +
 +<org.chromium.chrome.browser.extensions.ExtensionInstallCustomScrollView
 +    xmlns:android="http://schemas.android.com/apk/res/android"
@@ -795,10 +569,24 @@ Subject: add download prompt for installing extensions
        </message>
 --- /dev/null
 +++ b/chrome/browser/ui/views/extensions/extension_install_dialog_view_android.cc
-@@ -0,0 +1,264 @@
-+// Copyright (c) 2012 The Chromium Authors. All rights reserved.
-+// Use of this source code is governed by a BSD-style license that can be
-+// found in the LICENSE file.
+@@ -0,0 +1,278 @@
++// Copyright 2021 The Ungoogled Chromium Authors. All rights reserved.
++//
++// This file is part of Ungoogled Chromium Android.
++//
++// Ungoogled Chromium Android is free software: you can redistribute it
++// and/or modify it under the terms of the GNU General Public License as
++// published by the Free Software Foundation, either version 3 of the
++// License, or any later version.
++//
++// Ungoogled Chromium Android is distributed in the hope that it will be
++// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
++// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License
++// along with Ungoogled Chromium Android.  If not,
++// see <https://www.gnu.org/licenses/>.
 +
 +#include "chrome/browser/ui/views/extensions/extension_install_dialog_view_android.h"
 +
@@ -1062,10 +850,24 @@ Subject: add download prompt for installing extensions
 +}
 --- /dev/null
 +++ b/chrome/browser/ui/views/extensions/extension_install_dialog_view_android.h
-@@ -0,0 +1,89 @@
-+// Copyright 2014 The Chromium Authors. All rights reserved.
-+// Use of this source code is governed by a BSD-style license that can be
-+// found in the LICENSE file.
+@@ -0,0 +1,103 @@
++// Copyright 2021 The Ungoogled Chromium Authors. All rights reserved.
++//
++// This file is part of Ungoogled Chromium Android.
++//
++// Ungoogled Chromium Android is free software: you can redistribute it
++// and/or modify it under the terms of the GNU General Public License as
++// published by the Free Software Foundation, either version 3 of the
++// License, or any later version.
++//
++// Ungoogled Chromium Android is distributed in the hope that it will be
++// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
++// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License
++// along with Ungoogled Chromium Android.  If not,
++// see <https://www.gnu.org/licenses/>.
 +
 +#ifndef CHROME_BROWSER_UI_VIEWS_EXTENSIONS_EXTENSION_INSTALL_DIALOG_VIEW_ANDROID_H_
 +#define CHROME_BROWSER_UI_VIEWS_EXTENSIONS_EXTENSION_INSTALL_DIALOG_VIEW_ANDROID_H_
@@ -1242,55 +1044,26 @@ Subject: add download prompt for installing extensions
          ContentResolver resolver = ContextUtils.getApplicationContext().getContentResolver();
          return resolver.delete(parsedUri, null, null) > 0;
      }
---- a/base/files/file_path.cc
-+++ b/base/files/file_path.cc
-@@ -482,6 +482,7 @@ bool FilePath::MatchesExtension(StringPi
- }
- 
- FilePath FilePath::Append(StringPieceType component) const {
-+  //LOG(INFO) << "file_path.cc: Append: component: " << component;
-   StringPieceType appended = component;
-   StringType without_nuls;
- 
-@@ -489,6 +490,7 @@ FilePath FilePath::Append(StringPieceTyp
-   if (nul_pos != StringPieceType::npos) {
-     without_nuls = StringType(component.substr(0, nul_pos));
-     appended = StringPieceType(without_nuls);
-+    //LOG(INFO) << "file_path.cc: Append: nul_pos != StringPieceType::npos: appended: " << appended.data();
-   }
- 
-   DCHECK(!IsPathAbsolute(appended));
-@@ -507,6 +509,8 @@ FilePath FilePath::Append(StringPieceTyp
-   FilePath new_path(path_);
-   new_path.StripTrailingSeparatorsInternal();
- 
-+  //LOG(INFO) << "file_path.cc: Append: new_path: " << new_path;
-+
-   // Don't append a separator if the path is empty (indicating the current
-   // directory) or if the path component is empty (indicating nothing to
-   // append).
-@@ -521,11 +525,15 @@ FilePath FilePath::Append(StringPieceTyp
-     }
-   }
- 
-+  //LOG(INFO) << "file_path.cc: Append: new_path 2: " << new_path;
-+
-+  //LOG(INFO) << "file_path.cc: Append: before append: appended: " << appended.data();
-   new_path.path_.append(appended.data(), appended.size());
-   return new_path;
- }
- 
- FilePath FilePath::Append(const FilePath& component) const {
-+  //LOG(INFO) << "file_path.cc: Append 2: component: " << component;
-   return Append(component.value());
- }
- 
 --- /dev/null
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/extensions/ExtensionInstallCustomScrollView.java
-@@ -0,0 +1,130 @@
-+// Copyright 2020 The Ungoogled-Chromium Authors. All rights reserved.
-+// Use of this source code is governed by a BSD-style license that can be
-+// found in the LICENSE file.
+@@ -0,0 +1,144 @@
++// Copyright 2021 The Ungoogled Chromium Authors. All rights reserved.
++//
++// This file is part of Ungoogled Chromium Android.
++//
++// Ungoogled Chromium Android is free software: you can redistribute it
++// and/or modify it under the terms of the GNU General Public License as
++// published by the Free Software Foundation, either version 3 of the
++// License, or any later version.
++//
++// Ungoogled Chromium Android is distributed in the hope that it will be
++// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
++// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License
++// along with Ungoogled Chromium Android.  If not,
++// see <https://www.gnu.org/licenses/>.
 +
 +package org.chromium.chrome.browser.extensions;
 +
