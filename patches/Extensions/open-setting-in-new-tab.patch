@@ -4,12 +4,13 @@ Subject: make settings of extensions open in new tab
 
 
 ---
- chrome/browser/extensions/api/developer_private/developer_private_api.cc |    4 -
- chrome/browser/extensions/extension_context_menu_model.cc                |    2 
- chrome/browser/extensions/extension_tab_util.cc                          |   35 ++++------
- chrome/browser/extensions/extension_tab_util.h                           |    2 
- chrome/browser/ui/webui/settings/people_handler.cc                       |    1 
- 5 files changed, 20 insertions(+), 24 deletions(-)
+ chrome/browser/extensions/api/developer_private/developer_private_api.cc               |    4 -
+ chrome/browser/extensions/extension_context_menu_model.cc                              |    2 
+ chrome/browser/extensions/extension_tab_util.cc                                        |   36 +++-------
+ chrome/browser/extensions/extension_tab_util.h                                         |    2 
+ chrome/browser/guest_view/extension_options/chrome_extension_options_guest_delegate.cc |    4 -
+ chrome/browser/ui/webui/settings/people_handler.cc                                     |    1 
+ 6 files changed, 20 insertions(+), 29 deletions(-)
 
 --- a/chrome/browser/extensions/api/developer_private/developer_private_api.cc
 +++ b/chrome/browser/extensions/api/developer_private/developer_private_api.cc
@@ -31,13 +32,15 @@ Subject: make settings of extensions open in new tab
  
 --- a/chrome/browser/extensions/extension_tab_util.cc
 +++ b/chrome/browser/extensions/extension_tab_util.cc
-@@ -867,30 +867,28 @@ bool ExtensionTabUtil::OpenOptionsPageFr
+@@ -867,15 +867,16 @@ bool ExtensionTabUtil::OpenOptionsPageFr
    // that's the only place it's running.
    DCHECK(!profile->IsOffTheRecord() || IncognitoInfo::IsSplitMode(extension));
    Browser* browser = chrome::FindBrowserWithProfile(profile);
+-  if (!browser)
+-    browser = Browser::Create(Browser::CreateParams(profile, true));
 +  LOG(ERROR) << "Cannot open new tab here";
-   if (!browser)
-     browser = Browser::Create(Browser::CreateParams(profile, true));
++//   if (!browser)
++//     browser = Browser::Create(Browser::CreateParams(profile, true));
    if (!browser)
      return false;
 -  return extensions::ExtensionTabUtil::OpenOptionsPage(extension, browser);
@@ -50,9 +53,7 @@ Subject: make settings of extensions open in new tab
    if (!OptionsPageInfo::HasOptionsPage(extension))
      return false;
  
-+  LOG(WARNING) << "extension_tab_util.cc: OpenOptionsPage() entry";
-+
-   // Force the options page to open in non-OTR window if the extension is not
+@@ -883,14 +884,9 @@ bool ExtensionTabUtil::OpenOptionsPage(c
    // running in split mode, because it won't be able to save settings from OTR.
    // This version of OpenOptionsPage() can be called from an OTR window via e.g.
    // the action menu, since that's not initiated by the extension.
@@ -69,7 +70,7 @@ Subject: make settings of extensions open in new tab
    GURL url_to_navigate;
    bool open_in_tab = OptionsPageInfo::ShouldOpenInTab(extension);
    if (open_in_tab) {
-@@ -907,17 +905,14 @@ bool ExtensionTabUtil::OpenOptionsPage(c
+@@ -907,17 +903,13 @@ bool ExtensionTabUtil::OpenOptionsPage(c
      url_to_navigate = url_to_navigate.ReplaceComponents(replacements);
    }
  
@@ -91,7 +92,6 @@ Subject: make settings of extensions open in new tab
 +          ui::PAGE_TRANSITION_LINK, false
 +    ));
 +
-+  LOG(WARNING) << "extension_tab_util.cc: return";
    return true;
  }
  
