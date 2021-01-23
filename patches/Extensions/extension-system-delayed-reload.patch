@@ -8,17 +8,17 @@ Subject: Reload extensions after the first tab is loaded from Java. Otherwise ce
 ---
  chrome/android/BUILD.gn                                                                    |    4 -
  chrome/android/chrome_java_sources.gni                                                     |    1 
- chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java              |    8 +++
- chrome/android/java/src/org/chromium/chrome/browser/extensions/ExtensionSystemManager.java |   22 ++++++++++
- chrome/browser/extensions/BUILD.gn                                                         |    3 +
- chrome/browser/extensions/extension_service.cc                                             |   11 ++++-
- chrome/browser/extensions/extension_service.h                                              |    5 ++
- chrome/browser/extensions/extension_system_manager.cc                                      |   22 ++++++++++
- chrome/browser/extensions/extension_system_manager.h                                       |   14 ++++++
+ chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java              |    8 ++
+ chrome/android/java/src/org/chromium/chrome/browser/extensions/ExtensionSystemManager.java |   22 ++++++
+ chrome/browser/extensions/BUILD.gn                                                         |    3 
+ chrome/browser/extensions/extension_service.cc                                             |   11 ++-
+ chrome/browser/extensions/extension_service.h                                              |    5 +
+ chrome/browser/extensions/extension_system_manager.cc                                      |   36 ++++++++++
+ chrome/browser/extensions/extension_system_manager.h                                       |   28 +++++++
  chrome/browser/extensions/updater/extension_updater.cc                                     |    2 
  chrome/browser/safety_check/android/BUILD.gn                                               |    1 
  extensions/browser/api/web_request/web_request_api.cc                                      |    2 
- 12 files changed, 92 insertions(+), 3 deletions(-)
+ 12 files changed, 120 insertions(+), 3 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
@@ -169,10 +169,24 @@ Subject: Reload extensions after the first tab is loaded from Java. Otherwise ce
      "//chrome/app/theme:chrome_unscaled_resources",
 --- /dev/null
 +++ b/chrome/browser/extensions/extension_system_manager.cc
-@@ -0,0 +1,22 @@
+@@ -0,0 +1,36 @@
 +// Copyright 2021 The Ungoogled Chromium Authors. All rights reserved.
-+// Use of this source code is governed by a BSD-style license that can be
-+// found in the LICENSE file.
++//
++// This file is part of Ungoogled Chromium Android.
++//
++// Ungoogled Chromium Android is free software: you can redistribute it
++// and/or modify it under the terms of the GNU General Public License as
++// published by the Free Software Foundation, either version 3 of the
++// License, or any later version.
++//
++// Ungoogled Chromium Android is distributed in the hope that it will be
++// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
++// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License
++// along with Ungoogled Chromium Android.  If not,
++// see <https://www.gnu.org/licenses/>.
 +
 +#include "chrome/browser/extensions/extension_system_manager.h"
 +
@@ -194,10 +208,24 @@ Subject: Reload extensions after the first tab is loaded from Java. Otherwise ce
 +}  // namespace extensions
 --- /dev/null
 +++ b/chrome/browser/extensions/extension_system_manager.h
-@@ -0,0 +1,14 @@
+@@ -0,0 +1,28 @@
 +// Copyright 2021 The Ungoogled Chromium Authors. All rights reserved.
-+// Use of this source code is governed by a BSD-style license that can be
-+// found in the LICENSE file.
++//
++// This file is part of Ungoogled Chromium Android.
++//
++// Ungoogled Chromium Android is free software: you can redistribute it
++// and/or modify it under the terms of the GNU General Public License as
++// published by the Free Software Foundation, either version 3 of the
++// License, or any later version.
++//
++// Ungoogled Chromium Android is distributed in the hope that it will be
++// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
++// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License
++// along with Ungoogled Chromium Android.  If not,
++// see <https://www.gnu.org/licenses/>.
 +
 +#ifndef CHROME_BROWSER_EXTENSIONS_EXTENSION_SYSTEM_MANAGER_H_
 +#define CHROME_BROWSER_EXTENSIONS_EXTENSION_SYSTEM_MANAGER_H_
