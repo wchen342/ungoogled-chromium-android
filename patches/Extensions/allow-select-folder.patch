@@ -4,9 +4,9 @@ Subject: add folder selection mode picker
 
 
 ---
- ui/android/java/src/org/chromium/ui/base/SelectFileDialog.java |  153 +++++++++-
+ ui/android/java/src/org/chromium/ui/base/SelectFileDialog.java |  169 +++++++++-
  ui/shell_dialogs/select_file_dialog_android.cc                 |    6 
- 2 files changed, 149 insertions(+), 10 deletions(-)
+ 2 files changed, 164 insertions(+), 11 deletions(-)
 
 --- a/ui/android/java/src/org/chromium/ui/base/SelectFileDialog.java
 +++ b/ui/android/java/src/org/chromium/ui/base/SelectFileDialog.java
@@ -72,21 +72,21 @@ Subject: add folder selection mode picker
              // then update the intent to specifically target that request.
 -            if (shouldShowImageTypes()) {
 +            if (shouldShowImageTypes() && !mIsFolder) {
-+                Log.d("SelectFileDialog.java", "shouldShowImageTypes");
++                Log.i("SelectFileDialog.java", "shouldShowImageTypes");
                  if (camera != null) extraIntents.add(camera);
                  getContentIntent.setType(IMAGE_TYPE + "/*");
 -            } else if (shouldShowVideoTypes()) {
 +            } else if (shouldShowVideoTypes() && !mIsFolder) {
-+                Log.d("SelectFileDialog.java", "shouldShowVideoTypes");
++                Log.i("SelectFileDialog.java", "shouldShowVideoTypes");
                  if (camcorder != null) extraIntents.add(camcorder);
                  getContentIntent.setType(VIDEO_TYPE + "/*");
 -            } else if (shouldShowAudioTypes()) {
 +            } else if (shouldShowAudioTypes() && !mIsFolder) {
-+                Log.d("SelectFileDialog.java", "shouldShowAudioTypes");
++                Log.i("SelectFileDialog.java", "shouldShowAudioTypes");
                  if (soundRecorder != null) extraIntents.add(soundRecorder);
                  getContentIntent.setType(AUDIO_TYPE + "/*");
 +            } else if (mIsFolder) {
-+                Log.d("SelectFileDialog.java", "mIsFolder, add(folderSelector)");
++                Log.i("SelectFileDialog.java", "mIsFolder, add(folderSelector)");
 +                if (folderSelector != null) extraIntents.add(folderSelector);
 +                getContentIntent.setType(ALL_TYPES);
              }
@@ -100,23 +100,23 @@ Subject: add folder selection mode picker
 -            if (camcorder != null) extraIntents.add(camcorder);
 -            if (soundRecorder != null) extraIntents.add(soundRecorder);
 +            if (!mIsFolder) {
-+                Log.d("SelectFileDialog.java", "!mIsFolder");
++                Log.i("SelectFileDialog.java", "!mIsFolder");
 +                if (camera != null) extraIntents.add(camera);
 +                if (camcorder != null) extraIntents.add(camcorder);
 +                if (soundRecorder != null) extraIntents.add(soundRecorder);
 +            } else {
-+                Log.d("SelectFileDialog.java", "mIsFolder, add(folderSelector), 2");
++                Log.i("SelectFileDialog.java", "mIsFolder, add(folderSelector), 2");
 +                if (folderSelector != null) extraIntents.add(folderSelector);
 +            }
          }
  
          Intent chooser = new Intent(Intent.ACTION_CHOOSER);
          if (!extraIntents.isEmpty()) {
-+            Log.d("SelectFileDialog.java", "EXTRA_INITIAL_INTENTS");
++            Log.i("SelectFileDialog.java", "EXTRA_INITIAL_INTENTS");
              chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS,
                      extraIntents.toArray(new Intent[] { }));
          }
-@@ -802,6 +829,18 @@ public class SelectFileDialog implements
+@@ -802,16 +829,39 @@ public class SelectFileDialog implements
              String[] displayNames = new String[mUris.length];
              try {
                  for (int i = 0; i < mUris.length; i++) {
@@ -124,34 +124,42 @@ Subject: add folder selection mode picker
 +                    if (mIsFolder) {
 +                        Context context = ContextUtils.getApplicationContext();
 +                        String path = FileUtil.getFullPathFromTreeUri(mUris[i], context);
-+                        if (path != null)
-+                            Log.d("SelectFileDialog.java", "mUris: %s, path: %s", mUris[i].toString(), path);
-+                        else
-+                            Log.d("SelectFileDialog.java", "mUris: %s, path: %s", mUris[i].toString(), "NULL");
-+                        if (path != null)
++                        if (path != null) {
 +                            mUris[i] = Uri.fromFile(new File(path));
++                            Log.i("SelectFileDialog.java", "mUris: %s, path: %s", mUris[i].toString(), path);
++                        } else
++                            Log.i("SelectFileDialog.java", "mUris: %s, path: %s", mUris[i].toString(), "NULL");
 +                    }
 +
                      // The selected files must be returned as a list of absolute paths. A MIUI 8.5
                      // device was observed to return a file:// URI instead, so convert if necessary.
                      // See https://crbug.com/752834 for context.
-@@ -810,8 +849,13 @@ public class SelectFileDialog implements
+                     if (ContentResolver.SCHEME_FILE.equals(mUris[i].getScheme())) {
+-                        mFilePaths[i] = mUris[i].getSchemeSpecificPart();
++                        String filePath = mUris[i].getSchemeSpecificPart();
++                        // Remove extra "//" if exists
++                        if (filePath.startsWith("//") && filePath.length() > 2)
++                          mFilePaths[i] = filePath.substring(2);
++                        Log.i("SelectFileDialog.java", "mFilePaths1: %s", mFilePaths[i]);
                      } else {
                          mFilePaths[i] = mUris[i].toString();
-                     }
--                    displayNames[i] = ContentUriUtils.getDisplayName(
--                            mUris[i], mContext, MediaStore.MediaColumns.DISPLAY_NAME);
++                        Log.i("SelectFileDialog.java", "mFilePaths2: %s", mFilePaths[i]);
++                    }
 +
 +                    if (mIsFolder) {
 +                        displayNames[i] = mFilePaths[i];
++                        Log.i("SelectFileDialog.java", "displayNames1: %s", displayNames[i]);
 +                    } else {
 +                        displayNames[i] = ContentUriUtils.getDisplayName(
 +                                mUris[i], mContext, MediaStore.MediaColumns.DISPLAY_NAME);
-+                    }
++                        Log.i("SelectFileDialog.java", "displayNames2: %s", displayNames[i]);
+                     }
+-                    displayNames[i] = ContentUriUtils.getDisplayName(
+-                            mUris[i], mContext, MediaStore.MediaColumns.DISPLAY_NAME);
                  }
              }  catch (SecurityException e) {
                  // Some third party apps will present themselves as being able
-@@ -927,4 +971,95 @@ public class SelectFileDialog implements
+@@ -927,4 +977,103 @@ public class SelectFileDialog implements
          void onContactsSelected(
                  long nativeSelectFileDialogImpl, SelectFileDialog caller, String contacts);
      }
@@ -160,41 +168,45 @@ Subject: add folder selection mode picker
 +    // <a href="https://stackoverflow.com/questions/34927748#36162691">Stack Overflow</a>.
 +    // Licensed under CC-BY-SA 3.0.
 +    private static final class FileUtil {
-+        private static final String PRIMARY_VOLUME_NAME = "primary";
++        private static final String[] PRIMARY_VOLUME_NAME = {"primary", "raw"};
 +
 +        @Nullable
 +        static String getFullPathFromTreeUri(@Nullable final Uri treeUri, Context con) {
 +            if (treeUri == null) return null;
 +            String volumePath = getVolumePath(getVolumeIdFromTreeUri(treeUri),con);
 +            if (volumePath == null)
-+                Log.d("SelectFileDialog.java", "volumePath: %s", "NULL");
++                Log.i("SelectFileDialog.java", "volumePath: %s", "NULL");
 +            else
-+                Log.d("SelectFileDialog.java", "volumePath: %s", volumePath);
++                Log.i("SelectFileDialog.java", "volumePath: %s", volumePath);
 +            if (volumePath == null) return File.separator;
 +            if (volumePath.endsWith(File.separator))
 +                volumePath = volumePath.substring(0, volumePath.length() - 1);
 +
 +            String documentPath = getDocumentPathFromTreeUri(treeUri);
 +            if (documentPath == null || documentPath.equals(""))
-+                Log.d("SelectFileDialog.java", "documentPath: %s", "NULL");
++                Log.i("SelectFileDialog.java", "documentPath: %s", "NULL");
 +            else
-+                Log.d("SelectFileDialog.java", "documentPath: %s", documentPath);
++                Log.i("SelectFileDialog.java", "documentPath: %s", documentPath);
++            if (volumePath.endsWith(File.separator))
++                volumePath = volumePath.substring(0, volumePath.length() - 1);
 +            if (documentPath.endsWith(File.separator))
 +                documentPath = documentPath.substring(0, documentPath.length() - 1);
 +
 +            if (documentPath.length() > 0) {
-+                if (documentPath.startsWith(File.separator))
-+                    return volumePath + documentPath;
++                if (!documentPath.startsWith(volumePath)) {
++                    if (documentPath.startsWith(File.separator))
++                        return volumePath + documentPath;
++                    else
++                        return volumePath + File.separator + documentPath;
++                }
 +                else
-+                    return volumePath + File.separator + documentPath;
++                    return documentPath;
 +            }
 +            else return volumePath;
 +        }
 +
-+        @SuppressLint("ObsoleteSdkInt")
 +        private static String getVolumePath(final String volumeId, Context context) {
-+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) return null;
-+            Log.d("SelectFileDialog.java", "getVolumePath: volumeId: %s", volumeId);
++            Log.i("SelectFileDialog.java", "getVolumePath: volumeId: %s", volumeId);
 +            try {
 +                StorageManager mStorageManager =
 +                        (StorageManager) context.getSystemService(Context.STORAGE_SERVICE);
@@ -206,17 +218,19 @@ Subject: add folder selection mode picker
 +                Object result = getVolumeList.invoke(mStorageManager);
 +
 +                final int length = Array.getLength(result);
-+                Log.d("SelectFileDialog.java", "getVolumePath: length: %d", length);
++                Log.i("SelectFileDialog.java", "getVolumePath: length: %d", length);
 +                for (int i = 0; i < length; i++) {
 +                    Object storageVolumeElement = Array.get(result, i);
 +                    String uuid = (String) getUuid.invoke(storageVolumeElement);
-+                    Log.d("SelectFileDialog.java", "getVolumePath: uuid: %s", uuid);
++                    Log.i("SelectFileDialog.java", "getVolumePath: uuid: %s", uuid);
 +                    Boolean primary = (Boolean) isPrimary.invoke(storageVolumeElement);
-+                    Log.d("SelectFileDialog.java", "getVolumePath: primary: %b", primary);
++                    Log.i("SelectFileDialog.java", "getVolumePath: primary: %b", primary);
 +
 +                    // primary volume?
-+                    if (primary && PRIMARY_VOLUME_NAME.equals(volumeId))
-+                        return (String) getPath.invoke(storageVolumeElement);
++                    for (String volume_name : PRIMARY_VOLUME_NAME) {
++                        if (primary && volume_name.equals(volumeId))
++                            return (String) getPath.invoke(storageVolumeElement);
++                    }
 +
 +                    // other volumes?
 +                    if (uuid != null && uuid.equals(volumeId))
@@ -233,6 +247,7 @@ Subject: add folder selection mode picker
 +        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 +        private static String getVolumeIdFromTreeUri(final Uri treeUri) {
 +            final String docId = DocumentsContract.getTreeDocumentId(treeUri);
++            Log.i("SelectFileDialog.java", "getVolumeIdFromTreeUri: docId: %s", docId);
 +            final String[] split = docId.split(":");
 +            if (split.length > 0) return split[0];
 +            else return null;
@@ -241,6 +256,7 @@ Subject: add folder selection mode picker
 +        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 +        private static String getDocumentPathFromTreeUri(final Uri treeUri) {
 +            final String docId = DocumentsContract.getTreeDocumentId(treeUri);
++            Log.i("SelectFileDialog.java", "getDocumentPathFromTreeUri: docId: %s", docId);
 +            final String[] split = docId.split(":");
 +            if ((split.length >= 2) && (split[1] != null)) return split[1];
 +            else return File.separator;

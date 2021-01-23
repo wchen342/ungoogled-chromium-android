@@ -8,34 +8,21 @@ Subject: fix remove button for extensions
  chrome/android/BUILD.gn                                                                                |    1 
  chrome/android/chrome_java_resources.gni                                                               |    1 
  chrome/android/chrome_java_sources.gni                                                                 |    2 
- chrome/android/java/res/layout/extension_uninstall_dialog.xml                                          |   38 ++
- chrome/android/java/src/org/chromium/chrome/browser/extensions/ExtensionUninstallCustomScrollView.java |   63 +++
- chrome/android/java/src/org/chromium/chrome/browser/extensions/ExtensionUninstallDialogBridge.java     |  146 ++++++++
- chrome/browser/extensions/chrome_extension_function_details.cc                                         |   17 
+ chrome/android/java/res/layout/extension_uninstall_dialog.xml                                          |   52 ++
+ chrome/android/java/src/org/chromium/chrome/browser/extensions/ExtensionUninstallCustomScrollView.java |   77 ++++
+ chrome/android/java/src/org/chromium/chrome/browser/extensions/ExtensionUninstallDialogBridge.java     |  160 ++++++++
+ chrome/browser/extensions/chrome_extension_function_details.cc                                         |    4 
  chrome/browser/ui/BUILD.gn                                                                             |    3 
  chrome/browser/ui/android/strings/android_chrome_strings.grd                                           |    5 
- chrome/browser/ui/views/extensions/extension_uninstall_dialog_view.cc                                  |    4 
- chrome/browser/ui/views/extensions/extension_uninstall_dialog_view_android.cc                          |  176 ++++++++++
- chrome/browser/ui/views/extensions/extension_uninstall_dialog_view_android.h                           |   87 ++++
- 12 files changed, 536 insertions(+), 7 deletions(-)
+ chrome/browser/ui/views/extensions/extension_uninstall_dialog_view_android.cc                          |  190 ++++++++++
+ chrome/browser/ui/views/extensions/extension_uninstall_dialog_view_android.h                           |  101 +++++
+ 11 files changed, 591 insertions(+), 5 deletions(-)
 
 --- a/chrome/browser/extensions/chrome_extension_function_details.cc
 +++ b/chrome/browser/extensions/chrome_extension_function_details.cc
-@@ -76,15 +76,18 @@ gfx::NativeWindow ChromeExtensionFunctio
-   extensions::WindowController* controller =
-       extensions::WindowControllerList::GetInstance()->CurrentWindowForFunction(
-           function_);
--  if (controller)
-+  LOG(INFO) << "chrome_extension_function_details.cc: GetNativeWindowForUI: controller == NULL: " << (controller == NULL);
-+  if (controller) {
-+    LOG(INFO) << "chrome_extension_function_details.cc: GetNativeWindowForUI: controller->window()->GetNativeWindow() == NULL: " << (controller->window()->GetNativeWindow() == NULL);
-     return controller->window()->GetNativeWindow();
-+  }
- 
-   // Next, check the sender web contents for if it supports modal dialogs.
+@@ -83,8 +83,7 @@ gfx::NativeWindow ChromeExtensionFunctio
    // TODO(devlin): This seems weird. Why wouldn't we check this first?
    content::WebContents* sender_web_contents = function_->GetSenderWebContents();
-+  LOG(INFO) << "chrome_extension_function_details.cc: GetNativeWindowForUI: sender_web_contents->GetTopLevelNativeWindow() == NULL: " << (sender_web_contents->GetTopLevelNativeWindow() == NULL);
    if (sender_web_contents &&
 -      web_modal::WebContentsModalDialogManager::FromWebContents(
 -           sender_web_contents)) {
@@ -43,63 +30,33 @@ Subject: fix remove button for extensions
      return sender_web_contents->GetTopLevelNativeWindow();
    }
  
-@@ -94,16 +97,22 @@ gfx::NativeWindow ChromeExtensionFunctio
-     extensions::AppWindow* window =
-         extensions::AppWindowRegistry::Get(function_->browser_context())
-             ->GetCurrentAppWindowForApp(function_->extension()->id());
--    if (window)
-+    LOG(INFO) << "chrome_extension_function_details.cc: GetNativeWindowForUI: extensions::AppWindow* window == NULL: " << (window == NULL);
-+    if (window) {
-+      LOG(INFO) << "chrome_extension_function_details.cc: GetNativeWindowForUI: window->web_contents()->GetTopLevelNativeWindow() == NULL: " << (window->web_contents()->GetTopLevelNativeWindow() == NULL);
-       return window->web_contents()->GetTopLevelNativeWindow();
-+    }
-   }
- 
-   // As a last resort, find a browser.
-   Browser* browser = chrome::FindBrowserWithProfile(GetProfile());
-+  LOG(INFO) << "chrome_extension_function_details.cc: GetNativeWindowForUI: browser == NULL: " << (browser == NULL);
-   // If there are no browser windows open, no window is available.
-   // This could happen e.g. if extension launches a long process or simple
+@@ -105,5 +104,6 @@ gfx::NativeWindow ChromeExtensionFunctio
    // sleep() in the background script, during which browser is closed.
    if (!browser)
      return nullptr;
 +
-+  LOG(INFO) << "chrome_extension_function_details.cc: GetNativeWindowForUI: browser->window()->GetNativeWindow() == NULL: " << (browser->window()->GetNativeWindow() == NULL);
    return browser->window()->GetNativeWindow();
  }
---- a/chrome/browser/ui/views/extensions/extension_uninstall_dialog_view.cc
-+++ b/chrome/browser/ui/views/extensions/extension_uninstall_dialog_view.cc
-@@ -121,13 +121,16 @@ ExtensionUninstallDialogViews::~Extensio
- }
- 
- void ExtensionUninstallDialogViews::Show() {
-+  LOG(INFO) << "extension_uninstall_dialog_view.cc: Show(): parent() == NULL: " << (parent() == NULL);
-   BrowserView* const browser_view =
-       parent() ? BrowserView::GetBrowserViewForNativeWindow(parent()) : nullptr;
-+  LOG(INFO) << "extension_uninstall_dialog_view.cc: Show(): browser_view == NULL: " << (browser_view == NULL);
-   ToolbarActionView* anchor_view = nullptr;
-   ExtensionsToolbarContainer* const container =
-       browser_view ? browser_view->toolbar_button_provider()
-                          ->GetExtensionsToolbarContainer()
-                    : nullptr;
-+  LOG(INFO) << "extension_uninstall_dialog_view.cc: Show(): container == NULL: " << (container == NULL);
-   if (container) {
-     anchor_view = container->GetViewForId(extension()->id());
-   } else if (browser_view &&
-@@ -141,6 +144,7 @@ void ExtensionUninstallDialogViews::Show
-     if (reference_view && reference_view->GetVisible())
-       anchor_view = reference_view;
-   }
-+  LOG(INFO) << "extension_uninstall_dialog_view.cc: Show(): anchor_view == NULL: " << (anchor_view == NULL);
-   view_ = new ExtensionUninstallDialogDelegateView(
-       this, anchor_view, extension(), triggering_extension(), &icon());
-   if (anchor_view) {
 --- /dev/null
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/extensions/ExtensionUninstallCustomScrollView.java
-@@ -0,0 +1,63 @@
-+// Copyright 2020 The Ungoogled Chromium Authors. All rights reserved.
-+// Use of this source code is governed by a BSD-style license that can be
-+// found in the LICENSE file.
+@@ -0,0 +1,77 @@
++// Copyright 2021 The Ungoogled Chromium Authors. All rights reserved.
++//
++// This file is part of Ungoogled Chromium Android.
++//
++// Ungoogled Chromium Android is free software: you can redistribute it
++// and/or modify it under the terms of the GNU General Public License as
++// published by the Free Software Foundation, either version 3 of the
++// License, or any later version.
++//
++// Ungoogled Chromium Android is distributed in the hope that it will be
++// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
++// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License
++// along with Ungoogled Chromium Android.  If not,
++// see <https://www.gnu.org/licenses/>.
 +
 +package org.chromium.chrome.browser.extensions;
 +
@@ -162,10 +119,24 @@ Subject: fix remove button for extensions
 +}
 --- /dev/null
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/extensions/ExtensionUninstallDialogBridge.java
-@@ -0,0 +1,146 @@
-+// Copyright 2020 The Ungoogled Chromium Authors. All rights reserved.
-+// Use of this source code is governed by a BSD-style license that can be
-+// found in the LICENSE file.
+@@ -0,0 +1,160 @@
++// Copyright 2021 The Ungoogled Chromium Authors. All rights reserved.
++//
++// This file is part of Ungoogled Chromium Android.
++//
++// Ungoogled Chromium Android is free software: you can redistribute it
++// and/or modify it under the terms of the GNU General Public License as
++// published by the Free Software Foundation, either version 3 of the
++// License, or any later version.
++//
++// Ungoogled Chromium Android is distributed in the hope that it will be
++// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
++// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License
++// along with Ungoogled Chromium Android.  If not,
++// see <https://www.gnu.org/licenses/>.
 +
 +package org.chromium.chrome.browser.extensions;
 +
@@ -328,11 +299,25 @@ Subject: fix remove button for extensions
        <message name="IDS_PREFS_ABOUT_CHROME" desc="Title for the About Chrome page. [CHAR-LIMIT=32]">
 --- /dev/null
 +++ b/chrome/android/java/res/layout/extension_uninstall_dialog.xml
-@@ -0,0 +1,38 @@
+@@ -0,0 +1,52 @@
 +<?xml version="1.0" encoding="utf-8"?>
-+<!-- Copyright 2020 The Ungoogled Chromium Authors. All rights reserved.
-+     Use of this source code is governed by a BSD-style license that can be
-+     found in the LICENSE file. -->
++<!-- Copyright 2021 The Ungoogled Chromium Authors. All rights reserved.
++
++ This file is part of Ungoogled Chromium Android.
++
++ Ungoogled Chromium Android is free software: you can redistribute it
++ and/or modify it under the terms of the GNU General Public License as
++ published by the Free Software Foundation, either version 3 of the
++ License, or any later version.
++
++ Ungoogled Chromium Android is distributed in the hope that it will be
++ useful, but WITHOUT ANY WARRANTY; without even the implied warranty
++ of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ GNU General Public License for more details.
++
++ You should have received a copy of the GNU General Public License
++ along with Ungoogled Chromium Android.  If not,
++ see <https://www.gnu.org/licenses/>. -->
 +
 +<org.chromium.chrome.browser.extensions.ExtensionUninstallCustomScrollView
 +    xmlns:android="http://schemas.android.com/apk/res/android"
@@ -390,10 +375,24 @@ Subject: fix remove button for extensions
    "java/src/org/chromium/chrome/browser/externalauth/VerifiedHandler.java",
 --- /dev/null
 +++ b/chrome/browser/ui/views/extensions/extension_uninstall_dialog_view_android.cc
-@@ -0,0 +1,176 @@
-+// Copyright (c) 2020 The Ungoogled Chromium Authors. All rights reserved.
-+// Use of this source code is governed by a BSD-style license that can be
-+// found in the LICENSE file.
+@@ -0,0 +1,190 @@
++// Copyright 2021 The Ungoogled Chromium Authors. All rights reserved.
++//
++// This file is part of Ungoogled Chromium Android.
++//
++// Ungoogled Chromium Android is free software: you can redistribute it
++// and/or modify it under the terms of the GNU General Public License as
++// published by the Free Software Foundation, either version 3 of the
++// License, or any later version.
++//
++// Ungoogled Chromium Android is distributed in the hope that it will be
++// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
++// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License
++// along with Ungoogled Chromium Android.  If not,
++// see <https://www.gnu.org/licenses/>.
 +
 +#include <memory>
 +
@@ -581,10 +580,24 @@ Subject: fix remove button for extensions
        "views/extensions/extensions_menu_item_view.cc",
 --- /dev/null
 +++ b/chrome/browser/ui/views/extensions/extension_uninstall_dialog_view_android.h
-@@ -0,0 +1,87 @@
-+// Copyright (c) 2020 The Ungoogled Chromium Authors. All rights reserved.
-+// Use of this source code is governed by a BSD-style license that can be
-+// found in the LICENSE file.
+@@ -0,0 +1,101 @@
++// Copyright 2021 The Ungoogled Chromium Authors. All rights reserved.
++//
++// This file is part of Ungoogled Chromium Android.
++//
++// Ungoogled Chromium Android is free software: you can redistribute it
++// and/or modify it under the terms of the GNU General Public License as
++// published by the Free Software Foundation, either version 3 of the
++// License, or any later version.
++//
++// Ungoogled Chromium Android is distributed in the hope that it will be
++// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
++// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License
++// along with Ungoogled Chromium Android.  If not,
++// see <https://www.gnu.org/licenses/>.
 +
 +#ifndef CHROME_BROWSER_UI_VIEWS_EXTENSIONS_EXTENSION_UNINSTALL_DIALOG_VIEW_ANDROID_H_
 +#define CHROME_BROWSER_UI_VIEWS_EXTENSIONS_EXTENSION_UNINSTALL_DIALOG_VIEW_ANDROID_H_
