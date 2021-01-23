@@ -18,6 +18,8 @@ Extensions/add-chromium-webstore-extension.patch
 Extensions/fix-extension-remove-button.patch
 Extensions/extension-system-delayed-reload.patch
 Extensions/add-api-os-android.patch
+Extensions/profile-extra-parts-init.patch
+Extensions/tab-api-fix.patch
 Vanadium/0020-disable-media-router-media-remoting-by-default.patch
 Vanadium/0021-disable-media-router-by-default.patch
 Unobtainium/kill-Auth.patch
