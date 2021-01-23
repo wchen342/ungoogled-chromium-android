@@ -1,3 +1,13 @@
+# 87.0.4280.141-2
+* Extension version only:
+  * HTTPS Everywhere can now open options page correctly
+  * Decentraleyes is now functional and [can pass their test](https://decentraleyes.org/test)
+  * Fix a bug that prevents uBlock Origin from functioning after restart
+  * Extension page no longer needs manual refresh after installation or switching on/off.
+  * Potentially fix a bug with developer mode loading on Android 10+
+  * Known problem: extensions will not work on the first tab from a cold start (e.g. when you have restarted the device). Close the tab and open a new one fixes the problem.
+* Every new file created in the patchset is now marked with GNU GPL notice
+
 # 87.0.4280.141-1
 * Prevent Google connections from DRM preprovisioning ([ungoogled-chromium/issues/1297](https://github.com/Eloston/ungoogled-chromium/issues/1297))
 * Remove sites on new page

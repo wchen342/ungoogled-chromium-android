@@ -84,11 +84,13 @@ There are three methods to install extensions:
  - Method 2 (Direct Download):
    1. Go to `chrome://flags/` and change `#extension-mime-request-handling` to `Always prompt for install` and relaunch your browser.
    2. Get direct link to `crx` file following the instructions [here](https://ungoogled-software.github.io/ungoogled-chromium-wiki/faq#downloading-the-crx-file).
+      1. Optionally, you can use a third-party website to download the `crx` file. However, do so at your own risk, as I will take *absolutely no* responsibility for problems caused by using a third party website or service.
    3. Paste the link into omnibox and go to that link.
    4. The browser should prompt for installation after finishing downloading
    5. Check `chrome://extensions/` and you should see the extension there.
  - Method 3 (Developer Mode Folder Loading. This method only supports `Android 5.1+`):
    1. Download extension following the instructions [here](https://ungoogled-software.github.io/ungoogled-chromium-wiki/faq#downloading-the-crx-file).
+      1. 1. Optionally, you can use a third-party website to download the `crx` file. However, do so at your own risk, as I will take *absolutely no* responsibility for problems caused by using a third party website or service.
    2. Extract the `crx` file into a folder with`unzip`/`7z` and copy the folder to your device.
    3. Notice for Android 10: as a workaround for a [permission issue](https://github.com/wchen342/ungoogled-chromium-android/issues/27), you need to enable "Allow from unknown source" for `Ungoogled Chromium Extensions".
    4. Make sure you also give storage access.
@@ -123,4 +125,4 @@ You can use f-Droid client and add [this repository](https://www.droidware.info/
 
 See [LICENSE](LICENSE.md).
 
-Starting from commit `d86c4905e078944bddbea77f8bc916cca14279b0` and upon everything is licensed under GPLv3. Older commits are still licensed under BSD 3-clause.
+Ungoogled Chromium Android is part of Ungoogled Chromium. Everything published here, including (but not limited to) patches, scripts and other files are licensed under GPLv3+.

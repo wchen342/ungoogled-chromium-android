@@ -877,7 +877,7 @@ Completely remove contacts picker permission from the file dialog
      private static final String TAG = "SelectFileDialog";
      private static final String IMAGE_TYPE = "image";
      private static final String VIDEO_TYPE = "video";
-+    private static final String HTML_TYPE = "text/html";
++    private static final String HTML_TYPE = "text";
      private static final String AUDIO_TYPE = "audio";
      private static final String ALL_TYPES = "*/*";
  

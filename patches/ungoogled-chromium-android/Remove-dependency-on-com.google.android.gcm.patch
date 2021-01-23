@@ -3,17 +3,11 @@ Date: Sat, 2 Nov 2019 09:29:52 +0100
 Subject: Remove dependency on com.google.android.gcm
 
 ---
- third_party/android_sdk/BUILD.gn |    5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ third_party/android_sdk/BUILD.gn |    3 ---
+ 1 file changed, 3 deletions(-)
 
 --- a/third_party/android_sdk/BUILD.gn
 +++ b/third_party/android_sdk/BUILD.gn
-@@ -1,4 +1,4 @@
--# Copyright 2019 The Chromium Authors. All rights reserved.
-+    # Copyright 2019 The Chromium Authors. All rights reserved.
- # Use of this source code is governed by a BSD-style license that can be
- # found in the LICENSE file.
- 
 @@ -63,7 +63,4 @@ if (enable_java_templates) {
      testonly = true
      sources = [ "//third_party/android_sdk/public/extras/chromium/support/src/org/chromium/android/support/PackageManagerWrapper.java" ]

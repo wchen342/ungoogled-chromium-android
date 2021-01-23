@@ -1,23 +1,37 @@
 ---
  chrome/android/chrome_java_sources.gni                                                              |    2 
  chrome/android/java/AndroidManifest.xml                                                             |    2 
- chrome/android/java/src/org/chromium/chrome/browser/download/ChromeUpdateDownloadDelegate.java      |  153 ++++++
+ chrome/android/java/src/org/chromium/chrome/browser/download/ChromeUpdateDownloadDelegate.java      |  167 +++++++
  chrome/android/java/src/org/chromium/chrome/browser/omaha/UpdateConfigs.java                        |    9 
  chrome/android/java/src/org/chromium/chrome/browser/omaha/UpdateStatusProvider.java                 |   20 
  chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateControllerFactory.java |    2 
- chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/UCInlineUpdateController.java      |  222 ++++++++++
+ chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/UCInlineUpdateController.java      |  236 ++++++++++
  chrome/browser/flag_descriptions.cc                                                                 |    5 
  chrome/browser/flags/android/chrome_feature_list.cc                                                 |    1 
  chrome/browser/ui/android/strings/android_chrome_strings.grd                                        |    2 
  chrome/browser/updates/update_notification_config.cc                                                |    4 
- 11 files changed, 409 insertions(+), 13 deletions(-)
+ 11 files changed, 437 insertions(+), 13 deletions(-)
 
 --- /dev/null
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/UCInlineUpdateController.java
-@@ -0,0 +1,222 @@
-+// Copyright 2020 The Ungoogled-Chromium Authors. All rights reserved.
-+// Use of this source code is governed by a BSD-style license that can be
-+// found in the LICENSE file.
+@@ -0,0 +1,236 @@
++// Copyright 2021 The Ungoogled Chromium Authors. All rights reserved.
++//
++// This file is part of Ungoogled Chromium Android.
++//
++// Ungoogled Chromium Android is free software: you can redistribute it
++// and/or modify it under the terms of the GNU General Public License as
++// published by the Free Software Foundation, either version 3 of the
++// License, or any later version.
++//
++// Ungoogled Chromium Android is distributed in the hope that it will be
++// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
++// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License
++// along with Ungoogled Chromium Android.  If not,
++// see <https://www.gnu.org/licenses/>.
 +
 +package org.chromium.chrome.browser.omaha.inline;
 +
@@ -434,10 +448,24 @@
          Update Chrome
 --- /dev/null
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/download/ChromeUpdateDownloadDelegate.java
-@@ -0,0 +1,153 @@
-+// Copyright 2015 The Chromium Authors. All rights reserved.
-+// Use of this source code is governed by a BSD-style license that can be
-+// found in the LICENSE file.
+@@ -0,0 +1,167 @@
++// Copyright 2021 The Ungoogled Chromium Authors. All rights reserved.
++//
++// This file is part of Ungoogled Chromium Android.
++//
++// Ungoogled Chromium Android is free software: you can redistribute it
++// and/or modify it under the terms of the GNU General Public License as
++// published by the Free Software Foundation, either version 3 of the
++// License, or any later version.
++//
++// Ungoogled Chromium Android is distributed in the hope that it will be
++// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
++// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License
++// along with Ungoogled Chromium Android.  If not,
++// see <https://www.gnu.org/licenses/>.
 +
 +package org.chromium.chrome.browser.download;
 +
