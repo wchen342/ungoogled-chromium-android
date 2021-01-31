@@ -1,12 +1,12 @@
 From: Wengling Chen <feiyu2817@gmail.com>
 Date: Thu, 09 Jan 2020 23:27:56 -0500
-Subject: Use system ninja
+Subject: Use system ninja and python
 
 ---
  src/build/android/gradle/generate_gradle.py  | 2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+ src/build/android/list_java_targets.py  | 4 ++--
+ 2 files changed, 3 insertion(+), 3 deletion(-)
 
-diff --git a/src/build/android/gradle/generate_gradle.py b/src/build/android/gradle/generate_gradle.py
 --- a/src/build/android/gradle/generate_gradle.py
 +++ b/src/build/android/gradle/generate_gradle.py
 @@ -120,7 +120,7 @@
@@ -18,3 +18,20 @@ diff --git a/src/build/android/gradle/generate_gradle.py b/src/build/android/gra
    cmd.extend(args)
    logging.info('Running: %r', cmd)
    subprocess.check_call(cmd)
+--- a/src/build/android/list_java_targets.py
++++ b/src/build/android/list_java_targets.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env vpython3
++#!/usr/bin/env python3
+ # Copyright 2020 The Chromium Authors. All rights reserved.
+ # Use of this source code is governed by a BSD-style license that can be
+ # found in the LICENSE file.
+@@ -55,7 +55,7 @@
+ 
+ def _run_ninja(output_dir, args):
+   cmd = [
+-      'autoninja',
++      'ninja',
+       '-C',
+       output_dir,
+   ]

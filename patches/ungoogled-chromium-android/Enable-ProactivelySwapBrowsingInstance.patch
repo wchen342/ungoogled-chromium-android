@@ -9,7 +9,7 @@ Subject: Enable experimental ProactivelySwapBrowsingInstance feature
 
 --- a/content/public/common/content_features.cc
 +++ b/content/public/common/content_features.cc
-@@ -508,7 +508,7 @@ const base::Feature kPrioritizeBootstrap
+@@ -504,7 +504,7 @@ const base::Feature kPrioritizeBootstrap
  // HTTP(S) navigations when the BrowsingInstance doesn't contain any other
  // windows.
  const base::Feature kProactivelySwapBrowsingInstance{

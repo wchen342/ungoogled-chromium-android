@@ -9,7 +9,7 @@ Subject: [PATCH 20/30] disable media router media remoting by default
 
 --- a/chrome/browser/profiles/profile.cc
 +++ b/chrome/browser/profiles/profile.cc
-@@ -344,7 +344,7 @@ void Profile::RegisterProfilePrefs(user_
+@@ -355,7 +355,7 @@ void Profile::RegisterProfilePrefs(user_
        media_router::prefs::kMediaRouterEnableCloudServices, false,
        user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
    registry->RegisterBooleanPref(

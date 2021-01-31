@@ -4,13 +4,13 @@ Subject: Add flag to disable WebGL
 
 ---
  chrome/browser/about_flags.cc       |    3 +++
- chrome/browser/flag_descriptions.cc |    4 ++++
+ chrome/browser/flag_descriptions.cc |    3 +++
  chrome/browser/flag_descriptions.h  |    3 +++
- 3 files changed, 10 insertions(+)
+ 3 files changed, 9 insertions(+)
 
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -2483,6 +2483,9 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -2466,6 +2466,9 @@ const FeatureEntry kFeatureEntries[] = {
       flag_descriptions::kAccelerated2dCanvasName,
       flag_descriptions::kAccelerated2dCanvasDescription, kOsAll,
       SINGLE_DISABLE_VALUE_TYPE(switches::kDisableAccelerated2dCanvas)},
@@ -22,26 +22,25 @@ Subject: Add flag to disable WebGL
       SINGLE_VALUE_TYPE(cc::switches::kShowCompositedLayerBorders)},
 --- a/chrome/browser/flag_descriptions.cc
 +++ b/chrome/browser/flag_descriptions.cc
-@@ -494,6 +494,10 @@ const char kForceEnableDevicesPageDescri
-     "content, instead of a warning message. Note: chrome://devices is "
-     "no longer supported, and this flag will be permanently removed in M88.";
+@@ -3247,6 +3247,9 @@ const char kWalletRequiresFirstSyncSetup
+     "first-sync-setup to be complete. Only has an effect if "
+     "enable-autofill-account-wallet-storage is also enabled.";
  
 +const char kDisableWebGLName[] = "Disable all versions of WebGL";
-+
 +const char kDisableWebGLDescription[] = "Disable all versions of WebGL";
 +
- const char kDisableBestEffortTasksName[] = "Skip best effort tasks";
- const char kDisableBestEffortTasksDescription[] =
-     "With this flag on, tasks of the lowest priority will not be executed "
+ // Non-Android -----------------------------------------------------------------
+ 
+ #else  // !defined(OS_ANDROID)
 --- a/chrome/browser/flag_descriptions.h
 +++ b/chrome/browser/flag_descriptions.h
-@@ -306,6 +306,9 @@ extern const char kDeviceDiscoveryNotifi
- extern const char kForceEnableDevicesPageName[];
- extern const char kForceEnableDevicesPageDescription[];
+@@ -1874,6 +1874,9 @@ extern const char kTabbedAppOverflowMenu
+ extern const char kWalletRequiresFirstSyncSetupCompleteName[];
+ extern const char kWalletRequiresFirstSyncSetupCompleteDescription[];
  
 +extern const char kDisableWebGLName[];
 +extern const char kDisableWebGLDescription[];
 +
- extern const char kDisableBestEffortTasksName[];
- extern const char kDisableBestEffortTasksDescription[];
+ // Non-Android ----------------------------------------------------------------
  
+ #else  // !defined(OS_ANDROID)

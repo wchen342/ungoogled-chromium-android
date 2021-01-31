@@ -10,7 +10,7 @@ Subject: [PATCH 21/30] disable media router by default
 
 --- a/chrome/browser/media/router/media_router_feature.cc
 +++ b/chrome/browser/media/router/media_router_feature.cc
-@@ -67,17 +67,16 @@ bool MediaRouterEnabled(content::Browser
+@@ -66,17 +66,16 @@ bool MediaRouterEnabled(content::Browser
  #endif  // !defined(OFFICIAL_BUILD) && !defined(OS_ANDROID)
  
  #if defined(OS_ANDROID) || BUILDFLAG(ENABLE_EXTENSIONS)

@@ -84,7 +84,6 @@ gn gen ${output_folder} --fail-on-unused-args
 pushd ..
 patch -p1 --ignore-whitespace -i patches/Other/generate_gradle.patch --no-backup-if-mismatch
 popd
-# patch -p1 --ignore-whitespace -i ../patches/src-fix/fix-unkown-warning-clang-9.patch --no-backup-if-mismatch
-# The following doesn't work since v86. Most likely GN problem.
-#python build/android/gradle/generate_gradle.py --target //chrome/android:${chrome_modern_target} --output-directory ${output_folder}
+# Also needs third_party/android_sdk/public/extras
+python build/android/gradle/generate_gradle.py --output-directory ${output_folder}
 popd

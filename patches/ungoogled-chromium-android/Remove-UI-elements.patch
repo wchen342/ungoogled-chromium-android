@@ -2,24 +2,24 @@
  chrome/android/features/start_surface/public/java/src/org/chromium/chrome/features/start_surface/StartSurfaceConfiguration.java |    2 
  chrome/android/java/res/menu/main_menu.xml                                                                                      |    3 
  chrome/android/java/res/menu/save_password_preferences_action_bar_menu.xml                                                      |    6 -
- chrome/android/java/res/xml/main_preferences.xml                                                                                |   15 ---
- chrome/android/java/res/xml/privacy_preferences.xml                                                                             |    5 -
+ chrome/android/java/res/xml/main_preferences.xml                                                                                |   15 --
+ chrome/android/java/res/xml/privacy_preferences.xml                                                                             |    5 
  chrome/android/java/src/org/chromium/chrome/browser/KeyboardShortcuts.java                                                      |    1 
- chrome/android/java/src/org/chromium/chrome/browser/browsing_data/ClearBrowsingDataTabsFragment.java                            |    5 -
+ chrome/android/java/src/org/chromium/chrome/browser/browsing_data/ClearBrowsingDataTabsFragment.java                            |    5 
  chrome/android/java/src/org/chromium/chrome/browser/customtabs/BaseCustomTabActivity.java                                       |    2 
  chrome/android/java/src/org/chromium/chrome/browser/datareduction/settings/DataReductionPreferenceFragment.java                 |    4 
  chrome/android/java/src/org/chromium/chrome/browser/directactions/MenuDirectActionHandler.java                                  |    2 
  chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunStatus.java                                                |    2 
  chrome/android/java/src/org/chromium/chrome/browser/password_manager/settings/PasswordSettings.java                             |    4 
- chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java                                       |   10 --
- chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java                                                  |   50 ----------
- chrome/android/java/src/org/chromium/chrome/browser/settings/SettingsActivity.java                                              |    5 -
+ chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java                                       |   10 -
+ chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java                                                  |   54 ----------
+ chrome/android/java/src/org/chromium/chrome/browser/settings/SettingsActivity.java                                              |    5 
  chrome/android/java/src/org/chromium/chrome/browser/site_settings/ChromeSiteSettingsHelpClient.java                             |    2 
  chrome/android/java/src/org/chromium/chrome/browser/sync/settings/GoogleServicesSettings.java                                   |    3 
  chrome/android/java/src/org/chromium/chrome/browser/sync/settings/ManageSyncSettings.java                                       |    3 
  chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java                                  |    3 
  components/feed/core/shared_prefs/pref_names.cc                                                                                 |    4 
- 20 files changed, 7 insertions(+), 124 deletions(-)
+ 20 files changed, 8 insertions(+), 127 deletions(-)
 
 --- a/components/feed/core/shared_prefs/pref_names.cc
 +++ b/components/feed/core/shared_prefs/pref_names.cc
@@ -47,7 +47,7 @@
      @VisibleForTesting
 --- a/chrome/android/java/src/org/chromium/chrome/browser/settings/SettingsActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/SettingsActivity.java
-@@ -228,11 +228,6 @@ public class SettingsActivity extends Ch
+@@ -232,11 +232,6 @@ public class SettingsActivity extends Ch
      @Override
      public boolean onCreateOptionsMenu(Menu menu) {
          super.onCreateOptionsMenu(menu);
@@ -135,7 +135,7 @@
      @Override
 --- a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/GoogleServicesSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/GoogleServicesSettings.java
-@@ -165,9 +165,6 @@ public class GoogleServicesSettings
+@@ -187,9 +187,6 @@ public class GoogleServicesSettings
      @Override
      public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
          menu.clear();
@@ -147,7 +147,7 @@
      @Override
 --- a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/ManageSyncSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/ManageSyncSettings.java
-@@ -261,9 +261,6 @@ public class ManageSyncSettings extends
+@@ -275,9 +275,6 @@ public class ManageSyncSettings extends
      @Override
      public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
          menu.clear();
@@ -159,7 +159,7 @@
      @Override
 --- a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
-@@ -291,9 +291,6 @@ public class SyncAndServicesSettings ext
+@@ -308,9 +308,6 @@ public class SyncAndServicesSettings ext
      @Override
      public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
          menu.clear();
@@ -195,21 +195,21 @@
      <!-- manage_sync and google_services replace sync_and_services if MOBILE_IDENTITY_CONSISTENCY
           is enabled. -->
      <org.chromium.components.browser_ui.settings.ChromeBasePreference
-@@ -117,11 +107,6 @@
-         android:order="21"
+@@ -116,11 +106,6 @@
+         android:order="20"
          android:title="@string/language_settings"/>
      <org.chromium.components.browser_ui.settings.ChromeBasePreference
 -        android:fragment="org.chromium.chrome.browser.datareduction.settings.DataReductionPreferenceFragment"
 -        android:key="data_reduction"
--        android:order="22"
+-        android:order="21"
 -        android:title="@string/data_reduction_title_lite_mode"/>
 -    <org.chromium.components.browser_ui.settings.ChromeBasePreference
          android:fragment="org.chromium.chrome.browser.download.settings.DownloadSettings"
          android:key="downloads"
-         android:order="23"
+         android:order="22"
 --- a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
-@@ -85,7 +85,6 @@ public class MainSettings extends Prefer
+@@ -86,7 +86,6 @@ public class MainSettings extends Prefer
      private final Map<String, Preference> mAllPreferences = new HashMap<>();
      private SyncPromoPreference mSyncPromoPreference;
      private SignInPreference mSignInPreference;
@@ -217,7 +217,7 @@
      private @Nullable PasswordCheck mPasswordCheck;
  
      public MainSettings() {
-@@ -190,7 +189,6 @@ public class MainSettings extends Prefer
+@@ -175,7 +174,6 @@ public class MainSettings extends Prefer
          updatePasswordsPreference();
  
          setManagedPreferenceDelegateForPreference(PREF_SEARCH_ENGINE);
@@ -225,7 +225,7 @@
  
          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
              // If we are on Android O+ the Notifications preference should lead to the Android
-@@ -234,17 +232,6 @@ public class MainSettings extends Prefer
+@@ -214,17 +212,6 @@ public class MainSettings extends Prefer
                      .setTitle(SafetyCheckSettingsFragment.getSafetyCheckSettingsElementTitle(
                              getContext()));
          }
@@ -243,7 +243,7 @@
      }
  
      /**
-@@ -259,7 +246,6 @@ public class MainSettings extends Prefer
+@@ -239,7 +226,6 @@ public class MainSettings extends Prefer
          }
          mSyncPromoPreference = (SyncPromoPreference) mAllPreferences.get(PREF_SYNC_PROMO);
          mSignInPreference = (SignInPreference) mAllPreferences.get(PREF_SIGN_IN);
@@ -251,7 +251,22 @@
      }
  
      private void setManagedPreferenceDelegateForPreference(String key) {
-@@ -293,10 +279,6 @@ public class MainSettings extends Prefer
+@@ -248,13 +234,7 @@ public class MainSettings extends Prefer
+     }
+ 
+     private void updatePreferences() {
+-        if (IdentityServicesProvider.get()
+-                        .getSigninManager(Profile.getLastUsedRegularProfile())
+-                        .isSigninSupported()) {
+-            addPreferenceIfAbsent(PREF_SIGN_IN);
+-        } else {
+-            removePreferenceIfPresent(PREF_SIGN_IN);
+-        }
++        removePreferenceIfPresent(PREF_SIGN_IN);
+ 
+         updateSyncPreference();
+         updateSearchEnginePreference();
+@@ -273,10 +253,6 @@ public class MainSettings extends Prefer
          } else {
              removePreferenceIfPresent(PREF_DEVELOPER);
          }
@@ -262,7 +277,7 @@
      }
  
      private Preference addPreferenceIfAbsent(String key) {
-@@ -319,9 +301,6 @@ public class MainSettings extends Prefer
+@@ -299,9 +275,6 @@ public class MainSettings extends Prefer
      }
  
      private void updateSyncAndServicesPreference() {
@@ -272,7 +287,7 @@
      }
  
      private void updateManageSyncPreference() {
-@@ -332,7 +311,6 @@ public class MainSettings extends Prefer
+@@ -312,7 +285,6 @@ public class MainSettings extends Prefer
          boolean showManageSync =
                  ChromeFeatureList.isEnabled(ChromeFeatureList.MOBILE_IDENTITY_CONSISTENCY)
                  && primaryAccountName != null;
@@ -280,41 +295,37 @@
          if (!showManageSync) {
              return;
          }
-@@ -342,18 +320,6 @@ public class MainSettings extends Prefer
+@@ -322,21 +294,6 @@ public class MainSettings extends Prefer
                          .getIdentityManager(Profile.getLastUsedRegularProfile())
                          .getPrimaryAccountInfo(ConsentLevel.SYNC)
                  != null;
 -        mManageSync.setIcon(SyncSettingsUtils.getSyncStatusIcon(getActivity()));
 -        mManageSync.setSummary(SyncSettingsUtils.getSyncStatusSummary(getActivity()));
 -        mManageSync.setOnPreferenceClickListener(pref -> {
--            if (isSyncConsentAvailable) {
+-            Context context = getContext();
+-            if (ProfileSyncService.get().isSyncDisabledByEnterprisePolicy()) {
+-                SyncSettingsUtils.showSyncDisabledByAdministratorToast(context);
+-            } else if (isSyncConsentAvailable) {
 -                SettingsLauncher settingsLauncher = new SettingsLauncherImpl();
--                settingsLauncher.launchSettingsActivity(getContext(), ManageSyncSettings.class);
+-                settingsLauncher.launchSettingsActivity(context, ManageSyncSettings.class);
 -            } else {
 -                SigninActivityLauncherImpl.get().launchActivityForPromoDefaultFlow(
--                        getContext(), SigninAccessPoint.SETTINGS, primaryAccountName);
+-                        context, SigninAccessPoint.SETTINGS, primaryAccountName);
 -            }
 -            return true;
 -        });
      }
  
      private void updateSearchEnginePreference() {
-@@ -405,14 +371,6 @@ public class MainSettings extends Prefer
-         // "You and Google" section header if the personalized sync promo is shown.
-         boolean isShowingPersonalizedPromo =
-                 mSignInPreference.getState() == SignInPreference.State.PERSONALIZED_PROMO;
--        if (ChromeFeatureList.isEnabled(ChromeFeatureList.MOBILE_IDENTITY_CONSISTENCY)) {
--            findPreference(PREF_ACCOUNT_AND_GOOGLE_SERVICES_SECTION)
--                    .setVisible(!isShowingPersonalizedPromo);
--        } else if (isShowingPersonalizedPromo) {
--            removePreferenceIfPresent(PREF_ACCOUNT_SECTION);
--        } else {
--            addPreferenceIfAbsent(PREF_ACCOUNT_SECTION);
--        }
+@@ -391,7 +348,6 @@ public class MainSettings extends Prefer
+         String prefName = ChromeFeatureList.isEnabled(ChromeFeatureList.MOBILE_IDENTITY_CONSISTENCY)
+                 ? PREF_ACCOUNT_AND_GOOGLE_SERVICES_SECTION
+                 : PREF_ACCOUNT_SECTION;
+-        findPreference(prefName).setVisible(!isShowingPersonalizedPromo);
      }
  
      // TemplateUrlService.LoadListener implementation.
-@@ -436,9 +394,6 @@ public class MainSettings extends Prefer
+@@ -415,9 +371,6 @@ public class MainSettings extends Prefer
          return new ChromeManagedPreferenceDelegate() {
              @Override
              public boolean isPreferenceControlledByPolicy(Preference preference) {
@@ -324,7 +335,7 @@
                  if (PREF_SEARCH_ENGINE.equals(preference.getKey())) {
                      return TemplateUrlServiceFactory.get().isDefaultSearchManaged();
                  }
-@@ -447,11 +402,6 @@ public class MainSettings extends Prefer
+@@ -426,11 +379,6 @@ public class MainSettings extends Prefer
  
              @Override
              public boolean isPreferenceClickDisabledByPolicy(Preference preference) {
@@ -389,7 +400,7 @@
          }
 --- a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/BaseCustomTabActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/BaseCustomTabActivity.java
-@@ -544,7 +544,7 @@ public abstract class BaseCustomTabActiv
+@@ -474,7 +474,7 @@ public abstract class BaseCustomTabActiv
      @Override
      public boolean onMenuOrKeyboardAction(int id, boolean fromMenu) {
          // Disable creating new tabs, bookmark, history, print, help, focus_url, etc.
@@ -402,7 +413,7 @@
 +++ b/chrome/android/java/res/xml/privacy_preferences.xml
 @@ -45,9 +45,4 @@
          android:summary="@string/prefs_safe_browsing_summary"
-         android:fragment="org.chromium.chrome.browser.safe_browsing.settings.SecuritySettingsFragment"
+         android:fragment="org.chromium.chrome.browser.safe_browsing.settings.SafeBrowsingSettingsFragment"
          android:order="6"/>
 -    <org.chromium.components.browser_ui.settings.TextMessagePreference
 -        android:key="sync_and_services_link"
@@ -412,7 +423,7 @@
  </PreferenceScreen>
 --- a/chrome/android/java/src/org/chromium/chrome/browser/password_manager/settings/PasswordSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/password_manager/settings/PasswordSettings.java
-@@ -98,7 +98,6 @@ public class PasswordSettings
+@@ -97,7 +97,6 @@ public class PasswordSettings
      private boolean mNoPasswords;
      private boolean mNoPasswordExceptions;
  
@@ -420,7 +431,7 @@
      private MenuItem mSearchItem;
  
      private String mSearchQuery;
-@@ -194,7 +193,6 @@ public class PasswordSettings
+@@ -193,7 +192,6 @@ public class PasswordSettings
          menu.findItem(R.id.export_passwords).setEnabled(false);
          mSearchItem = menu.findItem(R.id.menu_id_search);
          mSearchItem.setVisible(true);
@@ -428,7 +439,7 @@
          SearchUtils.initializeSearchView(
                  mSearchItem, mSearchQuery, getActivity(), this::filterPasswords);
      }
-@@ -227,8 +225,6 @@ public class PasswordSettings
+@@ -226,8 +224,6 @@ public class PasswordSettings
  
      private void filterPasswords(String query) {
          mSearchQuery = query;

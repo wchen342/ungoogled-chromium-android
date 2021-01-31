@@ -8,7 +8,7 @@ Subject: Disable google homepage by default
 
 --- a/chrome/android/java/src/org/chromium/chrome/browser/homepage/HomepageManager.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/homepage/HomepageManager.java
-@@ -167,7 +167,7 @@ public class HomepageManager implements
+@@ -196,7 +196,7 @@ public class HomepageManager implements
       * @see #isHomepageEnabled
       */
      private boolean getPrefHomepageEnabled() {

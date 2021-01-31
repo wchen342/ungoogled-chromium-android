@@ -20,9 +20,9 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
 
 --- a/components/signin/internal/identity_manager/primary_account_manager.cc
 +++ b/components/signin/internal/identity_manager/primary_account_manager.cc
-@@ -138,18 +138,6 @@ void PrimaryAccountManager::SetAuthentic
+@@ -134,18 +134,6 @@ void PrimaryAccountManager::SetAuthentic
    DCHECK(!account_info.account_id.empty());
-   DCHECK(!IsAuthenticated());
+   DCHECK(!HasPrimaryAccount(signin::ConsentLevel::kSync));
  
 -#if DCHECK_IS_ON()
 -  {
@@ -50,16 +50,16 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
    defines = []
    configs = []
  
-@@ -1725,7 +1725,7 @@ config("no_rtti") {
+@@ -1737,7 +1737,7 @@ config("no_rtti") {
  # (de)allocate memory on a different heap, which would spell trouble if pointers
  # to heap-allocated memory are passed over shared library boundaries.
  config("export_dynamic") {
--  if (is_desktop_linux || export_libcxxabi_from_executables) {
-+  if (is_desktop_linux || export_libcxxabi_from_executables || is_android) {
+-  if (is_linux || export_libcxxabi_from_executables) {
++  if (is_linux || export_libcxxabi_from_executables || is_android) {
      ldflags = [ "-rdynamic" ]
    }
  }
-@@ -1941,8 +1941,6 @@ if (is_win) {
+@@ -1962,8 +1962,6 @@ if (is_win) {
  
        # Put data and code in their own sections, so that unused symbols
        # can be removed at link time with --gc-sections.
@@ -68,7 +68,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
      ]
  
      common_optimize_on_ldflags += [
-@@ -1950,7 +1948,6 @@ if (is_win) {
+@@ -1971,7 +1969,6 @@ if (is_win) {
        # See http://lwn.net/Articles/192624/ .
        # -O2 enables string tail merge optimization in gold and lld.
        "-Wl,-O2",
@@ -76,7 +76,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
      ]
    }
  }
-@@ -2331,7 +2328,7 @@ config("symbols") {
+@@ -2354,7 +2351,7 @@ config("symbols") {
          # sections (llvm.org/PR34820).
          cflags += [ "-ggnu-pubnames" ]
        }
@@ -107,8 +107,8 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
    return std::make_unique<ProfileOAuth2TokenService>(
 --- a/components/omnibox/browser/autocomplete_match.cc
 +++ b/components/omnibox/browser/autocomplete_match.cc
-@@ -1268,16 +1268,6 @@ bool AutocompleteMatch::IsEmptyAutocompl
-   return inline_autocompletion.empty() && prefix_autocompletion.empty();
+@@ -1323,16 +1323,6 @@ bool AutocompleteMatch::IsEmptyAutocompl
+          split_autocompletion.Empty();
  }
  
 -#if DCHECK_IS_ON()
@@ -126,7 +126,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
      const base::string16& text,
 --- a/components/omnibox/browser/autocomplete_result.cc
 +++ b/components/omnibox/browser/autocomplete_result.cc
-@@ -704,13 +704,6 @@ void AutocompleteResult::CopyFrom(const
+@@ -715,13 +715,6 @@ void AutocompleteResult::CopyFrom(const
    matches_ = other.matches_;
  }
  
@@ -154,7 +154,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
    for (ShortcutMap::const_iterator it(
 --- a/components/omnibox/browser/autocomplete_controller.cc
 +++ b/components/omnibox/browser/autocomplete_controller.cc
-@@ -716,9 +716,6 @@ void AutocompleteController::UpdateResul
+@@ -727,9 +727,6 @@ void AutocompleteController::UpdateResul
  
    // Need to validate before invoking CopyOldMatches as the old matches are not
    // valid against the current input.
@@ -178,10 +178,10 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  bool InputEventStreamValidator::ValidateImpl(
 --- a/services/network/network_context.cc
 +++ b/services/network/network_context.cc
-@@ -919,7 +919,6 @@ void NetworkContext::QueueReport(const s
-                                  const GURL& url,
-                                  const base::Optional<std::string>& user_agent,
-                                  base::Value body) {
+@@ -940,7 +940,6 @@ void NetworkContext::QueueReport(
+     const net::NetworkIsolationKey& network_isolation_key,
+     const base::Optional<std::string>& user_agent,
+     base::Value body) {
 -  NOTREACHED();
  }
  
@@ -199,7 +199,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  
 --- a/base/logging.cc
 +++ b/base/logging.cc
-@@ -872,7 +872,7 @@ LogMessage::~LogMessage() {
+@@ -879,7 +879,7 @@ LogMessage::~LogMessage() {
  #if defined(OFFICIAL_BUILD) && defined(NDEBUG)
        IMMEDIATE_CRASH();
  #else

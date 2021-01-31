@@ -22,7 +22,7 @@ Corrected Exit functionality
      </group>
  
      <!-- Items shown only in the tab switcher -->
-@@ -139,6 +141,8 @@
+@@ -150,6 +152,8 @@
          <item android:id="@id/preferences_id"
              android:title="@string/menu_settings"
              android:icon="@drawable/settings_cog" />
@@ -33,7 +33,7 @@ Corrected Exit functionality
      <!-- Items shown only in the tab switcher when start surface is enabled -->
 --- a/chrome/android/java/res/menu/main_menu_regroup.xml
 +++ b/chrome/android/java/res/menu/main_menu_regroup.xml
-@@ -152,6 +152,9 @@
+@@ -181,6 +181,9 @@
              android:icon="@drawable/vr_headset" />
          <item android:id="@+id/managed_by_menu_id"
              android:title="@string/managed" />
@@ -45,7 +45,7 @@ Corrected Exit functionality
      <!-- Items shown only in the tab switcher -->
 --- a/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
-@@ -55,6 +55,7 @@ import org.chromium.base.supplier.Onesho
+@@ -54,6 +54,7 @@ import org.chromium.base.supplier.Onesho
  import org.chromium.chrome.R;
  import org.chromium.chrome.browser.ActivityTabProvider;
  import org.chromium.chrome.browser.AppHooks;
@@ -53,7 +53,7 @@ Corrected Exit functionality
  import org.chromium.chrome.browser.ChromeActivitySessionTracker;
  import org.chromium.chrome.browser.ChromeApplication;
  import org.chromium.chrome.browser.ChromeWindow;
-@@ -1957,6 +1958,11 @@ public abstract class ChromeActivity<C e
+@@ -1984,6 +1985,11 @@ public abstract class ChromeActivity<C e
              RecordUserAction.record("MobileMenuSettings");
          }
  
@@ -82,7 +82,7 @@ Corrected Exit functionality
      @Override
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -2874,6 +2874,9 @@ Data from your Incognito session will on
+@@ -2940,6 +2940,9 @@ Data from your Incognito session will on
        <message name="IDS_MENU_SETTINGS" desc="Menu item for opening browser settings. [CHAR-LIMIT=27]">
          Settings
        </message>

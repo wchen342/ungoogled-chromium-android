@@ -3,7 +3,7 @@ Date: Fri, 10 Jan 2020 21:49:36 -0500
 Subject: Remove dependency on com.google.android.play.core.splitcompat, com.google.android.play.core.splitinstall
 
 ---
- chrome/android/java/src/org/chromium/chrome/browser/language/AppLocaleUtils.java                                            |   16 ---
+ chrome/android/java/src/org/chromium/chrome/browser/language/AppLocaleUtils.java                                            |   24 ----
  components/module_installer/android/BUILD.gn                                                                                |    2 
  components/module_installer/android/java/src/org/chromium/components/module_installer/engine/FakeEngine.java                |   13 --
  components/module_installer/android/java/src/org/chromium/components/module_installer/engine/SplitCompatEngine.java         |   50 ----------
@@ -15,7 +15,7 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
  components/module_installer/android/java/src/org/chromium/components/module_installer/logger/SplitInstallStatusLogger.java  |   27 -----
  components/module_installer/android/java/src/org/chromium/components/module_installer/util/CrashKeyRecorder.java            |    6 -
  components/module_installer/android/java/src/org/chromium/components/module_installer/util/SplitCompatInitializer.java      |    5 -
- 12 files changed, 17 insertions(+), 223 deletions(-)
+ 12 files changed, 18 insertions(+), 230 deletions(-)
 
 --- a/components/module_installer/android/java/src/org/chromium/components/module_installer/engine/FakeEngine.java
 +++ b/components/module_installer/android/java/src/org/chromium/components/module_installer/engine/FakeEngine.java
@@ -538,16 +538,16 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
 -
  import org.chromium.base.BundleUtils;
  import org.chromium.base.ContextUtils;
- import org.chromium.chrome.browser.preferences.ChromePreferenceKeys;
-@@ -76,7 +71,6 @@ public class AppLocaleUtils {
-      */
-     public static void maybeInstallActivitySplitCompat(Context context) {
-         if (GlobalAppLocaleController.getInstance().isOverridden() && BundleUtils.isBundle()) {
+ import org.chromium.base.Log;
+@@ -83,7 +78,6 @@ public class AppLocaleUtils {
+                     GlobalAppLocaleController.getInstance().isOverridden(), BundleUtils.isBundle());
+             Log.i(TAG, "Override Locale: %s", getAppLanguagePref());
+             logInstalledLanguages(context);
 -            SplitCompat.installActivity(context);
+             logInstalledLanguages(context);
          }
      }
- 
-@@ -84,16 +78,6 @@ public class AppLocaleUtils {
+@@ -92,17 +86,7 @@ public class AppLocaleUtils {
       * For bundle builds ensure that the language split for languageName is download.
       */
      private static void ensureLaguageSplitInstalled(String languageName) {
@@ -562,5 +562,20 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
 -                            .build();
 -            splitInstallManager.startInstall(installRequest);
 -        }
+     }
+ 
+     /**
+@@ -110,12 +94,6 @@ public class AppLocaleUtils {
+      * @param context Context to log installed languages on.
+      */
+     private static void logInstalledLanguages(Context context) {
+-        if (BundleUtils.isBundle()) {
+-            SplitInstallManager splitInstallManager = SplitInstallManagerFactory.create(context);
+-            Log.i(TAG, "Installed Languages: %s",
+-                    TextUtils.join(", ", splitInstallManager.getInstalledLanguages()));
+-        } else {
+-            Log.i(TAG, "Installed Languages: None - not a bundle");
+-        }
++        Log.i(TAG, "Installed Languages: None - not a bundle");
      }
  }

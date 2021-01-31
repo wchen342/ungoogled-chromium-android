@@ -10,7 +10,7 @@ trichrome_chrome_bundle_target=trichrome_chrome_bundle
 trichrome_chrome_apk_target=trichrome_library_apk
 webview_target=system_webview_apk
 
-chromium_version=87.0.4280.141
+chromium_version=88.0.4324.104
 ungoogled_chromium_revision=1
 
 # Show env
@@ -203,7 +203,7 @@ cp safe_browsing_proto_files/webprotect.pb.h src/components/safe_browsing/core/p
 
 
 ## Prepare Android SDK/NDK
-SDK_DIR="android-sdk_eng.10.0.0_r14_linux-x86"
+SDK_DIR="android-sdk_eng.11.0.0_r27_linux-x86"
 
 # Create symbol links to sdk folders
 # The rebuild sdk has a different folder structure from the checked out version, so it is easier to create symbol links
@@ -212,9 +212,9 @@ if [[ -d "$DIRECTORY" ]]; then
   find $DIRECTORY -mindepth 1 -maxdepth 1 -not -name cmdline-tools -exec rm -rf '{}' \;
 fi
 pushd ${DIRECTORY}
-mkdir build-tools && ln -s ../../../../../android-sdk/${SDK_DIR}/build-tools/android-10 build-tools/30.0.1
+mkdir build-tools && ln -s ../../../../../android-sdk/${SDK_DIR}/build-tools/android-11 build-tools/30.0.1
 mkdir platforms
-ln -s ../../../../../android-sdk/${SDK_DIR}/platforms/android-10 platforms/android-30
+ln -s ../../../../../android-sdk/${SDK_DIR}/platforms/android-11 platforms/android-30
 ln -s ../../../../android-sdk/${SDK_DIR}/platform-tools platform-tools
 ln -s ../../../../android-sdk/${SDK_DIR}/tools tools
 popd
@@ -232,7 +232,7 @@ ln -s ../../android-ndk/android-ndk-r20b android_ndk
 popd
 
 # This is Sylvain Beucler's libre Android rebuild
-sdk_link="https://android-rebuilds.beuc.net/dl/bundles/android-sdk_eng.10.0.0_r14_linux-x86.zip"
+sdk_link="https://android-rebuilds.beuc.net/dl/bundles/android-sdk_eng.11.0.0_r27_linux-x86.zip"
 sdk_tools_link="https://android-rebuilds.beuc.net/dl/repository/sdk-repo-linux-tools-26.1.1.zip"
 ndk_link="https://android-rebuilds.beuc.net/dl/repository/android-ndk-r20b-linux-x86_64.tar.bz2"
 
@@ -240,7 +240,7 @@ mkdir android-rebuilds
 mkdir android-sdk
 mkdir android-ndk
 pushd android-rebuilds
-for i in $(seq 1 5); do curl -O ${sdk_link} && unzip -qqo android-sdk_eng.10.0.0_r14_linux-x86.zip -d ../android-sdk && rm -f android-sdk_eng.10.0.0_r14_linux-x86.zip && s=0 && break || s=$? && sleep 60; done; (exit $s)
+for i in $(seq 1 5); do curl -O ${sdk_link} && unzip -qqo android-sdk_eng.11.0.0_r27_linux-x86.zip -d ../android-sdk && rm -f android-sdk_eng.11.0.0_r27_linux-x86.zip && s=0 && break || s=$? && sleep 60; done; (exit $s)
 for i in $(seq 1 5); do curl -O ${sdk_tools_link} && unzip -qqo sdk-repo-linux-tools-26.1.1.zip -d ../android-sdk/android-sdk_eng.10.0.0_r14_linux-x86 && rm -f sdk-repo-linux-tools-26.1.1.zip && s=0 && break || s=$? && sleep 60; done; (exit $s)
 for i in $(seq 1 5); do curl -O ${ndk_link} && tar xjf android-ndk-r20b-linux-x86_64.tar.bz2 -C ../android-ndk && rm -f android-ndk-r20b-linux-x86_64.tar.bz2 && s=0 && break || s=$? && sleep 60; done; (exit $s)
 popd
@@ -307,6 +307,13 @@ export CCACHE_SLOPPINESS=time_macros
 apk_out_folder="apk_out"
 mkdir "${apk_out_folder}"
 pushd src
+# Copy overlay jars built from
+# //third_party/android_deps/local_modifications/androidx_fragment_fragment:androidx_fragment_fragment_partial_java
+# and
+# //third_party/android_deps/local_modifications/androidx_preference_preference:androidx_preference_preference_partial_java
+cp ../prebuilt_jar/androidx_fragment_fragment/androidx_fragment_fragment_java.jar third_party/android_deps/local_modifications/androidx_fragment_fragment
+cp ../prebuilt_jar/androidx_preference_preference/androidx_preference_preference_java.jar third_party/android_deps/local_modifications/androidx_preference_preference
+
 if [[ "$TARGET" != "all" ]]; then
   ninja -C "${output_folder}" "$TARGET"
   if [[ "$TARGET" == "$trichrome_chrome_bundle_target" ]] || [[ "$TARGET" == "$chrome_modern_target" ]]; then

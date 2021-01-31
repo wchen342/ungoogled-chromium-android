@@ -7,19 +7,21 @@ Subject: Remove dependency on com.google.android.play
  chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/FakeAppUpdateManagerWrapper.java   |   60 --
  chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateControllerFactory.java |   16 
  chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/PlayInlineUpdateController.java    |  226 ----------
+ third_party/android_deps/BUILD.gn                                                                   |    2 
  third_party/google_android_play_core/BUILD.gn                                                       |    5 
- 5 files changed, 3 insertions(+), 305 deletions(-)
+ weblayer/shell/android/BUILD.gn                                                                     |    1 
+ 7 files changed, 4 insertions(+), 307 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -503,7 +503,6 @@ android_library("chrome_java") {
+@@ -507,7 +507,6 @@ android_library("chrome_java") {
      "//third_party/blink/public/mojom:android_mojo_bindings_java",
      "//third_party/blink/public/mojom:mojom_platform_java",
      "//third_party/gif_player:gif_player_java",
 -    "//third_party/google_android_play_core:com_google_android_play_core_java",
+     "//third_party/metrics_proto:metrics_proto_java",
      "//ui/android:ui_java",
      "//ui/base/mojom:mojom_java",
-     "//ui/gfx/geometry/mojom:mojom_java",
 --- a/chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/FakeAppUpdateManagerWrapper.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/FakeAppUpdateManagerWrapper.java
 @@ -11,11 +11,6 @@ import android.os.Message;
@@ -474,3 +476,24 @@ Subject: Remove dependency on com.google.android.play
 -  aar_path = "core-1.6.4.aar"
 -  info_path = "com_google_android_play_core.info"
 -}
+--- a/third_party/android_deps/BUILD.gn
++++ b/third_party/android_deps/BUILD.gn
+@@ -82,7 +82,7 @@ java_annotation_processor("dagger_proces
+ 
+ android_library("chromium_play_services_availability_java") {
+   sources = [ "util/org/chromium/gms/ChromiumPlayServicesAvailability.java" ]
+-  deps = [ "$google_play_services_package:google_play_services_base_java" ]
++  deps = [  ]
+ }
+ 
+ android_library("chromium_play_services_availability_shadows_java") {
+--- a/weblayer/shell/android/BUILD.gn
++++ b/weblayer/shell/android/BUILD.gn
+@@ -40,7 +40,6 @@ android_library("weblayer_shell_java") {
+   # google_play_services_version definition in the manifest.
+   deps = [
+     ":weblayer_shell_resources",
+-    "$google_play_services_package:google_play_services_base_java",
+     "//base:base_java",
+     "//components/strictmode/android:java",
+     "//third_party/android_deps:android_support_v4_java",

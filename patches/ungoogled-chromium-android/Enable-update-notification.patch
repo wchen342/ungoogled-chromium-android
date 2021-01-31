@@ -49,12 +49,12 @@
 +import org.chromium.base.task.AsyncTask;
 +import org.chromium.base.task.PostTask;
 +import org.chromium.chrome.browser.app.ChromeActivity;
-+import org.chromium.chrome.browser.ChromeVersionInfo;
 +import org.chromium.chrome.browser.omaha.OmahaBase;
 +import org.chromium.chrome.browser.omaha.UpdateStatusProvider;
 +import org.chromium.chrome.browser.omaha.VersionNumber;
 +import org.chromium.chrome.browser.tab.TabLaunchType;
 +import org.chromium.chrome.browser.tabmodel.TabCreator;
++import org.chromium.chrome.browser.version.ChromeVersionInfo;
 +import org.chromium.content_public.browser.LoadUrlParams;
 +import org.chromium.content_public.browser.UiThreadTaskTraits;
 +import org.chromium.ui.base.PageTransition;
@@ -253,15 +253,15 @@
 +}
 --- a/chrome/android/chrome_java_sources.gni
 +++ b/chrome/android/chrome_java_sources.gni
-@@ -522,6 +522,7 @@ chrome_java_sources = [
+@@ -533,6 +533,7 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/dom_distiller/ReaderModeManager.java",
    "java/src/org/chromium/chrome/browser/dom_distiller/TabDistillabilityProvider.java",
    "java/src/org/chromium/chrome/browser/download/ChromeDownloadDelegate.java",
 +  "java/src/org/chromium/chrome/browser/download/ChromeUpdateDownloadDelegate.java",
    "java/src/org/chromium/chrome/browser/download/DownloadActivity.java",
-   "java/src/org/chromium/chrome/browser/download/DownloadBroadcastManager.java",
+   "java/src/org/chromium/chrome/browser/download/DownloadBroadcastManagerImpl.java",
    "java/src/org/chromium/chrome/browser/download/DownloadController.java",
-@@ -1079,6 +1080,7 @@ chrome_java_sources = [
+@@ -1071,6 +1072,7 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateController.java",
    "java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateControllerFactory.java",
    "java/src/org/chromium/chrome/browser/omaha/inline/NoopInlineUpdateController.java",
@@ -396,7 +396,7 @@
          }
 --- a/chrome/browser/flags/android/chrome_feature_list.cc
 +++ b/chrome/browser/flags/android/chrome_feature_list.cc
-@@ -489,6 +489,7 @@ const base::Feature kImmersiveUiMode{"Im
+@@ -523,6 +523,7 @@ const base::Feature kIncognitoScreenshot
  
  const base::Feature kInlineUpdateFlow{"InlineUpdateFlow",
                                        base::FEATURE_DISABLED_BY_DEFAULT};
@@ -426,7 +426,7 @@
    return std::make_unique<UpdateNotificationConfig>();
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
-@@ -1076,7 +1076,7 @@ by a child template that "extends" this
+@@ -1087,7 +1087,7 @@ by a child template that "extends" this
          <service android:name="org.chromium.chrome.browser.tracing.TracingNotificationService"
              android:exported="false"/>
  
@@ -437,7 +437,7 @@
          <meta-data android:name="org.chromium.content.browser.SMART_CLIP_PROVIDER"
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -1949,7 +1949,7 @@ To change this setting, <ph name="BEGIN_
+@@ -1984,7 +1984,7 @@ To change this setting, <ph name="BEGIN_
          Update Chrome
        </message>
        <message name="IDS_UPDATE_NOTIFICATION_TEXT_BODY_DEFAULT" desc="Default text showing in the update notification body, kindly telling user to update to the latest version of Chrome.">
@@ -618,9 +618,9 @@
 +}
 --- a/chrome/browser/flag_descriptions.cc
 +++ b/chrome/browser/flag_descriptions.cc
-@@ -3239,10 +3239,9 @@ const char kUseChimeAndroidSdkName[] = "
- const char kVideoTutorialsName[] = "Enable video tutorials";
- const char kVideoTutorialsDescription[] = "Show video tutorials in Chrome";
+@@ -3202,10 +3202,9 @@ const char kVoiceButtonInTopToolbarName[
+ const char kVoiceButtonInTopToolbarDescription[] =
+     "Enables showing the voice search button in the top toolbar";
  
 -const char kInlineUpdateFlowName[] = "Enable Google Play inline update flow";
 +const char kInlineUpdateFlowName[] = "Enable inline update flow";

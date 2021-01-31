@@ -19,15 +19,15 @@ Subject: Remove dependency on com.google.android.gms.fido,
  device/BUILD.gn                                                                                                                                 |    1 
  services/BUILD.gn                                                                                                                               |    1 
  services/device/geolocation/BUILD.gn                                                                                                            |    1 
- services/device/geolocation/android/java/src/org/chromium/device/geolocation/LocationProviderGmsCore.java                                       |  103 ---
+ services/device/geolocation/android/java/src/org/chromium/device/geolocation/LocationProviderGmsCore.java                                       |   99 --
  third_party/android_deps/BUILD.gn                                                                                                               |   60 -
  third_party/libaddressinput/src/android/src/main/java/com/android/i18n/addressinput/autocomplete/gmscore/AddressAutocompleteApiImpl.java        |   65 -
  third_party/libaddressinput/src/android/src/main/java/com/android/i18n/addressinput/autocomplete/gmscore/AddressAutocompletePredictionImpl.java |   12 
- 18 files changed, 32 insertions(+), 1053 deletions(-)
+ 18 files changed, 31 insertions(+), 1050 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -284,8 +284,6 @@ android_library("chrome_java") {
+@@ -280,8 +280,6 @@ android_library("chrome_java") {
      ":usage_stats_proto_java",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
@@ -36,7 +36,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
      "$google_play_services_package:google_play_services_tasks_java",
      "$google_play_services_package:google_play_services_vision_common_java",
      "$google_play_services_package:google_play_services_vision_java",
-@@ -765,7 +763,6 @@ junit_binary("chrome_junit_tests") {
+@@ -772,7 +770,6 @@ junit_binary("chrome_junit_tests") {
      ":partner_location_descriptor_proto_java",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
@@ -44,7 +44,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
      "//base:base_java",
      "//base:base_java_test_support",
      "//base:base_junit_test_support",
-@@ -959,8 +956,6 @@ android_library("chrome_test_java") {
+@@ -988,8 +985,6 @@ android_library("chrome_test_java") {
      ":partner_location_descriptor_proto_java",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
@@ -255,7 +255,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
      /** Fake subclasses can set {@link #sFakeFactoryForTesting} to an implementation of this. */
 --- a/device/BUILD.gn
 +++ b/device/BUILD.gn
-@@ -407,7 +407,6 @@ if (is_android) {
+@@ -423,7 +423,6 @@ if (is_android) {
      deps = [
        "$google_play_services_package:google_play_services_base_java",
        "$google_play_services_package:google_play_services_basement_java",
@@ -265,7 +265,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
        "//base:base_junit_test_support",
 --- a/services/device/geolocation/BUILD.gn
 +++ b/services/device/geolocation/BUILD.gn
-@@ -166,7 +166,6 @@ if (is_android) {
+@@ -157,7 +157,6 @@ if (is_android) {
        ":geolocation_jni_headers",
        "$google_play_services_package:google_play_services_base_java",
        "$google_play_services_package:google_play_services_basement_java",
@@ -275,12 +275,11 @@ Subject: Remove dependency on com.google.android.gms.fido,
        "//components/location/android:location_java",
 --- a/services/device/geolocation/android/java/src/org/chromium/device/geolocation/LocationProviderGmsCore.java
 +++ b/services/device/geolocation/android/java/src/org/chromium/device/geolocation/LocationProviderGmsCore.java
-@@ -8,16 +8,6 @@ import android.content.Context;
+@@ -8,15 +8,6 @@ import android.content.Context;
  import android.location.Location;
  import android.os.Bundle;
  
 -import com.google.android.gms.common.ConnectionResult;
--import com.google.android.gms.common.GoogleApiAvailability;
 -import com.google.android.gms.common.api.GoogleApiClient;
 -import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 -import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
@@ -292,7 +291,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
  import org.chromium.base.Log;
  import org.chromium.base.ThreadUtils;
  import org.chromium.components.location.LocationUtils;
-@@ -27,126 +17,39 @@ import org.chromium.components.location.
+@@ -27,19 +18,14 @@ import org.chromium.gms.ChromiumPlayServ
   *
   * https://developers.google.com/android/reference/com/google/android/gms/location/package-summary
   */
@@ -312,10 +311,8 @@ Subject: Remove dependency on com.google.android.gms.fido,
 -    private LocationRequest mLocationRequest;
  
      public static boolean isGooglePlayServicesAvailable(Context context) {
--        return GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context)
--                == ConnectionResult.SUCCESS;
-+        return false;
-     }
+         return ChromiumPlayServicesAvailability.isGooglePlayServicesAvailable(context);
+@@ -47,105 +33,24 @@ public class LocationProviderGmsCore imp
  
      LocationProviderGmsCore(Context context) {
          Log.i(TAG, "Google Play Services");
@@ -424,7 +421,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
  }
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -1079,66 +1079,6 @@ android_aar_prebuilt("google_play_servic
+@@ -1173,66 +1173,6 @@ android_aar_prebuilt("google_play_servic
  }
  
  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
@@ -1155,9 +1152,9 @@ Subject: Remove dependency on com.google.android.gms.fido,
      @Override
 --- a/chrome/android/features/cablev2_authenticator/BUILD.gn
 +++ b/chrome/android/features/cablev2_authenticator/BUILD.gn
-@@ -16,7 +16,6 @@ android_library("java") {
- 
+@@ -17,7 +17,6 @@ android_library("java") {
    deps = [
+     ":java_resources",
      "$google_play_services_package:google_play_services_base_java",
 -    "$google_play_services_package:google_play_services_fido_java",
      "$google_play_services_package:google_play_services_tasks_java",
@@ -1186,7 +1183,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
          return false;
 --- a/services/BUILD.gn
 +++ b/services/BUILD.gn
-@@ -107,7 +107,6 @@ if (is_android) {
+@@ -106,7 +106,6 @@ if (is_android) {
      deps = [
        "$google_play_services_package:google_play_services_base_java",
        "$google_play_services_package:google_play_services_basement_java",
@@ -1461,7 +1458,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
 +        return false;
      }
  
-     public boolean onSignResponse(int resultCode, Intent data) {
+     private boolean onSignResponse(int resultCode, Intent data) {
 @@ -375,45 +211,7 @@ class CableAuthenticator {
          }
          Log.e(TAG, "OK.");

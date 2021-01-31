@@ -121,7 +121,7 @@ Subject: Add new folder button to bookmark activity
          } else {
 --- a/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkFolderSelectActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkFolderSelectActivity.java
-@@ -52,11 +52,14 @@ public class BookmarkFolderSelectActivit
+@@ -53,11 +53,14 @@ public class BookmarkFolderSelectActivit
      static final String
              INTENT_IS_CREATING_FOLDER = "BookmarkFolderSelectActivity.isCreatingFolder";
      static final String
@@ -136,7 +136,7 @@ Subject: Add new folder button to bookmark activity
      private List<BookmarkId> mBookmarksToMove;
      private BookmarkId mParentId;
      private FolderListAdapter mBookmarkIdsAdapter;
-@@ -99,6 +102,22 @@ public class BookmarkFolderSelectActivit
+@@ -100,6 +103,22 @@ public class BookmarkFolderSelectActivit
      }
  
      /**
@@ -159,7 +159,7 @@ Subject: Add new folder button to bookmark activity
       * Starts a select folder activity for the new folder that is about to be created. This method
       * is only supposed to be called by {@link BookmarkAddEditFolderActivity}
       */
-@@ -149,6 +168,7 @@ public class BookmarkFolderSelectActivit
+@@ -150,6 +169,7 @@ public class BookmarkFolderSelectActivit
          }
  
          mIsCreatingFolder = getIntent().getBooleanExtra(INTENT_IS_CREATING_FOLDER, false);
@@ -167,7 +167,7 @@ Subject: Add new folder button to bookmark activity
          if (mIsCreatingFolder) {
              mParentId = mModel.getMobileFolderId();
          } else {
-@@ -183,7 +203,7 @@ public class BookmarkFolderSelectActivit
+@@ -184,7 +204,7 @@ public class BookmarkFolderSelectActivit
      private void updateFolderList() {
          List<BookmarkId> folderList = new ArrayList<>();
          List<Integer> depthList = new ArrayList<>();
@@ -178,7 +178,7 @@ Subject: Add new folder button to bookmark activity
          if (!mIsCreatingFolder) {
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -2944,6 +2944,9 @@ Data from your Incognito session will on
+@@ -3022,6 +3022,9 @@ Data from your Incognito session will on
        <message name="IDS_BOOKMARK_ACTION_BAR_EDIT_FOLDER" desc="Button text for editing current folder action on the bookmark action bar [CHAR-LIMIT=32]">
          Edit folder
        </message>
@@ -190,7 +190,7 @@ Subject: Add new folder button to bookmark activity
        </message>
 --- a/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkBridge.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkBridge.java
-@@ -437,7 +437,8 @@ public class BookmarkBridge {
+@@ -460,7 +460,8 @@ public class BookmarkBridge {
       * moving some folders (a folder cannot be moved to its own children).
       */
      public void getMoveDestinations(List<BookmarkId> folderList,
@@ -200,7 +200,7 @@ Subject: Add new folder button to bookmark activity
          ThreadUtils.assertOnUiThread();
          assert mIsNativeBookmarkModelLoaded;
          BookmarkBridgeJni.get().getAllFoldersWithDepths(
-@@ -462,7 +463,7 @@ public class BookmarkBridge {
+@@ -485,7 +486,7 @@ public class BookmarkBridge {
              // statement.
              if (!shouldTrim) {
                  BookmarkId folder = folderList.get(i);

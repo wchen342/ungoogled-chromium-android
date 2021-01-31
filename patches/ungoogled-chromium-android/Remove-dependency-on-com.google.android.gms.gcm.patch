@@ -5,18 +5,20 @@ Subject: Remove dependency on com.google.android.gms.gcm
 It also disalbes Snippets, auto-update of offline pages and launching browser from background service.
 The snippets are already disabled in native codes, this will disable it on Java level.
 ---
- chrome/android/BUILD.gn                                                                                   |    3 
+ chrome/android/BUILD.gn                                                                                   |    4 
  chrome/android/java/src/com/google/ipc/invalidation/ticl/android2/channel/GcmRegistrationTaskService.java |   10 -
- chrome/android/java/src/org/chromium/chrome/browser/ChromeBackgroundService.java                          |   45 --------
- chrome/android/java/src/org/chromium/chrome/browser/services/gcm/ChromeGcmListenerService.java            |   52 ----------
+ chrome/android/java/src/org/chromium/chrome/browser/ChromeBackgroundServiceImpl.java                      |   44 ------
+ chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatGcmListenerService.java               |   65 ----------
+ chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatGcmTaskService.java                   |   40 ------
+ chrome/android/javatests/src/org/chromium/chrome/browser/ServicificationBackgroundService.java            |   31 ----
  components/background_task_scheduler/BUILD.gn                                                             |    1 
  components/background_task_scheduler/internal/BUILD.gn                                                    |    2 
- third_party/android_deps/BUILD.gn                                                                         |   18 ---
- 7 files changed, 3 insertions(+), 128 deletions(-)
+ third_party/android_deps/BUILD.gn                                                                         |   18 --
+ 9 files changed, 5 insertions(+), 210 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -288,7 +288,6 @@ android_library("chrome_java") {
+@@ -284,7 +284,6 @@ android_library("chrome_java") {
      "$google_play_services_package:google_play_services_cast_framework_java",
      "$google_play_services_package:google_play_services_cast_java",
      "$google_play_services_package:google_play_services_fido_java",
@@ -24,7 +26,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
      "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
      "$google_play_services_package:google_play_services_vision_common_java",
-@@ -968,7 +967,6 @@ android_library("chrome_test_java") {
+@@ -997,7 +996,6 @@ android_library("chrome_test_java") {
      "$google_play_services_package:google_play_services_cast_framework_java",
      "$google_play_services_package:google_play_services_cast_java",
      "$google_play_services_package:google_play_services_fido_java",
@@ -32,7 +34,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
      "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
      "//base:base_java",
-@@ -1918,7 +1916,6 @@ android_library("browser_java_test_suppo
+@@ -1953,7 +1951,6 @@ android_library("browser_java_test_suppo
    ]
    deps = [
      ":chrome_java",
@@ -40,151 +42,14 @@ The snippets are already disabled in native codes, this will disable it on Java 
      "//base:base_java",
      "//base:base_java_test_support",
      "//chrome/browser/profiles/android:java",
---- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeBackgroundService.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeBackgroundService.java
-@@ -8,10 +8,6 @@ import android.content.Context;
- 
- import androidx.annotation.VisibleForTesting;
- 
--import com.google.android.gms.gcm.GcmNetworkManager;
--import com.google.android.gms.gcm.GcmTaskService;
--import com.google.android.gms.gcm.TaskParams;
--
- import org.chromium.base.Log;
- import org.chromium.base.task.PostTask;
- import org.chromium.chrome.browser.background_sync.BackgroundSyncBackgroundTaskScheduler;
-@@ -26,43 +22,9 @@ import org.chromium.content_public.brows
-  * browser needs to be launched for scheduled tasks, or in response to changing network or power
-  * conditions.
-  */
--public class ChromeBackgroundService extends GcmTaskService {
-+public class ChromeBackgroundService {
-     private static final String TAG = "BackgroundService";
- 
--    @Override
--    @VisibleForTesting
--    public int onRunTask(final TaskParams params) {
--        final String taskTag = params.getTag();
--        final Context context = this;
--        PostTask.runOrPostTask(UiThreadTaskTraits.DEFAULT, () -> {
--            switch (taskTag) {
--                case BackgroundSyncBackgroundTaskScheduler.TASK_TAG:
--                    // Background Sync tasks are now scheduled using BackgroundTaskScheduler.
--                    // This should be rare, and we simply reschedule using BackgroundTaskScheduler.
--                    rescheduleOneShotBackgroundSyncTasks();
--                    break;
--
--                case OfflinePageUtils.TASK_TAG:
--                    // Offline pages are migrating to BackgroundTaskScheduler, therefore getting
--                    // a task through ChromeBackgroundService should cause a rescheduling using
--                    // the new component.
--                    rescheduleOfflinePages();
--                    break;
--
--                // This is only for tests.
--                case ServiceManagerStartupUtils.TASK_TAG:
--                    handleServicificationStartupTask(context, taskTag);
--                    break;
--
--                default:
--                    Log.i(TAG, "Unknown task tag " + taskTag);
--                    break;
--            }
--        });
--
--        return GcmNetworkManager.RESULT_SUCCESS;
--    }
--
-     private void handleServicificationStartupTask(Context context, String tag) {
-         launchBrowser(context, tag);
-     }
-@@ -88,9 +50,4 @@ public class ChromeBackgroundService ext
-                 BackgroundSyncBackgroundTaskScheduler.BackgroundSyncTask
-                         .ONE_SHOT_SYNC_CHROME_WAKE_UP);
-     }
--
--    @Override
--    public void onInitializeTasks() {
--        rescheduleBackgroundSyncTasksOnUpgrade();
--    }
- }
---- a/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/ChromeGcmListenerService.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/services/gcm/ChromeGcmListenerService.java
-@@ -10,8 +10,6 @@ import android.os.Build;
- import android.os.Bundle;
- import android.text.TextUtils;
- 
--import com.google.android.gms.gcm.GcmListenerService;
--
- import org.chromium.base.ContextUtils;
- import org.chromium.base.Log;
- import org.chromium.base.ThreadUtils;
-@@ -32,56 +30,9 @@ import org.chromium.content_public.brows
- /**
-  * Receives Downstream messages and status of upstream messages from GCM.
-  */
--public class ChromeGcmListenerService extends GcmListenerService {
-+public class ChromeGcmListenerService {
-     private static final String TAG = "ChromeGcmListener";
- 
--    @Override
--    public void onCreate() {
--        ProcessInitializationHandler.getInstance().initializePreNative();
--        super.onCreate();
--    }
--
--    @Override
--    public void onMessageReceived(final String from, final Bundle data) {
--        boolean hasCollapseKey = !TextUtils.isEmpty(data.getString("collapse_key"));
--        GcmUma.recordDataMessageReceived(ContextUtils.getApplicationContext(), hasCollapseKey);
--
--        // Dispatch the message to the GCM Driver for native features.
--        PostTask.runOrPostTask(UiThreadTaskTraits.DEFAULT, () -> {
--            GCMMessage message = null;
--            try {
--                message = new GCMMessage(from, data);
--            } catch (IllegalArgumentException e) {
--                Log.e(TAG, "Received an invalid GCM Message", e);
--                return;
--            }
--
--            scheduleOrDispatchMessageToDriver(message);
--        });
--    }
--
--    @Override
--    public void onMessageSent(String msgId) {
--        Log.d(TAG, "Message sent successfully. Message id: " + msgId);
--        GcmUma.recordGcmUpstreamHistogram(
--                ContextUtils.getApplicationContext(), GcmUma.UMA_UPSTREAM_SUCCESS);
--    }
--
--    @Override
--    public void onSendError(String msgId, String error) {
--        Log.w(TAG, "Error in sending message. Message id: " + msgId + " Error: " + error);
--        GcmUma.recordGcmUpstreamHistogram(
--                ContextUtils.getApplicationContext(), GcmUma.UMA_UPSTREAM_SEND_FAILED);
--    }
--
--    @Override
--    public void onDeletedMessages() {
--        // TODO(johnme): Ask GCM to include the subtype in this event.
--        Log.w(TAG, "Push messages were deleted, but we can't tell the Service Worker as we don't"
--                + "know what subtype (app ID) it occurred for.");
--        GcmUma.recordDeletedMessages(ContextUtils.getApplicationContext());
--    }
--
-     /**
-      * Returns if we deliver the GCMMessage with a background service by calling
-      * Context#startService. This will only work if Android has put us in a whitelist to allow
-@@ -211,7 +162,6 @@ public class ChromeGcmListenerService ex
-     static void dispatchMessageToDriver(GCMMessage message) {
-         ThreadUtils.assertOnUiThread();
-         ChromeBrowserInitializer.getInstance().handleSynchronousStartup();
--        GCMDriver.dispatchMessage(message);
-     }
- 
-     private static boolean isFullBrowserLoaded() {
+@@ -2131,7 +2128,6 @@ android_library("base_module_java") {
+   ]
+   deps = [
+     ":chrome_base_module_resources",
+-    "$google_play_services_package:google_play_services_gcm_java",
+     "//base:base_java",
+     "//components/embedder_support/android:application_java",
+     "//components/media_router/browser/android:cast_options_provider_java",
 --- a/components/background_task_scheduler/BUILD.gn
 +++ b/components/background_task_scheduler/BUILD.gn
 @@ -124,7 +124,6 @@ if (is_android) {
@@ -197,7 +62,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
        "internal:proto_java",
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -1179,24 +1179,6 @@ android_aar_prebuilt("google_play_servic
+@@ -1273,24 +1273,6 @@ android_aar_prebuilt("google_play_servic
  }
  
  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
@@ -232,7 +97,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
        "$google_play_services_package:google_play_services_tasks_java",
        "//base:base_java",
        "//components/background_task_scheduler:background_task_scheduler_task_ids_java",
-@@ -100,7 +99,6 @@ if (is_android) {
+@@ -101,7 +100,6 @@ if (is_android) {
        ":internal_java",
        "$google_play_services_package:google_play_services_base_java",
        "$google_play_services_package:google_play_services_basement_java",
@@ -262,3 +127,265 @@ The snippets are already disabled in native codes, this will disable it on Java 
 -    }
 +public class GcmRegistrationTaskService {
  }
+--- a/chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatGcmListenerService.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatGcmListenerService.java
+@@ -7,77 +7,14 @@ package org.chromium.chrome.browser.base
+ import android.content.Context;
+ import android.os.Bundle;
+ 
+-import com.google.android.gms.gcm.GcmListenerService;
+-
+ /**
+  * GcmListenerService base class which will call through to the given {@link Impl}. This class must
+  * be present in the base module, while the Impl can be in the chrome module.
+  */
+-public class SplitCompatGcmListenerService extends GcmListenerService {
++public class SplitCompatGcmListenerService {
+     private String mServiceClassName;
+-    private Impl mImpl;
+ 
+     public SplitCompatGcmListenerService(String serviceClassName) {
+         mServiceClassName = serviceClassName;
+     }
+-
+-    @Override
+-    protected void attachBaseContext(Context context) {
+-        context = SplitCompatUtils.createChromeContext(context);
+-        mImpl = (Impl) SplitCompatUtils.newInstance(context, mServiceClassName);
+-        mImpl.setService(this);
+-        super.attachBaseContext(context);
+-    }
+-
+-    @Override
+-    public void onCreate() {
+-        super.onCreate();
+-        mImpl.onCreate();
+-    }
+-
+-    @Override
+-    public void onMessageReceived(String from, Bundle data) {
+-        mImpl.onMessageReceived(from, data);
+-    }
+-
+-    @Override
+-    public void onMessageSent(String msgId) {
+-        mImpl.onMessageSent(msgId);
+-    }
+-
+-    @Override
+-    public void onSendError(String msgId, String error) {
+-        mImpl.onSendError(msgId, error);
+-    }
+-
+-    @Override
+-    public void onDeletedMessages() {
+-        mImpl.onDeletedMessages();
+-    }
+-
+-    /**
+-     * Holds the implementation of service logic. Will be called by {@link
+-     * SplitCompatGcmListenerService}.
+-     */
+-    public abstract static class Impl {
+-        private SplitCompatGcmListenerService mService;
+-
+-        protected final void setService(SplitCompatGcmListenerService service) {
+-            mService = service;
+-        }
+-
+-        protected final SplitCompatGcmListenerService getService() {
+-            return mService;
+-        }
+-
+-        public void onCreate() {}
+-
+-        public void onMessageReceived(String from, Bundle data) {}
+-
+-        public void onMessageSent(String msgId) {}
+-
+-        public void onSendError(String msgId, String error) {}
+-
+-        public void onDeletedMessages() {}
+-    }
+ }
+--- a/chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatGcmTaskService.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatGcmTaskService.java
+@@ -6,56 +6,18 @@ package org.chromium.chrome.browser.base
+ 
+ import android.content.Context;
+ 
+-import com.google.android.gms.gcm.GcmTaskService;
+-import com.google.android.gms.gcm.TaskParams;
+-
+ /**
+  * GcmTaskService base class which will call through to the given {@link Impl}. This class must be
+  * present in the base module, while the Impl can be in the chrome module.
+  */
+-public class SplitCompatGcmTaskService extends GcmTaskService {
++public class SplitCompatGcmTaskService {
+     private String mServiceClassName;
+-    private Impl mImpl;
+ 
+     public SplitCompatGcmTaskService(String serviceClassName) {
+         mServiceClassName = serviceClassName;
+     }
+ 
+-    @Override
+     protected void attachBaseContext(Context context) {
+         context = SplitCompatUtils.createChromeContext(context);
+-        mImpl = (Impl) SplitCompatUtils.newInstance(context, mServiceClassName);
+-        mImpl.setService(this);
+-        super.attachBaseContext(context);
+-    }
+-
+-    @Override
+-    public int onRunTask(TaskParams params) {
+-        return mImpl.onRunTask(params);
+-    }
+-
+-    @Override
+-    public void onInitializeTasks() {
+-        mImpl.onInitializeTasks();
+-    }
+-
+-    /**
+-     * Holds the implementation of service logic. Will be called by {@link
+-     * SplitCompatGcmTaskService}.
+-     */
+-    public abstract static class Impl {
+-        private SplitCompatGcmTaskService mService;
+-
+-        protected final void setService(SplitCompatGcmTaskService service) {
+-            mService = service;
+-        }
+-
+-        protected final GcmTaskService getService() {
+-            return mService;
+-        }
+-
+-        public abstract int onRunTask(TaskParams params);
+-
+-        public void onInitializeTasks() {}
+     }
+ }
+--- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeBackgroundServiceImpl.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeBackgroundServiceImpl.java
+@@ -8,9 +8,6 @@ import android.content.Context;
+ 
+ import androidx.annotation.VisibleForTesting;
+ 
+-import com.google.android.gms.gcm.GcmNetworkManager;
+-import com.google.android.gms.gcm.TaskParams;
+-
+ import org.chromium.base.Log;
+ import org.chromium.base.task.PostTask;
+ import org.chromium.chrome.browser.background_sync.BackgroundSyncBackgroundTaskScheduler;
+@@ -25,43 +22,9 @@ import org.chromium.content_public.brows
+  * browser needs to be launched for scheduled tasks, or in response to changing network or power
+  * conditions.
+  */
+-public class ChromeBackgroundServiceImpl extends ChromeBackgroundService.Impl {
++public class ChromeBackgroundServiceImpl {
+     private static final String TAG = "BackgroundService";
+ 
+-    @Override
+-    @VisibleForTesting
+-    public int onRunTask(final TaskParams params) {
+-        final String taskTag = params.getTag();
+-        final Context context = getService();
+-        PostTask.runOrPostTask(UiThreadTaskTraits.DEFAULT, () -> {
+-            switch (taskTag) {
+-                case BackgroundSyncBackgroundTaskScheduler.TASK_TAG:
+-                    // Background Sync tasks are now scheduled using BackgroundTaskScheduler.
+-                    // This should be rare, and we simply reschedule using BackgroundTaskScheduler.
+-                    rescheduleOneShotBackgroundSyncTasks();
+-                    break;
+-
+-                case OfflinePageUtils.TASK_TAG:
+-                    // Offline pages are migrating to BackgroundTaskScheduler, therefore getting
+-                    // a task through ChromeBackgroundService should cause a rescheduling using
+-                    // the new component.
+-                    rescheduleOfflinePages();
+-                    break;
+-
+-                // This is only for tests.
+-                case ServiceManagerStartupUtils.TASK_TAG:
+-                    handleServicificationStartupTask(context, taskTag);
+-                    break;
+-
+-                default:
+-                    Log.i(TAG, "Unknown task tag " + taskTag);
+-                    break;
+-            }
+-        });
+-
+-        return GcmNetworkManager.RESULT_SUCCESS;
+-    }
+-
+     private void handleServicificationStartupTask(Context context, String tag) {
+         launchBrowser(context, tag);
+     }
+@@ -87,9 +50,4 @@ public class ChromeBackgroundServiceImpl
+                 BackgroundSyncBackgroundTaskScheduler.BackgroundSyncTask
+                         .ONE_SHOT_SYNC_CHROME_WAKE_UP);
+     }
+-
+-    @Override
+-    public void onInitializeTasks() {
+-        rescheduleBackgroundSyncTasksOnUpgrade();
+-    }
+ }
+--- a/chrome/android/javatests/src/org/chromium/chrome/browser/ServicificationBackgroundService.java
++++ b/chrome/android/javatests/src/org/chromium/chrome/browser/ServicificationBackgroundService.java
+@@ -6,8 +6,6 @@ package org.chromium.chrome.browser;
+ 
+ import android.content.Context;
+ 
+-import com.google.android.gms.gcm.TaskParams;
+-
+ import org.junit.Assert;
+ 
+ import org.chromium.base.test.util.CriteriaHelper;
+@@ -20,7 +18,7 @@ import org.chromium.content_public.brows
+ /**
+  * Class for launching the service manager only mode for tests.
+  */
+-public class ServicificationBackgroundService extends ChromeBackgroundServiceImpl {
++public class ServicificationBackgroundService {
+     private boolean mLaunchBrowserCalled;
+     private boolean mNativeLoaded;
+     private boolean mSupportsServiceManagerOnly;
+@@ -29,33 +27,6 @@ public class ServicificationBackgroundSe
+         mSupportsServiceManagerOnly = supportsServiceManagerOnly;
+     }
+ 
+-    @Override
+-    public int onRunTask(final TaskParams params) {
+-        mLaunchBrowserCalled = false;
+-        return super.onRunTask(params);
+-    }
+-
+-    @Override
+-    protected void launchBrowser(Context context, String tag) {
+-        mLaunchBrowserCalled = true;
+-        mNativeLoaded = false;
+-
+-        final BrowserParts parts = new EmptyBrowserParts() {
+-            @Override
+-            public void finishNativeInitialization() {
+-                mNativeLoaded = true;
+-            }
+-
+-            @Override
+-            public boolean startServiceManagerOnly() {
+-                return mSupportsServiceManagerOnly;
+-            }
+-        };
+-
+-        ChromeBrowserInitializer.getInstance().handlePreNativeStartup(parts);
+-        ChromeBrowserInitializer.getInstance().handlePostNativeStartup(true, parts);
+-    }
+-
+     // Posts an assertion task to the UI thread. Since this is only called after the call
+     // to onRunTask, it will be enqueued after any possible call to launchBrowser, and we
+     // can reliably check whether launchBrowser was called.
