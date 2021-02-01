@@ -22,7 +22,7 @@ Subject: Add flag to disable WebGL
       SINGLE_VALUE_TYPE(cc::switches::kShowCompositedLayerBorders)},
 --- a/chrome/browser/flag_descriptions.cc
 +++ b/chrome/browser/flag_descriptions.cc
-@@ -3247,6 +3247,9 @@ const char kWalletRequiresFirstSyncSetup
+@@ -3251,6 +3251,9 @@ const char kWalletRequiresFirstSyncSetup
      "first-sync-setup to be complete. Only has an effect if "
      "enable-autofill-account-wallet-storage is also enabled.";
  
@@ -34,7 +34,7 @@ Subject: Add flag to disable WebGL
  #else  // !defined(OS_ANDROID)
 --- a/chrome/browser/flag_descriptions.h
 +++ b/chrome/browser/flag_descriptions.h
-@@ -1874,6 +1874,9 @@ extern const char kTabbedAppOverflowMenu
+@@ -1877,6 +1877,9 @@ extern const char kTabbedAppOverflowMenu
  extern const char kWalletRequiresFirstSyncSetupCompleteName[];
  extern const char kWalletRequiresFirstSyncSetupCompleteDescription[];
  

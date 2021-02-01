@@ -1,0 +1,158 @@
+description: Add option to force tablet UI
+author: Wengling Chen <feiyu2817@gmail.com>
+
+---
+ chrome/android/java/res/xml/accessibility_preferences.xml                                                                  |    5 +++++
+ chrome/android/java/src/org/chromium/chrome/browser/accessibility/settings/AccessibilitySettings.java                      |   10 ++++++++++
+ chrome/android/java/src/org/chromium/chrome/browser/toolbar/top/ToolbarControlContainer.java                               |    2 +-
+ chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java              |    1 +
+ chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/GrandfatheredChromePreferenceKeys.java |    1 +
+ chrome/browser/ui/android/strings/android_chrome_strings.grd                                                               |    6 ++++++
+ components/BUILD.gn                                                                                                        |    4 ++--
+ ui/android/BUILD.gn                                                                                                        |    1 +
+ ui/android/java/src/org/chromium/ui/base/DeviceFormFactor.java                                                             |    5 +++++
+ 9 files changed, 32 insertions(+), 3 deletions(-)
+--- a/chrome/android/java/res/xml/accessibility_preferences.xml
++++ b/chrome/android/java/res/xml/accessibility_preferences.xml
+@@ -30,6 +30,11 @@
+         android:summary="@string/force_desktop_mode_summary"
+         android:title="@string/force_desktop_mode_title" />
+ 
++    <org.chromium.components.browser_ui.settings.ChromeBaseCheckBoxPreference
++        android:key="force_tablet_ui"
++        android:summary="@string/force_tablet_ui_summary"
++        android:title="@string/force_tablet_ui_title" />
++
+     <Preference
+         android:key="captions"
+         android:title="@string/accessibility_captions_title"/>
+--- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
++++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
+@@ -1143,6 +1143,12 @@ Your Google account may have other forms
+       <message name="IDS_FORCE_DESKTOP_MODE_TITLE" desc="Title of the preference that allows the user to update force desktop mode settings.">
+         Force Desktop Mode
+       </message>
++      <message name="IDS_FORCE_TABLET_UI_SUMMARY" desc="Summary of the preference that allows the user to force chromium to use tablet UI.">
++       Open chromium in Tablet Mode
++      </message>
++      <message name="IDS_FORCE_TABLET_UI_TITLE" desc="Title of the preference that allows the user to update force tablet UI settings.">
++        Force Tablet Mode
++      </message>
+ 
+       <!-- Language Settings -->
+       <message name="IDS_LANGUAGE_SETTINGS" desc="Title for the Languages settings screen that allows users to manage their languages preferences. [CHAR-LIMIT=32]">
+--- a/chrome/android/java/src/org/chromium/chrome/browser/accessibility/settings/AccessibilitySettings.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/accessibility/settings/AccessibilitySettings.java
+@@ -35,6 +35,7 @@ public class AccessibilitySettings
+     static final String PREF_CAPTIONS = "captions";
+     static final String PREF_IMAGE_DESCRIPTIONS = "image_descriptions";
+     static final String PREF_FORCE_DESKTOP_MODE = "force_desktop_mode";
++    static final String PREF_FORCE_TABLET_UI = "force_tablet_ui";
+ 
+     private TextScalePreference mTextScalePref;
+     private ChromeBaseCheckBoxPreference mForceEnableZoomPref;
+@@ -87,6 +88,12 @@ public class AccessibilitySettings
+                             ChromePreferenceKeys.FLAGS_FORCE_DESKTOP_MODE_ENABLED, false));
+         forceDesktopModePref.setOnPreferenceChangeListener(this);
+ 
++        ChromeBaseCheckBoxPreference forceTabletUiPref =
++                (ChromeBaseCheckBoxPreference) findPreference(PREF_FORCE_TABLET_UI);
++        forceTabletUiPref.setChecked(SharedPreferencesManager.getInstance().readBoolean(
++                            ChromePreferenceKeys.FLAGS_FORCE_TABLET_UI_ENABLED, false));
++        forceTabletUiPref.setOnPreferenceChangeListener(this);
++
+         ChromeBaseCheckBoxPreference mAccessibilityTabSwitcherPref =
+                 (ChromeBaseCheckBoxPreference) findPreference(
+                         ChromePreferenceKeys.ACCESSIBILITY_TAB_SWITCHER);
+@@ -144,6 +151,9 @@ public class AccessibilitySettings
+         } else if (PREF_FORCE_DESKTOP_MODE.equals(preference.getKey())) {
+             SharedPreferencesManager.getInstance().writeBoolean(
+                 ChromePreferenceKeys.FLAGS_FORCE_DESKTOP_MODE_ENABLED, (Boolean) newValue);
++        } else if (PREF_FORCE_TABLET_UI.equals(preference.getKey())) {
++            SharedPreferencesManager.getInstance().writeBoolean(
++                ChromePreferenceKeys.FLAGS_FORCE_TABLET_UI_ENABLED, (Boolean) newValue);
+         }
+         return true;
+     }
+--- a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
++++ b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
+@@ -441,6 +441,7 @@ public final class ChromePreferenceKeys
+     public static final String FONT_USER_SET_FORCE_ENABLE_ZOOM = "user_set_force_enable_zoom";
+ 
+     public static final String FLAGS_FORCE_DESKTOP_MODE_ENABLED = "force_desktop_mode_enabled";
++    public static final String FLAGS_FORCE_TABLET_UI_ENABLED = "force_tablet_ui_enabled";
+ 
+     public static final String HISTORY_SHOW_HISTORY_INFO = "history_home_show_info";
+ 
+--- a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/GrandfatheredChromePreferenceKeys.java
++++ b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/GrandfatheredChromePreferenceKeys.java
+@@ -100,6 +100,7 @@ public class GrandfatheredChromePreferen
+                 ChromePreferenceKeys.FLAGS_CACHED_SWAP_PIXEL_FORMAT_TO_FIX_CONVERT_FROM_TRANSLUCENT,
+                 ChromePreferenceKeys.FLAGS_CACHED_TAB_GROUPS_ANDROID_ENABLED,
+                 ChromePreferenceKeys.FLAGS_FORCE_DESKTOP_MODE_ENABLED,
++                ChromePreferenceKeys.FLAGS_FORCE_TABLET_UI_ENABLED,
+                 ChromePreferenceKeys.FONT_USER_FONT_SCALE_FACTOR,
+                 ChromePreferenceKeys.FONT_USER_SET_FORCE_ENABLE_ZOOM,
+                 ChromePreferenceKeys.HISTORY_SHOW_HISTORY_INFO,
+--- a/ui/android/java/src/org/chromium/ui/base/DeviceFormFactor.java
++++ b/ui/android/java/src/org/chromium/ui/base/DeviceFormFactor.java
+@@ -11,6 +11,8 @@ import androidx.annotation.UiThread;
+ import org.chromium.base.ContextUtils;
+ import org.chromium.base.ThreadUtils;
+ import org.chromium.base.annotations.CalledByNative;
++import org.chromium.chrome.browser.preferences.ChromePreferenceKeys;
++import org.chromium.chrome.browser.preferences.SharedPreferencesManager;
+ import org.chromium.ui.R;
+ import org.chromium.ui.display.DisplayAndroid;
+ import org.chromium.ui.display.DisplayUtil;
+@@ -60,6 +62,9 @@ public class DeviceFormFactor {
+      *         E.g. http://developer.samsung.com/samsung-dex/testing
+      */
+     public static boolean isNonMultiDisplayContextOnTablet(Context context) {
++        if (SharedPreferencesManager.getInstance().readBoolean(
++                ChromePreferenceKeys.FLAGS_FORCE_TABLET_UI_ENABLED, false))
++            return true;
+         return detectScreenWidthBucket(context) >= SCREEN_BUCKET_TABLET;
+     }
+ 
+--- a/ui/android/BUILD.gn
++++ b/ui/android/BUILD.gn
+@@ -359,6 +359,7 @@ android_library("ui_no_recycler_view_jav
+     ":ui_utils_java",
+     "//base:base_java",
+     "//base:jni_java",
++    "//chrome/browser/preferences:java",
+     "//third_party/android_deps:androidx_annotation_annotation_java",
+     "//third_party/android_deps:androidx_appcompat_appcompat_java",
+     "//third_party/android_deps:androidx_appcompat_appcompat_resources_java",
+--- a/components/BUILD.gn
++++ b/components/BUILD.gn
+@@ -475,7 +475,7 @@ test("components_unittests") {
+ 
+   # On LaCrOS, tests use ash-chrome as a window manager, thus the dependency.
+   # On other platforms, no components should depend on Chrome.
+-  if (!chromeos_is_browser_only) {
++  if (!chromeos_is_browser_only && !is_android) {
+     assert_no_deps = [ "//chrome/*" ]
+   }
+ 
+@@ -719,7 +719,7 @@ if (!is_ios && !is_fuchsia) {
+ 
+     # On LaCrOS, tests use ash-chrome as a window manager, thus the dependency.
+     # On other platforms, no components should depend on Chrome.
+-    if (!chromeos_is_browser_only) {
++    if (!chromeos_is_browser_only && !is_android) {
+       assert_no_deps = [ "//chrome/*" ]
+     }
+   }
+--- a/chrome/android/java/src/org/chromium/chrome/browser/toolbar/top/ToolbarControlContainer.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/toolbar/top/ToolbarControlContainer.java
+@@ -110,7 +110,7 @@ public class ToolbarControlContainer ext
+             // On tablet, draw a fake tab strip and toolbar until the compositor is
+             // ready to draw the real tab strip. (On phone, the toolbar is made entirely
+             // of Android views, which are already initialized.)
+-            setBackgroundResource(R.drawable.toolbar_background);
++//             setBackgroundResource(R.drawable.toolbar_background);
+         }
+     }
+ 

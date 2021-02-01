@@ -1,6 +1,9 @@
 # 88.0.4324.104-1
 * Now using SDK 30 (Android 11)
 * Fix gradle generation
+* Add option to enable `save-data` header
+* Add option to force desktop mode
+* Add option to force tablet UI
 
 # 87.0.4280.141-2
 * Extension version only:

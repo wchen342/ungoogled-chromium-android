@@ -39,7 +39,7 @@ This reverts commit 4e598f38a0e6dd3dbede009c6a99b2a520a94e1f.
      "expiry_milestone": 83
 --- a/chrome/browser/flag_descriptions.cc
 +++ b/chrome/browser/flag_descriptions.cc
-@@ -3025,6 +3025,10 @@ const char kQueryTilesInstantFetchName[]
+@@ -3029,6 +3029,10 @@ const char kQueryTilesInstantFetchName[]
  const char kQueryTilesInstantFetchDescription[] =
      "Immediately schedule background task to fetch query tiles";
  
@@ -52,7 +52,7 @@ This reverts commit 4e598f38a0e6dd3dbede009c6a99b2a520a94e1f.
      "Determines what pages the Reader Mode infobar is shown on.";
 --- a/chrome/browser/flag_descriptions.h
 +++ b/chrome/browser/flag_descriptions.h
-@@ -1757,6 +1757,9 @@ extern const char kQueryTilesLocalOrderi
+@@ -1760,6 +1760,9 @@ extern const char kQueryTilesLocalOrderi
  extern const char kQueryTilesInstantFetchName[];
  extern const char kQueryTilesInstantFetchDescription[];
  

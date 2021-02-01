@@ -82,7 +82,7 @@ Corrected Exit functionality
      @Override
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -2940,6 +2940,9 @@ Data from your Incognito session will on
+@@ -2952,6 +2952,9 @@ Data from your Incognito session will on
        <message name="IDS_MENU_SETTINGS" desc="Menu item for opening browser settings. [CHAR-LIMIT=27]">
          Settings
        </message>
