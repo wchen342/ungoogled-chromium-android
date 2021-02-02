@@ -160,6 +160,8 @@ function prepare_repos {
   ln -s /usr/bin/java src/third_party/jdk/current/bin/
   ln -s /usr/bin/javac src/third_party/jdk/current/bin/
   ln -s /usr/bin/javap src/third_party/jdk/current/bin/
+  mkdir -p src/third_party/jdk/current/lib
+  ln -s /usr/lib/jvm/java-11-openjdk-11.0.9.11-9.fc33.x86_64/lib/jrt-fs.jar src/third_party/jdk/current/lib/
   # jre
   mkdir -p src/third_party/jdk/extras/java_8 && pushd src/third_party/jdk/extras/java_8
   ln -s /usr/lib/jvm/jre-1.8.0 jre
