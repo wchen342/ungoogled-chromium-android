@@ -24,12 +24,13 @@ Subject: add download prompt for installing extensions
  chrome/browser/ui/views/extensions/extension_install_dialog_view_android.h                           |  103 +++
  components/crx_file/crx_verifier.cc                                                                  |   12 
  extensions/browser/sandboxed_unpacker.cc                                                             |    3 
- extensions/common/file_util.cc                                                                       |    8 
- 21 files changed, 877 insertions(+), 31 deletions(-)
+ extensions/common/file_util.cc                                                                       |    9 
+ extensions/common/manifest_handlers/default_locale_handler.cc                                        |    7 
+ 22 files changed, 881 insertions(+), 35 deletions(-)
 
 --- a/base/files/file_util_posix.cc
 +++ b/base/files/file_util_posix.cc
-@@ -364,7 +364,7 @@ FilePath MakeAbsoluteFilePath(const File
+@@ -358,7 +358,7 @@ FilePath MakeAbsoluteFilePath(const File
    ScopedBlockingCall scoped_blocking_call(FROM_HERE, BlockingType::MAY_BLOCK);
    char full_path[PATH_MAX];
    if (realpath(input.value().c_str(), full_path) == nullptr)
@@ -116,7 +117,7 @@ Subject: add download prompt for installing extensions
    if (!root.get()) {
      if (error->empty()) {
 +      LOG(INFO) << "file_util.cc: LoadManifest: error->empty()";
-       // If |error| is empty, than the file could not be read.
+       // If |error| is empty, then the file could not be read.
        // It would be cleaner to have the JSON reader give a specific error
        // in this case, but other code tests for a file error with
 @@ -274,11 +278,13 @@ std::unique_ptr<base::DictionaryValue> L
@@ -133,6 +134,14 @@ Subject: add download prompt for installing extensions
      *error = l10n_util::GetStringUTF8(IDS_EXTENSION_MANIFEST_INVALID);
      return nullptr;
    }
+@@ -532,7 +538,6 @@ MessageBundle* LoadMessageBundle(
+ 
+   base::FilePath default_locale_path = locale_path.AppendASCII(default_locale);
+   if (default_locale.empty() ||
+-      chrome_locales.find(default_locale) == chrome_locales.end() ||
+       !base::PathExists(default_locale_path)) {
+     *error = l10n_util::GetStringUTF8(
+         IDS_EXTENSION_LOCALES_NO_DEFAULT_LOCALE_SPECIFIED);
 --- a/base/files/file_util.cc
 +++ b/base/files/file_util.cc
 @@ -16,6 +16,7 @@
@@ -196,7 +205,7 @@ Subject: add download prompt for installing extensions
  
 --- a/extensions/browser/sandboxed_unpacker.cc
 +++ b/extensions/browser/sandboxed_unpacker.cc
-@@ -231,8 +231,9 @@ void SandboxedUnpacker::StartWithCrx(con
+@@ -232,8 +232,9 @@ void SandboxedUnpacker::StartWithCrx(con
      expected_hash = base::ToLowerASCII(crx_info.expected_hash);
    }
  
@@ -235,10 +244,10 @@ Subject: add download prompt for installing extensions
      if (!web_contents) {
 -      Browser* browser = chrome::FindLastActiveWithProfile(profile);
 -      if (!browser) {
--        browser = new Browser(
+-        browser = Browser::Create(
 -            Browser::CreateParams(Browser::TYPE_NORMAL, profile, true));
 +      for (size_t i = 0; i < TabModelList::size(); ++i) {
-+        if (TabModelList::get(i)->IsCurrentModel())
++        if (TabModelList::get(i)->IsActiveModel())
 +          web_contents = TabModelList::get(i)->GetActiveWebContents();
        }
 -      web_contents = browser->tab_strip_model()->GetActiveWebContents();
@@ -555,7 +564,7 @@ Subject: add download prompt for installing extensions
 +
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -1417,6 +1417,11 @@ Your Google account may have other forms
+@@ -1446,6 +1446,11 @@ Your Google account may have other forms
        </message>
  
        <!-- About Chrome preferences -->
@@ -956,17 +965,17 @@ Subject: add download prompt for installing extensions
 +#endif  // CHROME_BROWSER_UI_VIEWS_EXTENSIONS_EXTENSION_INSTALL_DIALOG_VIEW_H_
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -3101,6 +3101,7 @@ generate_jni("chrome_jni_headers") {
+@@ -3236,6 +3236,7 @@ generate_jni("chrome_jni_headers") {
      "java/src/org/chromium/chrome/browser/explore_sites/ExploreSitesCategory.java",
      "java/src/org/chromium/chrome/browser/explore_sites/ExploreSitesCategoryTile.java",
      "java/src/org/chromium/chrome/browser/explore_sites/ExploreSitesSite.java",
 +    "java/src/org/chromium/chrome/browser/extensions/ExtensionInstallDialogViewBridge.java",
      "java/src/org/chromium/chrome/browser/feature_engagement/TrackerFactory.java",
      "java/src/org/chromium/chrome/browser/feedback/ConnectivityChecker.java",
-     "java/src/org/chromium/chrome/browser/feedback/ProcessIdFeedbackSource.java",
+     "java/src/org/chromium/chrome/browser/feedback/ScreenshotTask.java",
 --- a/chrome/android/chrome_java_sources.gni
 +++ b/chrome/android/chrome_java_sources.gni
-@@ -677,6 +677,8 @@ chrome_java_sources = [
+@@ -683,6 +683,8 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/explore_sites/ExploreSitesSite.java",
    "java/src/org/chromium/chrome/browser/explore_sites/ExploreSitesTileView.java",
    "java/src/org/chromium/chrome/browser/explore_sites/StableScrollLayoutManager.java",
@@ -977,7 +986,7 @@ Subject: add download prompt for installing extensions
    "java/src/org/chromium/chrome/browser/externalauth/VerifiedHandler.java",
 --- a/chrome/browser/ui/BUILD.gn
 +++ b/chrome/browser/ui/BUILD.gn
-@@ -3444,8 +3444,8 @@ static_library("ui") {
+@@ -3505,8 +3505,8 @@ static_library("ui") {
        "views/extensions/extension_context_menu_controller.h",
        "views/extensions/extension_install_blocked_dialog_view.cc",
        "views/extensions/extension_install_blocked_dialog_view.h",
@@ -1193,7 +1202,7 @@ Subject: add download prompt for installing extensions
 +}
 --- a/chrome/android/chrome_java_resources.gni
 +++ b/chrome/android/chrome_java_resources.gni
-@@ -862,6 +862,7 @@ chrome_java_resources = [
+@@ -864,6 +864,7 @@ chrome_java_resources = [
    "java/res/layout/explore_sites_page_layout.xml",
    "java/res/layout/explore_sites_section.xml",
    "java/res/layout/explore_sites_tile_view.xml",
@@ -1201,3 +1210,19 @@ Subject: add download prompt for installing extensions
    "java/res/layout/fake_search_box_layout.xml",
    "java/res/layout/find_in_page.xml",
    "java/res/layout/find_toolbar.xml",
+--- a/extensions/common/manifest_handlers/default_locale_handler.cc
++++ b/extensions/common/manifest_handlers/default_locale_handler.cc
+@@ -87,9 +87,10 @@ bool DefaultLocaleHandler::Validate(
+ 
+   base::FilePath locale_path;
+   while (!(locale_path = locales.Next()).empty()) {
+-    if (extension_l10n_util::ShouldSkipValidation(path, locale_path,
+-                                                  all_locales))
+-      continue;
++    // Somhow Android version doesn't get the right available locales from ICU, so skip this
++//     if (extension_l10n_util::ShouldSkipValidation(path, locale_path,
++//                                                   all_locales))
++//       continue;
+ 
+     base::FilePath messages_path = locale_path.Append(kMessagesFilename);
+     base::FilePath gzipped_messages_path =
