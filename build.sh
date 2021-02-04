@@ -10,7 +10,7 @@ trichrome_chrome_bundle_target=trichrome_chrome_bundle
 trichrome_chrome_apk_target=trichrome_library_apk
 webview_target=system_webview_apk
 
-chromium_version=88.0.4324.104
+chromium_version=88.0.4324.146
 ungoogled_chromium_revision=1
 
 # Show env
@@ -85,6 +85,10 @@ fi
 
 echo "arch: $ARCH, target: $TARGET, debug: $DEBUG"
 
+
+path_modified=false
+patch_applied=false
+
 function prepare_repos {
   declare -a arr=("depot_tools" "src" "ungoogled-chromium" ".cipd")
   for dname in "${arr[@]}"
@@ -95,6 +99,9 @@ function prepare_repos {
       rm -rf "$dname"
     fi
   done
+  
+  path_modified=false
+  patch_applied=false
 
   ## Clone ungoogled-chromium repo
   git clone https://github.com/Eloston/ungoogled-chromium.git -b ${chromium_version}-${ungoogled_chromium_revision} || return $?
@@ -113,13 +120,14 @@ function prepare_repos {
   popd
   OLD_PATH=$PATH
   export PATH="$(pwd -P)/depot_tools:$PATH"
+  path_modified=true
   pushd src/third_party
   ln -s ../../depot_tools
   popd
 
   ## Sync files
   # third_party/android_deps and some other overrides doesn't work
-  gclient.py sync --nohooks --no-history --shallow --revision=${chromium_version} || { s=$? && export PATH=$OLD_PATH && return $s; }
+  gclient.py sync --nohooks --no-history --shallow --revision=${chromium_version} || return $?
 
   ## Fix repos
   webrtc_commit=$(grep 'webrtc_git.*/src\.git' src/DEPS | cut -d\' -f8)
@@ -177,11 +185,26 @@ function prepare_repos {
   python src/tools/download_optimization_profile.py --newest_state=src/chrome/android/profiles/newest.txt --local_state=src/chrome/android/profiles/local.txt --output_name=src/chrome/android/profiles/afdo.prof --gs_url_base=chromeos-prebuilt/afdo-job/llvm || return $?
   python src/build/util/lastchange.py -m GPU_LISTS_VERSION --revision-id-only --header src/gpu/config/gpu_lists_version.h
   python src/build/util/lastchange.py -m SKIA_COMMIT_HASH -s src/third_party/skia --header src/skia/ext/skia_commit_hash.h
+  # Needed for an ad-block list ised in webview
+  patch -p1 --ignore-whitespace -i patches/Other/gs-download-use-normal-python.patch --no-backup-if-mismatch
+  patch_applied=true
+  python src/third_party/depot_tools/download_from_google_storage.py --no_resume --no_auth --bucket chromium-ads-detection -s src/third_party/subresource-filter-ruleset/data/UnindexedRules.sha1 || return $?
 }
 
 
+function reverse_change {
+  if [ "$path_modified" = true ] ; then
+    export PATH=$OLD_PATH
+    path_modified=false
+  fi
+  if [ "$patch_applied" = true ] ; then
+    patch -p1 --ignore-whitespace -R -i patches/Other/gs-download-use-normal-python.patch --no-backup-if-mismatch
+    patch_applied=false
+  fi
+}
+
 # Run preparation
-for i in $(seq 1 10); do prepare_repos && s=0 && break || s=$? && sleep 120; done; (exit $s)
+for i in $(seq 1 10); do prepare_repos && s=0 && break || s=$? && reverse_change && sleep 120; done; (exit $s)
 
 ## Run ungoogled-chromium scripts
 # Patch prune list and domain substitution
@@ -202,6 +225,12 @@ python3 ungoogled-chromium/utils/domain_substitution.py apply -r ungoogled-chrom
 # Workaround for a building failure caused by safe browsing. The file is pre-generated with safe_browsing_mode=2. See https://github.com/nikolowry/bromite-builder/issues/1
 cp safe_browsing_proto_files/download_file_types.pb.h src/chrome/common/safe_browsing/download_file_types.pb.h
 cp safe_browsing_proto_files/webprotect.pb.h src/components/safe_browsing/core/proto/webprotect.pb.h
+# Copy overlay jars built from
+# //third_party/android_deps/local_modifications/androidx_fragment_fragment:androidx_fragment_fragment_partial_java
+# and
+# //third_party/android_deps/local_modifications/androidx_preference_preference:androidx_preference_preference_partial_java
+cp prebuilt_jar/androidx_fragment_fragment/androidx_fragment_fragment_java.jar src/third_party/android_deps/local_modifications/androidx_fragment_fragment
+cp prebuilt_jar/androidx_preference_preference/androidx_preference_preference_java.jar src/third_party/android_deps/local_modifications/androidx_preference_preference
 
 
 ## Prepare Android SDK/NDK
@@ -309,13 +338,6 @@ export CCACHE_SLOPPINESS=time_macros
 apk_out_folder="apk_out"
 mkdir "${apk_out_folder}"
 pushd src
-# Copy overlay jars built from
-# //third_party/android_deps/local_modifications/androidx_fragment_fragment:androidx_fragment_fragment_partial_java
-# and
-# //third_party/android_deps/local_modifications/androidx_preference_preference:androidx_preference_preference_partial_java
-cp ../prebuilt_jar/androidx_fragment_fragment/androidx_fragment_fragment_java.jar third_party/android_deps/local_modifications/androidx_fragment_fragment
-cp ../prebuilt_jar/androidx_preference_preference/androidx_preference_preference_java.jar third_party/android_deps/local_modifications/androidx_preference_preference
-
 if [[ "$TARGET" != "all" ]]; then
   ninja -C "${output_folder}" "$TARGET"
   if [[ "$TARGET" == "$trichrome_chrome_bundle_target" ]] || [[ "$TARGET" == "$chrome_modern_target" ]]; then

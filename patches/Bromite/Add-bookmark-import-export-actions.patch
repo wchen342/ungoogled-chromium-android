@@ -233,7 +233,7 @@ Completely remove contacts picker permission from the file dialog
       * Synchronously gets a list of bookmarks that match the specified search query.
       * @param query Keyword used for searching bookmarks.
       * @param maxNumberOfResult Maximum number of result to fetch.
-@@ -1006,6 +1049,24 @@ public class BookmarkBridge {
+@@ -1007,6 +1050,24 @@ public class BookmarkBridge {
          depthList.add(depth);
      }
  
@@ -258,7 +258,7 @@ Completely remove contacts picker permission from the file dialog
      private static List<Pair<Integer, Integer>> createPairsList(int[] left, int[] right) {
          List<Pair<Integer, Integer>> pairList = new ArrayList<Pair<Integer, Integer>>();
          for (int i = 0; i < left.length; i++) {
-@@ -1073,6 +1134,8 @@ public class BookmarkBridge {
+@@ -1074,6 +1135,8 @@ public class BookmarkBridge {
          int getChildCount(long nativeBookmarkBridge, BookmarkBridge caller, long id, int type);
          void getChildIDs(long nativeBookmarkBridge, BookmarkBridge caller, long id, int type,
                  List<BookmarkId> bookmarksList);
