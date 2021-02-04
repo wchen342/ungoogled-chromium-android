@@ -1,13 +1,9 @@
 name: Ungoogled-chromium-android-webview-build-dispatch
 on:
-  workflow_run:
-    workflows: [ "Ungoogled-chromium-android-build-dispatch" ]
-    branches: [ master ]
-    types:
-      - completed
   push:
-    tags:
-      - '[0-9]+.[0-9]+.[0-9]+.[0-9]+-[0-9]+'
+    branches-ignore:
+      - master
+      - extensions
 
 jobs:
   build:

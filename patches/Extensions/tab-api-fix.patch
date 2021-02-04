@@ -4,12 +4,12 @@ Subject: rewrite tab API with Android tab model
 
 ---
  chrome/android/java/src/org/chromium/chrome/browser/tabmodel/TabModelObserverJniBridge.java |    8 
- chrome/browser/extensions/api/tabs/tabs_api.cc                                              |  284 +++++-----
+ chrome/browser/extensions/api/tabs/tabs_api.cc                                              |  343 ++++------
  chrome/browser/extensions/api/tabs/tabs_api.h                                               |    1 
- chrome/browser/extensions/api/tabs/tabs_event_router.cc                                     |  140 ++++
- chrome/browser/extensions/api/tabs/tabs_event_router.h                                      |   32 +
+ chrome/browser/extensions/api/tabs/tabs_event_router.cc                                     |  140 +++-
+ chrome/browser/extensions/api/tabs/tabs_event_router.h                                      |   32 
  chrome/browser/extensions/api/web_navigation/web_navigation_api.cc                          |    5 
- chrome/browser/extensions/extension_tab_util.cc                                             |  193 +++---
+ chrome/browser/extensions/extension_tab_util.cc                                             |  200 +++--
  chrome/browser/extensions/extension_tab_util.h                                              |   11 
  chrome/browser/ui/android/tab_model/tab_model.cc                                            |    8 
  chrome/browser/ui/android/tab_model/tab_model.h                                             |    1 
@@ -19,13 +19,13 @@ Subject: rewrite tab API with Android tab model
  chrome/browser/ui/android/tab_model/tab_model_observer.h                                    |    3 
  chrome/browser/ui/android/tab_model/tab_model_observer_jni_bridge.cc                        |    7 
  chrome/browser/ui/android/tab_model/tab_model_observer_jni_bridge.h                         |    4 
- chrome/browser/ui/browser_navigator.cc                                                      |  109 +--
+ chrome/browser/ui/browser_navigator.cc                                                      |  108 +--
  content/public/browser/web_contents_user_data.h                                             |    2 
- 18 files changed, 511 insertions(+), 310 deletions(-)
+ 18 files changed, 531 insertions(+), 355 deletions(-)
 
 --- a/chrome/browser/extensions/extension_tab_util.cc
 +++ b/chrome/browser/extensions/extension_tab_util.cc
-@@ -14,6 +14,9 @@
+@@ -15,6 +15,9 @@
  #include "base/strings/string_number_conversions.h"
  #include "base/strings/stringprintf.h"
  #include "base/strings/utf_string_conversions.h"
@@ -33,9 +33,9 @@ Subject: rewrite tab API with Android tab model
 +#include "chrome/browser/ui/android/tab_model/tab_model.h"
 +#include "chrome/browser/ui/android/tab_model/tab_model_list.h"
  #include "chrome/browser/browser_process.h"
+ #include "chrome/browser/extensions/api/tab_groups/tab_groups_util.h"
  #include "chrome/browser/extensions/api/tabs/tabs_api.h"
- #include "chrome/browser/extensions/api/tabs/tabs_constants.h"
-@@ -22,6 +25,7 @@
+@@ -24,6 +27,7 @@
  #include "chrome/browser/extensions/tab_helper.h"
  #include "chrome/browser/platform_util.h"
  #include "chrome/browser/profiles/profile.h"
@@ -43,7 +43,7 @@ Subject: rewrite tab API with Android tab model
  #include "chrome/browser/resource_coordinator/tab_lifecycle_unit_external.h"
  #include "chrome/browser/ui/browser.h"
  #include "chrome/browser/ui/browser_finder.h"
-@@ -105,9 +109,9 @@ Browser* CreateBrowser(Profile* profile,
+@@ -108,9 +112,9 @@ Browser* CreateBrowser(Profile* profile,
  // take care of setting the id to TAB_ID_NONE if necessary (for
  // example with devtools).
  int GetTabIdForExtensions(const WebContents* web_contents) {
@@ -56,7 +56,7 @@ Subject: rewrite tab API with Android tab model
    return sessions::SessionTabHelper::IdForTab(web_contents).id();
  }
  
-@@ -193,24 +197,24 @@ base::DictionaryValue* ExtensionTabUtil:
+@@ -196,24 +200,24 @@ base::DictionaryValue* ExtensionTabUtil:
      window_id = *params.window_id;
  
    Browser* browser = GetBrowserFromWindowID(chrome_details, window_id, error);
@@ -97,7 +97,7 @@ Subject: rewrite tab API with Android tab model
  
    // TODO(jstritar): Add a constant, chrome.tabs.TAB_ID_ACTIVE, that
    // represents the active tab.
-@@ -261,20 +265,20 @@ base::DictionaryValue* ExtensionTabUtil:
+@@ -264,20 +268,20 @@ base::DictionaryValue* ExtensionTabUtil:
    if (url.SchemeIs(kExtensionScheme) &&
        (!function->extension() ||
         !IncognitoInfo::IsSplitMode(function->extension())) &&
@@ -131,7 +131,7 @@ Subject: rewrite tab API with Android tab model
    }
  
    if (opener_browser && browser != opener_browser) {
-@@ -289,8 +293,9 @@ base::DictionaryValue* ExtensionTabUtil:
+@@ -292,8 +296,9 @@ base::DictionaryValue* ExtensionTabUtil:
    int index = -1;
    if (params.index.get())
      index = *params.index;
@@ -142,7 +142,7 @@ Subject: rewrite tab API with Android tab model
    int add_types = active ? TabStripModel::ADD_ACTIVE : TabStripModel::ADD_NONE;
    add_types |= TabStripModel::ADD_FORCE_INDEX;
    if (pinned)
-@@ -313,15 +318,15 @@ base::DictionaryValue* ExtensionTabUtil:
+@@ -317,15 +322,15 @@ base::DictionaryValue* ExtensionTabUtil:
  
    // The tab may have been created in a different window, so make sure we look
    // at the right tab strip.
@@ -167,7 +167,7 @@ Subject: rewrite tab API with Android tab model
  
    if (active)
      navigate_params.navigated_or_inserted_contents->SetInitialFocus();
-@@ -332,9 +337,12 @@ base::DictionaryValue* ExtensionTabUtil:
+@@ -336,9 +341,12 @@ base::DictionaryValue* ExtensionTabUtil:
            navigate_params.navigated_or_inserted_contents);
  
    // Return data about the newly created tab.
@@ -181,7 +181,7 @@ Subject: rewrite tab API with Android tab model
        ->ToValue()
        .release();
  }
-@@ -398,19 +406,19 @@ std::unique_ptr<api::tabs::Tab> Extensio
+@@ -402,27 +410,21 @@ std::unique_ptr<api::tabs::Tab> Extensio
      WebContents* contents,
      ScrubTabBehavior scrub_tab_behavior,
      const Extension* extension,
@@ -202,12 +202,20 @@ Subject: rewrite tab API with Android tab model
 -  tab_object->pinned = tab_strip && tab_strip->IsTabPinned(tab_index);
 +  tab_object->active = tab_strip && tab_index == tab_strip->GetActiveIndex();
 +  tab_object->selected = tab_strip && tab_index == tab_strip->GetActiveIndex();
-+  tab_object->highlighted = tab_strip && tab_index == tab_strip->GetActiveIndex();
-+  tab_object->pinned = false; // No pinning on Android
++  tab_object->highlighted = tab_strip && tab_strip->GetActiveIndex();
++  tab_object->pinned = false;
+ 
+   tab_object->group_id = -1;
+-  if (tab_strip) {
+-    base::Optional<tab_groups::TabGroupId> group =
+-        tab_strip->GetTabGroupForTab(tab_index);
+-    if (group.has_value())
+-      tab_object->group_id = tab_groups_util::GetGroupId(group.value());
+-  }
+ 
    auto* audible_helper = RecentlyAudibleHelper::FromWebContents(contents);
    bool audible = false;
-   if (audible_helper) {
-@@ -439,7 +447,7 @@ std::unique_ptr<api::tabs::Tab> Extensio
+@@ -452,7 +454,7 @@ std::unique_ptr<api::tabs::Tab> Extensio
  
    tab_object->muted_info = CreateMutedInfo(contents);
    tab_object->incognito = contents->GetBrowserContext()->IsOffTheRecord();
@@ -216,7 +224,7 @@ Subject: rewrite tab API with Android tab model
    tab_object->width = std::make_unique<int>(contents_size.width());
    tab_object->height = std::make_unique<int>(contents_size.height());
  
-@@ -459,13 +467,14 @@ std::unique_ptr<api::tabs::Tab> Extensio
+@@ -472,13 +474,14 @@ std::unique_ptr<api::tabs::Tab> Extensio
      tab_object->fav_icon_url =
          std::make_unique<std::string>(visible_entry->GetFavicon().url.spec());
    }
@@ -238,7 +246,7 @@ Subject: rewrite tab API with Android tab model
  
    ScrubTabForExtension(extension, contents, tab_object.get(),
                         scrub_tab_behavior);
-@@ -477,8 +486,8 @@ std::unique_ptr<base::ListValue> Extensi
+@@ -490,8 +493,8 @@ std::unique_ptr<base::ListValue> Extensi
      const Extension* extension,
      Feature::Context context) {
    std::unique_ptr<base::ListValue> tab_list(new base::ListValue());
@@ -249,7 +257,7 @@ Subject: rewrite tab API with Android tab model
      WebContents* web_contents = tab_strip->GetWebContentsAt(i);
      ExtensionTabUtil::ScrubTabBehavior scrub_tab_behavior =
          ExtensionTabUtil::GetScrubTabBehavior(extension, context, web_contents);
-@@ -637,20 +646,29 @@ void ExtensionTabUtil::ScrubTabForExtens
+@@ -650,20 +653,29 @@ void ExtensionTabUtil::ScrubTabForExtens
  }
  
  // static
@@ -272,7 +280,7 @@ Subject: rewrite tab API with Android tab model
 -      return true;
 +  for (size_t i = 0; i < TabModelList::size(); ++i) {
 +    TabModel* tab_model_it = TabModelList::get(i);
-+    if (tab_model_it->IsCurrentModel()) {
++    if (tab_model_it->IsActiveModel()) {
 +      int index = -1;
 +      for (int i = 0; i < tab_model_it->GetTabCount(); i++) {
 +        if (web_contents == tab_model_it->GetWebContentsAt(i)) {
@@ -289,8 +297,11 @@ Subject: rewrite tab API with Android tab model
      }
    }
  
-@@ -663,7 +681,7 @@ bool ExtensionTabUtil::GetDefaultTab(Bro
-   DCHECK(browser);
+@@ -673,10 +685,9 @@ bool ExtensionTabUtil::GetTabStripModel(
+ bool ExtensionTabUtil::GetDefaultTab(Browser* browser,
+                                      WebContents** contents,
+                                      int* tab_id) {
+-  DCHECK(browser);
    DCHECK(contents);
  
 -  *contents = browser->tab_strip_model()->GetActiveWebContents();
@@ -298,7 +309,7 @@ Subject: rewrite tab API with Android tab model
    if (*contents) {
      if (tab_id)
        *tab_id = GetTabId(*contents);
-@@ -678,7 +696,7 @@ bool ExtensionTabUtil::GetTabById(int ta
+@@ -691,7 +702,7 @@ bool ExtensionTabUtil::GetTabById(int ta
                                    content::BrowserContext* browser_context,
                                    bool include_incognito,
                                    Browser** browser,
@@ -307,7 +318,7 @@ Subject: rewrite tab API with Android tab model
                                    WebContents** contents,
                                    int* tab_index) {
    if (tab_id == api::tabs::TAB_ID_NONE)
-@@ -688,22 +706,22 @@ bool ExtensionTabUtil::GetTabById(int ta
+@@ -701,22 +712,22 @@ bool ExtensionTabUtil::GetTabById(int ta
        include_incognito && profile->HasPrimaryOTRProfile()
            ? profile->GetPrimaryOTRProfile()
            : nullptr;
@@ -319,7 +330,7 @@ Subject: rewrite tab API with Android tab model
 -        WebContents* target_contents = target_tab_strip->GetWebContentsAt(i);
 +  // TODO: Profile is not checked
 +  for (int i = 0; i < TabModelList::size(); ++i) {
-+    if (TabModelList::get(i)->IsCurrentModel()) {
++    if (TabModelList::get(i)->IsActiveModel()) {
 +      TabModel* tab_model = TabModelList::get(i);
 +      for (int j = 0; j < tab_model->GetTabCount(); ++j) {
 +        WebContents* target_contents = tab_model->GetWebContentsAt(j);
@@ -340,7 +351,7 @@ Subject: rewrite tab API with Android tab model
            return true;
          }
        }
-@@ -733,14 +751,12 @@ ExtensionTabUtil::GetAllActiveWebContent
+@@ -746,14 +757,12 @@ ExtensionTabUtil::GetAllActiveWebContent
        include_incognito && profile->HasPrimaryOTRProfile()
            ? profile->GetPrimaryOTRProfile()
            : nullptr;
@@ -358,7 +369,7 @@ Subject: rewrite tab API with Android tab model
  
    return active_contents;
  }
-@@ -924,8 +940,9 @@ api::tabs::TabStatus ExtensionTabUtil::G
+@@ -943,8 +952,9 @@ api::tabs::TabStatus ExtensionTabUtil::G
      return api::tabs::TAB_STATUS_LOADING;
  
    // Anything that isn't backed by a process is considered unloaded.
@@ -420,7 +431,7 @@ Subject: rewrite tab API with Android tab model
 +TabModel* TabModelList::GetCurrentTabModel() {
 +  for (size_t i = 0; i < TabModelList::size(); ++i) {
 +    TabModel* tab_model = TabModelList::get(i);
-+    if (tab_model->IsCurrentModel())
++    if (tab_model->IsActiveModel())
 +      return tab_model;
 +  }
 +
@@ -442,7 +453,7 @@ Subject: rewrite tab API with Android tab model
    static const_iterator begin();
 --- a/chrome/browser/extensions/api/tabs/tabs_api.cc
 +++ b/chrome/browser/extensions/api/tabs/tabs_api.cc
-@@ -40,10 +40,13 @@
+@@ -43,10 +43,13 @@
  #include "chrome/browser/platform_util.h"
  #include "chrome/browser/prefs/incognito_mode_prefs.h"
  #include "chrome/browser/profiles/profile.h"
@@ -456,7 +467,7 @@ Subject: rewrite tab API with Android tab model
  #include "chrome/browser/ui/browser.h"
  #include "chrome/browser/ui/browser_commands.h"
  #include "chrome/browser/ui/browser_finder.h"
-@@ -165,7 +168,7 @@ bool GetTabById(int tab_id,
+@@ -174,7 +177,7 @@ bool GetTabById(int tab_id,
                  content::BrowserContext* context,
                  bool include_incognito,
                  Browser** browser,
@@ -465,7 +476,28 @@ Subject: rewrite tab API with Android tab model
                  content::WebContents** contents,
                  int* tab_index,
                  std::string* error_message) {
-@@ -273,7 +276,7 @@ std::unique_ptr<api::tabs::Tab> CreateTa
+@@ -206,11 +209,7 @@ content::WebContents* GetTabsAPIDefaultW
+                nullptr /* ignore TabStripModel* output */, &web_contents,
+                nullptr /* ignore int tab_index output */, error);
+   } else {
+-    Browser* browser =
+-        ChromeExtensionFunctionDetails(function).GetCurrentBrowser();
+-    if (!browser)
+-      *error = tabs_constants::kNoCurrentWindowError;
+-    else if (!ExtensionTabUtil::GetDefaultTab(browser, &web_contents, nullptr))
++    if (!ExtensionTabUtil::GetDefaultTab(nullptr, &web_contents, nullptr))
+       *error = tabs_constants::kNoSelectedTabError;
+   }
+   return web_contents;
+@@ -250,6 +249,7 @@ ui::WindowShowState ConvertToWindowShowS
+ 
+ bool IsValidStateForWindowsCreateFunction(
+     const windows::Create::Params::CreateData* create_data) {
++  return false;
+   if (!create_data)
+     return true;
+ 
+@@ -282,7 +282,7 @@ std::unique_ptr<api::tabs::Tab> CreateTa
      WebContents* contents,
      const Extension* extension,
      Feature::Context context,
@@ -474,7 +506,73 @@ Subject: rewrite tab API with Android tab model
      int tab_index) {
    ExtensionTabUtil::ScrubTabBehavior scrub_tab_behavior =
        ExtensionTabUtil::GetScrubTabBehavior(extension, context, contents);
-@@ -463,7 +466,7 @@ ExtensionFunction::ResponseAction Window
+@@ -300,7 +300,7 @@ int MoveTabToWindow(ExtensionFunction* f
+                     int new_index,
+                     std::string* error) {
+   Browser* source_browser = nullptr;
+-  TabStripModel* source_tab_strip = nullptr;
++  TabModel* source_tab_strip = nullptr;
+   int source_index = -1;
+   if (!GetTabById(tab_id, function->browser_context(),
+                   function->include_incognito_information(), &source_browser,
+@@ -308,42 +308,41 @@ int MoveTabToWindow(ExtensionFunction* f
+     return -1;
+   }
+ 
+-  if (!target_browser->window()->IsTabStripEditable()) {
++  if (false) {
+     *error = tabs_constants::kTabStripNotEditableError;
+     return -1;
+   }
+ 
+   // TODO(crbug.com/990158): Rather than calling is_type_normal(), should
+   // this call SupportsWindowFeature(Browser::FEATURE_TABSTRIP)?
+-  if (!target_browser->is_type_normal()) {
++  if (false) {
+     *error = tabs_constants::kCanOnlyMoveTabsWithinNormalWindowsError;
+     return -1;
+   }
+ 
+-  if (target_browser->profile() != source_browser->profile()) {
++  if (false) {
+     *error = tabs_constants::kCanOnlyMoveTabsWithinSameProfileError;
+     return -1;
+   }
+ 
+-  std::unique_ptr<content::WebContents> web_contents =
+-      source_tab_strip->DetachWebContentsAt(source_index);
+-  if (!web_contents) {
+-    *error = ErrorUtils::FormatErrorMessage(tabs_constants::kTabNotFoundError,
+-                                            base::NumberToString(tab_id));
+-    return -1;
+-  }
++//   std::unique_ptr<content::WebContents> web_contents =
++//       source_tab_strip->DetachWebContentsAt(source_index);
++//   if (!web_contents) {
++//     *error = ErrorUtils::FormatErrorMessage(tabs_constants::kTabNotFoundError,
++//                                             base::NumberToString(tab_id));
++//     return -1;
++//   }
+ 
+-  TabStripModel* target_tab_strip = target_browser->tab_strip_model();
++  TabModel* target_tab_strip = TabModelList::GetCurrentTabModel();
+ 
+   // Clamp move location to the last position.
+   // This is ">" because it can append to a new index position.
+   // -1 means set the move location to the last position.
+   int target_index = new_index;
+-  if (target_index > target_tab_strip->count() || target_index < 0)
+-    target_index = target_tab_strip->count();
++  if (target_index > target_tab_strip->GetTabCount() || target_index < 0)
++    target_index = target_tab_strip->GetTabCount();
+ 
+-  return target_tab_strip->InsertWebContentsAt(
+-      target_index, std::move(web_contents), TabStripModel::ADD_NONE);
++  return target_index+1;
+ }
+ 
+ }  // namespace
+@@ -532,7 +531,7 @@ ExtensionFunction::ResponseAction Window
        windows::Create::Params::Create(*args_));
    EXTENSION_FUNCTION_VALIDATE(params);
    std::vector<GURL> urls;
@@ -483,7 +581,20 @@ Subject: rewrite tab API with Android tab model
    int tab_index = -1;
  
    windows::Create::Params::CreateData* create_data = params->create_data.get();
-@@ -624,16 +627,16 @@ ExtensionFunction::ResponseAction Window
+@@ -581,10 +580,10 @@ ExtensionFunction::ResponseAction Window
+       return RespondNow(Error(std::move(error)));
+     }
+ 
+-    if (!source_browser->window()->IsTabStripEditable())
++    if (false)
+       return RespondNow(Error(tabs_constants::kTabStripNotEditableError));
+ 
+-    if (source_browser->profile() != window_profile)
++    if (false)
+       return RespondNow(
+           Error(tabs_constants::kCanOnlyMoveTabsWithinSameProfileError));
+   }
+@@ -693,16 +692,16 @@ ExtensionFunction::ResponseAction Window
    WebContents* contents = NULL;
    // Move the tab into the created window only if it's an empty popup or it's
    // a tabbed window.
@@ -510,7 +621,7 @@ Subject: rewrite tab API with Android tab model
    // Create a new tab if the created window is still empty. Don't create a new
    // tab when it is intended to create an empty popup.
    if (!contents && urls.empty() && window_type == Browser::TYPE_NORMAL) {
-@@ -854,13 +857,13 @@ ExtensionFunction::ResponseAction TabsGe
+@@ -925,13 +924,13 @@ ExtensionFunction::ResponseAction TabsGe
    if (!GetBrowserFromWindowID(this, window_id, &browser, &error))
      return RespondNow(Error(std::move(error)));
  
@@ -526,7 +637,7 @@ Subject: rewrite tab API with Android tab model
  }
  
  ExtensionFunction::ResponseAction TabsGetAllInWindowFunction::Run() {
-@@ -923,51 +926,52 @@ ExtensionFunction::ResponseAction TabsQu
+@@ -999,51 +998,52 @@ ExtensionFunction::ResponseAction TabsQu
  
    std::unique_ptr<base::ListValue> result(new base::ListValue());
    Profile* profile = Profile::FromBrowserContext(browser_context());
@@ -536,9 +647,6 @@ Subject: rewrite tab API with Android tab model
 -      ChromeExtensionFunctionDetails(this).GetCurrentBrowser();
 -  for (auto* browser : *BrowserList::GetInstance()) {
 -    if (!profile->IsSameOrParent(browser->profile()))
--      continue;
--
--    if (!browser->window())
 +//   Browser* last_active_browser =
 +//       chrome::FindAnyBrowser(profile, include_incognito_information());
 +//   Browser* current_browser =
@@ -548,22 +656,17 @@ Subject: rewrite tab API with Android tab model
 +    if (!profile->IsSameOrParent(ProfileManager::GetActiveUserProfile()))
        continue;
  
--    if (!include_incognito_information() && profile != browser->profile())
+-    if (!browser->window())
 -      continue;
--
--    if (!browser->extension_window_controller()->IsVisibleToTabsAPIForExtension(
--            extension(), false /*allow_dev_tools_windows*/)) {
--      continue;
--    }
 +//     if (!browser->window())
 +//       continue;
  
--    if (window_id >= 0 && window_id != ExtensionTabUtil::GetWindowId(browser))
+-    if (!include_incognito_information() && profile != browser->profile())
 +    if (!include_incognito_information() && profile != ProfileManager::GetActiveUserProfile())
        continue;
  
--    if (window_id == extension_misc::kCurrentWindowId &&
--        browser != current_browser) {
+-    if (!browser->extension_window_controller()->IsVisibleToTabsAPIForExtension(
+-            extension(), false /*allow_dev_tools_windows*/)) {
 -      continue;
 -    }
 +//     if (!browser->extension_window_controller()->IsVisibleToTabsAPIForExtension(
@@ -595,6 +698,14 @@ Subject: rewrite tab API with Android tab model
 +//       continue;
 +//     }
  
+-    if (window_id >= 0 && window_id != ExtensionTabUtil::GetWindowId(browser))
+-      continue;
+-
+-    if (window_id == extension_misc::kCurrentWindowId &&
+-        browser != current_browser) {
+-      continue;
+-    }
+-
 -    if (!MatchesBool(params->query_info.current_window.get(),
 -                     browser == current_browser)) {
 -      continue;
@@ -618,9 +729,9 @@ Subject: rewrite tab API with Android tab model
        WebContents* web_contents = tab_strip->GetWebContentsAt(i);
  
        if (index > -1 && i != index)
-@@ -977,20 +981,20 @@ ExtensionFunction::ResponseAction TabsQu
+@@ -1052,34 +1052,34 @@ ExtensionFunction::ResponseAction TabsQu
+       if (!web_contents)
          continue;
-       }
  
 -      if (!MatchesBool(params->query_info.highlighted.get(),
 -                       tab_strip->IsTabSelected(i))) {
@@ -641,14 +752,42 @@ Subject: rewrite tab API with Android tab model
 -                       tab_strip->IsTabPinned(i))) {
 -        continue;
 -      }
+-
+-      if (group_id.has_value()) {
+-        base::Optional<tab_groups::TabGroupId> group =
+-            tab_strip->GetTabGroupForTab(index);
+-        if (group_id.value() == -1) {
+-          if (group.has_value())
+-            continue;
+-        } else if (!group.has_value()) {
+-          continue;
+-        } else if (tab_groups_util::GetGroupId(group.value()) !=
+-                   group_id.value()) {
+-          continue;
+-        }
+-      }
 +//       if (!MatchesBool(params->query_info.pinned.get(),
 +//                        tab_strip->IsTabPinned(i))) {
 +//         continue;
 +//       }
++
++//       if (group_id.has_value()) {
++//         base::Optional<tab_groups::TabGroupId> group =
++//             tab_strip->GetTabGroupForTab(index);
++//         if (group_id.value() == -1) {
++//           if (group.has_value())
++//             continue;
++//         } else if (!group.has_value()) {
++//           continue;
++//         } else if (tab_groups_util::GetGroupId(group.value()) !=
++//                    group_id.value()) {
++//           continue;
++//         }
++//       }
  
        auto* audible_helper =
            RecentlyAudibleHelper::FromWebContents(web_contents);
-@@ -999,19 +1003,19 @@ ExtensionFunction::ResponseAction TabsQu
+@@ -1088,19 +1088,19 @@ ExtensionFunction::ResponseAction TabsQu
          continue;
        }
  
@@ -681,7 +820,7 @@ Subject: rewrite tab API with Android tab model
  
        if (!MatchesBool(params->query_info.muted.get(),
                         web_contents->IsAudioMuted())) {
-@@ -1092,7 +1096,7 @@ ExtensionFunction::ResponseAction TabsDu
+@@ -1184,7 +1184,7 @@ ExtensionFunction::ResponseAction TabsDu
    int tab_id = params->tab_id;
  
    Browser* browser = NULL;
@@ -690,7 +829,7 @@ Subject: rewrite tab API with Android tab model
    int tab_index = -1;
    std::string error;
    if (!GetTabById(tab_id, browser_context(), include_incognito_information(),
-@@ -1106,9 +1110,9 @@ ExtensionFunction::ResponseAction TabsDu
+@@ -1198,9 +1198,9 @@ ExtensionFunction::ResponseAction TabsDu
  
    // Duplicated tab may not be in the same window as the original, so find
    // the window and the tab.
@@ -702,7 +841,7 @@ Subject: rewrite tab API with Android tab model
                                       &new_tab_strip,
                                       &new_tab_index);
    if (!new_tab_strip || new_tab_index == -1) {
-@@ -1125,7 +1129,7 @@ ExtensionFunction::ResponseAction TabsGe
+@@ -1217,7 +1217,7 @@ ExtensionFunction::ResponseAction TabsGe
    EXTENSION_FUNCTION_VALIDATE(params.get());
    int tab_id = params->tab_id;
  
@@ -711,7 +850,7 @@ Subject: rewrite tab API with Android tab model
    WebContents* contents = NULL;
    int tab_index = -1;
    std::string error;
-@@ -1242,7 +1246,7 @@ ExtensionFunction::ResponseAction TabsUp
+@@ -1335,7 +1335,7 @@ ExtensionFunction::ResponseAction TabsUp
    }
  
    int tab_index = -1;
@@ -720,7 +859,7 @@ Subject: rewrite tab API with Android tab model
    Browser* browser = nullptr;
    std::string error;
    if (!GetTabById(tab_id, browser_context(), include_incognito_information(),
-@@ -1282,25 +1286,25 @@ ExtensionFunction::ResponseAction TabsUp
+@@ -1375,25 +1375,25 @@ ExtensionFunction::ResponseAction TabsUp
      active = *params->update_properties.active;
  
    if (active) {
@@ -761,7 +900,7 @@ Subject: rewrite tab API with Android tab model
  
    if (params->update_properties.muted.get() &&
        !chrome::SetTabAudioMuted(contents, *params->update_properties.muted,
-@@ -1322,20 +1326,20 @@ ExtensionFunction::ResponseAction TabsUp
+@@ -1415,20 +1415,20 @@ ExtensionFunction::ResponseAction TabsUp
            tabs_constants::kTabNotFoundError, base::NumberToString(opener_id))));
      }
  
@@ -794,77 +933,42 @@ Subject: rewrite tab API with Android tab model
  
    return RespondNow(GetResult());
  }
-@@ -1455,7 +1459,7 @@ bool TabsMoveFunction::MoveTab(int tab_i
+@@ -1550,7 +1550,7 @@ bool TabsMoveFunction::MoveTab(int tab_i
                                 int* window_id,
                                 std::string* error) {
-   Browser* source_browser = NULL;
--  TabStripModel* source_tab_strip = NULL;
-+  TabModel* source_tab_strip = NULL;
-   WebContents* contents = NULL;
+   Browser* source_browser = nullptr;
+-  TabStripModel* source_tab_strip = nullptr;
++  TabModel* source_tab_strip = nullptr;
+   WebContents* contents = nullptr;
    int tab_index = -1;
    if (!GetTabById(tab_id, browser_context(), include_incognito_information(),
-@@ -1464,6 +1468,8 @@ bool TabsMoveFunction::MoveTab(int tab_i
+@@ -1560,12 +1560,12 @@ bool TabsMoveFunction::MoveTab(int tab_i
+   }
+ 
+   // Don't let the extension move the tab if the user is dragging tabs.
+-  if (!source_browser->window()->IsTabStripEditable()) {
++  if (false) {
+     *error = tabs_constants::kTabStripNotEditableError;
      return false;
    }
  
-+  return false;  // Cannot move tabs on Android
-+
-   // Don't let the extension move the tab if the user is dragging tabs.
-   if (!source_browser->window()->IsTabStripEditable()) {
-     *error = tabs_constants::kTabStripNotEditableError;
-@@ -1496,32 +1502,32 @@ bool TabsMoveFunction::MoveTab(int tab_i
-     // If windowId is different from the current window, move between windows.
-     if (ExtensionTabUtil::GetWindowId(target_browser) !=
-         ExtensionTabUtil::GetWindowId(source_browser)) {
--      TabStripModel* target_tab_strip = target_browser->tab_strip_model();
--      std::unique_ptr<content::WebContents> web_contents =
--          source_tab_strip->DetachWebContentsAt(tab_index);
--      if (!web_contents) {
--        *error = ErrorUtils::FormatErrorMessage(
--            tabs_constants::kTabNotFoundError, base::NumberToString(tab_id));
--        return false;
--      }
-+      TabModel* target_tab_strip = TabModelList::GetCurrentTabModel();
-+//       std::unique_ptr<content::WebContents> web_contents =
-+//           source_tab_strip->DetachWebContentsAt(tab_index);
-+//       if (!web_contents) {
-+//         *error = ErrorUtils::FormatErrorMessage(
-+//             tabs_constants::kTabNotFoundError, base::NumberToString(tab_id));
-+//         return false;
-+//       }
+-  if (window_id && *window_id != ExtensionTabUtil::GetWindowIdOfTab(contents)) {
++  if (false && *window_id != ExtensionTabUtil::GetWindowIdOfTab(contents)) {
+     Browser* target_browser = nullptr;
+     if (!GetBrowserFromWindowID(this, *window_id, &target_browser, error))
+       return false;
+@@ -1580,10 +1580,6 @@ bool TabsMoveFunction::MoveTab(int tab_i
+     if (has_callback()) {
+       content::WebContents* web_contents =
+           target_browser->tab_strip_model()->GetWebContentsAt(inserted_index);
+-      tab_values->Append(CreateTabObjectHelper(
+-                             web_contents, extension(), source_context_type(),
+-                             target_browser->tab_strip_model(), inserted_index)
+-                             ->ToValue());
+     }
  
-       // Clamp move location to the last position.
-       // This is ">" because it can append to a new index position.
-       // -1 means set the move location to the last position.
--      if (*new_index > target_tab_strip->count() || *new_index < 0)
--        *new_index = target_tab_strip->count();
-+      if (*new_index > target_tab_strip->GetTabCount() || *new_index < 0)
-+        *new_index = target_tab_strip->GetTabCount();
- 
--      content::WebContents* web_contents_raw = web_contents.get();
-+//       content::WebContents* web_contents_raw = web_contents.get();
- 
--      *new_index = target_tab_strip->InsertWebContentsAt(
--          *new_index, std::move(web_contents), TabStripModel::ADD_NONE);
-+//       *new_index = target_tab_strip->InsertWebContentsAt(
-+//           *new_index, std::move(web_contents), TabStripModel::ADD_NONE);
- 
--      if (has_callback()) {
--        tab_values->Append(CreateTabObjectHelper(web_contents_raw, extension(),
--                                                 source_context_type(),
--                                                 target_tab_strip, *new_index)
--                               ->ToValue());
--      }
-+//       if (has_callback()) {
-+//         tab_values->Append(CreateTabObjectHelper(web_contents_raw, extension(),
-+//                                                  source_context_type(),
-+//                                                  target_tab_strip, *new_index)
-+//                                ->ToValue());
-+//       }
- 
-       // Insert the tabs one after another.
-       *new_index += 1;
-@@ -1534,12 +1540,12 @@ bool TabsMoveFunction::MoveTab(int tab_i
+     // Insert the tabs one after another.
+@@ -1596,12 +1592,12 @@ bool TabsMoveFunction::MoveTab(int tab_i
    // Clamp move location to the last position.
    // This is ">=" because the move must be to an existing location.
    // -1 means set the move location to the last position.
@@ -882,7 +986,7 @@ Subject: rewrite tab API with Android tab model
  
    if (has_callback()) {
      tab_values->Append(CreateTabObjectHelper(contents, extension(),
-@@ -1629,18 +1635,18 @@ ExtensionFunction::ResponseAction TabsRe
+@@ -1691,18 +1687,18 @@ ExtensionFunction::ResponseAction TabsRe
  }
  
  bool TabsRemoveFunction::RemoveTab(int tab_id, std::string* error) {
@@ -907,6 +1011,74 @@ Subject: rewrite tab API with Android tab model
    // The tab might not immediately close after calling Close() below, so we
    // should wait until WebContentsDestroyed is called before responding.
    web_contents_destroyed_observers_.push_back(
+@@ -1877,20 +1873,18 @@ ExtensionFunction::ResponseAction TabsUn
+ 
+ bool TabsUngroupFunction::UngroupTab(int tab_id, std::string* error) {
+   Browser* browser = nullptr;
+-  TabStripModel* tab_strip = nullptr;
++  TabModel* tab_strip = nullptr;
+   int tab_index = -1;
+   if (!GetTabById(tab_id, browser_context(), include_incognito_information(),
+                   &browser, &tab_strip, nullptr, &tab_index, error)) {
+     return false;
+   }
+ 
+-  if (!browser->window()->IsTabStripEditable()) {
++  if (false) {
+     *error = tabs_constants::kTabStripNotEditableError;
+     return false;
+   }
+ 
+-  tab_strip->RemoveFromGroup({tab_index});
+-
+   return true;
+ }
+ 
+@@ -1918,7 +1912,7 @@ WebContents* TabsCaptureVisibleTabFuncti
+   if (!GetBrowserFromWindowID(chrome_details_, window_id, &browser, error))
+     return nullptr;
+ 
+-  WebContents* contents = browser->tab_strip_model()->GetActiveWebContents();
++  WebContents* contents =  TabModelList::GetCurrentTabModel()->GetActiveWebContents();
+   if (!contents) {
+     *error = "No active web contents to capture";
+     return nullptr;
+@@ -2032,10 +2026,7 @@ ExtensionFunction::ResponseAction TabsDe
+     if (!browser || !contents)
+       return RespondNow(Error(kUnknownErrorDoNotUse));
+   } else {
+-    browser = ChromeExtensionFunctionDetails(this).GetCurrentBrowser();
+-    if (!browser)
+-      return RespondNow(Error(tabs_constants::kNoCurrentWindowError));
+-    contents = browser->tab_strip_model()->GetActiveWebContents();
++    contents =  TabModelList::GetCurrentTabModel()->GetActiveWebContents();
+     if (!contents)
+       return RespondNow(Error(tabs_constants::kNoSelectedTabError));
+   }
+@@ -2133,13 +2124,9 @@ ExecuteCodeFunction::InitResult ExecuteC
+   // If the tab ID wasn't given then it needs to be converted to the
+   // currently active tab's ID.
+   if (tab_id == -1) {
+-    Browser* browser = chrome_details_.GetCurrentBrowser();
+-    // Can happen during shutdown.
+-    if (!browser)
+-      return set_init_result_error(tabs_constants::kNoCurrentWindowError);
+     content::WebContents* web_contents = NULL;
+     // Can happen during shutdown.
+-    if (!ExtensionTabUtil::GetDefaultTab(browser, &web_contents, &tab_id))
++    if (!ExtensionTabUtil::GetDefaultTab(nullptr, &web_contents, &tab_id))
+       return set_init_result_error(tabs_constants::kNoTabInBrowserWindowError);
+   }
+ 
+@@ -2224,7 +2211,7 @@ ScriptExecutor* ExecuteCodeInTabFunction
+   bool success = GetTabById(execute_tab_id_, browser_context(),
+                             include_incognito_information(), &browser, nullptr,
+                             &contents, nullptr, error) &&
+-                 contents && browser;
++                 contents;
+ 
+   if (!success)
+     return nullptr;
 --- a/chrome/browser/extensions/api/tabs/tabs_api.h
 +++ b/chrome/browser/extensions/api/tabs/tabs_api.h
 @@ -23,6 +23,7 @@
@@ -986,8 +1158,8 @@ Subject: rewrite tab API with Android tab model
  }
  
  void TabsEventRouter::TabChangedAt(WebContents* contents,
-@@ -260,6 +273,103 @@ void TabsEventRouter::TabPinnedStateChan
-   changed_property_names.insert(tabs_constants::kPinnedKey);
+@@ -269,6 +282,103 @@ void TabsEventRouter::TabGroupedStateCha
+   changed_property_names.insert(tabs_constants::kGroupIdKey);
    DispatchTabUpdatedEvent(contents, std::move(changed_property_names));
  }
 +*/
@@ -1090,7 +1262,7 @@ Subject: rewrite tab API with Android tab model
  
  void TabsEventRouter::OnZoomChanged(
      const ZoomController::ZoomChangedEventData& data) {
-@@ -321,7 +431,7 @@ void TabsEventRouter::OnAutoDiscardableS
+@@ -330,7 +440,7 @@ void TabsEventRouter::OnAutoDiscardableS
    DispatchTabUpdatedEvent(contents, std::move(changed_property_names));
  }
  
@@ -1099,7 +1271,7 @@ Subject: rewrite tab API with Android tab model
                                              WebContents* contents,
                                              int index,
                                              bool active) {
-@@ -354,7 +464,7 @@ void TabsEventRouter::DispatchTabInserte
+@@ -363,7 +473,7 @@ void TabsEventRouter::DispatchTabInserte
                  EventRouter::USER_GESTURE_UNKNOWN);
  }
  
@@ -1108,7 +1280,7 @@ Subject: rewrite tab API with Android tab model
                                             WebContents* contents,
                                             int index) {
    int tab_id = ExtensionTabUtil::GetTabId(contents);
-@@ -367,7 +477,7 @@ void TabsEventRouter::DispatchTabClosing
+@@ -376,7 +486,7 @@ void TabsEventRouter::DispatchTabClosing
    object_args->SetInteger(tabs_constants::kWindowIdKey,
                            ExtensionTabUtil::GetWindowIdOfTab(contents));
    object_args->SetBoolean(tabs_constants::kWindowClosing,
@@ -1117,7 +1289,7 @@ Subject: rewrite tab API with Android tab model
    args->Append(std::move(object_args));
  
    Profile* profile = Profile::FromBrowserContext(contents->GetBrowserContext());
-@@ -612,10 +722,10 @@ void TabsEventRouter::DispatchTabUpdated
+@@ -621,10 +731,10 @@ void TabsEventRouter::DispatchTabUpdated
  }
  
  void TabsEventRouter::RegisterForTabNotifications(WebContents* contents) {
@@ -1131,7 +1303,7 @@ Subject: rewrite tab API with Android tab model
  
    int tab_id = ExtensionTabUtil::GetTabId(contents);
    DCHECK(tab_entries_.find(tab_id) == tab_entries_.end());
-@@ -623,14 +733,14 @@ void TabsEventRouter::RegisterForTabNoti
+@@ -632,14 +742,14 @@ void TabsEventRouter::RegisterForTabNoti
  }
  
  void TabsEventRouter::UnregisterForTabNotifications(WebContents* contents) {
@@ -1150,7 +1322,7 @@ Subject: rewrite tab API with Android tab model
  }
  
  TabsEventRouter::TabEntry* TabsEventRouter::GetTabEntry(WebContents* contents) {
-@@ -639,4 +749,8 @@ TabsEventRouter::TabEntry* TabsEventRout
+@@ -648,4 +758,8 @@ TabsEventRouter::TabEntry* TabsEventRout
    return it == tab_entries_.end() ? nullptr : it->second.get();
  }
  
@@ -1192,10 +1364,10 @@ Subject: rewrite tab API with Android tab model
    // TabStripModelObserver:
    void OnTabStripModelChanged(
        TabStripModel* tab_strip_model,
-@@ -62,6 +68,22 @@ class TabsEventRouter : public TabStripM
-   void TabPinnedStateChanged(TabStripModel* tab_strip_model,
-                              content::WebContents* contents,
-                              int index) override;
+@@ -65,6 +71,22 @@ class TabsEventRouter : public TabStripM
+   void TabGroupedStateChanged(base::Optional<tab_groups::TabGroupId> group,
+                               content::WebContents* contents,
+                               int index) override;
 +*/
 +
 +  //TabModelListObserver
@@ -1215,7 +1387,7 @@ Subject: rewrite tab API with Android tab model
  
    // ZoomObserver:
    void OnZoomChanged(
-@@ -83,11 +105,11 @@ class TabsEventRouter : public TabStripM
+@@ -86,11 +108,11 @@ class TabsEventRouter : public TabStripM
  
   private:
    // Methods called from OnTabStripModelChanged.
@@ -1229,7 +1401,7 @@ Subject: rewrite tab API with Android tab model
                              content::WebContents* contents,
                              int index);
    void DispatchTabDetachedAt(content::WebContents* contents,
-@@ -140,6 +162,9 @@ class TabsEventRouter : public TabStripM
+@@ -143,6 +165,9 @@ class TabsEventRouter : public TabStripM
    // Removes notifications and tab entry added in RegisterForTabNotifications.
    void UnregisterForTabNotifications(content::WebContents* contents);
  
@@ -1239,7 +1411,7 @@ Subject: rewrite tab API with Android tab model
    // Maintain some information about known tabs, so we can:
    //
    //  - distinguish between tab creation and tab insertion
-@@ -206,6 +231,9 @@ class TabsEventRouter : public TabStripM
+@@ -209,6 +234,9 @@ class TabsEventRouter : public TabStripM
  
    BrowserTabStripTracker browser_tab_strip_tracker_;
  
@@ -1279,8 +1451,8 @@ Subject: rewrite tab API with Android tab model
 --- a/chrome/browser/ui/browser_navigator.cc
 +++ b/chrome/browser/ui/browser_navigator.cc
 @@ -19,10 +19,14 @@
+ #include "chrome/browser/prefetch/no_state_prefetch/prerender_manager_factory.h"
  #include "chrome/browser/prefs/incognito_mode_prefs.h"
- #include "chrome/browser/prerender/prerender_manager_factory.h"
  #include "chrome/browser/profiles/profile.h"
 +#include "chrome/browser/profiles/profile_manager.h"
  #include "chrome/browser/renderer_host/chrome_navigation_ui_data.h"
@@ -1293,7 +1465,7 @@ Subject: rewrite tab API with Android tab model
  #include "chrome/browser/ui/browser.h"
  #include "chrome/browser/ui/browser_finder.h"
  #include "chrome/browser/ui/browser_list.h"
-@@ -93,16 +97,8 @@ bool allow_os_settings_in_tab = false;
+@@ -92,16 +96,8 @@ bool allow_os_settings_in_tab = false;
  // |params.url|. Not all browsers support multiple tabs, such as app frames and
  // popups. TYPE_APP will only open a new tab if the URL is within the app scope.
  bool WindowCanOpenTabs(const NavigateParams& params) {
@@ -1312,11 +1484,11 @@ Subject: rewrite tab API with Android tab model
  }
  
  // Finds an existing Browser compatible with |profile|, making a new one if no
-@@ -166,15 +162,11 @@ std::pair<Browser*, int> GetBrowserAndTa
+@@ -165,10 +161,7 @@ std::pair<Browser*, int> GetBrowserAndTa
      if (app_id) {
        std::string app_name = web_app::GenerateApplicationNameFromAppId(*app_id);
        return {
--          new Browser(Browser::CreateParams::CreateForApp(
+-          Browser::Create(Browser::CreateParams::CreateForApp(
 -              app_name,
 -              true,  // trusted_source. Installed PWAs are considered trusted.
 -              params.window_bounds, profile, params.user_gesture)),
@@ -1324,12 +1496,7 @@ Subject: rewrite tab API with Android tab model
            -1};
      }
    }
- #endif
--
-   switch (params.disposition) {
-     case WindowOpenDisposition::SWITCH_TO_TAB:
- #if !defined(OS_ANDROID)
-@@ -191,7 +183,7 @@ std::pair<Browser*, int> GetBrowserAndTa
+@@ -190,7 +183,7 @@ std::pair<Browser*, int> GetBrowserAndTa
          return {params.browser, -1};
        // Find a compatible window and re-execute this command in it. Otherwise
        // re-run with NEW_WINDOW.
@@ -1338,7 +1505,7 @@ Subject: rewrite tab API with Android tab model
      case WindowOpenDisposition::SINGLETON_TAB: {
        // If we have a browser window, check it first.
        if (params.browser) {
-@@ -218,7 +210,7 @@ std::pair<Browser*, int> GetBrowserAndTa
+@@ -217,7 +210,7 @@ std::pair<Browser*, int> GetBrowserAndTa
  
        // Find a compatible window and re-execute this command in it. Otherwise
        // re-run with NEW_WINDOW.
@@ -1347,14 +1514,14 @@ Subject: rewrite tab API with Android tab model
      case WindowOpenDisposition::NEW_POPUP: {
        // Make a new popup window.
        // Coerce app-style if |source| represents an app.
-@@ -236,21 +228,18 @@ std::pair<Browser*, int> GetBrowserAndTa
+@@ -235,22 +228,19 @@ std::pair<Browser*, int> GetBrowserAndTa
                                               params.user_gesture);
          browser_params.trusted_source = params.trusted_source;
          browser_params.initial_bounds = params.window_bounds;
--        return {new Browser(browser_params), -1};
+-        return {Browser::Create(browser_params), -1};
 +        return {nullptr, -1};
        }
--      return {new Browser(Browser::CreateParams::CreateForAppPopup(
+-      return {Browser::Create(Browser::CreateParams::CreateForAppPopup(
 -                  app_name, params.trusted_source, params.window_bounds,
 -                  profile, params.user_gesture)),
 +      return {nullptr,
@@ -1362,9 +1529,10 @@ Subject: rewrite tab API with Android tab model
      }
      case WindowOpenDisposition::NEW_WINDOW:
        // Make a new normal browser window.
--      return {new Browser(Browser::CreateParams(profile, params.user_gesture)),
-+      return {nullptr,
-               -1};
+       return {
+-          Browser::Create(Browser::CreateParams(profile, params.user_gesture)),
++          nullptr,
+           -1};
      case WindowOpenDisposition::OFF_THE_RECORD:
        // Make or find an incognito window.
 -      return {GetOrCreateBrowser(profile->GetPrimaryOTRProfile(),
@@ -1373,7 +1541,7 @@ Subject: rewrite tab API with Android tab model
                -1};
      // The following types result in no navigation.
      case WindowOpenDisposition::SAVE_TO_DISK:
-@@ -266,13 +255,13 @@ std::pair<Browser*, int> GetBrowserAndTa
+@@ -266,13 +256,13 @@ std::pair<Browser*, int> GetBrowserAndTa
  // conditions.
  void NormalizeDisposition(NavigateParams* params) {
    // Calculate the WindowOpenDisposition if necessary.
@@ -1389,7 +1557,7 @@ Subject: rewrite tab API with Android tab model
        params->disposition == WindowOpenDisposition::OFF_THE_RECORD) {
      params->disposition = WindowOpenDisposition::NEW_FOREGROUND_TAB;
    }
-@@ -411,10 +400,10 @@ std::unique_ptr<content::WebContents> Cr
+@@ -411,10 +401,10 @@ std::unique_ptr<content::WebContents> Cr
    scoped_refptr<content::SiteInstance> initial_site_instance_for_new_contents =
        params.opener
            ? params.opener->GetSiteInstance()
@@ -1402,7 +1570,7 @@ Subject: rewrite tab API with Android tab model
    create_params.main_frame_name = params.frame_name;
    if (params.opener) {
      create_params.opener_render_frame_id = params.opener->GetRoutingID();
-@@ -440,7 +429,8 @@ std::unique_ptr<content::WebContents> Cr
+@@ -440,7 +430,8 @@ std::unique_ptr<content::WebContents> Cr
    // immediately.
    BrowserNavigatorWebContentsAdoption::AttachTabHelpers(target_contents.get());
  #if BUILDFLAG(ENABLE_EXTENSIONS)
@@ -1412,7 +1580,7 @@ Subject: rewrite tab API with Android tab model
                                 params.extension_app_id);
  #endif
  
-@@ -460,8 +450,7 @@ std::unique_ptr<content::WebContents> Cr
+@@ -460,8 +451,7 @@ std::unique_ptr<content::WebContents> Cr
  
  void Navigate(NavigateParams* params) {
    Browser* source_browser = params->browser;
@@ -1422,7 +1590,7 @@ Subject: rewrite tab API with Android tab model
    DCHECK(params->initiating_profile);
  
    if (source_browser &&
-@@ -511,9 +500,9 @@ void Navigate(NavigateParams* params) {
+@@ -511,9 +501,9 @@ void Navigate(NavigateParams* params) {
    // the target browser. This must happen first, before
    // GetBrowserForDisposition() has a chance to replace |params->browser| with
    // another one.
@@ -1434,7 +1602,7 @@ Subject: rewrite tab API with Android tab model
    }
  
    WebContents* contents_to_navigate_or_insert =
-@@ -525,17 +514,17 @@ void Navigate(NavigateParams* params) {
+@@ -525,17 +515,17 @@ void Navigate(NavigateParams* params) {
    int singleton_index;
    std::tie(params->browser, singleton_index) =
        GetBrowserAndTabForDisposition(*params);
@@ -1456,7 +1624,7 @@ Subject: rewrite tab API with Android tab model
      params->disposition = WindowOpenDisposition::SINGLETON_TAB;
      ShowSingletonTabOverwritingNTP(params->browser, std::move(*params));
      return;
-@@ -578,10 +567,9 @@ void Navigate(NavigateParams* params) {
+@@ -578,10 +568,9 @@ void Navigate(NavigateParams* params) {
      }
    }
  #endif
@@ -1468,7 +1636,7 @@ Subject: rewrite tab API with Android tab model
      // A tab is being opened from a link from a different profile, we must reset
      // source information that may cause state to be shared.
      params->opener = nullptr;
-@@ -591,7 +579,7 @@ void Navigate(NavigateParams* params) {
+@@ -591,7 +580,7 @@ void Navigate(NavigateParams* params) {
    }
  
    // Make sure the Browser is shown if params call for it.
@@ -1477,7 +1645,7 @@ Subject: rewrite tab API with Android tab model
  
    // Makes sure any WebContents created by this function is destroyed if
    // not properly added to a tab strip.
-@@ -602,18 +590,18 @@ void Navigate(NavigateParams* params) {
+@@ -602,18 +591,18 @@ void Navigate(NavigateParams* params) {
    NormalizeDisposition(params);
  
    // If a new window has been created, it needs to be shown.
@@ -1506,7 +1674,7 @@ Subject: rewrite tab API with Android tab model
  
    // Determine if the navigation was user initiated. If it was, we need to
    // inform the target WebContents, and we may need to update the UI.
-@@ -665,8 +653,8 @@ void Navigate(NavigateParams* params) {
+@@ -665,8 +654,8 @@ void Navigate(NavigateParams* params) {
          contents_to_navigate_or_insert, params->transition,
          params->window_action, user_initiated);
    } else if (singleton_index == -1) {
@@ -1517,7 +1685,7 @@ Subject: rewrite tab API with Android tab model
  
      // If some non-default value is set for the index, we should tell the
      // TabStripModel to respect it.
-@@ -676,14 +664,18 @@ void Navigate(NavigateParams* params) {
+@@ -676,14 +665,18 @@ void Navigate(NavigateParams* params) {
      // Maybe notify that an open operation has been done from a gesture.
      // TODO(crbug.com/1129028): preferably pipe this information through the
      // TabStripModel instead. See bug for deeper discussion.
@@ -1541,7 +1709,7 @@ Subject: rewrite tab API with Android tab model
    }
  
    if (singleton_index >= 0) {
-@@ -723,8 +715,7 @@ void Navigate(NavigateParams* params) {
+@@ -723,8 +716,7 @@ void Navigate(NavigateParams* params) {
            should_close_this_tab = true;
          }
        }
