@@ -22,7 +22,7 @@ Subject: Reload extensions after the first tab is loaded from Java. Otherwise ce
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -758,9 +758,8 @@ junit_binary("chrome_junit_tests") {
+@@ -764,9 +764,8 @@ junit_binary("chrome_junit_tests") {
    sources = chrome_junit_test_java_sources
  
    # Should not have any deps native targets since junit tests are java-only.
@@ -33,7 +33,7 @@ Subject: Reload extensions after the first tab is loaded from Java. Otherwise ce
    ]
  
    deps = [
-@@ -3102,6 +3101,7 @@ generate_jni("chrome_jni_headers") {
+@@ -3237,6 +3236,7 @@ generate_jni("chrome_jni_headers") {
      "java/src/org/chromium/chrome/browser/explore_sites/ExploreSitesCategoryTile.java",
      "java/src/org/chromium/chrome/browser/explore_sites/ExploreSitesSite.java",
      "java/src/org/chromium/chrome/browser/extensions/ExtensionInstallDialogViewBridge.java",
@@ -51,7 +51,7 @@ Subject: Reload extensions after the first tab is loaded from Java. Otherwise ce
  import org.chromium.chrome.browser.feature_engagement.TrackerFactory;
  import org.chromium.chrome.browser.feed.FeedV1;
  import org.chromium.chrome.browser.feed.FeedV2;
-@@ -713,6 +714,12 @@ public class ChromeTabbedActivity extend
+@@ -741,6 +742,12 @@ public class ChromeTabbedActivity extend
          }
      }
  
@@ -64,7 +64,7 @@ Subject: Reload extensions after the first tab is loaded from Java. Otherwise ce
      @Override
      public void onNewIntent(Intent intent) {
          // The intent to use in maybeDispatchExplicitMainViewIntent(). We're explicitly
-@@ -747,6 +754,7 @@ public class ChromeTabbedActivity extend
+@@ -775,6 +782,7 @@ public class ChromeTabbedActivity extend
  
              // All this initialization can be expensive so it's split into multiple tasks.
              PostTask.postTask(UiThreadTaskTraits.DEFAULT, this::refreshSignIn);
@@ -99,7 +99,7 @@ Subject: Reload extensions after the first tab is loaded from Java. Otherwise ce
 +}
 --- a/chrome/android/chrome_java_sources.gni
 +++ b/chrome/android/chrome_java_sources.gni
-@@ -679,6 +679,7 @@ chrome_java_sources = [
+@@ -685,6 +685,7 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/explore_sites/StableScrollLayoutManager.java",
    "java/src/org/chromium/chrome/browser/extensions/ExtensionInstallDialogViewBridge.java",
    "java/src/org/chromium/chrome/browser/extensions/ExtensionInstallCustomScrollView.java",
@@ -109,7 +109,7 @@ Subject: Reload extensions after the first tab is loaded from Java. Otherwise ce
    "java/src/org/chromium/chrome/browser/externalauth/ExternalAuthUtils.java",
 --- a/chrome/browser/extensions/extension_service.cc
 +++ b/chrome/browser/extensions/extension_service.cc
-@@ -505,7 +505,8 @@ void ExtensionService::Init() {
+@@ -507,7 +507,8 @@ void ExtensionService::Init() {
      LoadExtensionsFromCommandLineFlag(switches::kLoadExtension);
    EnabledReloadableExtensions();
    MaybeFinishShutdownDelayed();
@@ -119,7 +119,7 @@ Subject: Reload extensions after the first tab is loaded from Java. Otherwise ce
  
    UninstallMigratedExtensions();
  
-@@ -1320,6 +1321,14 @@ void ExtensionService::RemoveComponentEx
+@@ -1322,6 +1323,14 @@ void ExtensionService::RemoveComponentEx
    }
  }
  
@@ -150,7 +150,7 @@ Subject: Reload extensions after the first tab is loaded from Java. Otherwise ce
    // Unload all extensions. Does not send notifications.
 --- a/chrome/browser/extensions/BUILD.gn
 +++ b/chrome/browser/extensions/BUILD.gn
-@@ -560,6 +560,8 @@ static_library("extensions") {
+@@ -568,6 +568,8 @@ static_library("extensions") {
      "extension_system_factory.h",
      "extension_system_impl.cc",
      "extension_system_impl.h",
@@ -159,7 +159,7 @@ Subject: Reload extensions after the first tab is loaded from Java. Otherwise ce
      "extension_tab_util.cc",
      "extension_tab_util.h",
      "extension_ui_util.cc",
-@@ -765,6 +767,7 @@ static_library("extensions") {
+@@ -772,6 +774,7 @@ static_library("extensions") {
      "//chrome:extra_resources",
      "//chrome:resources",
      "//chrome:strings",
@@ -239,7 +239,7 @@ Subject: Reload extensions after the first tab is loaded from Java. Otherwise ce
 +#endif  // CHROME_BROWSER_EXTENSIONS_EXTENSION_SYSTEM_MANAGER_H_
 --- a/chrome/browser/extensions/updater/extension_updater.cc
 +++ b/chrome/browser/extensions/updater/extension_updater.cc
-@@ -170,6 +170,8 @@ void ExtensionUpdater::EnsureDownloaderC
+@@ -174,6 +174,8 @@ void ExtensionUpdater::EnsureDownloaderC
  }
  
  void ExtensionUpdater::Start() {
@@ -260,7 +260,7 @@ Subject: Reload extensions after the first tab is loaded from Java. Otherwise ce
      "//third_party/android_deps:androidx_fragment_fragment_java",
 --- a/extensions/browser/api/web_request/web_request_api.cc
 +++ b/extensions/browser/api/web_request/web_request_api.cc
-@@ -847,6 +847,8 @@ void WebRequestAPI::OnExtensionUnloaded(
+@@ -850,6 +850,8 @@ void WebRequestAPI::OnExtensionUnloaded(
      UnloadedExtensionReason reason) {
    if (HasAnyWebRequestPermissions(extension)) {
      --web_request_extension_count_;

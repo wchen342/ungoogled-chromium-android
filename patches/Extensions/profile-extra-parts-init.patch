@@ -8,12 +8,12 @@ Subject: make second pass/full init of profile extra parts happen
 
 --- a/chrome/browser/chrome_content_browser_client.cc
 +++ b/chrome/browser/chrome_content_browser_client.cc
-@@ -1354,10 +1354,6 @@ ChromeContentBrowserClient::CreateBrowse
+@@ -1368,10 +1368,6 @@ ChromeContentBrowserClient::CreateBrowse
  #endif
  
    bool add_profiles_extra_parts = true;
 -#if defined(OS_ANDROID)
--  if (startup_data_->HasBuiltProfilePrefService())
+-  if (startup_data_.HasBuiltProfilePrefService())
 -    add_profiles_extra_parts = false;
 -#endif
    if (add_profiles_extra_parts)
