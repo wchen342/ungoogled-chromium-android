@@ -1,3 +1,7 @@
+# 88.0.4324.146-1
+* Upstream update
+* Fix webview build
+
 # 88.0.4324.104-1
 * Now using SDK 30 (Android 11)
 * Fix gradle generation
