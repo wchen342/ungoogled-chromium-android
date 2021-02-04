@@ -12,7 +12,7 @@ Subject: bundle chromium-web-store
 
 --- a/chrome/browser/browser_resources.grd
 +++ b/chrome/browser/browser_resources.grd
-@@ -219,6 +219,7 @@
+@@ -223,6 +223,7 @@
        <include name="IDR_WEB_FOOTER_EXPERIMENT_HTML" file="resources\web_footer_experiment\index.html" type="BINDATA" />
        <include name="IDR_WEBSTORE_MANIFEST" file="resources\webstore_app\manifest.json" type="BINDATA" />
        <include name="IDR_CRYPTOTOKEN_MANIFEST" file="resources\cryptotoken\manifest.json" type="BINDATA" />
@@ -32,7 +32,7 @@ Subject: bundle chromium-web-store
      case IDR_HANGOUT_SERVICES_MANIFEST:
 --- a/chrome/browser/extensions/component_loader.cc
 +++ b/chrome/browser/extensions/component_loader.cc
-@@ -579,6 +579,9 @@ void ComponentLoader::AddDefaultComponen
+@@ -571,6 +571,9 @@ void ComponentLoader::AddDefaultComponen
  
    Add(IDR_CRYPTOTOKEN_MANIFEST,
        base::FilePath(FILE_PATH_LITERAL("cryptotoken")));
@@ -44,7 +44,7 @@ Subject: bundle chromium-web-store
  void ComponentLoader::
 --- a/chrome/browser/resources/component_extension_resources.grd
 +++ b/chrome/browser/resources/component_extension_resources.grd
-@@ -179,6 +179,25 @@
+@@ -191,6 +191,25 @@
        <include name="IDR_CRYPTOTOKEN_CRYPTOTOKENAPPROVEDORIGIN_JS" file="cryptotoken/cryptotokenapprovedorigins.js" type="BINDATA" />
        <include name="IDR_CRYPTOTOKEN_CRYPTOTOKENORIGINCHECK_JS" file="cryptotoken/cryptotokenorigincheck.js" type="BINDATA" />
        <include name="IDR_CRYPTOTOKEN_CRYPTOTOKENBACKGROUND_JS" file="cryptotoken/cryptotokenbackground.js" type="BINDATA" />
