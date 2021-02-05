@@ -1,5 +1,16 @@
+# 88.0.4324.152-1
+* Upstream important security fix
+  * [1170176] High CVE-2021-21148: Heap buffer overflow in V8. Reported by Mattias Buelens on 2021-01-24
+* Due to increasing problems with webview and build time, I will now release the main browser and webviews separately. In case of any problems occur with the builds, the main browser will take precedence. 
+
 # 88.0.4324.146-1
-* Upstream update
+* Upstream important security fix
+  * [1169317] Critical CVE-2021-21142: Use after free in Payments . Reported by Khalil Zhani on 2021-01-21
+  * [1163504] High CVE-2021-21143: Heap buffer overflow in Extensions. Reported by Allen Parker & Alex Morgan of MU on 2021-01-06
+  * [1163845] High CVE-2021-21144: Heap buffer overflow in Tab Groups. Reported by Leecraso and Guang Gong of 360 Alpha Lab on 2021-01-07
+  * [1154965] High CVE-2021-21145: Use after free in Fonts. Reported by Anonymous on 2020-12-03
+  * [1161705] High CVE-2021-21146: Use after free in Navigation. Reported by Alison Huffman and Choongwoo Han of Microsoft Browser Vulnerability Research on 2020-12-24
+  * [1162942] Medium CVE-2021-21147: Inappropriate implementation in Skia. Reported by Roman Starkov on 2021-01-04
 * Fix webview build
 
 # 88.0.4324.104-1

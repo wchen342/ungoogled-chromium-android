@@ -9,8 +9,10 @@ chrome_modern_target=chrome_modern_public_bundle
 trichrome_chrome_bundle_target=trichrome_chrome_bundle
 trichrome_chrome_apk_target=trichrome_library_apk
 webview_target=system_webview_apk
+trichrome_webview_target=trichrome_webview_apk
 
-chromium_version=88.0.4324.146
+chromium_version=88.0.4324.152
+ungoogled_chromium_version=88.0.4324.146
 ungoogled_chromium_revision=1
 
 # Show env
@@ -78,7 +80,7 @@ if [[ "$ARCH" != "arm64" ]] && [[ "$ARCH" != "arm" ]] && [[ "$ARCH" != "x86" ]];
     exit 4
 fi
 
-if [[ "$TARGET" != "$chrome_modern_target" ]] && [[ "$TARGET" != "$trichrome_chrome_bundle_target" ]] && [[ "$TARGET" != "$webview_target" ]] && [[ "$TARGET" != "all" ]]; then
+if [[ "$TARGET" != "$chrome_modern_target" ]] && [[ "$TARGET" != "$trichrome_chrome_bundle_target" ]] && [[ "$TARGET" != "$webview_target" ]] && [[ "$TARGET" != "$trichrome_webview_target" ]] && [[ "$TARGET" != "all" ]]; then
     echo "Wrong target"
     exit 5
 fi
@@ -104,7 +106,7 @@ function prepare_repos {
   patch_applied=false
 
   ## Clone ungoogled-chromium repo
-  git clone https://github.com/Eloston/ungoogled-chromium.git -b ${chromium_version}-${ungoogled_chromium_revision} || return $?
+  git clone https://github.com/Eloston/ungoogled-chromium.git -b ${ungoogled_chromium_version}-${ungoogled_chromium_revision} || return $?
 
   ## Clone chromium repo
   git clone --depth 1 --no-tags https://chromium.googlesource.com/chromium/src.git -b ${chromium_version} || return $?
@@ -169,7 +171,7 @@ function prepare_repos {
   ln -s /usr/bin/javac src/third_party/jdk/current/bin/
   ln -s /usr/bin/javap src/third_party/jdk/current/bin/
   mkdir -p src/third_party/jdk/current/lib
-  ln -s /usr/lib/jvm/java-11-openjdk-11.0.9.11-9.fc33.x86_64/lib/jrt-fs.jar src/third_party/jdk/current/lib/
+  ln -s $(find /usr/lib/jvm -type d -iname 'java-11-openjdk-*.x86_64')/lib/jrt-fs.jar src/third_party/jdk/current/lib/
   # jre
   mkdir -p src/third_party/jdk/extras/java_8 && pushd src/third_party/jdk/extras/java_8
   ln -s /usr/lib/jvm/jre-1.8.0 jre
@@ -348,6 +350,7 @@ else
   ninja -C out/Default "$chrome_modern_target"
   ../bundle_generate_apk.sh -o "${output_folder}" -t "$chrome_modern_target"
   ninja -C out/Default "$webview_target"
+  ninja -C out/Default "$trichrome_webview_target"
   find . -iname "*.apk" -exec cp -f {} ../"${apk_out_folder}" \;
 
   # arm64+TriChrome needs to be run separately, otherwise it will fail

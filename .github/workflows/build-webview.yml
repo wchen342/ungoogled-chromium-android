@@ -1,8 +1,13 @@
-name: Ungoogled-chromium-android-build-dispatch
+name: Ungoogled-chromium-android-webview-build-dispatch
 on:
+  workflow_run:
+    workflows: [ "Ungoogled-chromium-android-build-dispatch" ]
+    branches: [ master ]
+    types:
+      - completed
   push:
     tags:
-      - '[0-9]+.[0-9]+.[0-9]+.[0-9]+-[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+.[0-9]+-[0-9]+-webview'
 
 jobs:
   build:
@@ -19,6 +24,7 @@ jobs:
           REPO_NAME: ${{ secrets.REPO_NAME }}
           GITHUB_REF: ${{ github.ref }}
           GITHUB_SHA: ${{ github.sha }}
-          WORKFLOW_NAME: "build"
+          WORKFLOW_NAME: "build-webview"
         run: |
+          sleep 30
           .github/workflows/dispatch-request.sh
