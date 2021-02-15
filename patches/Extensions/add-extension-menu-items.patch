@@ -1,0 +1,2260 @@
+From: Wengling Chen <feiyu2817@gmail.com>
+Date: Mon, 15 Feb 2021 04:18:37 +0200
+Subject: Show extension items in app menu
+
+---
+ chrome/android/BUILD.gn                                                                                        |    1 
+ chrome/android/chrome_java_sources.gni                                                                         |    2 
+ chrome/android/java/src/org/chromium/chrome/browser/app/appmenu/AppMenuPropertiesDelegateImpl.java             |   99 ++
+ chrome/android/java/src/org/chromium/chrome/browser/extensions/ExtensionMenuItem.java                          |   73 +
+ chrome/android/java/src/org/chromium/chrome/browser/extensions/ExtensionMenuViewBridge.java                    |   80 ++
+ chrome/browser/extensions/extension_context_menu_model.cc                                                      |   42 -
+ chrome/browser/extensions/extension_context_menu_model.h                                                       |    6 
+ chrome/browser/ui/android/appmenu/internal/java/src/org/chromium/chrome/browser/ui/appmenu/AppMenuAdapter.java |   29 
+ chrome/browser/ui/chrome_pages.cc                                                                              |   11 
+ chrome/browser/ui/extensions/extension_action_view_controller.cc                                               |  155 +---
+ chrome/browser/ui/extensions/extension_action_view_controller.h                                                |   22 
+ chrome/browser/ui/toolbar/toolbar_action_view_controller.h                                                     |    4 
+ chrome/browser/ui/toolbar/toolbar_actions_bar.cc                                                               |    6 
+ chrome/browser/ui/toolbar/toolbar_actions_model.cc                                                             |   14 
+ chrome/browser/ui/toolbar/toolbar_actions_model.h                                                              |    4 
+ chrome/browser/ui/views/extensions/extension_action_platform_delegate_views.cc                                 |   55 -
+ chrome/browser/ui/views/extensions/extension_action_platform_delegate_views.h                                  |    2 
+ chrome/browser/ui/views/extensions/extensions_menu_item_view.cc                                                |  110 +-
+ chrome/browser/ui/views/extensions/extensions_menu_item_view.h                                                 |   14 
+ chrome/browser/ui/views/extensions/extensions_menu_view.cc                                                     |  380 +++++++---
+ chrome/browser/ui/views/extensions/extensions_menu_view.h                                                      |   80 +-
+ chrome/browser/ui/views/extensions/extensions_toolbar_button.cc                                                |    8 
+ chrome/browser/ui/views/extensions/extensions_toolbar_container.cc                                             |    4 
+ 23 files changed, 818 insertions(+), 383 deletions(-)
+
+--- a/chrome/android/java/src/org/chromium/chrome/browser/app/appmenu/AppMenuPropertiesDelegateImpl.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/app/appmenu/AppMenuPropertiesDelegateImpl.java
+@@ -8,6 +8,7 @@ import android.content.Context;
+ import android.content.pm.ResolveInfo;
+ import android.content.res.Resources;
+ import android.graphics.drawable.Drawable;
++import android.graphics.drawable.BitmapDrawable;
+ import android.os.Bundle;
+ import android.os.SystemClock;
+ import android.text.TextUtils;
+@@ -24,6 +25,7 @@ import androidx.annotation.VisibleForTes
+ import androidx.appcompat.content.res.AppCompatResources;
+ import androidx.core.graphics.drawable.DrawableCompat;
+ 
++import org.chromium.base.Log;
+ import org.chromium.base.Callback;
+ import org.chromium.base.CallbackController;
+ import org.chromium.base.CommandLine;
+@@ -33,6 +35,7 @@ import org.chromium.base.supplier.Observ
+ import org.chromium.base.supplier.OneshotSupplier;
+ import org.chromium.chrome.R;
+ import org.chromium.chrome.browser.ActivityTabProvider;
++import org.chromium.chrome.browser.app.ChromeActivity;
+ import org.chromium.chrome.browser.ShortcutHelper;
+ import org.chromium.chrome.browser.banners.AppBannerManager;
+ import org.chromium.chrome.browser.banners.AppMenuVerbiage;
+@@ -40,6 +43,8 @@ import org.chromium.chrome.browser.bookm
+ import org.chromium.chrome.browser.compositor.layouts.OverviewModeBehavior;
+ import org.chromium.chrome.browser.device.DeviceClassManager;
+ import org.chromium.chrome.browser.download.DownloadUtils;
++import org.chromium.chrome.browser.extensions.ExtensionMenuItem;
++import org.chromium.chrome.browser.extensions.ExtensionMenuViewBridge;
+ import org.chromium.chrome.browser.flags.CachedFeatureFlags;
+ import org.chromium.chrome.browser.flags.ChromeFeatureList;
+ import org.chromium.chrome.browser.flags.ChromeSwitches;
+@@ -60,9 +65,11 @@ import org.chromium.chrome.browser.ui.ap
+ import org.chromium.chrome.browser.ui.appmenu.AppMenuPropertiesDelegate;
+ import org.chromium.chrome.browser.ui.appmenu.CustomViewBinder;
+ import org.chromium.chrome.features.start_surface.StartSurfaceConfiguration;
++import org.chromium.components.browser_ui.widget.MenuOrKeyboardActionController;
+ import org.chromium.components.dom_distiller.core.DomDistillerUrlUtils;
+ import org.chromium.components.embedder_support.util.UrlConstants;
+ import org.chromium.components.webapk.lib.client.WebApkValidator;
++import org.chromium.content_public.browser.LoadUrlParams;
+ import org.chromium.ui.base.DeviceFormFactor;
+ import org.chromium.ui.modaldialog.ModalDialogManager;
+ 
+@@ -78,7 +85,8 @@ import java.util.Set;
+  * Base implementation of {@link AppMenuPropertiesDelegate} that handles hiding and showing menu
+  * items based on activity state.
+  */
+-public class AppMenuPropertiesDelegateImpl implements AppMenuPropertiesDelegate {
++public class AppMenuPropertiesDelegateImpl
++        implements AppMenuPropertiesDelegate, MenuOrKeyboardActionController.MenuOrKeyboardActionHandler {
+     public static final StringCachedFieldTrialParameter ACTION_BAR_VARIATION =
+             new StringCachedFieldTrialParameter(
+                     ChromeFeatureList.TABBED_APP_OVERFLOW_MENU_REGROUP, "action_bar", "");
+@@ -99,6 +107,7 @@ public class AppMenuPropertiesDelegateIm
+     protected final ToolbarManager mToolbarManager;
+     protected final View mDecorView;
+     private CallbackController mCallbackController = new CallbackController();
++    private final MenuOrKeyboardActionController mMenuOrKeyboardActionController;
+     private final ObservableSupplier<BookmarkBridge> mBookmarkBridgeSupplier;
+     private Callback<BookmarkBridge> mBookmarkBridgeSupplierCallback;
+     private boolean mUpdateMenuItemVisible;
+@@ -106,6 +115,9 @@ public class AppMenuPropertiesDelegateIm
+     // Keeps track of which menu item was shown when installable app is detected.
+     private int mAddAppTitleShown;
+     private final ModalDialogManager mModalDialogManager;
++    // Extension submenu
++    private final List<SubMenu> mExtensionSubMenus = new ArrayList<>();
++    private final List<ExtensionMenuItem> mExtensionSubMenuItems = new ArrayList<>();
+ 
+     // The keys of the Map are menuitem ids, the first elements in the Pair are menuitem ids,
+     // and the second elements in the Pair are AppMenuSimilarSelectionType. If users first
+@@ -203,10 +215,15 @@ public class AppMenuPropertiesDelegateIm
+         mBookmarkBridgeSupplierCallback = (bookmarkBridge) -> mBookmarkBridge = bookmarkBridge;
+         mBookmarkBridgeSupplier.addObserver(mBookmarkBridgeSupplierCallback);
+         mShareUtils = new ShareUtils();
++
++        mMenuOrKeyboardActionController = ((ChromeActivity) context).getMenuOrKeyboardActionController();
++        mMenuOrKeyboardActionController.registerMenuOrKeyboardActionHandler(this);
+     }
+ 
+     @Override
+     public void destroy() {
++        mMenuOrKeyboardActionController.unregisterMenuOrKeyboardActionHandler(this);
++
+         mBookmarkBridgeSupplier.removeObserver(mBookmarkBridgeSupplierCallback);
+         if (mCallbackController != null) {
+             mCallbackController.destroy();
+@@ -234,6 +251,23 @@ public class AppMenuPropertiesDelegateIm
+         return customViewBinders;
+     }
+ 
++    @Override
++    public boolean handleMenuOrKeyboardAction(int id, boolean fromMenu) {
++        for (ExtensionMenuItem menuItem : mExtensionSubMenuItems) {
++            Log.d("AppMenuPropertiesDelegateImpl.java", "id: " + String.valueOf(id) + " item.id: " + String.valueOf(menuItem.getId()) + " item.url: " + menuItem.getPopupUrl() + " fromMenu: " + String.valueOf(fromMenu));
++            if (menuItem.getId() == id && fromMenu && !"".equals(menuItem.getPopupUrl())) {
++                ExtensionMenuViewBridge.executeAction(menuItem.getUId());
++
++                // Clear native extension menu states
++                // This cannot be done in onMenuDismissed because handleMenuOrKeyboardAction
++                // may still need the stored items
++                ExtensionMenuViewBridge.onHide();
++                return true;
++            }
++        }
++        return false;
++    }
++
+     /**
+      * @return Whether the app menu for a web page should be shown.
+      */
+@@ -306,6 +340,63 @@ public class AppMenuPropertiesDelegateIm
+         boolean isFileScheme = url.startsWith(UrlConstants.FILE_URL_PREFIX);
+         boolean isContentScheme = url.startsWith(UrlConstants.CONTENT_URL_PREFIX);
+ 
++        // Update the extensions container menu
++        boolean shouldShowExtensionMenu = shouldShowExtensionMenu();
++        if (shouldShowExtensionMenu) {
++            // Clear native extension menu states
++            // This cannot be done in onMenuDismissed because handleMenuOrKeyboardAction
++            // may still need the stored items
++            ExtensionMenuViewBridge.onHide();
++
++            mExtensionSubMenuItems.clear();
++            ExtensionMenuViewBridge.test(mExtensionSubMenuItems);
++//             MenuItem extensionMenuItem = menu.findItem(R.id.extension_menu_id);
++//             extensionMenuItem.setVisible(true);
++
++            // Calculate number of submenus
++            int order = 0;
++            final int numMaxItems = 5;
++            int numRemainingMenuItems = mExtensionSubMenuItems.size();
++            int numSubMenus = (numRemainingMenuItems - 1) / numMaxItems + 1;
++
++            // Create submenu
++//             if (mExtensionMenu != null) {
++//                 menu.removeItem(mExtensionMenu.getItem().getItemId());
++//                 mExtensionMenu = menu.addSubMenu("Extensions");
++//             }
++            // Clear previous submenus
++            for (SubMenu submenu : mExtensionSubMenus) {
++                menu.removeItem(submenu.getItem().getItemId());
++            }
++            mExtensionSubMenus.clear();
++
++            // Create submenu on the fly
++            for (int i = 0; i < numSubMenus; ++i) {
++                SubMenu extensionMenu = menu.addSubMenu("Extensions SubMenu");
++                mExtensionSubMenus.add(extensionMenu);
++                extensionMenu.getItem().setVisible(true);
++                extensionMenu.getItem().setEnabled(true);
++
++                // Add dummy item for test
++                final int jMax = Math.min(numMaxItems, numRemainingMenuItems);
++                for (int j = 0; j < jMax; ++j) {
++                    final int itemId = View.generateViewId();
++                    ExtensionMenuItem currentMenuItem = mExtensionSubMenuItems.get(i * numMaxItems + j);
++                    currentMenuItem.setId(itemId);
++                    MenuItem item = extensionMenu.add(MenuGroup.PAGE_MENU, itemId, order, currentMenuItem.getTitle());
++                    item.setVisible(true);
++                    item.setEnabled(true);
++                    BitmapDrawable drawable = new BitmapDrawable(mContext.getResources(), currentMenuItem.getIcon());
++                    item.setIcon(drawable);
++
++                    order++;
++                }
++
++                order = 0;   // Reset order
++                numRemainingMenuItems -= numMaxItems;
++            }
++        }
++
+         // Update the icon row items (shown in narrow form factors).
+         boolean shouldShowIconRow = shouldShowIconRow();
+         menu.findItem(R.id.icon_row_menu_id).setVisible(shouldShowIconRow);
+@@ -846,6 +937,12 @@ public class AppMenuPropertiesDelegateIm
+         return shouldShowIconRow;
+     }
+ 
++    boolean shouldShowExtensionMenu() {
++        // Always return true for now
++        boolean shouldShowExtensionMenu = true;
++        return shouldShowExtensionMenu;
++    }
++
+     @Override
+     public int getFooterResourceId() {
+         return 0;
+--- a/chrome/browser/ui/android/appmenu/internal/java/src/org/chromium/chrome/browser/ui/appmenu/AppMenuAdapter.java
++++ b/chrome/browser/ui/android/appmenu/internal/java/src/org/chromium/chrome/browser/ui/appmenu/AppMenuAdapter.java
+@@ -14,10 +14,12 @@ import android.view.LayoutInflater;
+ import android.view.MenuItem;
+ import android.view.View;
+ import android.view.ViewGroup;
++import android.view.ViewParent;
+ import android.widget.BaseAdapter;
+ import android.widget.ImageButton;
+ import android.widget.ImageView;
+ import android.widget.ListView;
++import android.widget.LinearLayout ;
+ import android.widget.TextView;
+ 
+ import androidx.annotation.IntDef;
+@@ -55,7 +57,7 @@ import java.util.Map;
+  */
+ class AppMenuAdapter extends BaseAdapter {
+     @IntDef({MenuItemType.STANDARD, MenuItemType.TITLE_BUTTON, MenuItemType.THREE_BUTTON,
+-            MenuItemType.FOUR_BUTTON, MenuItemType.FIVE_BUTTON})
++            MenuItemType.FOUR_BUTTON, MenuItemType.FIVE_BUTTON, MenuItemType.EXT_FIVE_BUTTON})
+     @Retention(RetentionPolicy.SOURCE)
+     @VisibleForTesting
+     @interface MenuItemType {
+@@ -81,10 +83,14 @@ class AppMenuAdapter extends BaseAdapter
+          */
+         int FIVE_BUTTON = 4;
+         /**
++         * Menu item that has five buttons for extensions. Every one of these buttons is displayed as an icon.
++         */
++        int EXT_FIVE_BUTTON = 5;
++        /**
+          * The number of view types specified above.  If you add a view type you MUST increment
+          * this.
+          */
+-        int NUM_ENTRIES = 5;
++        int NUM_ENTRIES = 6;
+     }
+ 
+     /** IDs of all of the buttons in icon_row_menu_item.xml. */
+@@ -141,6 +147,11 @@ class AppMenuAdapter extends BaseAdapter
+     public @MenuItemType int getItemViewType(int position) {
+         MenuItem item = getItem(position);
+         int viewCount = item.hasSubMenu() ? item.getSubMenu().size() : 1;
++        if (item.hasSubMenu()) {
++            CharSequence title = item.getSubMenu().getItem().getTitle();
++            if (title != null && title.toString().toLowerCase().contains("extension"))
++                return MenuItemType.EXT_FIVE_BUTTON;
++        }
+         int customItemViewType = getCustomItemViewType(item);
+         if (customItemViewType != CustomViewBinder.NOT_HANDLED) {
+             return customItemViewType;
+@@ -207,6 +218,9 @@ class AppMenuAdapter extends BaseAdapter
+             case MenuItemType.FIVE_BUTTON:
+                 convertView = createMenuItemRow(convertView, parent, item, 5, itemViewType);
+                 break;
++            case MenuItemType.EXT_FIVE_BUTTON:
++                convertView = createMenuItemRow(convertView, parent, item, Math.min(item.getSubMenu().size(), 5), itemViewType);
++                break;
+             case MenuItemType.TITLE_BUTTON: {
+                 assert item.hasSubMenu();
+                 final MenuItem titleItem = item.getSubMenu().getItem(0);
+@@ -258,7 +272,7 @@ class AppMenuAdapter extends BaseAdapter
+                     // Display an icon alongside the MenuItem.
+                     holder.checkbox.setVisibility(View.GONE);
+                     holder.button.setVisibility(View.VISIBLE);
+-                    setupImageButton(holder.button, subItem);
++                    setupImageButton(holder.button, subItem, false);
+                 } else {
+                     // Display just the label of the MenuItem.
+                     holder.checkbox.setVisibility(View.GONE);
+@@ -333,7 +347,7 @@ class AppMenuAdapter extends BaseAdapter
+         setupMenuButton(button, item);
+     }
+ 
+-    private void setupImageButton(ImageButton button, final MenuItem item) {
++    private void setupImageButton(ImageButton button, final MenuItem item, boolean isExtMenuItem) {
+         // Store and recover the level of image as button.setimageDrawable
+         // resets drawable to default level.
+         int currentLevel = item.getIcon().getLevel();
+@@ -346,6 +360,11 @@ class AppMenuAdapter extends BaseAdapter
+                             button.getContext(), R.color.blue_mode_tint));
+         }
+ 
++        if (isExtMenuItem) {
++            ApiCompatibilityUtils.setImageTintList(button, null);
++            button.setScaleType(ImageView.ScaleType.FIT_CENTER);
++        }
++
+         setupMenuButton(button, item);
+     }
+ 
+@@ -495,7 +514,7 @@ class AppMenuAdapter extends BaseAdapter
+         }
+ 
+         for (int i = 0; i < numItems; i++) {
+-            setupImageButton(holder.buttons[i], item.getSubMenu().getItem(i));
++            setupImageButton(holder.buttons[i], item.getSubMenu().getItem(i), itemViewType == MenuItemType.EXT_FIVE_BUTTON);
+         }
+ 
+         if (CachedFeatureFlags.isEnabled(ChromeFeatureList.TABBED_APP_OVERFLOW_MENU_ICONS)
+--- /dev/null
++++ b/chrome/android/java/src/org/chromium/chrome/browser/extensions/ExtensionMenuViewBridge.java
+@@ -0,0 +1,80 @@
++// Copyright 2021 The Ungoogled Chromium Authors. All rights reserved.
++//
++// This file is part of Ungoogled Chromium Android.
++//
++// Ungoogled Chromium Android is free software: you can redistribute it
++// and/or modify it under the terms of the GNU General Public License as
++// published by the Free Software Foundation, either version 3 of the
++// License, or any later version.
++//
++// Ungoogled Chromium Android is distributed in the hope that it will be
++// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
++// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License
++// along with Ungoogled Chromium Android.  If not,
++// see <https://www.gnu.org/licenses/>.
++
++package org.chromium.chrome.browser.extensions;
++
++import android.content.Context;
++import android.content.res.Resources;
++import android.graphics.Bitmap;
++
++import org.chromium.base.annotations.CalledByNative;
++import org.chromium.base.annotations.NativeMethods;
++import org.chromium.chrome.browser.app.ChromeActivity;
++import org.chromium.chrome.browser.customtabs.CustomTabActivity;
++import org.chromium.chrome.browser.tab.Tab;
++import org.chromium.chrome.R;
++
++import java.util.List;
++
++
++/**
++* Helper class to handle communication between extension menu items and native.
++*/
++
++public class ExtensionMenuViewBridge {
++
++    public static void test(List<ExtensionMenuItem> menuItems) {
++        ExtensionMenuViewBridgeJni.get().createMenu();
++
++        if (menuItems.size() != 0)
++            menuItems.clear();
++
++        String[] ids = ExtensionMenuViewBridgeJni.get().getIds();
++        String[] titles = ExtensionMenuViewBridgeJni.get().getTitles();
++        Bitmap[] icons = ExtensionMenuViewBridgeJni.get().getIconBitmaps();
++        String[] urls = ExtensionMenuViewBridgeJni.get().getPopupUrls();
++
++        for (int i = 0; i < ids.length; ++i) {
++            menuItems.add(new ExtensionMenuItem(ids[i], titles[i], icons[i], urls[i]));
++        }
++    }
++
++    public static void executeAction(String uid) {
++        ExtensionMenuViewBridgeJni.get().executeAction(uid);
++    }
++
++    public static void onHide() {
++        ExtensionMenuViewBridgeJni.get().hide();
++    }
++
++    @CalledByNative
++    static void showCustomTab(Tab tab, String url) {
++        CustomTabActivity.showInfoPage(tab.getContext(), url);
++    }
++
++    @NativeMethods
++    interface Natives {
++        void createMenu();
++        String[] getIds();
++        String[] getTitles();
++        Bitmap[] getIconBitmaps();
++        String[] getPopupUrls();
++        void executeAction(String uid);
++        void hide();
++    }
++}
+--- a/chrome/browser/ui/extensions/extension_action_view_controller.cc
++++ b/chrome/browser/ui/extensions/extension_action_view_controller.cc
+@@ -21,12 +21,16 @@
+ #include "chrome/browser/extensions/extension_view_host.h"
+ #include "chrome/browser/extensions/extension_view_host_factory.h"
+ #include "chrome/browser/profiles/profile.h"
++#include "chrome/browser/profiles/profile_manager.h"
++#include "chrome/browser/ui/android/tab_model/tab_model.h"
++#include "chrome/browser/ui/android/tab_model/tab_model_list.h"
+ #include "chrome/browser/ui/browser.h"
+ #include "chrome/browser/ui/extensions/extension_action_platform_delegate.h"
+ #include "chrome/browser/ui/extensions/extensions_container.h"
+ #include "chrome/browser/ui/extensions/icon_with_badge_image_source.h"
+ #include "chrome/browser/ui/toolbar/toolbar_action_view_delegate.h"
+ #include "chrome/browser/ui/ui_features.h"
++#include "chrome/browser/ui/views/extensions/extensions_menu_view.h"
+ #include "chrome/grit/generated_resources.h"
+ #include "components/sessions/content/session_tab_helper.h"
+ #include "extensions/browser/extension_action.h"
+@@ -46,22 +50,15 @@ using extensions::ExtensionActionRunner;
+ 
+ ExtensionActionViewController::ExtensionActionViewController(
+     const extensions::Extension* extension,
+-    Browser* browser,
+     extensions::ExtensionAction* extension_action,
+-    ExtensionsContainer* extensions_container,
+     bool in_overflow_mode)
+     : extension_(extension),
+-      browser_(browser),
+       in_overflow_mode_(in_overflow_mode),
+       extension_action_(extension_action),
+-      extensions_container_(extensions_container),
+-      popup_host_(nullptr),
+-      view_delegate_(nullptr),
+       platform_delegate_(ExtensionActionPlatformDelegate::Create(this)),
+-      icon_factory_(browser->profile(), extension, extension_action, this),
++      icon_factory_(ProfileManager::GetActiveUserProfile(), extension, extension_action, this),
+       extension_registry_(
+-          extensions::ExtensionRegistry::Get(browser_->profile())) {
+-  DCHECK(extensions_container);
++          extensions::ExtensionRegistry::Get(ProfileManager::GetActiveUserProfile())) {
+   DCHECK(extension_action);
+   DCHECK(extension);
+ }
+@@ -76,14 +73,11 @@ std::string ExtensionActionViewControlle
+ 
+ void ExtensionActionViewController::SetDelegate(
+     ToolbarActionViewDelegate* delegate) {
+-  DCHECK((delegate == nullptr) ^ (view_delegate_ == nullptr));
+   if (delegate) {
+-    view_delegate_ = delegate;
+     platform_delegate_->OnDelegateSet();
+   } else {
+     HidePopup();
+     platform_delegate_.reset();
+-    view_delegate_ = nullptr;
+   }
+ }
+ 
+@@ -172,53 +166,48 @@ bool ExtensionActionViewController::HasP
+ }
+ 
+ bool ExtensionActionViewController::IsShowingPopup() const {
+-  return popup_host_ != nullptr;
++  return false;
+ }
+ 
+ void ExtensionActionViewController::HidePopup() {
+-  if (IsShowingPopup()) {
+-    popup_host_->Close();
+-    // We need to do these actions synchronously (instead of closing and then
+-    // performing the rest of the cleanup in OnExtensionHostDestroyed()) because
+-    // the extension host may close asynchronously, and we need to keep the view
+-    // delegate up to date.
+-    if (popup_host_)
+-      OnPopupClosed();
+-  }
++}
++
++GURL ExtensionActionViewController::GetPopupUrl(
++    content::WebContents* web_contents) {
++    if (HasPopup(web_contents)) {
++        return extension_action_->GetPopupUrl(
++            sessions::SessionTabHelper::IdForTab(web_contents).id());
++    }
++    return GURL{};
+ }
+ 
+ gfx::NativeView ExtensionActionViewController::GetPopupNativeView() {
+-  return popup_host_ ? popup_host_->view()->GetNativeView() : nullptr;
++  return nullptr;
+ }
+ 
+ ui::MenuModel* ExtensionActionViewController::GetContextMenu() {
+   if (!ExtensionIsValid())
+     return nullptr;
+ 
+-  ToolbarActionViewController* const action =
+-      extensions_container_->GetActionForId(GetId());
+-  extensions::ExtensionContextMenuModel::ButtonVisibility visibility =
+-      extensions_container_->GetActionVisibility(action);
+-
+   // Reconstruct the menu every time because the menu's contents are dynamic.
+   context_menu_model_ = std::make_unique<extensions::ExtensionContextMenuModel>(
+-      extension(), browser_, visibility, this,
+-      view_delegate_->CanShowIconInToolbar());
++      extension(), extensions::ExtensionContextMenuModel::ButtonVisibility::UNPINNED, this,
++      true);
+   return context_menu_model_.get();
+ }
+ 
+ void ExtensionActionViewController::OnContextMenuShown() {
+-  extensions_container_->OnContextMenuShown(this);
++//   extensions_container_->OnContextMenuShown(this);
+ }
+ 
+ void ExtensionActionViewController::OnContextMenuClosed() {
+   if (base::FeatureList::IsEnabled(features::kExtensionsToolbarMenu)) {
+-    extensions_container_->OnContextMenuClosed(this);
++//     extensions_container_->OnContextMenuClosed(this);
+     return;
+   }
+ 
+-  if (extensions_container_->GetPoppedOutAction() == this && !IsShowingPopup())
+-    extensions_container_->UndoPopOut();
++//   if (extensions_container_->GetPoppedOutAction() == this && !IsShowingPopup())
++//     extensions_container_->UndoPopOut();
+ }
+ 
+ bool ExtensionActionViewController::ExecuteAction(bool by_user,
+@@ -226,9 +215,9 @@ bool ExtensionActionViewController::Exec
+   if (!ExtensionIsValid())
+     return false;
+ 
+-  if (!IsEnabled(view_delegate_->GetCurrentWebContents())) {
+-    if (DisabledClickOpensMenu())
+-      GetPreferredPopupViewController()->platform_delegate_->ShowContextMenu();
++  if (!IsEnabled(TabModelList::GetCurrentTabModel()->GetActiveWebContents())) {
++//     if (DisabledClickOpensMenu())
++//       GetPreferredPopupViewController()->platform_delegate_->ShowContextMenu();
+     return false;
+   }
+ 
+@@ -239,8 +228,6 @@ bool ExtensionActionViewController::Exec
+ void ExtensionActionViewController::UpdateState() {
+   if (!ExtensionIsValid())
+     return;
+-
+-  view_delegate_->UpdateState();
+ }
+ 
+ bool ExtensionActionViewController::ExecuteAction(PopupShowAction show_action,
+@@ -248,21 +235,23 @@ bool ExtensionActionViewController::Exec
+   if (!ExtensionIsValid())
+     return false;
+ 
+-  content::WebContents* web_contents = view_delegate_->GetCurrentWebContents();
++  content::WebContents* web_contents = TabModelList::GetCurrentTabModel()->GetActiveWebContents();
+   ExtensionActionRunner* action_runner =
+       ExtensionActionRunner::GetForWebContents(web_contents);
+   if (!action_runner)
+     return false;
+ 
+-  if (base::FeatureList::IsEnabled(features::kExtensionsToolbarMenu))
+-    extensions_container_->CloseOverflowMenuIfOpen();
++//   if (base::FeatureList::IsEnabled(features::kExtensionsToolbarMenu))
++//     extensions_container_->CloseOverflowMenuIfOpen();
+ 
+   if (action_runner->RunAction(extension(), grant_tab_permissions) ==
+       extensions::ExtensionAction::ACTION_SHOW_POPUP) {
+     GURL popup_url = extension_action_->GetPopupUrl(
+         sessions::SessionTabHelper::IdForTab(web_contents).id());
+-    return GetPreferredPopupViewController()
+-        ->TriggerPopupWithUrl(show_action, popup_url, grant_tab_permissions);
++    // TODO: This is probably incorrect
++    return TriggerPopupWithUrl(show_action, popup_url, grant_tab_permissions);
++//     return GetPreferredPopupViewController()
++//         ->TriggerPopupWithUrl(show_action, popup_url, grant_tab_permissions);
+   }
+   return false;
+ }
+@@ -289,8 +278,6 @@ void ExtensionActionViewController::Insp
+ void ExtensionActionViewController::OnIconUpdated() {
+   // We update the view first, so that if the observer relies on its UI it can
+   // be ready.
+-  if (view_delegate_)
+-    view_delegate_->UpdateState();
+ }
+ 
+ void ExtensionActionViewController::OnExtensionHostDestroyed(
+@@ -341,7 +328,7 @@ bool ExtensionActionViewController::GetE
+   if (!ExtensionIsValid())
+     return false;
+ 
+-  CommandService* command_service = CommandService::Get(browser_->profile());
++  CommandService* command_service = CommandService::Get(ProfileManager::GetActiveUserProfile());
+   return command_service->GetExtensionActionCommand(
+       extension_->id(), extension_action_->action_type(),
+       CommandService::ACTIVE, command, nullptr);
+@@ -366,7 +353,7 @@ bool ExtensionActionViewController::CanH
+   // disabled action (in most cases, this will result in opening the context
+   // menu).
+   if (extension_action_->action_type() == extensions::ActionInfo::TYPE_PAGE)
+-    return IsEnabled(view_delegate_->GetCurrentWebContents());
++    return IsEnabled(TabModelList::GetCurrentTabModel()->GetActiveWebContents());
+   return true;
+ }
+ 
+@@ -384,8 +371,8 @@ bool ExtensionActionViewController::HasB
+ 
+ ExtensionActionViewController*
+ ExtensionActionViewController::GetPreferredPopupViewController() {
+-  return static_cast<ExtensionActionViewController*>(
+-      extensions_container_->GetActionForId(GetId()));
++//   return static_cast<ExtensionActionViewController*>(
++//       extensions_container_->GetActionForId(GetId()));
+ }
+ 
+ bool ExtensionActionViewController::TriggerPopupWithUrl(
+@@ -399,56 +386,50 @@ bool ExtensionActionViewController::Trig
+ 
+   // Always hide the current popup, even if it's not owned by this extension.
+   // Only one popup should be visible at a time.
+-  extensions_container_->HideActivePopup();
++//   extensions_container_->HideActivePopup();
+ 
+-  std::unique_ptr<extensions::ExtensionViewHost> host =
+-      extensions::ExtensionViewHostFactory::CreatePopupHost(popup_url,
+-                                                            browser_);
+-  if (!host)
+-    return false;
++//   extensions_container_->SetPopupOwner(this);
+ 
+-  popup_host_ = host.get();
+-  popup_host_observer_.Add(popup_host_);
+-  extensions_container_->SetPopupOwner(this);
+-
+-  if (!extensions_container_->IsActionVisibleOnToolbar(this) ||
+-      base::FeatureList::IsEnabled(features::kExtensionsToolbarMenu)) {
+-    extensions_container_->CloseOverflowMenuIfOpen();
+-    extensions_container_->PopOutAction(
+-        this, show_action == SHOW_POPUP_AND_INSPECT,
+-        base::Bind(&ExtensionActionViewController::ShowPopup,
+-                   weak_factory_.GetWeakPtr(), base::Passed(std::move(host)),
+-                   grant_tab_permissions, show_action));
++  if (base::FeatureList::IsEnabled(features::kExtensionsToolbarMenu)) {
++//     extensions_container_->CloseOverflowMenuIfOpen();
++//     extensions_container_->PopOutAction(
++//         this, show_action == SHOW_POPUP_AND_INSPECT,
++//         base::Bind(&ExtensionActionViewController::ShowPopup,
++//                    weak_factory_.GetWeakPtr(), popup_url,
++//                    grant_tab_permissions, show_action));
++    ShowPopup(popup_url, grant_tab_permissions, show_action);
+   } else {
+-    ShowPopup(std::move(host), grant_tab_permissions, show_action);
++    ShowPopup(popup_url, grant_tab_permissions, show_action);
+   }
+ 
+   return true;
+ }
+ 
+ void ExtensionActionViewController::ShowPopup(
+-    std::unique_ptr<extensions::ExtensionViewHost> popup_host,
++    const GURL& popup_url,
+     bool grant_tab_permissions,
+     PopupShowAction show_action) {
+-  // It's possible that the popup should be closed before it finishes opening
+-  // (since it can open asynchronously). Check before proceeding.
+-  if (!popup_host_)
+-    return;
+-  platform_delegate_->ShowPopup(std::move(popup_host), grant_tab_permissions,
+-                                show_action);
+-  view_delegate_->OnPopupShown(grant_tab_permissions);
++//   platform_delegate_->ShowPopup(grant_tab_permissions,
++//                                 show_action);
++// TODO: Somehow new tab will be closed immediately
++//                so try to launch a custom tab from Java instead.
++//
++//     TabModelList::GetCurrentTabModel()->GetActiveWebContents()->OpenURL(
++//         content::OpenURLParams(
++//             popup_url, content::Referrer(),
++//             WindowOpenDisposition::NEW_FOREGROUND_TAB,
++//             ui::PAGE_TRANSITION_LINK, false
++//     ));
++    if (popup_url.is_valid())
++        ExtensionsMenuView::Show(popup_url.spec());
+ }
+ 
+ void ExtensionActionViewController::OnPopupClosed() {
+-  popup_host_observer_.Remove(popup_host_);
+-  popup_host_ = nullptr;
+-  extensions_container_->SetPopupOwner(nullptr);
+-  if (extensions_container_->GetPoppedOutAction() == this &&
+-      (base::FeatureList::IsEnabled(features::kExtensionsToolbarMenu) ||
+-       !view_delegate_->IsMenuRunning())) {
+-    extensions_container_->UndoPopOut();
+-  }
+-  view_delegate_->OnPopupClosed();
++//   extensions_container_->SetPopupOwner(nullptr);
++//   if (extensions_container_->GetPoppedOutAction() == this &&
++//       (base::FeatureList::IsEnabled(features::kExtensionsToolbarMenu)) {
++//     extensions_container_->UndoPopOut();
++//   }
+ }
+ 
+ std::unique_ptr<IconWithBadgeImageSource>
+@@ -509,7 +490,7 @@ bool ExtensionActionViewController::HasA
+          !extension_->permissions_data()->IsRestrictedUrl(url,
+                                                           /*error=*/nullptr) &&
+          (!url.SchemeIsFile() || extensions::util::AllowFileAccess(
+-                                     extension_->id(), browser_->profile()));
++                                     extension_->id(), ProfileManager::GetActiveUserProfile()));
+ }
+ 
+ bool ExtensionActionViewController::HasBeenBlocked(
+--- a/chrome/browser/ui/extensions/extension_action_view_controller.h
++++ b/chrome/browser/ui/extensions/extension_action_view_controller.h
+@@ -44,9 +44,7 @@ class ExtensionActionViewController
+   enum PopupShowAction { SHOW_POPUP, SHOW_POPUP_AND_INSPECT };
+ 
+   ExtensionActionViewController(const extensions::Extension* extension,
+-                                Browser* browser,
+                                 extensions::ExtensionAction* extension_action,
+-                                ExtensionsContainer* extensions_container,
+                                 bool in_overflow_mode);
+   ~ExtensionActionViewController() override;
+ 
+@@ -65,6 +63,7 @@ class ExtensionActionViewController
+   bool HasPopup(content::WebContents* web_contents) const override;
+   bool IsShowingPopup() const override;
+   void HidePopup() override;
++  GURL GetPopupUrl(content::WebContents* web_contents) override;
+   gfx::NativeView GetPopupNativeView() override;
+   ui::MenuModel* GetContextMenu() override;
+   void OnContextMenuShown() override;
+@@ -90,12 +89,10 @@ class ExtensionActionViewController
+   bool CanHandleAccelerators() const;
+ 
+   const extensions::Extension* extension() const { return extension_.get(); }
+-  Browser* browser() { return browser_; }
+   extensions::ExtensionAction* extension_action() { return extension_action_; }
+   const extensions::ExtensionAction* extension_action() const {
+     return extension_action_;
+   }
+-  ToolbarActionViewDelegate* view_delegate() { return view_delegate_; }
+ 
+   std::unique_ptr<IconWithBadgeImageSource> GetIconImageSourceForTesting(
+       content::WebContents* web_contents,
+@@ -138,7 +135,7 @@ class ExtensionActionViewController
+                            bool grant_tab_permissions);
+ 
+   // Shows the popup with the given |host|.
+-  void ShowPopup(std::unique_ptr<extensions::ExtensionViewHost> host,
++  void ShowPopup(const GURL& popup_url,
+                  bool grant_tab_permissions,
+                  PopupShowAction show_action);
+ 
+@@ -170,9 +167,6 @@ class ExtensionActionViewController
+   // The extension associated with the action we're displaying.
+   scoped_refptr<const extensions::Extension> extension_;
+ 
+-  // The corresponding browser.
+-  Browser* const browser_;
+-
+   // Whether we are displayed in the 3-dot menu or not.
+   // TODO(pbos): Remove when 3-dot menu no longer contains extensions.
+   const bool in_overflow_mode_;
+@@ -181,18 +175,9 @@ class ExtensionActionViewController
+   // by this class.
+   extensions::ExtensionAction* const extension_action_;
+ 
+-  // The corresponding ExtensionsContainer on the toolbar.
+-  ExtensionsContainer* const extensions_container_;
+-
+-  // The extension popup's host if the popup is visible; null otherwise.
+-  extensions::ExtensionViewHost* popup_host_;
+-
+   // The context menu model for the extension.
+   std::unique_ptr<extensions::ExtensionContextMenuModel> context_menu_model_;
+ 
+-  // Our view delegate.
+-  ToolbarActionViewDelegate* view_delegate_;
+-
+   // The delegate to handle platform-specific implementations.
+   std::unique_ptr<ExtensionActionPlatformDelegate> platform_delegate_;
+ 
+@@ -205,9 +190,6 @@ class ExtensionActionViewController
+   // The associated ExtensionRegistry; cached for quick checking.
+   extensions::ExtensionRegistry* extension_registry_;
+ 
+-  ScopedObserver<extensions::ExtensionHost, extensions::ExtensionHostObserver>
+-      popup_host_observer_{this};
+-
+   base::WeakPtrFactory<ExtensionActionViewController> weak_factory_{this};
+ 
+   DISALLOW_COPY_AND_ASSIGN(ExtensionActionViewController);
+--- a/chrome/browser/ui/toolbar/toolbar_actions_model.cc
++++ b/chrome/browser/ui/toolbar/toolbar_actions_model.cc
+@@ -165,26 +165,22 @@ void ToolbarActionsModel::OnExtensionAct
+ }
+ 
+ std::vector<std::unique_ptr<ToolbarActionViewController>>
+-ToolbarActionsModel::CreateActions(Browser* browser,
+-                                   ExtensionsContainer* main_bar,
++ToolbarActionsModel::CreateActions(
+                                    bool in_overflow_mode) {
+-  DCHECK(browser);
+-  DCHECK(main_bar);
+   std::vector<std::unique_ptr<ToolbarActionViewController>> action_list;
+ 
+   // action_ids() might not equate to |action_ids_| in the case where a
+   // subset is highlighted.
+   for (const ActionId& action_id : action_ids()) {
+     action_list.push_back(
+-        CreateActionForId(browser, main_bar, in_overflow_mode, action_id));
++        CreateActionForId(in_overflow_mode, action_id));
+   }
+ 
+   return action_list;
+ }
+ 
+ std::unique_ptr<ToolbarActionViewController>
+-ToolbarActionsModel::CreateActionForId(Browser* browser,
+-                                       ExtensionsContainer* main_bar,
++ToolbarActionsModel::CreateActionForId(
+                                        bool in_overflow_mode,
+                                        const ActionId& action_id) {
+   // We should never have uninitialized actions in action_ids().
+@@ -195,8 +191,8 @@ ToolbarActionsModel::CreateActionForId(B
+ 
+   // Create and add an ExtensionActionViewController for the extension.
+   return std::make_unique<ExtensionActionViewController>(
+-      extension, browser,
+-      extension_action_manager_->GetExtensionAction(*extension), main_bar,
++      extension,
++      extension_action_manager_->GetExtensionAction(*extension),
+       in_overflow_mode);
+ }
+ 
+--- a/chrome/browser/ui/toolbar/toolbar_actions_model.h
++++ b/chrome/browser/ui/toolbar/toolbar_actions_model.h
+@@ -144,12 +144,8 @@ class ToolbarActionsModel : public exten
+   bool actions_initialized() const { return actions_initialized_; }
+ 
+   std::vector<std::unique_ptr<ToolbarActionViewController>> CreateActions(
+-      Browser* browser,
+-      ExtensionsContainer* main_bar,
+       bool in_overflow_menu);
+   std::unique_ptr<ToolbarActionViewController> CreateActionForId(
+-      Browser* browser,
+-      ExtensionsContainer* main_bar,
+       bool in_overflow_menu,
+       const ActionId& action_id);
+ 
+--- a/chrome/browser/ui/views/extensions/extensions_menu_view.cc
++++ b/chrome/browser/ui/views/extensions/extensions_menu_view.cc
+@@ -4,21 +4,31 @@
+ 
+ #include "chrome/browser/ui/views/extensions/extensions_menu_view.h"
+ 
++#include "base/android/jni_android.h"
++#include "base/android/jni_array.h"
++#include "base/android/jni_string.h"
+ #include "base/memory/ptr_util.h"
+ #include "base/stl_util.h"
++#include "chrome/android/chrome_jni_headers/ExtensionMenuViewBridge_jni.h"
++#include "chrome/browser/android/tab_android.h"
+ #include "chrome/browser/profiles/profile.h"
++#include "chrome/browser/profiles/profile_manager.h"
++#include "chrome/browser/ui/android/tab_model/tab_model.h"
++#include "chrome/browser/ui/android/tab_model/tab_model_list.h"
+ #include "chrome/browser/ui/browser.h"
+ #include "chrome/browser/ui/chrome_pages.h"
+-#include "chrome/browser/ui/tabs/tab_strip_model.h"
+ #include "chrome/browser/ui/toolbar/toolbar_action_view_controller.h"
+ #include "chrome/browser/ui/views/bubble_menu_item_factory.h"
+ #include "chrome/browser/ui/views/chrome_layout_provider.h"
+ #include "chrome/browser/ui/views/chrome_typography.h"
+ #include "chrome/browser/ui/views/extensions/extensions_menu_item_view.h"
+ #include "chrome/grit/generated_resources.h"
++#include "components/sessions/content/session_tab_helper.h"
+ #include "components/vector_icons/vector_icons.h"
+ #include "third_party/skia/include/core/SkPath.h"
++#include "skia/ext/image_operations.h"
+ #include "ui/base/l10n/l10n_util.h"
++#include "ui/gfx/android/java_bitmap.h"
+ #include "ui/gfx/paint_vector_icon.h"
+ #include "ui/views/animation/ink_drop_host_view.h"
+ #include "ui/views/controls/button/label_button.h"
+@@ -28,6 +38,7 @@
+ #include "ui/views/layout/box_layout.h"
+ #include "ui/views/layout/flex_layout.h"
+ #include "ui/views/view_class_properties.h"
++#include "url/android/gurl_android.h"
+ 
+ namespace {
+ // If true, allows more than one instance of the ExtensionsMenuView, which may
+@@ -55,17 +66,12 @@ ExtensionsMenuItemView* GetAsMenuItemVie
+ 
+ }  // namespace
+ 
++using namespace base::android;
++
+ ExtensionsMenuView::ExtensionsMenuView(
+-    views::View* anchor_view,
+-    Browser* browser,
+-    ExtensionsContainer* extensions_container,
+     bool allow_pinning)
+-    : BubbleDialogDelegateView(anchor_view,
+-                               views::BubbleBorder::Arrow::TOP_RIGHT),
+-      browser_(browser),
+-      extensions_container_(extensions_container),
+-      allow_pinning_(allow_pinning),
+-      toolbar_model_(ToolbarActionsModel::Get(browser_->profile())),
++    : allow_pinning_(allow_pinning),
++      toolbar_model_(ToolbarActionsModel::Get(ProfileManager::GetActiveUserProfile())),
+       toolbar_model_observer_(this),
+       cant_access_{nullptr, nullptr,
+                    IDS_EXTENSIONS_MENU_CANT_ACCESS_SITE_DATA_SHORT,
+@@ -80,22 +86,14 @@ ExtensionsMenuView::ExtensionsMenuView(
+                   IDS_EXTENSIONS_MENU_ACCESSING_SITE_DATA,
+                   ToolbarActionViewController::PageInteractionStatus::kActive} {
+   toolbar_model_observer_.Add(toolbar_model_);
+-  browser_->tab_strip_model()->AddObserver(this);
+-  set_margins(gfx::Insets(0));
+-
+-  SetButtons(ui::DIALOG_BUTTON_NONE);
+-  SetShowCloseButton(true);
+-  SetTitle(IDS_EXTENSIONS_MENU_TITLE);
++//   browser_->tab_strip_model()->AddObserver(this);
++  // See tabs_event_router.cc
++  base::ThreadTaskRunnerHandle::Get()->PostTask(
++      FROM_HERE,
++      base::BindOnce(&ExtensionsMenuView::RegisterTabObserver, GetWeakPtr()));
+ 
+-  SetEnableArrowKeyTraversal(true);
++//   SetTitle(IDS_EXTENSIONS_MENU_TITLE);
+ 
+-  // Let anchor view's MenuButtonController handle the highlight.
+-  set_highlight_button_when_shown(false);
+-
+-  set_fixed_width(views::LayoutProvider::Get()->GetDistanceMetric(
+-      views::DISTANCE_BUBBLE_PREFERRED_WIDTH));
+-  SetLayoutManager(std::make_unique<views::BoxLayout>(
+-      views::BoxLayout::Orientation::kVertical));
+   Populate();
+ }
+ 
+@@ -107,6 +105,11 @@ ExtensionsMenuView::~ExtensionsMenuView(
+ 
+   // Note: No need to call TabStripModel::RemoveObserver(), because it's handled
+   // directly within TabStripModelObserver::~TabStripModelObserver().
++
++  // Remove TabModelObserver and TabModelListObserver
++  if (observed_tab_model_)
++      observed_tab_model_->RemoveObserver(this);
++  TabModelList::RemoveObserver(this);
+ }
+ 
+ void ExtensionsMenuView::Populate() {
+@@ -138,14 +141,15 @@ void ExtensionsMenuView::Populate() {
+   // If so this needs to be created before being added to a widget, constructor
+   // would do.
+   constexpr int kSettingsIconSize = 16;
+-  auto footer = CreateBubbleMenuItem(
+-      EXTENSIONS_SETTINGS_ID, l10n_util::GetStringUTF16(IDS_MANAGE_EXTENSION),
+-      base::BindRepeating(&chrome::ShowExtensions, browser_, std::string()));
+-  footer->SetImage(
+-      views::Button::STATE_NORMAL,
+-      gfx::CreateVectorIcon(vector_icons::kSettingsIcon, kSettingsIconSize,
+-                            GetNativeTheme()->GetSystemColor(
+-                                ui::NativeTheme::kColorId_MenuIconColor)));
++  // TODO: the "Manage Extension" item
++//   auto footer = CreateBubbleMenuItem(
++//       EXTENSIONS_SETTINGS_ID, l10n_util::GetStringUTF16(IDS_MANAGE_EXTENSION),
++//       base::BindRepeating(&chrome::ShowExtensions, browser_, std::string()));
++//   footer->SetImage(
++//       views::Button::STATE_NORMAL,
++//       gfx::CreateVectorIcon(vector_icons::kSettingsIcon, kSettingsIconSize,
++//                             GetNativeTheme()->GetSystemColor(
++//                                 ui::NativeTheme::kColorId_MenuIconColor)));
+ 
+   // Extension icons are larger-than-favicon as they contain internal padding
+   // (space for badging). Add the same padding left and right of the icon to
+@@ -153,21 +157,21 @@ void ExtensionsMenuView::Populate() {
+   // TODO(pbos): Note that this code relies on CreateBubbleMenuItem() and
+   // ExtensionsMenuItemView using the same horizontal border size and
+   // image-label spacing. This dependency should probably be more explicit.
+-  constexpr int kSettingsIconHorizontalPadding =
+-      (ExtensionsMenuItemView::kIconSize.width() - kSettingsIconSize) / 2;
+-
+-  footer->SetBorder(views::CreateEmptyBorder(
+-      footer->border()->GetInsets() +
+-      gfx::Insets(0, kSettingsIconHorizontalPadding, 0, 0)));
+-  footer->SetImageLabelSpacing(footer->GetImageLabelSpacing() +
+-                               kSettingsIconHorizontalPadding);
+-
+-  manage_extensions_button_for_testing_ = footer.get();
+-  AddChildView(std::move(footer));
++//   constexpr int kSettingsIconHorizontalPadding =
++//       (ExtensionsMenuItemView::kIconSize.width() - kSettingsIconSize) / 2;
++//
++//   footer->SetBorder(views::CreateEmptyBorder(
++//       footer->border()->GetInsets() +
++//       gfx::Insets(0, kSettingsIconHorizontalPadding, 0, 0)));
++//   footer->SetImageLabelSpacing(footer->GetImageLabelSpacing() +
++//                                kSettingsIconHorizontalPadding);
++//
++//   AddChildView(std::move(footer));
+ 
+   // Add menu items for each extension.
+-  for (const auto& id : toolbar_model_->action_ids())
++  for (const auto& id : toolbar_model_->action_ids()) {
+     CreateAndInsertNewItem(id);
++  }
+ 
+   SortMenuItemsByName();
+   UpdateSectionVisibility();
+@@ -188,32 +192,32 @@ ExtensionsMenuView::CreateExtensionButto
+         container->SetLayoutManager(std::make_unique<views::BoxLayout>(
+             views::BoxLayout::Orientation::kVertical));
+ 
+-        const int horizontal_spacing =
+-            ChromeLayoutProvider::Get()->GetDistanceMetric(
+-                views::DISTANCE_BUTTON_HORIZONTAL_PADDING);
++//         const int horizontal_spacing =
++//             ChromeLayoutProvider::Get()->GetDistanceMetric(
++//                 views::DISTANCE_BUTTON_HORIZONTAL_PADDING);
+ 
+         // Add an emphasized short header explaining the section.
+-        auto header = std::make_unique<views::Label>(
+-            l10n_util::GetStringUTF16(section->header_string_id),
+-            ChromeTextContext::CONTEXT_DIALOG_BODY_TEXT_SMALL,
+-            ChromeTextStyle::STYLE_EMPHASIZED);
+-        header->SetHorizontalAlignment(gfx::ALIGN_LEFT);
+-        header->SetBorder(views::CreateEmptyBorder(
+-            ChromeLayoutProvider::Get()->GetDistanceMetric(
+-                DISTANCE_CONTROL_LIST_VERTICAL),
+-            horizontal_spacing, 0, horizontal_spacing));
+-        container->AddChildView(std::move(header));
++//         auto header = std::make_unique<views::Label>(
++//             l10n_util::GetStringUTF16(section->header_string_id),
++//             ChromeTextContext::CONTEXT_DIALOG_BODY_TEXT_SMALL,
++//             ChromeTextStyle::STYLE_EMPHASIZED);
++//         header->SetHorizontalAlignment(gfx::ALIGN_LEFT);
++//         header->SetBorder(views::CreateEmptyBorder(
++//             ChromeLayoutProvider::Get()->GetDistanceMetric(
++//                 DISTANCE_CONTROL_LIST_VERTICAL),
++//             horizontal_spacing, 0, horizontal_spacing));
++//         container->AddChildView(std::move(header));
+ 
+         // Add longer text that explains the section in more detail.
+-        auto description = std::make_unique<views::Label>(
+-            l10n_util::GetStringUTF16(section->description_string_id),
+-            ChromeTextContext::CONTEXT_DIALOG_BODY_TEXT_SMALL,
+-            views::style::STYLE_PRIMARY);
+-        description->SetMultiLine(true);
+-        description->SetHorizontalAlignment(gfx::ALIGN_LEFT);
+-        description->SetBorder(views::CreateEmptyBorder(0, horizontal_spacing,
+-                                                        0, horizontal_spacing));
+-        container->AddChildView(std::move(description));
++//         auto description = std::make_unique<views::Label>(
++//             l10n_util::GetStringUTF16(section->description_string_id),
++//             ChromeTextContext::CONTEXT_DIALOG_BODY_TEXT_SMALL,
++//             views::style::STYLE_PRIMARY);
++//         description->SetMultiLine(true);
++//         description->SetHorizontalAlignment(gfx::ALIGN_LEFT);
++//         description->SetBorder(views::CreateEmptyBorder(0, horizontal_spacing,
++//                                                         0, horizontal_spacing));
++//         container->AddChildView(std::move(description));
+ 
+         // Add a (currently empty) section for the menu items of the section.
+         auto menu_items = std::make_unique<views::View>();
+@@ -277,17 +281,19 @@ void ExtensionsMenuView::SortMenuItemsBy
+   sort_section(&has_access_);
+   sort_section(&wants_access_);
+   sort_section(&cant_access_);
++
++  UpdateJavaCache();
+ }
+ 
+ void ExtensionsMenuView::CreateAndInsertNewItem(
+     const ToolbarActionsModel::ActionId& id) {
+   std::unique_ptr<ToolbarActionViewController> controller =
+-      toolbar_model_->CreateActionForId(browser_, extensions_container_, false,
++      toolbar_model_->CreateActionForId(false,
+                                         id);
+ 
+   // The bare `new` is safe here, because InsertMenuItem is guaranteed to
+   // be added to the view hierarchy, which takes ownership.
+-  auto* item = new ExtensionsMenuItemView(browser_, std::move(controller),
++  auto* item = new ExtensionsMenuItemView(std::move(controller),
+                                           allow_pinning_);
+   extensions_menu_items_.push_back(item);
+   InsertMenuItem(item);
+@@ -300,7 +306,7 @@ void ExtensionsMenuView::InsertMenuItem(
+       << "Trying to insert a menu item that is already added in a section!";
+   const ToolbarActionViewController::PageInteractionStatus status =
+       menu_item->view_controller()->GetPageInteractionStatus(
+-          browser_->tab_strip_model()->GetActiveWebContents());
++          GetCurrentWebContents());
+ 
+   Section* const section = GetSectionForStatus(status);
+   // Add the view at the end. Note that this *doesn't* insert the item at the
+@@ -324,8 +330,7 @@ void ExtensionsMenuView::UpdateSectionVi
+ void ExtensionsMenuView::Update() {
+   UpdateActionStates();
+ 
+-  content::WebContents* const web_contents =
+-      browser_->tab_strip_model()->GetActiveWebContents();
++  content::WebContents* const web_contents = GetCurrentWebContents();
+   auto move_children_between_sections_if_necessary = [this, web_contents](
+                                                          Section* section) {
+     // Note: Collect the views to move separately, so that we don't change the
+@@ -358,8 +363,7 @@ void ExtensionsMenuView::Update() {
+ 
+ void ExtensionsMenuView::SanityCheck() {
+ #if DCHECK_IS_ON()
+-  content::WebContents* web_contents =
+-      browser_->tab_strip_model()->GetActiveWebContents();
++  content::WebContents* web_contents = GetCurrentWebContents();
+ 
+   // Sanity checks: verify that all extensions are properly sorted and in the
+   // correct section.
+@@ -391,20 +395,127 @@ void ExtensionsMenuView::SanityCheck() {
+     DCHECK(Contains(item));
+     DCHECK(base::Contains(action_ids, item->view_controller()->GetId()));
+   }
++
++  // Check cache length are the same
++  DCHECK_EQ(action_ids.size(), extensions_menu_ids_.size());
++  DCHECK_EQ(action_ids.size(), extensions_menu_titles_.size());
++  DCHECK_EQ(action_ids.size(), extensions_menu_icons_.size());
++  DCHECK_EQ(action_ids.size(), extensions_menu_popup_urls_.size());
+ #endif
+ }
+ 
+-void ExtensionsMenuView::TabChangedAt(content::WebContents* contents,
+-                                      int index,
+-                                      TabChangeType change_type) {
+-  Update();
++void ExtensionsMenuView::PopulateSection(Section* section, bool shall_clear) {
++    if (shall_clear) {
++        extensions_menu_ids_.clear();
++        extensions_menu_titles_.clear();
++        extensions_menu_icons_.clear();
++        extensions_menu_popup_urls_.clear();
++    }
++    if (section->menu_items->children().empty())
++      return;
++
++    constexpr gfx::Size kDefaultSize(36, 36);  // larger sizes will add unnecessary paddings
++    constexpr int target_width = 96;  // Upscale icons
++    constexpr int target_height = 96;
++
++//     for (views::View* view : section->menu_items->children()) {
++    for (size_t i = 0; i < section->menu_items->children().size(); ++i) {
++      views::View* view = section->menu_items->children()[i];
++      // Ids
++      extensions_menu_ids_.push_back(GetAsMenuItemView(view)->view_controller()
++          ->GetId());
++
++      // Titles
++      extensions_menu_titles_.push_back(GetAsMenuItemView(view)->view_controller()
++          ->GetAccessibleName(GetCurrentWebContents()));
++
++      // Icons
++      extensions_menu_icons_.push_back(
++          skia::ImageOperations::Resize(
++              GetAsMenuItemView(view)->view_controller()
++                  ->GetIcon(GetCurrentWebContents(), kDefaultSize)
++                  .AsBitmap(), skia::ImageOperations::RESIZE_GOOD,
++              target_width, target_height)
++          );
++
++      // urls
++      std::string popup_url = base::EmptyString();
++      if (GetAsMenuItemView(view)->view_controller()
++          ->HasPopup(GetCurrentWebContents())) {
++          GURL url = GetAsMenuItemView(view)->view_controller()
++              ->GetPopupUrl(GetCurrentWebContents());
++          if (url.is_valid())
++              popup_url = url.spec();
++      }
++      extensions_menu_popup_urls_.push_back(popup_url);
++    }
++}
++
++void ExtensionsMenuView::UpdateJavaCache() {
++  PopulateSection(&has_access_, true);
++  PopulateSection(&wants_access_, false);
++  PopulateSection(&cant_access_, false);
++}
++
++void ExtensionsMenuView::RegisterTabObserver() {
++    if (!TabModelList::empty()) {
++        OnTabModelAdded();
++    } else {
++        TabModelList::AddObserver(this);
++    }
++}
++
++void ExtensionsMenuView::OnTabModelAdded() {
++    if (observed_tab_model_)
++        return;
++    // The assumption is that there can be at most one non-off-the-record tab
++    // model. Observe it if it exists.
++    for (auto model = TabModelList::begin(); model != TabModelList::end();
++            ++model) {
++        if (!(*model)->IsOffTheRecord()) {
++            observed_tab_model_ = *model;
++            observed_tab_model_->AddObserver(this);
++            break;
++        }
++    }
++}
++
++void ExtensionsMenuView::OnTabModelRemoved() {
++    if (!observed_tab_model_)
++        return;
++
++    for (auto remaining_model = TabModelList::begin();
++            remaining_model != TabModelList::end(); ++remaining_model) {
++        if (observed_tab_model_ == *remaining_model)
++            return;
++    }
++    observed_tab_model_ = nullptr;
++}
++
++void ExtensionsMenuView::DidSelectTab(TabAndroid* tab,
++                                      TabModel::TabSelectionType type,
++                                      int last_id) {
++    Update();
++}
++
++void ExtensionsMenuView::DidCloseTab(int tab_id, bool incognito) {
++    Update();
++}
++
++void ExtensionsMenuView::DidAddTab(TabAndroid* tab, TabModel::TabLaunchType type) {
++    Update();
+ }
+ 
+-void ExtensionsMenuView::OnTabStripModelChanged(
+-    TabStripModel* tab_strip_model,
+-    const TabStripModelChange& change,
+-    const TabStripSelectionChange& selection) {
+-  Update();
++void ExtensionsMenuView::TabRemoved(TabAndroid* tab) {
++    Update();
++}
++
++void ExtensionsMenuView::DidMoveTab(TabAndroid* tab, int new_index, int old_index) {
++    Update();
++}
++
++void ExtensionsMenuView::RestoreCompleted() {
++    Update();
+ }
+ 
+ void ExtensionsMenuView::OnToolbarActionAdded(
+@@ -475,35 +586,112 @@ void ExtensionsMenuView::OnToolbarPinned
+     menu_item->UpdatePinButton();
+ }
+ 
++base::WeakPtr<ExtensionsMenuView> ExtensionsMenuView::GetWeakPtr() {
++  return weak_ptr_factory_.GetWeakPtr();
++}
++
++content::WebContents* ExtensionsMenuView::GetCurrentWebContents() {
++    return TabModelList::GetCurrentTabModel()->GetActiveWebContents();
++}
++
++void ExtensionsMenuView::ExecuteAction(std::string id) {
++    const std::vector<const Section*> sections = {&has_access_, &wants_access_, &cant_access_};
++    for (auto section : sections) {
++        for (views::View* view : section->menu_items->children()) {
++            if (!GetAsMenuItemView(view)->view_controller()->GetId().compare(id)) {
++                GetAsMenuItemView(view)->view_controller()->ExecuteAction(
++                    true, ToolbarActionViewController::InvocationSource::kMenuEntry);
++                return;
++            }
++        }
++    }
++}
++
+ // static
+ base::AutoReset<bool> ExtensionsMenuView::AllowInstancesForTesting() {
+   return base::AutoReset<bool>(&g_allow_testing_dialogs, true);
+ }
+ 
+ // static
+-views::Widget* ExtensionsMenuView::ShowBubble(
+-    views::View* anchor_view,
+-    Browser* browser,
+-    ExtensionsContainer* extensions_container,
+-    bool allow_pinning) {
++// void ExtensionsMenuView::ShowBubble(
++static void JNI_ExtensionMenuViewBridge_CreateMenu(
++    JNIEnv* env) {
+   DCHECK(!g_extensions_dialog);
+-  g_extensions_dialog = new ExtensionsMenuView(
+-      anchor_view, browser, extensions_container, allow_pinning);
+-  views::Widget* widget =
+-      views::BubbleDialogDelegateView::CreateBubble(g_extensions_dialog);
+-  widget->Show();
+-  return widget;
++  // On Android it is not guaranteed only one instance is initialized?
++  // Try to make it singleton
++  if (!g_extensions_dialog)
++//       delete g_extensions_dialog;
++    g_extensions_dialog = new ExtensionsMenuView(
++        false);
++}
++
++static ScopedJavaLocalRef<jobjectArray> JNI_ExtensionMenuViewBridge_GetIds(
++    JNIEnv* env) {
++  return ToJavaArrayOfStrings(env, g_extensions_dialog->extensions_menu_ids());
++}
++
++static ScopedJavaLocalRef<jobjectArray> JNI_ExtensionMenuViewBridge_GetTitles(
++    JNIEnv* env) {
++  return ToJavaArrayOfStrings(env, g_extensions_dialog->extensions_menu_titles());
++}
++
++static ScopedJavaLocalRef<jobjectArray> JNI_ExtensionMenuViewBridge_GetIconBitmaps(
++    JNIEnv* env) {
++  ScopedJavaLocalRef<jclass> bitmap_clazz = GetClass(env, "android/graphics/Bitmap");
++
++  size_t bitmaps_size = 0;
++  if (ExtensionsMenuView::IsShowing())
++    bitmaps_size = g_extensions_dialog->extensions_menu_icons().size();
++
++  jobjectArray joa = env->NewObjectArray(bitmaps_size, bitmap_clazz.obj(), nullptr);
++  CheckException(env);
++
++  for (size_t i = 0; i < bitmaps_size; ++i) {
++    ScopedJavaLocalRef<jobject> j_bitmap  = gfx::ConvertToJavaBitmap(
++        g_extensions_dialog->extensions_menu_icons()[i]);
++    env->SetObjectArrayElement(joa, i, j_bitmap.obj());
++  }
++
++  return ScopedJavaLocalRef<jobjectArray>(env, joa);
++}
++
++static ScopedJavaLocalRef<jobjectArray> JNI_ExtensionMenuViewBridge_GetPopupUrls(
++    JNIEnv* env) {
++    return ToJavaArrayOfStrings(env, g_extensions_dialog->extensions_menu_popup_urls());
+ }
+ 
+ // static
+ bool ExtensionsMenuView::IsShowing() {
++  LOG(INFO) << "extensions_menu_view.cc: IsShowing: " << (g_extensions_dialog != nullptr);
+   return g_extensions_dialog != nullptr;
+ }
+ 
+ // static
+-void ExtensionsMenuView::Hide() {
+-  if (IsShowing())
+-    g_extensions_dialog->GetWidget()->Close();
++void ExtensionsMenuView::Show(std::string url) {
++    JNIEnv* env = AttachCurrentThread();
++    if (TabModelList::GetCurrentTabModel()->GetTabCount() > 0) {
++        TabAndroid* tab = TabModelList::GetCurrentTabModel()
++            ->GetTabAt(TabModelList::GetCurrentTabModel()->GetActiveIndex());
++        if (tab)
++            Java_ExtensionMenuViewBridge_showCustomTab(
++                env,
++                tab->GetJavaObject(),
++                ConvertUTF8ToJavaString(env, url));
++    }
++}
++
++// static
++static void JNI_ExtensionMenuViewBridge_Hide(JNIEnv* env) {
++  if (ExtensionsMenuView::IsShowing())
++    delete g_extensions_dialog;
++}
++
++static void JNI_ExtensionMenuViewBridge_ExecuteAction(
++    JNIEnv* env, const JavaParamRef<jstring>& juid) {
++
++  std::string id = ConvertJavaStringToUTF8(env, juid);
++  LOG(INFO) << "extensions_menu_view.cc: JNI_ExtensionMenuViewBridge_ExecuteAction: g_extensions_dialog==null: " << (g_extensions_dialog == nullptr);
++  g_extensions_dialog->ExecuteAction(id);
+ }
+ 
+ // static
+--- a/chrome/browser/ui/views/extensions/extensions_menu_view.h
++++ b/chrome/browser/ui/views/extensions/extensions_menu_view.h
+@@ -8,13 +8,16 @@
+ #include <memory>
+ #include <vector>
+ 
++#include "base/android/scoped_java_ref.h"
+ #include "base/auto_reset.h"
+ #include "base/scoped_observer.h"
+-#include "chrome/browser/ui/tabs/tab_strip_model_observer.h"
++#include "base/strings/string16.h"
++#include "chrome/browser/ui/android/tab_model/tab_model_observer.h"
++#include "chrome/browser/ui/android/tab_model/tab_model_list_observer.h"
+ #include "chrome/browser/ui/toolbar/toolbar_action_view_controller.h"
+ #include "chrome/browser/ui/toolbar/toolbar_actions_model.h"
+ #include "ui/gfx/geometry/size.h"
+-#include "ui/views/bubble/bubble_dialog_delegate_view.h"
++#include "ui/views/view.h"
+ 
+ namespace views {
+ class Button;
+@@ -24,17 +27,17 @@ class View;
+ class Browser;
+ class ExtensionsContainer;
+ class ExtensionsMenuItemView;
++class GURL;
+ 
+ // This bubble view displays a list of user extensions and a button to get to
+ // managing the user's extensions (chrome://extensions).
+ // This class is only used with the kExtensionsToolbarMenu feature.
+-class ExtensionsMenuView : public views::BubbleDialogDelegateView,
+-                           public TabStripModelObserver,
++class ExtensionsMenuView : public views::View,
++                           public TabModelListObserver,
++                           public TabModelObserver,
+                            public ToolbarActionsModel::Observer {
+  public:
+-  ExtensionsMenuView(views::View* anchor_view,
+-                     Browser* browser,
+-                     ExtensionsContainer* extensions_container,
++  ExtensionsMenuView(
+                      bool allow_pinning);
+   ExtensionsMenuView(const ExtensionsMenuView&) = delete;
+   ExtensionsMenuView& operator=(const ExtensionsMenuView&) = delete;
+@@ -43,29 +46,32 @@ class ExtensionsMenuView : public views:
+   // Displays the ExtensionsMenu under |anchor_view|, attached to |browser|, and
+   // with the associated |extensions_container|.
+   // Only one menu is allowed to be shown at a time (outside of tests).
+-  static views::Widget* ShowBubble(views::View* anchor_view,
+-                                   Browser* browser,
+-                                   ExtensionsContainer* extensions_container,
+-                                   bool allow_pinning);
++//   static void ShowBubble(
++//                                    ExtensionsContainer* extensions_container,
++//                                    bool allow_pinning);
+ 
+   // Returns true if there is currently an ExtensionsMenuView showing (across
+   // all browsers and profiles).
+   static bool IsShowing();
+ 
+   // Hides the currently-showing ExtensionsMenuView, if any exists.
+-  static void Hide();
++//   static void Hide();
+ 
+   // Returns the currently-showing ExtensionsMenuView, if any exists.
+   static ExtensionsMenuView* GetExtensionsMenuViewForTesting();
+ 
+-  // TabStripModelObserver:
+-  void TabChangedAt(content::WebContents* contents,
+-                    int index,
+-                    TabChangeType change_type) override;
+-  void OnTabStripModelChanged(
+-      TabStripModel* tab_strip_model,
+-      const TabStripModelChange& change,
+-      const TabStripSelectionChange& selection) override;
++  //TabModelListObserver
++  void RegisterTabObserver();
++  void OnTabModelAdded() override;
++  void OnTabModelRemoved() override;
++
++  // TabModelObserver:
++  void DidSelectTab(TabAndroid* tab, TabModel::TabSelectionType type, int last_id) override;
++  void DidCloseTab(int tab_id, bool incognito) override;
++  void DidAddTab(TabAndroid* tab, TabModel::TabLaunchType type) override;
++  void TabRemoved(TabAndroid* tab) override;
++  void DidMoveTab(TabAndroid* tab, int new_index, int old_index) override;
++  void RestoreCompleted() override;
+ 
+   // ToolbarActionsModel::Observer:
+   void OnToolbarActionAdded(const ToolbarActionsModel::ActionId& item,
+@@ -85,9 +91,6 @@ class ExtensionsMenuView : public views:
+   std::vector<ExtensionsMenuItemView*> extensions_menu_items_for_testing() {
+     return extensions_menu_items_;
+   }
+-  views::Button* manage_extensions_button_for_testing() {
+-    return manage_extensions_button_for_testing_;
+-  }
+   // Returns a scoped object allowing test dialogs to be created (i.e.,
+   // instances of the ExtensionsMenuView that are not created through
+   // ShowBubble()).
+@@ -97,6 +100,16 @@ class ExtensionsMenuView : public views:
+   // the view directly is more friendly to unit test setups.
+   static base::AutoReset<bool> AllowInstancesForTesting();
+ 
++  // methods for JNI
++  static void Show(std::string url);
++  void ExecuteAction(std::string id);
++  const std::vector<const std::string>& extensions_menu_ids() const { return extensions_menu_ids_; }
++  const std::vector<const base::string16>& extensions_menu_titles() const { return extensions_menu_titles_; }
++  const std::vector<const SkBitmap>& extensions_menu_icons() const { return extensions_menu_icons_; }
++  const std::vector<const std::string>& extensions_menu_popup_urls() const {
++      return extensions_menu_popup_urls_;
++  }
++
+  private:
+   // A "section" within the menu, based on the extension's current access to
+   // the page.
+@@ -154,20 +167,35 @@ class ExtensionsMenuView : public views:
+   // if DCHECKs are disabled.
+   void SanityCheck();
+ 
+-  Browser* const browser_;
+-  ExtensionsContainer* const extensions_container_;
++  // Updates cached arrays for JNI calls
++  void PopulateSection(Section* section, bool shall_clear);
++  void UpdateJavaCache();
++
++  // For TabModelListObserver
++  base::WeakPtr<ExtensionsMenuView> GetWeakPtr();
++
++  content::WebContents* GetCurrentWebContents();
++
+   bool allow_pinning_;
+   ToolbarActionsModel* const toolbar_model_;
+   ScopedObserver<ToolbarActionsModel, ToolbarActionsModel::Observer>
+       toolbar_model_observer_;
+   std::vector<ExtensionsMenuItemView*> extensions_menu_items_;
+ 
+-  views::Button* manage_extensions_button_for_testing_ = nullptr;
++  TabModel* observed_tab_model_ = nullptr;
++  base::WeakPtrFactory<ExtensionsMenuView> weak_ptr_factory_{this};
+ 
+   // The different sections in the menu.
+   Section cant_access_;
+   Section wants_access_;
+   Section has_access_;
++
++  // JNI
++  // Cached arrays
++  std::vector<const std::string> extensions_menu_ids_;
++  std::vector<const base::string16> extensions_menu_titles_;
++  std::vector<const SkBitmap> extensions_menu_icons_;
++  std::vector<const std::string> extensions_menu_popup_urls_;
+ };
+ 
+ #endif  // CHROME_BROWSER_UI_VIEWS_EXTENSIONS_EXTENSIONS_MENU_VIEW_H_
+--- a/chrome/browser/extensions/extension_context_menu_model.cc
++++ b/chrome/browser/extensions/extension_context_menu_model.cc
+@@ -21,6 +21,9 @@
+ #include "chrome/browser/extensions/menu_manager.h"
+ #include "chrome/browser/extensions/scripting_permissions_modifier.h"
+ #include "chrome/browser/profiles/profile.h"
++#include "chrome/browser/profiles/profile_manager.h"
++#include "chrome/browser/ui/android/tab_model/tab_model.h"
++#include "chrome/browser/ui/android/tab_model/tab_model_list.h"
+ #include "chrome/browser/ui/browser.h"
+ #include "chrome/browser/ui/browser_window.h"
+ #include "chrome/browser/ui/chrome_pages.h"
+@@ -176,9 +179,9 @@ class UninstallDialogHelper : public Ext
+  public:
+   // Kicks off the asynchronous process to confirm and uninstall the given
+   // |extension|.
+-  static void UninstallExtension(Browser* browser, const Extension* extension) {
++  static void UninstallExtension(const Extension* extension) {
+     UninstallDialogHelper* helper = new UninstallDialogHelper();
+-    helper->BeginUninstall(browser, extension);
++    helper->BeginUninstall( extension);
+   }
+ 
+  private:
+@@ -186,12 +189,13 @@ class UninstallDialogHelper : public Ext
+   UninstallDialogHelper() {}
+   ~UninstallDialogHelper() override {}
+ 
+-  void BeginUninstall(Browser* browser, const Extension* extension) {
+-    uninstall_dialog_ = ExtensionUninstallDialog::Create(
+-        browser->profile(), browser->window()->GetNativeWindow(), this);
+-    uninstall_dialog_->ConfirmUninstall(extension,
+-                                        UNINSTALL_REASON_USER_INITIATED,
+-                                        UNINSTALL_SOURCE_TOOLBAR_CONTEXT_MENU);
++  void BeginUninstall(const Extension* extension) {
++//     TODO: launch uninstall dialog with JNI
++//     uninstall_dialog_ = ExtensionUninstallDialog::Create(
++//         ProfileManager::GetActiveUserProfile(), browser->window()->GetNativeWindow(), this);
++//     uninstall_dialog_->ConfirmUninstall(extension,
++//                                         UNINSTALL_REASON_USER_INITIATED,
++//                                         UNINSTALL_SOURCE_TOOLBAR_CONTEXT_MENU);
+   }
+ 
+   // ExtensionUninstallDialog::Delegate:
+@@ -209,16 +213,13 @@ class UninstallDialogHelper : public Ext
+ 
+ ExtensionContextMenuModel::ExtensionContextMenuModel(
+     const Extension* extension,
+-    Browser* browser,
+     ButtonVisibility button_visibility,
+     PopupDelegate* delegate,
+     bool can_show_icon_in_toolbar)
+     : SimpleMenuModel(this),
+       extension_id_(extension->id()),
+       is_component_(Manifest::IsComponentLocation(extension->location())),
+-      browser_(browser),
+-      profile_(browser->profile()),
+-      delegate_(delegate),
++      profile_(ProfileManager::GetActiveUserProfile()),
+       button_visibility_(button_visibility),
+       can_show_icon_in_toolbar_(can_show_icon_in_toolbar) {
+   InitMenu(extension, button_visibility);
+@@ -307,7 +308,7 @@ bool ExtensionContextMenuModel::IsComman
+     // a trace of user activity.
+     case TOGGLE_VISIBILITY:
+       return (base::FeatureList::IsEnabled(features::kExtensionsToolbarMenu) &&
+-              !browser_->profile()->IsOffTheRecord() &&
++              !ProfileManager::GetActiveUserProfile()->IsOffTheRecord() &&
+               !IsExtensionForcePinned(*extension, profile_));
+     // Manage extensions is always enabled.
+     case MANAGE_EXTENSIONS:
+@@ -340,7 +341,7 @@ void ExtensionContextMenuModel::ExecuteC
+                                     content::Referrer(),
+                                     WindowOpenDisposition::NEW_FOREGROUND_TAB,
+                                     ui::PAGE_TRANSITION_LINK, false);
+-      browser_->OpenURL(params);
++      GetActiveWebContents()->OpenURL(params);
+       break;
+     }
+     case OPTIONS:
+@@ -349,20 +350,19 @@ void ExtensionContextMenuModel::ExecuteC
+       break;
+     case TOGGLE_VISIBILITY: {
+       bool currently_visible = button_visibility_ == PINNED;
+-      ToolbarActionsModel::Get(browser_->profile())
++      ToolbarActionsModel::Get(ProfileManager::GetActiveUserProfile())
+           ->SetActionVisibility(extension->id(), !currently_visible);
+       break;
+     }
+     case UNINSTALL: {
+-      UninstallDialogHelper::UninstallExtension(browser_, extension);
++      UninstallDialogHelper::UninstallExtension(extension);
+       break;
+     }
+     case MANAGE_EXTENSIONS: {
+-      chrome::ShowExtensions(browser_, extension->id());
++      chrome::ShowExtensions(nullptr, extension->id());
+       break;
+     }
+     case INSPECT_POPUP: {
+-      delegate_->InspectPopup();
+       break;
+     }
+     case PAGE_ACCESS_RUN_ON_CLICK:
+@@ -452,7 +452,7 @@ void ExtensionContextMenuModel::InitMenu
+   }
+ 
+   const ActionInfo* action_info = ActionInfo::GetExtensionActionInfo(extension);
+-  if (delegate_ && !is_component_ && action_info && !action_info->synthesized &&
++  if (!is_component_ && action_info && !action_info->synthesized &&
+       profile_->GetPrefs()->GetBoolean(prefs::kExtensionsUIDeveloperMode)) {
+     AddSeparator(ui::NORMAL_SEPARATOR);
+     AddItemWithStringId(INSPECT_POPUP, IDS_EXTENSION_ACTION_INSPECT_POPUP);
+@@ -605,7 +605,7 @@ void ExtensionContextMenuModel::HandlePa
+         GURL(chrome_extension_constants::kRuntimeHostPermissionsHelpURL),
+         content::Referrer(), WindowOpenDisposition::NEW_FOREGROUND_TAB,
+         ui::PAGE_TRANSITION_LINK, false);
+-    browser_->OpenURL(params);
++    GetActiveWebContents()->OpenURL(params);
+     return;
+   }
+ 
+@@ -659,7 +659,7 @@ void ExtensionContextMenuModel::LogPageA
+ }
+ 
+ content::WebContents* ExtensionContextMenuModel::GetActiveWebContents() const {
+-  return browser_->tab_strip_model()->GetActiveWebContents();
++  return TabModelList::GetCurrentTabModel()->GetActiveWebContents();
+ }
+ 
+ }  // namespace extensions
+--- a/chrome/browser/extensions/extension_context_menu_model.h
++++ b/chrome/browser/extensions/extension_context_menu_model.h
+@@ -100,7 +100,6 @@ class ExtensionContextMenuModel : public
+   // will be shown for "Inspect Popup" which, when selected, will cause
+   // ShowPopupForDevToolsWindow() to be called on |delegate|.
+   ExtensionContextMenuModel(const Extension* extension,
+-                            Browser* browser,
+                             ButtonVisibility visibility,
+                             PopupDelegate* delegate,
+                             bool can_show_icon_in_toolbar);
+@@ -158,13 +157,8 @@ class ExtensionContextMenuModel : public
+   // it has one, otherwise NULL).
+   ExtensionAction* extension_action_;
+ 
+-  Browser* const browser_;
+-
+   Profile* profile_;
+ 
+-  // The delegate which handles the 'inspect popup' menu command (or NULL).
+-  PopupDelegate* delegate_;
+-
+   // The visibility of the button at the time the menu opened.
+   ButtonVisibility button_visibility_;
+ 
+--- a/chrome/browser/ui/views/extensions/extensions_menu_item_view.cc
++++ b/chrome/browser/ui/views/extensions/extensions_menu_item_view.cc
+@@ -10,12 +10,12 @@
+ #include "base/metrics/user_metrics_action.h"
+ #include "chrome/app/vector_icons/vector_icons.h"
+ #include "chrome/browser/profiles/profile.h"
++#include "chrome/browser/profiles/profile_manager.h"
+ #include "chrome/browser/ui/browser.h"
+ #include "chrome/browser/ui/toolbar/toolbar_action_view_controller.h"
+ #include "chrome/browser/ui/toolbar/toolbar_actions_model.h"
+ #include "chrome/browser/ui/views/bubble_menu_item_factory.h"
+ #include "chrome/browser/ui/views/extensions/extension_context_menu_controller.h"
+-#include "chrome/browser/ui/views/extensions/extensions_menu_button.h"
+ #include "chrome/grit/generated_resources.h"
+ #include "ui/base/l10n/l10n_util.h"
+ #include "ui/gfx/color_utils.h"
+@@ -43,14 +43,9 @@ constexpr gfx::Size ExtensionsMenuItemVi
+ constexpr char ExtensionsMenuItemView::kClassName[];
+ 
+ ExtensionsMenuItemView::ExtensionsMenuItemView(
+-    Browser* browser,
+     std::unique_ptr<ToolbarActionViewController> controller,
+     bool allow_pinning)
+-    : profile_(browser->profile()),
+-      primary_action_button_(new ExtensionsMenuButton(browser,
+-                                                      this,
+-                                                      controller.get(),
+-                                                      allow_pinning)),
++    : profile_(ProfileManager::GetActiveUserProfile()),
+       controller_(std::move(controller)),
+       model_(ToolbarActionsModel::Get(profile_)) {
+   // Set so the extension button receives enter/exit on children to retain hover
+@@ -65,38 +60,38 @@ ExtensionsMenuItemView::ExtensionsMenuIt
+   layout_manager_->SetOrientation(views::LayoutOrientation::kHorizontal)
+       .SetIgnoreDefaultMainAxisMargins(true);
+ 
+-  AddChildView(primary_action_button_);
+-  primary_action_button_->SetProperty(
+-      views::kFlexBehaviorKey,
+-      views::FlexSpecification(views::MinimumFlexSizeRule::kScaleToZero,
+-                               views::MaximumFlexSizeRule::kUnbounded));
+-
+-  if (primary_action_button_->CanShowIconInToolbar()) {
+-    auto pin_button = CreateBubbleMenuItem(
+-        EXTENSION_PINNING,
+-        base::BindRepeating(&ExtensionsMenuItemView::PinButtonPressed,
+-                            base::Unretained(this)));
+-    pin_button->SetBorder(views::CreateEmptyBorder(kSecondaryButtonInsets));
+-
+-    pin_button_ = pin_button.get();
+-    AddChildView(std::move(pin_button));
+-  }
+-  UpdatePinButton();
+-
+-  auto context_menu_button = CreateBubbleMenuItem(
+-      EXTENSION_CONTEXT_MENU, views::Button::PressedCallback());
+-  context_menu_button->SetBorder(
+-      views::CreateEmptyBorder(kSecondaryButtonInsets));
+-  context_menu_button->SetTooltipText(
+-      l10n_util::GetStringUTF16(IDS_EXTENSIONS_MENU_CONTEXT_MENU_TOOLTIP));
+-  context_menu_button->SetButtonController(
+-      std::make_unique<views::MenuButtonController>(
+-          context_menu_button.get(),
+-          base::BindRepeating(&ExtensionsMenuItemView::ContextMenuPressed,
+-                              base::Unretained(this)),
+-          std::make_unique<views::Button::DefaultButtonControllerDelegate>(
+-              context_menu_button.get())));
+-  context_menu_button_ = AddChildView(std::move(context_menu_button));
++//   AddChildView(primary_action_button_);
++//   primary_action_button_->SetProperty(
++//       views::kFlexBehaviorKey,
++//       views::FlexSpecification(views::MinimumFlexSizeRule::kScaleToZero,
++//                                views::MaximumFlexSizeRule::kUnbounded));
++//
++//   if (primary_action_button_->CanShowIconInToolbar()) {
++//     auto pin_button = CreateBubbleMenuItem(
++//         EXTENSION_PINNING,
++//         base::BindRepeating(&ExtensionsMenuItemView::PinButtonPressed,
++//                             base::Unretained(this)));
++//     pin_button->SetBorder(views::CreateEmptyBorder(kSecondaryButtonInsets));
++//
++//     pin_button_ = pin_button.get();
++//     AddChildView(std::move(pin_button));
++//   }
++//   UpdatePinButton();
++
++//   auto context_menu_button = CreateBubbleMenuItem(
++//       EXTENSION_CONTEXT_MENU, views::Button::PressedCallback());
++//   context_menu_button->SetBorder(
++//       views::CreateEmptyBorder(kSecondaryButtonInsets));
++//   context_menu_button->SetTooltipText(
++//       l10n_util::GetStringUTF16(IDS_EXTENSIONS_MENU_CONTEXT_MENU_TOOLTIP));
++//   context_menu_button->SetButtonController(
++//       std::make_unique<views::MenuButtonController>(
++//           context_menu_button.get(),
++//           base::BindRepeating(&ExtensionsMenuItemView::ContextMenuPressed,
++//                               base::Unretained(this)),
++//           std::make_unique<views::Button::DefaultButtonControllerDelegate>(
++//               context_menu_button.get())));
++//   context_menu_button_ = AddChildView(std::move(context_menu_button));
+ }
+ 
+ ExtensionsMenuItemView::~ExtensionsMenuItemView() = default;
+@@ -111,17 +106,17 @@ void ExtensionsMenuItemView::OnThemeChan
+       GetAdjustedIconColor(GetNativeTheme()->GetSystemColor(
+           ui::NativeTheme::kColorId_MenuIconColor));
+ 
+-  if (pin_button_)
+-    pin_button_->SetInkDropBaseColor(icon_color);
+-  views::SetImageFromVectorIconWithColor(context_menu_button_,
+-                                         kBrowserToolsIcon,
+-                                         kSecondaryIconSizeDp, icon_color);
+-  UpdatePinButton();
++//   if (pin_button_)
++//     pin_button_->SetInkDropBaseColor(icon_color);
++//   views::SetImageFromVectorIconWithColor(context_menu_button_,
++//                                          kBrowserToolsIcon,
++//                                          kSecondaryIconSizeDp, icon_color);
++//   UpdatePinButton();
+ }
+ 
+ void ExtensionsMenuItemView::UpdatePinButton() {
+-  if (!pin_button_)
+-    return;
++//   if (!pin_button_)
++//     return;
+ 
+   bool is_force_pinned =
+       model_ && model_->IsActionForcePinned(controller_->GetId());
+@@ -132,10 +127,10 @@ void ExtensionsMenuItemView::UpdatePinBu
+     pin_button_string_id = IDS_EXTENSIONS_UNPIN_FROM_TOOLBAR;
+   else
+     pin_button_string_id = IDS_EXTENSIONS_PIN_TO_TOOLBAR;
+-  pin_button_->SetTooltipText(l10n_util::GetStringUTF16(pin_button_string_id));
++//   pin_button_->SetTooltipText(l10n_util::GetStringUTF16(pin_button_string_id));
+   // Extension pinning is not available in Incognito as it leaves a trace of
+   // user activity.
+-  pin_button_->SetEnabled(!is_force_pinned && !profile_->IsOffTheRecord());
++//   pin_button_->SetEnabled(!is_force_pinned && !profile_->IsOffTheRecord());
+ 
+   SkColor unpinned_icon_color =
+       GetAdjustedIconColor(GetNativeTheme()->GetSystemColor(
+@@ -144,9 +139,9 @@ void ExtensionsMenuItemView::UpdatePinBu
+       IsPinned() ? GetAdjustedIconColor(GetNativeTheme()->GetSystemColor(
+                        ui::NativeTheme::kColorId_ProminentButtonColor))
+                  : unpinned_icon_color;
+-  views::SetImageFromVectorIconWithColor(
+-      pin_button_, IsPinned() ? views::kUnpinIcon : views::kPinIcon,
+-      kSecondaryIconSizeDp, icon_color);
++//   views::SetImageFromVectorIconWithColor(
++//       pin_button_, IsPinned() ? views::kUnpinIcon : views::kPinIcon,
++//       kSecondaryIconSizeDp, icon_color);
+ }
+ 
+ bool ExtensionsMenuItemView::IsContextMenuRunning() const {
+@@ -162,9 +157,9 @@ void ExtensionsMenuItemView::ContextMenu
+   base::RecordAction(base::UserMetricsAction(
+       "Extensions.Toolbar.MoreActionsButtonPressedFromMenu"));
+   // TODO(crbug.com/998298): Cleanup the menu source type.
+-  context_menu_controller_->ShowContextMenuForViewImpl(
+-      context_menu_button_, context_menu_button_->GetMenuPosition(),
+-      ui::MenuSourceType::MENU_SOURCE_MOUSE);
++//   context_menu_controller_->ShowContextMenuForViewImpl(
++//       context_menu_button_, context_menu_button_->GetMenuPosition(),
++//       ui::MenuSourceType::MENU_SOURCE_MOUSE);
+ }
+ 
+ void ExtensionsMenuItemView::PinButtonPressed() {
+@@ -173,11 +168,6 @@ void ExtensionsMenuItemView::PinButtonPr
+   model_->SetActionVisibility(controller_->GetId(), !IsPinned());
+ }
+ 
+-ExtensionsMenuButton*
+-ExtensionsMenuItemView::primary_action_button_for_testing() {
+-  return primary_action_button_;
+-}
+-
+ SkColor ExtensionsMenuItemView::GetAdjustedIconColor(SkColor icon_color) const {
+   const SkColor background_color = GetNativeTheme()->GetSystemColor(
+       ui::NativeTheme::kColorId_BubbleBackground);
+--- a/chrome/browser/ui/views/extensions/extensions_menu_item_view.h
++++ b/chrome/browser/ui/views/extensions/extensions_menu_item_view.h
+@@ -24,6 +24,9 @@ class ImageButton;
+ // particular extension. Includes information about the extension in addition to
+ // a button to pin the extension to the toolbar and a button for accessing the
+ // associated context menu.
++//
++// Remove any code that does actually UI drawing but keep the views, since it
++// has the hierachical information
+ class ExtensionsMenuItemView : public views::View {
+  public:
+   static constexpr int kMenuItemHeightDp = 40;
+@@ -31,7 +34,6 @@ class ExtensionsMenuItemView : public vi
+   static constexpr const char kClassName[] = "ExtensionsMenuItemView";
+ 
+   ExtensionsMenuItemView(
+-      Browser* browser,
+       std::unique_ptr<ToolbarActionViewController> controller,
+       bool allow_pinning);
+   ExtensionsMenuItemView(const ExtensionsMenuItemView&) = delete;
+@@ -55,12 +57,6 @@ class ExtensionsMenuItemView : public vi
+     return controller_.get();
+   }
+ 
+-  ExtensionsMenuButton* primary_action_button_for_testing();
+-  views::ImageButton* context_menu_button_for_testing() {
+-    return context_menu_button_;
+-  }
+-  views::ImageButton* pin_button_for_testing() { return pin_button_; }
+-
+  private:
+   // Maybe adjust |icon_color| to assure high enough contrast with the
+   // background.
+@@ -68,16 +64,12 @@ class ExtensionsMenuItemView : public vi
+ 
+   Profile* const profile_;
+ 
+-  ExtensionsMenuButton* const primary_action_button_;
+-
+   std::unique_ptr<ToolbarActionViewController> controller_;
+ 
+   views::ImageButton* context_menu_button_ = nullptr;
+ 
+   ToolbarActionsModel* const model_;
+ 
+-  views::ImageButton* pin_button_ = nullptr;
+-
+   // This controller is responsible for showing the context menu for an
+   // extension.
+   std::unique_ptr<ExtensionContextMenuController> context_menu_controller_;
+--- a/chrome/browser/ui/chrome_pages.cc
++++ b/chrome/browser/ui/chrome_pages.cc
+@@ -30,6 +30,8 @@
+ #include "chrome/browser/profiles/profile.h"
+ #include "chrome/browser/profiles/profile_manager.h"
+ #include "chrome/browser/signin/account_consistency_mode_manager.h"
++#include "chrome/browser/ui/android/tab_model/tab_model.h"
++#include "chrome/browser/ui/android/tab_model/tab_model_list.h"
+ #include "chrome/browser/ui/browser.h"
+ #include "chrome/browser/ui/browser_finder.h"
+ #include "chrome/browser/ui/browser_navigator_params.h"
+@@ -92,9 +94,18 @@ void FocusWebContents(Browser* browser)
+ // ignoring the URL path, then that tab becomes selected. Overwrites the new tab
+ // page if it is open.
+ void ShowSingletonTabIgnorePathOverwriteNTP(Browser* browser, const GURL& url) {
++#if defined(OS_ANDROID)
++  TabModelList::GetCurrentTabModel()->GetActiveWebContents()->OpenURL(
++    content::OpenURLParams(
++      url, content::Referrer(),
++      WindowOpenDisposition::CURRENT_TAB,
++      ui::PAGE_TRANSITION_AUTO_TOPLEVEL, false
++    ));
++#else
+   NavigateParams params(GetSingletonTabNavigateParams(browser, url));
+   params.path_behavior = NavigateParams::IGNORE_AND_NAVIGATE;
+   ShowSingletonTabOverwritingNTP(browser, std::move(params));
++#endif
+ }
+ 
+ void OpenBookmarkManagerForNode(Browser* browser, int64_t node_id) {
+--- a/chrome/android/BUILD.gn
++++ b/chrome/android/BUILD.gn
+@@ -3238,6 +3238,7 @@ generate_jni("chrome_jni_headers") {
+     "java/src/org/chromium/chrome/browser/extensions/ExtensionInstallDialogViewBridge.java",
+     "java/src/org/chromium/chrome/browser/extensions/ExtensionSystemManager.java",
+     "java/src/org/chromium/chrome/browser/extensions/ExtensionUninstallDialogBridge.java",
++    "java/src/org/chromium/chrome/browser/extensions/ExtensionMenuViewBridge.java",
+     "java/src/org/chromium/chrome/browser/feature_engagement/TrackerFactory.java",
+     "java/src/org/chromium/chrome/browser/feedback/ConnectivityChecker.java",
+     "java/src/org/chromium/chrome/browser/feedback/ScreenshotTask.java",
+--- a/chrome/android/chrome_java_sources.gni
++++ b/chrome/android/chrome_java_sources.gni
+@@ -688,6 +688,8 @@ chrome_java_sources = [
+   "java/src/org/chromium/chrome/browser/extensions/ExtensionSystemManager.java",
+   "java/src/org/chromium/chrome/browser/extensions/ExtensionUninstallDialogBridge.java",
+   "java/src/org/chromium/chrome/browser/extensions/ExtensionUninstallCustomScrollView.java",
++  "java/src/org/chromium/chrome/browser/extensions/ExtensionMenuViewBridge.java",
++  "java/src/org/chromium/chrome/browser/extensions/ExtensionMenuItem.java",
+   "java/src/org/chromium/chrome/browser/externalauth/ExternalAuthUtils.java",
+   "java/src/org/chromium/chrome/browser/externalauth/UserRecoverableErrorHandler.java",
+   "java/src/org/chromium/chrome/browser/externalauth/VerifiedHandler.java",
+--- a/chrome/browser/ui/views/extensions/extensions_toolbar_button.cc
++++ b/chrome/browser/ui/views/extensions/extensions_toolbar_button.cc
+@@ -105,12 +105,12 @@ int ExtensionsToolbarButton::GetIconSize
+ 
+ void ExtensionsToolbarButton::ButtonPressed() {
+   if (ExtensionsMenuView::IsShowing()) {
+-    ExtensionsMenuView::Hide();
++//     ExtensionsMenuView::Hide();
+     return;
+   }
+   pressed_lock_ = menu_button_controller_->TakeLock();
+   base::RecordAction(base::UserMetricsAction("Extensions.Toolbar.MenuOpened"));
+-  ExtensionsMenuView::ShowBubble(this, browser_, extensions_container_,
+-                                 extensions_container_->CanShowIconInToolbar())
+-      ->AddObserver(this);
++//  ExtensionsMenuView::ShowBubble(this, browser_, extensions_container_,
++//                                 extensions_container_->CanShowIconInToolbar())
++//      ->AddObserver(this);
+ }
+--- a/chrome/browser/ui/views/extensions/extensions_toolbar_container.cc
++++ b/chrome/browser/ui/views/extensions/extensions_toolbar_container.cc
+@@ -310,7 +310,7 @@ void ExtensionsToolbarContainer::HideAct
+ 
+ bool ExtensionsToolbarContainer::CloseOverflowMenuIfOpen() {
+   if (ExtensionsMenuView::IsShowing()) {
+-    ExtensionsMenuView::Hide();
++//     ExtensionsMenuView::Hide();
+     return true;
+   }
+   return false;
+@@ -465,7 +465,7 @@ void ExtensionsToolbarContainer::CreateA
+ void ExtensionsToolbarContainer::CreateActionForId(
+     const ToolbarActionsModel::ActionId& action_id) {
+   actions_.push_back(
+-      model_->CreateActionForId(browser_, this, false, action_id));
++      model_->CreateActionForId(false, action_id));
+   auto icon = std::make_unique<ToolbarActionView>(actions_.back().get(), this);
+   // Set visibility before adding to prevent extraneous animation.
+   icon->SetVisible(CanShowIconInToolbar() && model_->IsActionPinned(action_id));
+--- a/chrome/browser/ui/toolbar/toolbar_actions_bar.cc
++++ b/chrome/browser/ui/toolbar/toolbar_actions_bar.cc
+@@ -338,7 +338,7 @@ void ToolbarActionsBar::CreateActions()
+ 
+     // Get the toolbar actions.
+     toolbar_actions_ =
+-        model_->CreateActions(browser_, GetMainBar(), in_overflow_mode());
++        model_->CreateActions(in_overflow_mode());
+     if (!toolbar_actions_.empty())
+       ReorderActions();
+ 
+@@ -662,7 +662,7 @@ void ToolbarActionsBar::OnToolbarActionA
+ 
+   toolbar_actions_.insert(
+       toolbar_actions_.begin() + index,
+-      model_->CreateActionForId(browser_, GetMainBar(), in_overflow_mode(),
++      model_->CreateActionForId(in_overflow_mode(),
+                                 action_id));
+   delegate_->AddViewForAction(toolbar_actions_[index].get(), index);
+ 
+@@ -795,7 +795,7 @@ void ToolbarActionsBar::OnToolbarHighlig
+ 
+       if (!found) {
+         toolbar_actions_.push_back(model_->CreateActionForId(
+-            browser_, GetMainBar(), in_overflow_mode(), model_action_id));
++            in_overflow_mode(), model_action_id));
+         delegate_->AddViewForAction(toolbar_actions_.back().get(),
+                                     toolbar_actions_.size() - 1);
+       }
+--- a/chrome/browser/ui/views/extensions/extension_action_platform_delegate_views.cc
++++ b/chrome/browser/ui/views/extensions/extension_action_platform_delegate_views.cc
+@@ -10,6 +10,7 @@
+ #include "base/memory/ptr_util.h"
+ #include "chrome/browser/extensions/extension_view_host.h"
+ #include "chrome/browser/profiles/profile.h"
++#include "chrome/browser/profiles/profile_manager.h"
+ #include "chrome/browser/ui/browser.h"
+ #include "chrome/browser/ui/extensions/accelerator_priority.h"
+ #include "chrome/browser/ui/views/extensions/extension_popup.h"
+@@ -37,7 +38,7 @@ ExtensionActionPlatformDelegateViews::Ex
+     ExtensionActionViewController* controller)
+     : controller_(controller) {
+   command_service_observer_.Add(
+-      extensions::CommandService::Get(controller_->browser()->profile()));
++      extensions::CommandService::Get(ProfileManager::GetActiveUserProfile()));
+ }
+ 
+ ExtensionActionPlatformDelegateViews::~ExtensionActionPlatformDelegateViews() {
+@@ -50,15 +51,15 @@ void ExtensionActionPlatformDelegateView
+   if (action_keybinding_)
+     return;
+ 
+-  extensions::Command extension_command;
+-  views::FocusManager* focus_manager =
+-      GetDelegateViews()->GetFocusManagerForAccelerator();
+-  if (focus_manager && controller_->GetExtensionCommand(&extension_command)) {
+-    action_keybinding_ =
+-        std::make_unique<ui::Accelerator>(extension_command.accelerator());
+-    focus_manager->RegisterAccelerator(*action_keybinding_,
+-                                       kExtensionAcceleratorPriority, this);
+-  }
++//   extensions::Command extension_command;
++//   views::FocusManager* focus_manager =
++//       GetDelegateViews()->GetFocusManagerForAccelerator();
++//   if (focus_manager && controller_->GetExtensionCommand(&extension_command)) {
++//     action_keybinding_ =
++//         std::make_unique<ui::Accelerator>(extension_command.accelerator());
++//     focus_manager->RegisterAccelerator(*action_keybinding_,
++//                                        kExtensionAcceleratorPriority, this);
++//   }
+ }
+ 
+ void ExtensionActionPlatformDelegateViews::UnregisterCommand() {
+@@ -66,12 +67,12 @@ void ExtensionActionPlatformDelegateView
+   if (!action_keybinding_)
+     return;
+ 
+-  views::FocusManager* focus_manager =
+-      GetDelegateViews()->GetFocusManagerForAccelerator();
+-  if (focus_manager) {
+-    focus_manager->UnregisterAccelerator(*action_keybinding_, this);
+-    action_keybinding_.reset();
+-  }
++//   views::FocusManager* focus_manager =
++//       GetDelegateViews()->GetFocusManagerForAccelerator();
++//   if (focus_manager) {
++//     focus_manager->UnregisterAccelerator(*action_keybinding_, this);
++//     action_keybinding_.reset();
++//   }
+ }
+ 
+ void ExtensionActionPlatformDelegateViews::ShowPopup(
+@@ -85,15 +86,15 @@ void ExtensionActionPlatformDelegateView
+   ExtensionPopup::ShowAction popup_show_action =
+       show_action == ExtensionActionViewController::SHOW_POPUP ?
+           ExtensionPopup::SHOW : ExtensionPopup::SHOW_AND_INSPECT;
+-  ExtensionPopup::ShowPopup(std::move(host),
+-                            GetDelegateViews()->GetReferenceButtonForPopup(),
+-                            arrow, popup_show_action);
++//   ExtensionPopup::ShowPopup(std::move(host),
++//                             GetDelegateViews()->GetReferenceButtonForPopup(),
++//                             arrow, popup_show_action);
+ }
+ 
+ void ExtensionActionPlatformDelegateViews::ShowContextMenu() {
+-  views::View* view = GetDelegateViews()->GetAsView();
+-  view->context_menu_controller()->ShowContextMenuForView(
+-      view, view->GetKeyboardContextMenuLocation(), ui::MENU_SOURCE_NONE);
++//   views::View* view = GetDelegateViews()->GetAsView();
++//   view->context_menu_controller()->ShowContextMenuForView(
++//       view, view->GetKeyboardContextMenuLocation(), ui::MENU_SOURCE_NONE);
+ }
+ 
+ void ExtensionActionPlatformDelegateViews::OnExtensionCommandAdded(
+@@ -154,8 +155,8 @@ bool ExtensionActionPlatformDelegateView
+   return controller_->CanHandleAccelerators();
+ }
+ 
+-ToolbarActionViewDelegateViews*
+-ExtensionActionPlatformDelegateViews::GetDelegateViews() const {
+-  return static_cast<ToolbarActionViewDelegateViews*>(
+-      controller_->view_delegate());
+-}
++// ToolbarActionViewDelegateViews*
++// ExtensionActionPlatformDelegateViews::GetDelegateViews() const {
++//   return static_cast<ToolbarActionViewDelegateViews*>(
++//       controller_->view_delegate());
++// }
+--- a/chrome/browser/ui/views/extensions/extension_action_platform_delegate_views.h
++++ b/chrome/browser/ui/views/extensions/extension_action_platform_delegate_views.h
+@@ -51,7 +51,7 @@ class ExtensionActionPlatformDelegateVie
+   bool AcceleratorPressed(const ui::Accelerator& accelerator) override;
+   bool CanHandleAccelerators() const override;
+ 
+-  ToolbarActionViewDelegateViews* GetDelegateViews() const;
++//   ToolbarActionViewDelegateViews* GetDelegateViews() const;
+ 
+   // The owning ExtensionActionViewController.
+   ExtensionActionViewController* controller_;
+--- /dev/null
++++ b/chrome/android/java/src/org/chromium/chrome/browser/extensions/ExtensionMenuItem.java
+@@ -0,0 +1,73 @@
++// Copyright 2021 The Ungoogled Chromium Authors. All rights reserved.
++//
++// This file is part of Ungoogled Chromium Android.
++//
++// Ungoogled Chromium Android is free software: you can redistribute it
++// and/or modify it under the terms of the GNU General Public License as
++// published by the Free Software Foundation, either version 3 of the
++// License, or any later version.
++//
++// Ungoogled Chromium Android is distributed in the hope that it will be
++// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
++// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License
++// along with Ungoogled Chromium Android.  If not,
++// see <https://www.gnu.org/licenses/>.
++
++package org.chromium.chrome.browser.extensions;
++
++import androidx.annotation.Nullable;
++
++import android.content.Context;
++import android.content.res.Resources;
++import android.graphics.Bitmap;
++
++
++/**
++ *  A class for representing an extension menu item.
++ */
++public class ExtensionMenuItem {
++    private final String mUId;
++    private final String mTitle;
++    private final Bitmap mIcon;
++    private final String mPopupUrl;
++    private int mId;
++
++    private final String TAG = "ExtensionMenuItem.java";
++
++    /*
++     * Construct a new instance
++     */
++    public ExtensionMenuItem(String uId, String title, Bitmap icon, String popupUrl) {
++        mUId = uId;
++        mTitle = title;
++        mIcon = icon;
++        mPopupUrl = popupUrl;
++    }
++
++    public void setId(int id) {
++        mId = id;
++    }
++
++    public String getUId() {
++        return mUId;
++    }
++
++    public String getTitle() {
++        return mTitle;
++    }
++
++    public Bitmap getIcon() {
++        return mIcon;
++    }
++
++    public String getPopupUrl() {
++        return mPopupUrl;
++    }
++
++    public int getId() {
++        return mId;
++    }
++}
+--- a/chrome/browser/ui/toolbar/toolbar_action_view_controller.h
++++ b/chrome/browser/ui/toolbar/toolbar_action_view_controller.h
+@@ -7,6 +7,7 @@
+ 
+ #include "base/strings/string16.h"
+ #include "ui/gfx/image/image.h"
++#include "url/gurl.h"
+ 
+ namespace content {
+ class WebContents;
+@@ -103,6 +104,9 @@ class ToolbarActionViewController {
+   // Hides the current popup, if one is visible.
+   virtual void HidePopup() = 0;
+ 
++  // Gets the url of the popup, if the action has a popup
++  virtual GURL GetPopupUrl(content::WebContents* web_contents) { return GURL{}; }
++
+   // Returns the native view for the popup, if one is active.
+   virtual gfx::NativeView GetPopupNativeView() = 0;
+ 
