@@ -4,46 +4,53 @@ Subject: rewrite tab API with Android tab model
 
 ---
  chrome/android/java/src/org/chromium/chrome/browser/tabmodel/TabModelObserverJniBridge.java |    8 
- chrome/browser/extensions/api/tabs/tabs_api.cc                                              |  343 ++++------
+ chrome/browser/extensions/api/tabs/tabs_api.cc                                              |  347 ++++------
  chrome/browser/extensions/api/tabs/tabs_api.h                                               |    1 
- chrome/browser/extensions/api/tabs/tabs_event_router.cc                                     |  140 +++-
- chrome/browser/extensions/api/tabs/tabs_event_router.h                                      |   32 
+ chrome/browser/extensions/api/tabs/tabs_event_router.cc                                     |  151 +++-
+ chrome/browser/extensions/api/tabs/tabs_event_router.h                                      |   35 -
  chrome/browser/extensions/api/web_navigation/web_navigation_api.cc                          |    5 
- chrome/browser/extensions/extension_tab_util.cc                                             |  200 +++--
+ chrome/browser/extensions/extension_tab_util.cc                                             |  263 ++++---
  chrome/browser/extensions/extension_tab_util.h                                              |   11 
  chrome/browser/ui/android/tab_model/tab_model.cc                                            |    8 
- chrome/browser/ui/android/tab_model/tab_model.h                                             |    1 
+ chrome/browser/ui/android/tab_model/tab_model.h                                             |    2 
+ chrome/browser/ui/android/tab_model/tab_model_jni_bridge.cc                                 |    9 
+ chrome/browser/ui/android/tab_model/tab_model_jni_bridge.h                                  |    1 
  chrome/browser/ui/android/tab_model/tab_model_list.cc                                       |   10 
  chrome/browser/ui/android/tab_model/tab_model_list.h                                        |    1 
- chrome/browser/ui/android/tab_model/tab_model_observer.cc                                   |    2 
- chrome/browser/ui/android/tab_model/tab_model_observer.h                                    |    3 
- chrome/browser/ui/android/tab_model/tab_model_observer_jni_bridge.cc                        |    7 
+ chrome/browser/ui/android/tab_model/tab_model_observer.cc                                   |    4 
+ chrome/browser/ui/android/tab_model/tab_model_observer.h                                    |    5 
+ chrome/browser/ui/android/tab_model/tab_model_observer_jni_bridge.cc                        |   23 
  chrome/browser/ui/android/tab_model/tab_model_observer_jni_bridge.h                         |    4 
  chrome/browser/ui/browser_navigator.cc                                                      |  108 +--
  content/public/browser/web_contents_user_data.h                                             |    2 
- 18 files changed, 531 insertions(+), 355 deletions(-)
+ 20 files changed, 614 insertions(+), 384 deletions(-)
 
 --- a/chrome/browser/extensions/extension_tab_util.cc
 +++ b/chrome/browser/extensions/extension_tab_util.cc
-@@ -15,6 +15,9 @@
+@@ -15,16 +15,22 @@
  #include "base/strings/string_number_conversions.h"
  #include "base/strings/stringprintf.h"
  #include "base/strings/utf_string_conversions.h"
 +#include "chrome/browser/android/tab_android.h"
-+#include "chrome/browser/ui/android/tab_model/tab_model.h"
-+#include "chrome/browser/ui/android/tab_model/tab_model_list.h"
  #include "chrome/browser/browser_process.h"
  #include "chrome/browser/extensions/api/tab_groups/tab_groups_util.h"
  #include "chrome/browser/extensions/api/tabs/tabs_api.h"
-@@ -24,6 +27,7 @@
+ #include "chrome/browser/extensions/api/tabs/tabs_constants.h"
++#include "chrome/browser/extensions/api/tabs/tabs_event_router.h"
++#include "chrome/browser/extensions/api/tabs/tabs_windows_api.h"
+ #include "chrome/browser/extensions/browser_extension_window_controller.h"
+ #include "chrome/browser/extensions/chrome_extension_function_details.h"
  #include "chrome/browser/extensions/tab_helper.h"
  #include "chrome/browser/platform_util.h"
  #include "chrome/browser/profiles/profile.h"
 +#include "chrome/browser/profiles/profile_manager.h"
  #include "chrome/browser/resource_coordinator/tab_lifecycle_unit_external.h"
++#include "chrome/browser/ui/android/tab_model/tab_model.h"
++#include "chrome/browser/ui/android/tab_model/tab_model_list.h"
  #include "chrome/browser/ui/browser.h"
  #include "chrome/browser/ui/browser_finder.h"
-@@ -108,9 +112,9 @@ Browser* CreateBrowser(Profile* profile,
+ #include "chrome/browser/ui/browser_navigator_params.h"
+@@ -108,9 +114,9 @@ Browser* CreateBrowser(Profile* profile,
  // take care of setting the id to TAB_ID_NONE if necessary (for
  // example with devtools).
  int GetTabIdForExtensions(const WebContents* web_contents) {
@@ -56,7 +63,7 @@ Subject: rewrite tab API with Android tab model
    return sessions::SessionTabHelper::IdForTab(web_contents).id();
  }
  
-@@ -196,24 +200,24 @@ base::DictionaryValue* ExtensionTabUtil:
+@@ -196,24 +202,24 @@ base::DictionaryValue* ExtensionTabUtil:
      window_id = *params.window_id;
  
    Browser* browser = GetBrowserFromWindowID(chrome_details, window_id, error);
@@ -97,7 +104,7 @@ Subject: rewrite tab API with Android tab model
  
    // TODO(jstritar): Add a constant, chrome.tabs.TAB_ID_ACTIVE, that
    // represents the active tab.
-@@ -264,20 +268,20 @@ base::DictionaryValue* ExtensionTabUtil:
+@@ -264,20 +270,20 @@ base::DictionaryValue* ExtensionTabUtil:
    if (url.SchemeIs(kExtensionScheme) &&
        (!function->extension() ||
         !IncognitoInfo::IsSplitMode(function->extension())) &&
@@ -131,7 +138,7 @@ Subject: rewrite tab API with Android tab model
    }
  
    if (opener_browser && browser != opener_browser) {
-@@ -292,8 +296,9 @@ base::DictionaryValue* ExtensionTabUtil:
+@@ -292,8 +298,9 @@ base::DictionaryValue* ExtensionTabUtil:
    int index = -1;
    if (params.index.get())
      index = *params.index;
@@ -142,7 +149,7 @@ Subject: rewrite tab API with Android tab model
    int add_types = active ? TabStripModel::ADD_ACTIVE : TabStripModel::ADD_NONE;
    add_types |= TabStripModel::ADD_FORCE_INDEX;
    if (pinned)
-@@ -317,15 +322,15 @@ base::DictionaryValue* ExtensionTabUtil:
+@@ -317,15 +324,15 @@ base::DictionaryValue* ExtensionTabUtil:
  
    // The tab may have been created in a different window, so make sure we look
    // at the right tab strip.
@@ -167,7 +174,7 @@ Subject: rewrite tab API with Android tab model
  
    if (active)
      navigate_params.navigated_or_inserted_contents->SetInitialFocus();
-@@ -336,9 +341,12 @@ base::DictionaryValue* ExtensionTabUtil:
+@@ -336,9 +343,12 @@ base::DictionaryValue* ExtensionTabUtil:
            navigate_params.navigated_or_inserted_contents);
  
    // Return data about the newly created tab.
@@ -181,7 +188,27 @@ Subject: rewrite tab API with Android tab model
        ->ToValue()
        .release();
  }
-@@ -402,27 +410,21 @@ std::unique_ptr<api::tabs::Tab> Extensio
+@@ -386,14 +396,14 @@ int ExtensionTabUtil::GetWindowIdOfTab(c
+ 
+ // static
+ std::string ExtensionTabUtil::GetBrowserWindowTypeText(const Browser& browser) {
+-  if (browser.is_type_devtools())
+-    return tabs_constants::kWindowTypeValueDevTools;
++//   if (browser.is_type_devtools())
++//     return tabs_constants::kWindowTypeValueDevTools;
+   // TODO(crbug.com/990158): We return 'popup' for both popup and app since
+   // chrome.windows.create({type: 'popup'}) uses
+   // Browser::CreateParams::CreateForApp.
+-  if (browser.is_type_popup() || browser.is_type_app() ||
+-      browser.is_type_app_popup())
+-    return tabs_constants::kWindowTypeValuePopup;
++//   if (browser.is_type_popup() || browser.is_type_app() ||
++//       browser.is_type_app_popup())
++//     return tabs_constants::kWindowTypeValuePopup;
+   return tabs_constants::kWindowTypeValueNormal;
+ }
+ 
+@@ -402,27 +412,21 @@ std::unique_ptr<api::tabs::Tab> Extensio
      WebContents* contents,
      ScrubTabBehavior scrub_tab_behavior,
      const Extension* extension,
@@ -215,7 +242,7 @@ Subject: rewrite tab API with Android tab model
  
    auto* audible_helper = RecentlyAudibleHelper::FromWebContents(contents);
    bool audible = false;
-@@ -452,7 +454,7 @@ std::unique_ptr<api::tabs::Tab> Extensio
+@@ -452,7 +456,7 @@ std::unique_ptr<api::tabs::Tab> Extensio
  
    tab_object->muted_info = CreateMutedInfo(contents);
    tab_object->incognito = contents->GetBrowserContext()->IsOffTheRecord();
@@ -224,7 +251,7 @@ Subject: rewrite tab API with Android tab model
    tab_object->width = std::make_unique<int>(contents_size.width());
    tab_object->height = std::make_unique<int>(contents_size.height());
  
-@@ -472,13 +474,14 @@ std::unique_ptr<api::tabs::Tab> Extensio
+@@ -472,13 +476,14 @@ std::unique_ptr<api::tabs::Tab> Extensio
      tab_object->fav_icon_url =
          std::make_unique<std::string>(visible_entry->GetFavicon().url.spec());
    }
@@ -246,7 +273,7 @@ Subject: rewrite tab API with Android tab model
  
    ScrubTabForExtension(extension, contents, tab_object.get(),
                         scrub_tab_behavior);
-@@ -490,8 +493,8 @@ std::unique_ptr<base::ListValue> Extensi
+@@ -490,8 +495,8 @@ std::unique_ptr<base::ListValue> Extensi
      const Extension* extension,
      Feature::Context context) {
    std::unique_ptr<base::ListValue> tab_list(new base::ListValue());
@@ -257,7 +284,84 @@ Subject: rewrite tab API with Android tab model
      WebContents* web_contents = tab_strip->GetWebContentsAt(i);
      ExtensionTabUtil::ScrubTabBehavior scrub_tab_behavior =
          ExtensionTabUtil::GetScrubTabBehavior(extension, context, web_contents);
-@@ -650,20 +653,29 @@ void ExtensionTabUtil::ScrubTabForExtens
+@@ -512,44 +517,57 @@ ExtensionTabUtil::CreateWindowValueForEx
+     Feature::Context context) {
+   auto result = std::make_unique<base::DictionaryValue>();
+ 
+-  result->SetInteger(tabs_constants::kIdKey, browser.session_id().id());
++  // This assumes extension will always get focus of currently opening tab
++  // Get last selected tab. If none, return currently active tab
++  TabModel* tab_model = TabModelList::GetCurrentTabModel();
++  TabAndroid* tab = tab_model->GetTabForId(
++          TabsWindowsAPI::Get(ProfileManager::GetActiveUserProfile())
++          ->tabs_event_router()->GetLastTabId());
++  if (!tab)
++      tab = tab_model->GetTabAt(tab_model->GetActiveIndex());
++  // If still nullptr, return nullptr
++  result->SetInteger(tabs_constants::kIdKey, sessions::SessionTabHelper::IdForWindowContainingTab(
++//     TabModelList::GetCurrentTabModel()->GetActiveWebContents()
++      tab ? tab->web_contents() : nullptr
++  ).id());
+   result->SetString(tabs_constants::kWindowTypeKey,
+                     GetBrowserWindowTypeText(browser));
+-  ui::BaseWindow* window = browser.window();
+-  result->SetBoolean(tabs_constants::kFocusedKey, window->IsActive());
+-  const Profile* profile = browser.profile();
++//   ui::BaseWindow* window = browser.window();
++  result->SetBoolean(tabs_constants::kFocusedKey, true);
++  const Profile* profile = ProfileManager::GetActiveUserProfile();
+   result->SetBoolean(tabs_constants::kIncognitoKey, profile->IsOffTheRecord());
+   result->SetBoolean(
+       tabs_constants::kAlwaysOnTopKey,
+-      window->GetZOrderLevel() == ui::ZOrderLevel::kFloatingWindow);
++      false);
+ 
+   std::string window_state;
+-  if (window->IsMinimized()) {
++  if (false) {
+     window_state = tabs_constants::kShowStateValueMinimized;
+-  } else if (window->IsFullscreen()) {
++  } else if (false) {
+     window_state = tabs_constants::kShowStateValueFullscreen;
+-    if (platform_util::IsBrowserLockedFullscreen(&browser))
++    if (false)
+       window_state = tabs_constants::kShowStateValueLockedFullscreen;
+-  } else if (window->IsMaximized()) {
++  } else if (false) {
+     window_state = tabs_constants::kShowStateValueMaximized;
+   } else {
+     window_state = tabs_constants::kShowStateValueNormal;
+   }
+   result->SetString(tabs_constants::kShowStateKey, window_state);
+ 
+-  gfx::Rect bounds;
+-  if (window->IsMinimized())
+-    bounds = window->GetRestoredBounds();
+-  else
+-    bounds = window->GetBounds();
+-  result->SetInteger(tabs_constants::kLeftKey, bounds.x());
+-  result->SetInteger(tabs_constants::kTopKey, bounds.y());
+-  result->SetInteger(tabs_constants::kWidthKey, bounds.width());
+-  result->SetInteger(tabs_constants::kHeightKey, bounds.height());
++//   gfx::Rect bounds;
++//   if (window->IsMinimized())
++//     bounds = window->GetRestoredBounds();
++//   else
++//     bounds = window->GetBounds();
++  // TODO: Return fixed window size. May need fix
++  result->SetInteger(tabs_constants::kLeftKey, 0);
++  result->SetInteger(tabs_constants::kTopKey, 0);
++  result->SetInteger(tabs_constants::kWidthKey, 800);
++  result->SetInteger(tabs_constants::kHeightKey, 600);
+ 
+   if (populate_tab_behavior == kPopulateTabs)
+     result->Set(tabs_constants::kTabsKey,
+-                CreateTabList(&browser, extension, context));
++                CreateTabList(nullptr, extension, context));
+ 
+   return result;
+ }
+@@ -650,20 +668,29 @@ void ExtensionTabUtil::ScrubTabForExtens
  }
  
  // static
@@ -297,7 +401,7 @@ Subject: rewrite tab API with Android tab model
      }
    }
  
-@@ -673,10 +685,9 @@ bool ExtensionTabUtil::GetTabStripModel(
+@@ -673,10 +700,9 @@ bool ExtensionTabUtil::GetTabStripModel(
  bool ExtensionTabUtil::GetDefaultTab(Browser* browser,
                                       WebContents** contents,
                                       int* tab_id) {
@@ -309,7 +413,7 @@ Subject: rewrite tab API with Android tab model
    if (*contents) {
      if (tab_id)
        *tab_id = GetTabId(*contents);
-@@ -691,7 +702,7 @@ bool ExtensionTabUtil::GetTabById(int ta
+@@ -691,7 +717,7 @@ bool ExtensionTabUtil::GetTabById(int ta
                                    content::BrowserContext* browser_context,
                                    bool include_incognito,
                                    Browser** browser,
@@ -318,7 +422,7 @@ Subject: rewrite tab API with Android tab model
                                    WebContents** contents,
                                    int* tab_index) {
    if (tab_id == api::tabs::TAB_ID_NONE)
-@@ -701,22 +712,22 @@ bool ExtensionTabUtil::GetTabById(int ta
+@@ -701,22 +727,22 @@ bool ExtensionTabUtil::GetTabById(int ta
        include_incognito && profile->HasPrimaryOTRProfile()
            ? profile->GetPrimaryOTRProfile()
            : nullptr;
@@ -351,7 +455,7 @@ Subject: rewrite tab API with Android tab model
            return true;
          }
        }
-@@ -746,14 +757,12 @@ ExtensionTabUtil::GetAllActiveWebContent
+@@ -746,14 +772,12 @@ ExtensionTabUtil::GetAllActiveWebContent
        include_incognito && profile->HasPrimaryOTRProfile()
            ? profile->GetPrimaryOTRProfile()
            : nullptr;
@@ -369,7 +473,7 @@ Subject: rewrite tab API with Android tab model
  
    return active_contents;
  }
-@@ -943,8 +952,9 @@ api::tabs::TabStatus ExtensionTabUtil::G
+@@ -943,8 +967,9 @@ api::tabs::TabStatus ExtensionTabUtil::G
      return api::tabs::TAB_STATUS_LOADING;
  
    // Anything that isn't backed by a process is considered unloaded.
@@ -572,6 +676,17 @@ Subject: rewrite tab API with Android tab model
  }
  
  }  // namespace
+@@ -443,8 +442,8 @@ ExtensionFunction::ResponseAction Window
+         break;  // Use focused window.
+     }
+   }
+-  if (!browser)
+-    return RespondNow(Error(tabs_constants::kNoLastFocusedWindowError));
++//   if (!browser)
++//     return RespondNow(Error(tabs_constants::kNoLastFocusedWindowError));
+ 
+   ExtensionTabUtil::PopulateTabBehavior populate_tab_behavior =
+       extractor.populate_tabs() ? ExtensionTabUtil::kPopulateTabs
 @@ -532,7 +531,7 @@ ExtensionFunction::ResponseAction Window
        windows::Create::Params::Create(*args_));
    EXTENSION_FUNCTION_VALIDATE(params);
@@ -1158,7 +1273,7 @@ Subject: rewrite tab API with Android tab model
  }
  
  void TabsEventRouter::TabChangedAt(WebContents* contents,
-@@ -269,6 +282,103 @@ void TabsEventRouter::TabGroupedStateCha
+@@ -269,6 +282,114 @@ void TabsEventRouter::TabGroupedStateCha
    changed_property_names.insert(tabs_constants::kGroupIdKey);
    DispatchTabUpdatedEvent(contents, std::move(changed_property_names));
  }
@@ -1201,13 +1316,16 @@ Subject: rewrite tab API with Android tab model
 +
 +// On Android, tab selection is a different concept from tab_strip_model
 +void TabsEventRouter::DidSelectTab(TabAndroid* tab,
-+                 TabModel::TabSelectionType type) {
++                 TabModel::TabSelectionType type, int last_id) {
++  LOG(INFO) << "tabs_event_router.cc: DidSelectTab: entry";
 +  WebContents* contents = tab->web_contents();
 +  DCHECK(contents);
 +  if (!contents) {
 +    LOG(INFO) << "tabs_event_router.cc: DidSelectTab: web_contents: nullptr";
 +    return;
 +  }
++  if (last_id != tab->GetAndroidId())
++      last_tab_id_ = last_id;
 +  if (!GetTabEntry(contents)) {
 +    TabModel* tab_model = TabModelList::GetTabModelForTabAndroid(tab);
 +    DispatchTabInsertedAt(tab_model,
@@ -1221,6 +1339,7 @@ Subject: rewrite tab API with Android tab model
 +
 +void TabsEventRouter::DidAddTab(TabAndroid* tab,
 +                 TabModel::TabLaunchType type) {
++  LOG(INFO) << "tabs_event_router.cc: DidAddTab: entry";
 +  DCHECK(tab->web_contents());
 +  if (!tab->web_contents()) {
 +    LOG(INFO) << "tabs_event_router.cc: DidAddTab: web_contents: nullptr";
@@ -1234,6 +1353,7 @@ Subject: rewrite tab API with Android tab model
 +}
 +
 +void TabsEventRouter::WillCloseTab(TabAndroid* tab, bool animate) {
++  LOG(INFO) << "tabs_event_router.cc: WillCloseTab: entry";
 +  TabModel* tab_model = TabModelList::GetTabModelForTabAndroid(tab);
 +  DispatchTabClosingAt(tab_model,
 +                       tab->web_contents(),
@@ -1241,6 +1361,7 @@ Subject: rewrite tab API with Android tab model
 +}
 +
 +void TabsEventRouter::TabRemoved(TabAndroid* tab) {
++  LOG(INFO) << "tabs_event_router.cc: TabRemoved: entry";
 +  TabModel* tab_model = TabModelList::GetTabModelForTabAndroid(tab);
 +  DispatchTabDetachedAt(tab->web_contents(),
 +                        tab_model->GetIndexForWebContents(tab->web_contents()),
@@ -1248,6 +1369,7 @@ Subject: rewrite tab API with Android tab model
 +}
 +
 +void TabsEventRouter::DidMoveTab(TabAndroid* tab, int new_index, int old_index) {
++  LOG(INFO) << "tabs_event_router.cc: DidMoveTab: entry";
 +  DispatchTabMoved(tab->web_contents(), old_index, new_index);
 +}
 +
@@ -1259,10 +1381,14 @@ Subject: rewrite tab API with Android tab model
 +    DidAddTab(tab_model->GetTabAt(i), TabModel::TabLaunchType::FROM_RESTORE);
 +  }
 +}
++
++int TabsEventRouter::GetLastTabId() {
++    return last_tab_id_;
++}
  
  void TabsEventRouter::OnZoomChanged(
      const ZoomController::ZoomChangedEventData& data) {
-@@ -330,7 +440,7 @@ void TabsEventRouter::OnAutoDiscardableS
+@@ -330,7 +451,7 @@ void TabsEventRouter::OnAutoDiscardableS
    DispatchTabUpdatedEvent(contents, std::move(changed_property_names));
  }
  
@@ -1271,7 +1397,7 @@ Subject: rewrite tab API with Android tab model
                                              WebContents* contents,
                                              int index,
                                              bool active) {
-@@ -363,7 +473,7 @@ void TabsEventRouter::DispatchTabInserte
+@@ -363,7 +484,7 @@ void TabsEventRouter::DispatchTabInserte
                  EventRouter::USER_GESTURE_UNKNOWN);
  }
  
@@ -1280,7 +1406,7 @@ Subject: rewrite tab API with Android tab model
                                             WebContents* contents,
                                             int index) {
    int tab_id = ExtensionTabUtil::GetTabId(contents);
-@@ -376,7 +486,7 @@ void TabsEventRouter::DispatchTabClosing
+@@ -376,7 +497,7 @@ void TabsEventRouter::DispatchTabClosing
    object_args->SetInteger(tabs_constants::kWindowIdKey,
                            ExtensionTabUtil::GetWindowIdOfTab(contents));
    object_args->SetBoolean(tabs_constants::kWindowClosing,
@@ -1289,7 +1415,7 @@ Subject: rewrite tab API with Android tab model
    args->Append(std::move(object_args));
  
    Profile* profile = Profile::FromBrowserContext(contents->GetBrowserContext());
-@@ -621,10 +731,10 @@ void TabsEventRouter::DispatchTabUpdated
+@@ -621,10 +742,10 @@ void TabsEventRouter::DispatchTabUpdated
  }
  
  void TabsEventRouter::RegisterForTabNotifications(WebContents* contents) {
@@ -1303,7 +1429,7 @@ Subject: rewrite tab API with Android tab model
  
    int tab_id = ExtensionTabUtil::GetTabId(contents);
    DCHECK(tab_entries_.find(tab_id) == tab_entries_.end());
-@@ -632,14 +742,14 @@ void TabsEventRouter::RegisterForTabNoti
+@@ -632,14 +753,14 @@ void TabsEventRouter::RegisterForTabNoti
  }
  
  void TabsEventRouter::UnregisterForTabNotifications(WebContents* contents) {
@@ -1322,7 +1448,7 @@ Subject: rewrite tab API with Android tab model
  }
  
  TabsEventRouter::TabEntry* TabsEventRouter::GetTabEntry(WebContents* contents) {
-@@ -648,4 +758,8 @@ TabsEventRouter::TabEntry* TabsEventRout
+@@ -648,4 +769,8 @@ TabsEventRouter::TabEntry* TabsEventRout
    return it == tab_entries_.end() ? nullptr : it->second.get();
  }
  
@@ -1364,7 +1490,7 @@ Subject: rewrite tab API with Android tab model
    // TabStripModelObserver:
    void OnTabStripModelChanged(
        TabStripModel* tab_strip_model,
-@@ -65,6 +71,22 @@ class TabsEventRouter : public TabStripM
+@@ -65,6 +71,23 @@ class TabsEventRouter : public TabStripM
    void TabGroupedStateChanged(base::Optional<tab_groups::TabGroupId> group,
                                content::WebContents* contents,
                                int index) override;
@@ -1377,17 +1503,18 @@ Subject: rewrite tab API with Android tab model
 +
 +  // TabModelObserver:
 +  void DidSelectTab(TabAndroid* tab,
-+                 TabModel::TabSelectionType type) override;
++                 TabModel::TabSelectionType type, int last_id) override;
 +  void DidAddTab(TabAndroid* tab,
 +                 TabModel::TabLaunchType type) override;
 +  void WillCloseTab(TabAndroid* tab, bool animate) override;
 +  void TabRemoved(TabAndroid* tab) override;
 +  void DidMoveTab(TabAndroid* tab, int new_index, int old_index) override;
 +  void RestoreCompleted() override;
++  int GetLastTabId();
  
    // ZoomObserver:
    void OnZoomChanged(
-@@ -86,11 +108,11 @@ class TabsEventRouter : public TabStripM
+@@ -86,11 +109,11 @@ class TabsEventRouter : public TabStripM
  
   private:
    // Methods called from OnTabStripModelChanged.
@@ -1401,7 +1528,7 @@ Subject: rewrite tab API with Android tab model
                              content::WebContents* contents,
                              int index);
    void DispatchTabDetachedAt(content::WebContents* contents,
-@@ -143,6 +165,9 @@ class TabsEventRouter : public TabStripM
+@@ -143,6 +166,9 @@ class TabsEventRouter : public TabStripM
    // Removes notifications and tab entry added in RegisterForTabNotifications.
    void UnregisterForTabNotifications(content::WebContents* contents);
  
@@ -1411,12 +1538,14 @@ Subject: rewrite tab API with Android tab model
    // Maintain some information about known tabs, so we can:
    //
    //  - distinguish between tab creation and tab insertion
-@@ -209,6 +234,9 @@ class TabsEventRouter : public TabStripM
+@@ -209,6 +235,11 @@ class TabsEventRouter : public TabStripM
  
    BrowserTabStripTracker browser_tab_strip_tracker_;
  
 +  TabModel* observed_tab_model_ = nullptr;
 +  base::WeakPtrFactory<TabsEventRouter> weak_ptr_factory_{this};
++
++  int last_tab_id_;
 +
    ScopedObserver<resource_coordinator::TabManager,
                   resource_coordinator::TabLifecycleObserver>
@@ -1440,7 +1569,7 @@ Subject: rewrite tab API with Android tab model
    if (active_index == INVALID_TAB_INDEX)
 --- a/chrome/browser/ui/android/tab_model/tab_model.h
 +++ b/chrome/browser/ui/android/tab_model/tab_model.h
-@@ -116,6 +116,7 @@ class TabModel {
+@@ -116,10 +116,12 @@ class TabModel {
  
    virtual int GetTabCount() const = 0;
    virtual int GetActiveIndex() const = 0;
@@ -1448,6 +1577,11 @@ Subject: rewrite tab API with Android tab model
    virtual content::WebContents* GetActiveWebContents() const;
    virtual content::WebContents* GetWebContentsAt(int index) const = 0;
    // This will return NULL if the tab has not yet been initialized.
+   virtual TabAndroid* GetTabAt(int index) const = 0;
++  virtual TabAndroid* GetTabForId(int id) const = 0;
+ 
+   virtual void SetActiveIndex(int index) = 0;
+   virtual void CloseTabAt(int index) = 0;
 --- a/chrome/browser/ui/browser_navigator.cc
 +++ b/chrome/browser/ui/browser_navigator.cc
 @@ -19,10 +19,14 @@
@@ -1755,13 +1889,118 @@ Subject: rewrite tab API with Android tab model
  }
 --- a/chrome/browser/ui/android/tab_model/tab_model_observer_jni_bridge.cc
 +++ b/chrome/browser/ui/android/tab_model/tab_model_observer_jni_bridge.cc
-@@ -174,6 +174,13 @@ void TabModelObserverJniBridge::TabRemov
+@@ -4,6 +4,7 @@
+ 
+ #include "chrome/browser/ui/android/tab_model/tab_model_observer_jni_bridge.h"
+ 
++#include "base/logging.h"
+ #include "chrome/android/chrome_jni_headers/TabModelObserverJniBridge_jni.h"
+ #include "chrome/browser/android/tab_android.h"
+ #include "chrome/browser/ui/android/tab_model/tab_model.h"
+@@ -53,8 +54,9 @@ void TabModelObserverJniBridge::DidSelec
+   TabAndroid* tab = TabAndroid::GetNativeTab(env, jtab);
+   CHECK(tab);
+   TabModel::TabSelectionType type = GetTabSelectionType(env, jtype);
++  LOG(INFO) << "tab_model_observer_jni_bridge.cc: DidSelectTab: type: " << static_cast<int>(type);
+   for (auto& observer : observers_)
+-    observer.DidSelectTab(tab, type);
++    observer.DidSelectTab(tab, type, last_id);
+ }
+ 
+ void TabModelObserverJniBridge::WillCloseTab(JNIEnv* env,
+@@ -63,6 +65,7 @@ void TabModelObserverJniBridge::WillClos
+                                              bool animate) {
+   TabAndroid* tab = TabAndroid::GetNativeTab(env, jtab);
+   CHECK(tab);
++  LOG(INFO) << "tab_model_observer_jni_bridge.cc: WillCloseTab";
+   for (auto& observer : observers_)
+     observer.WillCloseTab(tab, animate);
+ }
+@@ -71,6 +74,7 @@ void TabModelObserverJniBridge::DidClose
+                                             const JavaParamRef<jobject>& jobj,
+                                             int tab_id,
+                                             bool incognito) {
++  LOG(INFO) << "tab_model_observer_jni_bridge.cc: DidCloseTab";
+   for (auto& observer : observers_)
+     observer.DidCloseTab(tab_id, incognito);
+ }
+@@ -82,6 +86,7 @@ void TabModelObserverJniBridge::WillAddT
+   TabAndroid* tab = TabAndroid::GetNativeTab(env, jtab);
+   CHECK(tab);
+   TabModel::TabLaunchType type = GetTabLaunchType(env, jtype);
++  LOG(INFO) << "tab_model_observer_jni_bridge.cc: WillAddTab: type: " << static_cast<int>(type);
+   for (auto& observer : observers_)
+     observer.WillAddTab(tab, type);
+ }
+@@ -93,6 +98,7 @@ void TabModelObserverJniBridge::DidAddTa
+   TabAndroid* tab = TabAndroid::GetNativeTab(env, jtab);
+   CHECK(tab);
+   TabModel::TabLaunchType type = GetTabLaunchType(env, jtype);
++  LOG(INFO) << "tab_model_observer_jni_bridge.cc: DidAddTab: type: " << static_cast<int>(type);
+   for (auto& observer : observers_)
+     observer.DidAddTab(tab, type);
+ }
+@@ -104,6 +110,7 @@ void TabModelObserverJniBridge::DidMoveT
+                                            int cur_index) {
+   TabAndroid* tab = TabAndroid::GetNativeTab(env, jtab);
+   CHECK(tab);
++  LOG(INFO) << "tab_model_observer_jni_bridge.cc: DidMoveTab";
+   for (auto& observer : observers_)
+     observer.DidMoveTab(tab, new_index, cur_index);
+ }
+@@ -114,6 +121,7 @@ void TabModelObserverJniBridge::TabPendi
+     const JavaParamRef<jobject>& jtab) {
+   TabAndroid* tab = TabAndroid::GetNativeTab(env, jtab);
+   CHECK(tab);
++  LOG(INFO) << "tab_model_observer_jni_bridge.cc: TabPendingClosure";
+   for (auto& observer : observers_)
+     observer.TabPendingClosure(tab);
+ }
+@@ -124,6 +132,7 @@ void TabModelObserverJniBridge::TabClosu
+     const JavaParamRef<jobject>& jtab) {
+   TabAndroid* tab = TabAndroid::GetNativeTab(env, jtab);
+   CHECK(tab);
++  LOG(INFO) << "tab_model_observer_jni_bridge.cc: TabClosureUndone";
+   for (auto& observer : observers_)
+     observer.TabClosureUndone(tab);
+ }
+@@ -134,6 +143,7 @@ void TabModelObserverJniBridge::TabClosu
+     const JavaParamRef<jobject>& jtab) {
+   TabAndroid* tab = TabAndroid::GetNativeTab(env, jtab);
+   CHECK(tab);
++  LOG(INFO) << "tab_model_observer_jni_bridge.cc: TabClosureCommitted";
+   for (auto& observer : observers_)
+     observer.TabClosureCommitted(tab);
+ }
+@@ -143,6 +153,7 @@ void TabModelObserverJniBridge::AllTabsP
+     const JavaParamRef<jobject>& jobj,
+     const JavaParamRef<jobjectArray>& jtabs) {
+   std::vector<TabAndroid*> tabs;
++  LOG(INFO) << "tab_model_observer_jni_bridge.cc: AllTabsPendingClosure";
+ 
+   // |jtabs| is actually a Tab[]. Iterate over the array and convert it to
+   // a vector of TabAndroid*.
+@@ -161,6 +172,7 @@ void TabModelObserverJniBridge::AllTabsP
+ void TabModelObserverJniBridge::AllTabsClosureCommitted(
+     JNIEnv* env,
+     const JavaParamRef<jobject>& jobj) {
++  LOG(INFO) << "tab_model_observer_jni_bridge.cc: AllTabsClosureCommitted";
+   for (auto& observer : observers_)
+     observer.AllTabsClosureCommitted();
+ }
+@@ -170,10 +182,19 @@ void TabModelObserverJniBridge::TabRemov
+                                            const JavaParamRef<jobject>& jtab) {
+   TabAndroid* tab = TabAndroid::GetNativeTab(env, jtab);
+   CHECK(tab);
++  LOG(INFO) << "tab_model_observer_jni_bridge.cc: TabRemoved";
+   for (auto& observer : observers_)
      observer.TabRemoved(tab);
  }
  
 +void TabModelObserverJniBridge::RestoreCompleted(
 +    JNIEnv* env,
 +    const JavaParamRef<jobject>& jobj) {
++  LOG(INFO) << "tab_model_observer_jni_bridge.cc: RestoreCompleted";
 +  for (auto& observer : observers_)
 +    observer.RestoreCompleted();
 +}
@@ -1784,6 +2023,15 @@ Subject: rewrite tab API with Android tab model
  
 --- a/chrome/browser/ui/android/tab_model/tab_model_observer.cc
 +++ b/chrome/browser/ui/android/tab_model/tab_model_observer.cc
+@@ -11,7 +11,7 @@ TabModelObserver::TabModelObserver() {}
+ TabModelObserver::~TabModelObserver() {}
+ 
+ void TabModelObserver::DidSelectTab(TabAndroid* tab,
+-                                    TabModel::TabSelectionType type) {}
++                                    TabModel::TabSelectionType type, int last_id) {}
+ 
+ void TabModelObserver::WillCloseTab(TabAndroid* tab, bool animate) {}
+ 
 @@ -39,3 +39,5 @@ void TabModelObserver::AllTabsPendingClo
  void TabModelObserver::AllTabsClosureCommitted() {}
  
@@ -1792,6 +2040,15 @@ Subject: rewrite tab API with Android tab model
 +void TabModelObserver::RestoreCompleted() {}
 --- a/chrome/browser/ui/android/tab_model/tab_model_observer.h
 +++ b/chrome/browser/ui/android/tab_model/tab_model_observer.h
+@@ -21,7 +21,7 @@ class TabModelObserver {
+   virtual ~TabModelObserver();
+ 
+   // Called when a |tab| is selected.
+-  virtual void DidSelectTab(TabAndroid* tab, TabModel::TabSelectionType type);
++  virtual void DidSelectTab(TabAndroid* tab, TabModel::TabSelectionType type, int last_id);
+ 
+   // Called when a |tab| starts closing.
+   virtual void WillCloseTab(TabAndroid* tab, bool animate);
 @@ -61,6 +61,9 @@ class TabModelObserver {
    // the TabModel.
    virtual void TabRemoved(TabAndroid* tab);
@@ -1802,3 +2059,31 @@ Subject: rewrite tab API with Android tab model
   private:
    DISALLOW_COPY_AND_ASSIGN(TabModelObserver);
  };
+--- a/chrome/browser/ui/android/tab_model/tab_model_jni_bridge.cc
++++ b/chrome/browser/ui/android/tab_model/tab_model_jni_bridge.cc
+@@ -137,6 +137,15 @@ TabAndroid* TabModelJniBridge::GetTabAt(
+   return jtab.is_null() ? NULL : TabAndroid::GetNativeTab(env, jtab);
+ }
+ 
++TabAndroid* TabModelJniBridge::GetTabForId(int id) const {
++  for (int i = 0; i < GetTabCount(); ++i) {
++    TabAndroid* tab = GetTabAt(i);
++    if (tab && tab->GetAndroidId() == id)
++        return tab;
++  }
++  return nullptr;
++}
++
+ void TabModelJniBridge::SetActiveIndex(int index) {
+   JNIEnv* env = AttachCurrentThread();
+   Java_TabModelJniBridge_setIndex(env, java_object_.get(env), index);
+--- a/chrome/browser/ui/android/tab_model/tab_model_jni_bridge.h
++++ b/chrome/browser/ui/android/tab_model/tab_model_jni_bridge.h
+@@ -46,6 +46,7 @@ class TabModelJniBridge : public TabMode
+   int GetActiveIndex() const override;
+   content::WebContents* GetWebContentsAt(int index) const override;
+   TabAndroid* GetTabAt(int index) const override;
++  TabAndroid* GetTabForId(int id) const override;
+ 
+   void SetActiveIndex(int index) override;
+   void CloseTabAt(int index) override;
