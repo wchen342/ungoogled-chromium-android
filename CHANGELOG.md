@@ -1,3 +1,17 @@
+# 88.0.4324.152-2
+* Extension version only:
+  * Add extension icons to app menu. It is now possible to open the extension popups from main menu. *Note: not all functionalities are working.*
+  * Known issue: the icons will not be visible the first time menu is opened after installation or a cold start.
+  * Extensions that are known to work:
+    * [NoScript](https://noscript.net/)
+    * [Privacy Badger](https://privacybadger.org/)
+    * [HTTPS Everywhere](https://www.eff.org/https-everywhere)
+    * [Decentraleyes](https://decentraleyes.org/)
+    * [Cookie AutoDelete](https://github.com/Cookie-AutoDelete/Cookie-AutoDelete)
+    * [uBlock Origin](https://github.com/gorhill/uBlock) (*except for logger window*)
+    * [uMatrix](https://github.com/gorhill/uMatrix)
+    * [ClearURLs](https://gitlab.com/KevinRoebert/ClearUrls)
+
 # 88.0.4324.152-1
 * Upstream important security fix
   * [1170176] High CVE-2021-21148: Heap buffer overflow in V8. Reported by Mattias Buelens on 2021-01-24
