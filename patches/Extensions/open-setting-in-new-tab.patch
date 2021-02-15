@@ -4,13 +4,13 @@ Subject: make settings of extensions open in new tab
 
 
 ---
- chrome/browser/extensions/api/developer_private/developer_private_api.cc               |    4 -
+ chrome/browser/extensions/api/developer_private/developer_private_api.cc               |    4 
  chrome/browser/extensions/extension_context_menu_model.cc                              |    2 
- chrome/browser/extensions/extension_tab_util.cc                                        |   36 +++-------
+ chrome/browser/extensions/extension_tab_util.cc                                        |   42 ++++------
  chrome/browser/extensions/extension_tab_util.h                                         |    2 
- chrome/browser/guest_view/extension_options/chrome_extension_options_guest_delegate.cc |    4 -
+ chrome/browser/guest_view/extension_options/chrome_extension_options_guest_delegate.cc |    4 
  chrome/browser/ui/webui/settings/people_handler.cc                                     |    1 
- 6 files changed, 20 insertions(+), 29 deletions(-)
+ 6 files changed, 23 insertions(+), 32 deletions(-)
 
 --- a/chrome/browser/extensions/api/developer_private/developer_private_api.cc
 +++ b/chrome/browser/extensions/api/developer_private/developer_private_api.cc
@@ -32,19 +32,23 @@ Subject: make settings of extensions open in new tab
  
 --- a/chrome/browser/extensions/extension_tab_util.cc
 +++ b/chrome/browser/extensions/extension_tab_util.cc
-@@ -886,15 +886,16 @@ bool ExtensionTabUtil::OpenOptionsPageFr
+@@ -885,16 +885,17 @@ bool ExtensionTabUtil::OpenOptionsPageFr
+   // mode extension, this API could only be called from a regular profile, since
    // that's the only place it's running.
    DCHECK(!profile->IsOffTheRecord() || IncognitoInfo::IsSplitMode(extension));
-   Browser* browser = chrome::FindBrowserWithProfile(profile);
+-  Browser* browser = chrome::FindBrowserWithProfile(profile);
 -  if (!browser)
 -    browser = Browser::Create(Browser::CreateParams(profile, true));
-+  LOG(ERROR) << "Cannot open new tab here";
+-  if (!browser)
+-    return false;
+-  return extensions::ExtensionTabUtil::OpenOptionsPage(extension, browser);
++//   Browser* browser = chrome::FindBrowserWithProfile(profile);
 +//   if (!browser)
 +//     browser = Browser::Create(Browser::CreateParams(profile, true));
-   if (!browser)
-     return false;
--  return extensions::ExtensionTabUtil::OpenOptionsPage(extension, browser);
-+  return false;
++//   if (!browser)
++//     return false;
++  return extensions::ExtensionTabUtil::OpenOptionsPage(extension,
++                                                       TabModelList::GetCurrentTabModel()->GetActiveWebContents());
  }
  
  bool ExtensionTabUtil::OpenOptionsPage(const Extension* extension,
