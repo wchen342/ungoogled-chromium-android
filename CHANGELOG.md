@@ -1,3 +1,7 @@
+# 88.0.4324.152-3
+* Extension version only:
+  * Fix two bugs related to uninitialized web contents upon restoring the browser activity
+
 # 88.0.4324.152-2
 * Extension version only:
   * Add extension icons to app menu. It is now possible to open the extension popups from main menu. *Note: not all functionalities are working.*
