@@ -1,19 +1,18 @@
 # ungoogled-chromium-android
 
-Please see [CHANGELOG](CHANGELOG.md) for newest updates.
+Please see [CHANGELOG](CHANGELOG.md) for latest updates.
 
 *A lightweight approach to removing Google web service dependency*
 
 *Note: this is an **Android** build.*
 
-**ungoogled-chromium is Google Chromium**, sans dependency on Google web services. It also features some tweaks to enhance privacy, control, and transparency *(almost all of which require manual activation or enabling)*.
-
-**ungoogled-chromium retains the default Chromium experience as closely as possible**. Unlike other Chromium forks that have their own visions of a web browser, ungoogled-chromium is essentially a drop-in replacement for Chromium.
+**Help is welcome!**
 
 For more information on `ungoogled-chromium`, please visit the original repo: [Eloston/ungoogled-chromium](https://github.com/Eloston/ungoogled-chromium).
 
 ## Content Overview
 
+* [Objectives](#objectives)
 * [Differences from ungoogled-chromium](#differences-from-ungoogled-chromium)
 * [Limitations](#limitations)
 * [Platforms and Versions](#platforms-and-versions)
@@ -21,18 +20,47 @@ For more information on `ungoogled-chromium`, please visit the original repo: [E
 * [Reporting and Contributing](#reporting-and-contributing)
 * [Extensions](#extensions)
 * [F-droid Repository](#f-droid-repository)
-* [TODO List](#todo-list)
 * [Credits](#credits)
 * [Related Projects](#related-projects)
 * [Sponsors](#sponsors)
 * [License](#license)
 
+## Objectives
+
+In descending order of significance (i.e. most important objective first):
+
+1. **ungoogled-chromium is Google Chromium, sans dependency on Google web services**.
+2. **ungoogled-chromium retains the default Chromium experience as closely as possible**. Unlike other Chromium forks that have their own visions of a web browser, ungoogled-chromium is essentially a drop-in replacement for Chromium.
+3. **ungoogled-chromium features tweaks to enhance privacy, control, and transparency**. However, almost all of these features must be manually activated or enabled. For more details, see [Feature Overview](https://github.com/eloston/ungoogled-chromium#feature-overview).
+
 ## Differences from ungoogled-chromium
 
-*These are the differences between a Linux build of ungoogled-chromium and this Android build.*
+*These are the differences between a Linux build of ungoogled-chromium and ungoogled-chromium-android.*
 
-* Android specific patches and fixes are applied.
-* Default configuration builds for `arm64` instead of `x64`.
+* Disable Android specific functionalities:
+   * lite mode
+   * contextual search
+   * prefetch
+   * remove home page links
+   * remove unnecessary account permissions
+* Android specific enhancements:
+   * Add `Startpage.com` and `Qwant.com` as search engine options
+   * Add new folder button in bookmark manager
+   * Add back flags to enable deprecated TLS warnings
+   * Add back flags to enable process sharing
+   * Add flag to enable update notifications (disabled by default and will only send a single `GET` request to my server periodically)
+   * Add flags to always send `save-data` flag in header
+   * Add flags to force tablet UI and desktop mode
+* Borrowed from Bromite:
+   * Exit menu item
+   * flag to disable device orientation API
+   * option to clear open tabs between sessions
+   * prevent WebRTC address leaking
+   * enable DNS-over-Https by default
+   * Add bookmark import/export options
+   * Disable DRM media preprovisioning which leaks connections
+* All Google play and Google service related blobs are removed. This includes Firebase, GCM (Google Cloud Messaging), GMS (Google Mobile Services) and bridge to Google Play. 
+* Releases are built for `arm`, `arm64` and `x86`. There is no `x86_64` build.
 
 ## Limitations
 
@@ -53,10 +81,67 @@ Pre-built apks are named as `{BUILD_TARGET}_{CPU_ARCH}.apk`, where:
 *This build is built from Sylvain Beucler's [libre Android rebuilds](https://android-rebuilds.beuc.net/) instead of SDK/NDK binaries from Google.*
 
 * Clone this repository
-* ~~If you want to enable proprietary codecs (h264, mp3, mp4, etc.), add `proprietary_codecs=true` to the end of `android_flags.gn`.~~ It is now the default, since `proprietary_codecs` does not add the actual codecs, only codes to handle those file types.
+* Make sure you have enough disk space and memory to build chromium
 * enter repo directory and run `./build.sh`.
 
-Build time dependencies can be roughly referred from [AUR](https://aur.archlinux.org/packages/ungoogled-chromium/).
+Build time dependencies (*package names as in Fedora 33. Other distributions may have different package names*):
+
+<details>
+  <summary>required packages</summary>
+  
+  ```
+      bison
+      bzip2
+      clang
+      curl
+      dbus-devel
+      expat-devel
+      fakeroot-libs.i686
+      flex
+      git
+      glib2
+      glib2-devel
+      glibc.i686
+      glibc-devel.i686
+      gnupg2
+      gperf
+      java-1.8.0-openjdk-devel
+      java-1.8.0-openjdk-headless
+      java-11-openjdk
+      java-11-openjdk-devel
+      java-11-openjdk-headless
+      krb5-devel
+      libatomic-static
+      libdrm-devel
+      libgcc.i686
+      libstdc++-static
+      libtool-ltdl.i686
+      libtool-ltdl-devel.i686
+      libuuid-devel
+      libxkbcommon-devel
+      lld
+      llvm
+      make
+      maven
+      ninja-build
+      nodejs
+      npm
+      nss-devel
+      passwd
+      patch
+      perl
+      protobuf
+      python2.7
+      python3
+      rsync
+      tar
+      unzip
+      yasm
+      wget
+  ```
+</details>
+
+In addition, scripts need to be run under python2. `virtualenv` or `conda` can be used to set up such an environment.
 
 For a more customized building process, see building instructions from [the original repo](https://github.com/Eloston/ungoogled-chromium/blob/master/docs/building.md).
 
@@ -67,11 +152,11 @@ For a more customized building process, see building instructions from [the orig
 
 ## Extensions
 
-*Note: the extension-support version is highly experimental. It is not officially a part of `Ungoogled-Chromium`. Only use it if you want to help testing, or you know what you are doing! I will not be responsible for any loss or damage caused.*
+*Note: the extension-support version is experimental. It is not officially a part of `ungoogled-chromium`. Only use it if you want to help testing, or you know what you are doing! I will not be responsible for any loss or damage caused.*
 
-Users coming from Kiwi Browser: the extension-support version is *NOT* a successor of Kiwi, nor will it have the same functionalities as Kiwi.
+The extension-support version is *NOT* a successor of Kiwi browser.
 
-The extensions are likely not fully functional yet.
+Some common extensions are known to work. Please report what extensions are working or not in discussions.
 
 There are three methods to install extensions:
  - Method 1 (the easiest way):
@@ -92,17 +177,17 @@ There are three methods to install extensions:
    1. Download extension following the instructions [here](https://ungoogled-software.github.io/ungoogled-chromium-wiki/faq#downloading-the-crx-file).
       1. Optionally, you can use a third-party website to download the `crx` file. However, do so at your own risk, as I will take *absolutely no* responsibility for problems caused by using a third party website or service.
    2. Extract the `crx` file into a folder with`unzip`/`7z` and copy the folder to your device.
-   3. Notice for Android 10: as a workaround for a [permission issue](https://github.com/wchen342/ungoogled-chromium-android/issues/27), you need to enable "Allow from unknown source" for `Ungoogled Chromium Extensions".
-   4. Make sure you also give storage access.
-   5. Open `chrome://extensions/` and enable Developer mode, refresh.
+   3. **Notice for Android 10**: as a workaround for a [permission issue](https://github.com/wchen342/ungoogled-chromium-android/issues/27), you need to enable "Allow from unknown source" for "Ungoogled Chromium Extensions".
+   4. **Make sure you also give storage access**.
+   5. Open `chrome://extensions/` and enable Developer mode.
    6. Click `Load unpacked` and select the folder you copied. Notice that Android has two file selections, one for selecting files and one for selecting folders. Make sure you use the right one.
    7. Refresh and you shall see the extension in the list.
 
-## F-droid Repository
+## F-Droid Repository
 
-I have set up an experimental f-droid repository. Because of the limitation of its server tools, only the `arm` version is hosted.
+I have set up a F-Droid repository. Because of the limitation of its server tools, the binaries are compiled towards `arm`. They are compatible on 64-bit `arm64` devices too.
 
-You can use f-Droid client and add [this repository](https://www.droidware.info/fdroid/repo?fingerprint=2144449AB1DD270EC31B6087409B5D0EA39A75A9F290DA62AC1B238A0EAAF851).
+You can use F-Droid client and add [this repository](https://www.droidware.info/fdroid/repo?fingerprint=2144449AB1DD270EC31B6087409B5D0EA39A75A9F290DA62AC1B238A0EAAF851).
 
 ## Credits
 
@@ -125,4 +210,4 @@ You can use f-Droid client and add [this repository](https://www.droidware.info/
 
 See [LICENSE](LICENSE.md).
 
-Ungoogled Chromium Android is part of Ungoogled Chromium. Everything published here, including (but not limited to) patches, scripts and other files are licensed under GPLv3+.
+`ungoogled-chromium-android` is part of `ungoogled-chromium`. Everything published here, including (but not limited to) patches, scripts and other files are licensed under GPLv3+.
