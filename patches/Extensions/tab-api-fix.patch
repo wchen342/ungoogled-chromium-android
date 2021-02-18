@@ -9,7 +9,7 @@ Subject: rewrite tab API with Android tab model
  chrome/browser/extensions/api/tabs/tabs_event_router.cc                                     |  252 +++++--
  chrome/browser/extensions/api/tabs/tabs_event_router.h                                      |   61 +
  chrome/browser/extensions/api/web_navigation/web_navigation_api.cc                          |    5 
- chrome/browser/extensions/extension_tab_util.cc                                             |  263 ++++---
+ chrome/browser/extensions/extension_tab_util.cc                                             |  265 ++++---
  chrome/browser/extensions/extension_tab_util.h                                              |   11 
  chrome/browser/ui/android/tab_model/tab_model.cc                                            |    8 
  chrome/browser/ui/android/tab_model/tab_model.h                                             |    2 
@@ -23,7 +23,7 @@ Subject: rewrite tab API with Android tab model
  chrome/browser/ui/android/tab_model/tab_model_observer_jni_bridge.h                         |    4 
  chrome/browser/ui/browser_navigator.cc                                                      |  108 +--
  content/public/browser/web_contents_user_data.h                                             |    2 
- 20 files changed, 699 insertions(+), 426 deletions(-)
+ 20 files changed, 701 insertions(+), 426 deletions(-)
 
 --- a/chrome/browser/extensions/extension_tab_util.cc
 +++ b/chrome/browser/extensions/extension_tab_util.cc
@@ -273,7 +273,7 @@ Subject: rewrite tab API with Android tab model
  
    ScrubTabForExtension(extension, contents, tab_object.get(),
                         scrub_tab_behavior);
-@@ -490,8 +495,8 @@ std::unique_ptr<base::ListValue> Extensi
+@@ -490,9 +495,11 @@ std::unique_ptr<base::ListValue> Extensi
      const Extension* extension,
      Feature::Context context) {
    std::unique_ptr<base::ListValue> tab_list(new base::ListValue());
@@ -282,9 +282,12 @@ Subject: rewrite tab API with Android tab model
 +  TabModel* tab_strip = TabModelList::GetCurrentTabModel();
 +  for (int i = 0; i < tab_strip->GetTabCount(); ++i) {
      WebContents* web_contents = tab_strip->GetWebContentsAt(i);
++    if (!web_contents)
++        continue;
      ExtensionTabUtil::ScrubTabBehavior scrub_tab_behavior =
          ExtensionTabUtil::GetScrubTabBehavior(extension, context, web_contents);
-@@ -512,44 +517,57 @@ ExtensionTabUtil::CreateWindowValueForEx
+     tab_list->Append(CreateTabObject(web_contents, scrub_tab_behavior,
+@@ -512,44 +519,57 @@ ExtensionTabUtil::CreateWindowValueForEx
      Feature::Context context) {
    auto result = std::make_unique<base::DictionaryValue>();
  
@@ -361,7 +364,7 @@ Subject: rewrite tab API with Android tab model
  
    return result;
  }
-@@ -650,20 +668,29 @@ void ExtensionTabUtil::ScrubTabForExtens
+@@ -650,20 +670,29 @@ void ExtensionTabUtil::ScrubTabForExtens
  }
  
  // static
@@ -401,7 +404,7 @@ Subject: rewrite tab API with Android tab model
      }
    }
  
-@@ -673,10 +700,9 @@ bool ExtensionTabUtil::GetTabStripModel(
+@@ -673,10 +702,9 @@ bool ExtensionTabUtil::GetTabStripModel(
  bool ExtensionTabUtil::GetDefaultTab(Browser* browser,
                                       WebContents** contents,
                                       int* tab_id) {
@@ -413,7 +416,7 @@ Subject: rewrite tab API with Android tab model
    if (*contents) {
      if (tab_id)
        *tab_id = GetTabId(*contents);
-@@ -691,7 +717,7 @@ bool ExtensionTabUtil::GetTabById(int ta
+@@ -691,7 +719,7 @@ bool ExtensionTabUtil::GetTabById(int ta
                                    content::BrowserContext* browser_context,
                                    bool include_incognito,
                                    Browser** browser,
@@ -422,7 +425,7 @@ Subject: rewrite tab API with Android tab model
                                    WebContents** contents,
                                    int* tab_index) {
    if (tab_id == api::tabs::TAB_ID_NONE)
-@@ -701,22 +727,22 @@ bool ExtensionTabUtil::GetTabById(int ta
+@@ -701,22 +729,22 @@ bool ExtensionTabUtil::GetTabById(int ta
        include_incognito && profile->HasPrimaryOTRProfile()
            ? profile->GetPrimaryOTRProfile()
            : nullptr;
@@ -455,7 +458,7 @@ Subject: rewrite tab API with Android tab model
            return true;
          }
        }
-@@ -746,14 +772,12 @@ ExtensionTabUtil::GetAllActiveWebContent
+@@ -746,14 +774,12 @@ ExtensionTabUtil::GetAllActiveWebContent
        include_incognito && profile->HasPrimaryOTRProfile()
            ? profile->GetPrimaryOTRProfile()
            : nullptr;
@@ -473,7 +476,7 @@ Subject: rewrite tab API with Android tab model
  
    return active_contents;
  }
-@@ -943,8 +967,9 @@ api::tabs::TabStatus ExtensionTabUtil::G
+@@ -943,8 +969,9 @@ api::tabs::TabStatus ExtensionTabUtil::G
      return api::tabs::TAB_STATUS_LOADING;
  
    // Anything that isn't backed by a process is considered unloaded.
