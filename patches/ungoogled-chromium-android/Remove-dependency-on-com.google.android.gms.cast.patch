@@ -1421,7 +1421,7 @@ Subject: Remove dependency on com.google.android.gms.cast
          <!-- This activity is used to restart the main Chrome process.  Should never be exported. -->
          <activity android:name="org.chromium.chrome.browser.BrowserRestartActivity"
              android:launchMode="singleInstance"
-@@ -1207,12 +1197,6 @@ by a child template that "extends" this
+@@ -1197,12 +1187,6 @@ by a child template that "extends" this
        <meta-data android:name="com.google.ar.core" android:value="optional" />
        {% endif %}
  

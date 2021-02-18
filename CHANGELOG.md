@@ -1,3 +1,19 @@
+# 88.0.4324.182-1
+* Upstream important security fix
+  <details>
+    <summary>CVE list</summary>
+
+      [1138143] High CVE-2021-21149: Stack overflow in Data Transfer.
+      [1172192] High CVE-2021-21150: Use after free in Downloads.
+      [1165624] High CVE-2021-21151: Use after free in Payments.
+      [1166504] High CVE-2021-21152: Heap buffer overflow in Media.
+      [1155974] High CVE-2021-21153: Stack overflow in GPU Process.
+      [1173269] High CVE-2021-21154: Heap buffer overflow in Tab Strip.
+      [1175500] High CVE-2021-21155: Heap buffer overflow in Tab Strip.
+      [1177341] High CVE-2021-21156: Heap buffer overflow in V8.
+      [1170657] Medium CVE-2021-21157: Use after free in Web Sockets.
+  </details>
+
 # 88.0.4324.152-3
 * Extension version only:
   * Fix two bugs related to uninitialized web contents upon restoring the browser activity

@@ -154,7 +154,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
    for (ShortcutMap::const_iterator it(
 --- a/components/omnibox/browser/autocomplete_controller.cc
 +++ b/components/omnibox/browser/autocomplete_controller.cc
-@@ -727,9 +727,6 @@ void AutocompleteController::UpdateResul
+@@ -716,9 +716,6 @@ void AutocompleteController::UpdateResul
  
    // Need to validate before invoking CopyOldMatches as the old matches are not
    // valid against the current input.

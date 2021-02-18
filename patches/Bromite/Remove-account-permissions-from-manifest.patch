@@ -43,7 +43,7 @@ Subject: Remove all sync and account permissions/features from manifest
      {% block extra_uses_permissions %}
      {% endblock %}
  
-@@ -884,16 +876,6 @@ by a child template that "extends" this
+@@ -874,16 +866,6 @@ by a child template that "extends" this
                  android:resource="@xml/file_paths" />
          </provider>
  
