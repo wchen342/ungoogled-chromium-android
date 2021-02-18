@@ -504,7 +504,7 @@ Subject: Remove dependency on
      "//components/download/public/common:public_java",
 --- a/content/test/BUILD.gn
 +++ b/content/test/BUILD.gn
-@@ -2608,9 +2608,6 @@ if (is_android) {
+@@ -2609,9 +2609,6 @@ if (is_android) {
      testonly = true
      sources = content_java_sources_needing_jni
      deps = [

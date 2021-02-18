@@ -460,7 +460,7 @@ Subject: Remove dependency on com.google.android.gms.auth
      }
 --- a/content/test/BUILD.gn
 +++ b/content/test/BUILD.gn
-@@ -2608,7 +2608,6 @@ if (is_android) {
+@@ -2609,7 +2609,6 @@ if (is_android) {
      testonly = true
      sources = content_java_sources_needing_jni
      deps = [

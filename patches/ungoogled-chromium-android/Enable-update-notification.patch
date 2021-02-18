@@ -261,7 +261,7 @@
    "java/src/org/chromium/chrome/browser/download/DownloadActivity.java",
    "java/src/org/chromium/chrome/browser/download/DownloadBroadcastManagerImpl.java",
    "java/src/org/chromium/chrome/browser/download/DownloadController.java",
-@@ -1071,6 +1072,7 @@ chrome_java_sources = [
+@@ -1072,6 +1073,7 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateController.java",
    "java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateControllerFactory.java",
    "java/src/org/chromium/chrome/browser/omaha/inline/NoopInlineUpdateController.java",
@@ -396,7 +396,7 @@
          }
 --- a/chrome/browser/flags/android/chrome_feature_list.cc
 +++ b/chrome/browser/flags/android/chrome_feature_list.cc
-@@ -523,6 +523,7 @@ const base::Feature kIncognitoScreenshot
+@@ -526,6 +526,7 @@ const base::Feature kIncognitoScreenshot
  
  const base::Feature kInlineUpdateFlow{"InlineUpdateFlow",
                                        base::FEATURE_DISABLED_BY_DEFAULT};
@@ -426,7 +426,7 @@
    return std::make_unique<UpdateNotificationConfig>();
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
-@@ -1087,7 +1087,7 @@ by a child template that "extends" this
+@@ -1077,7 +1077,7 @@ by a child template that "extends" this
          <service android:name="org.chromium.chrome.browser.tracing.TracingNotificationService"
              android:exported="false"/>
  

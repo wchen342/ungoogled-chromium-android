@@ -177,6 +177,7 @@ There are three methods to install extensions:
    1. Download extension following the instructions [here](https://ungoogled-software.github.io/ungoogled-chromium-wiki/faq#downloading-the-crx-file).
       1. Optionally, you can use a third-party website to download the `crx` file. However, do so at your own risk, as I will take *absolutely no* responsibility for problems caused by using a third party website or service.
    2. Extract the `crx` file into a folder with`unzip`/`7z` and copy the folder to your device.
+      1. For an alternative way to extract the crx` file on device, see [this comment](https://github.com/ungoogled-software/ungoogled-chromium-android/issues/49#issuecomment-767683754).
    3. **Notice for Android 10**: as a workaround for a [permission issue](https://github.com/wchen342/ungoogled-chromium-android/issues/27), you need to enable "Allow from unknown source" for "Ungoogled Chromium Extensions".
    4. **Make sure you also give storage access**.
    5. Open `chrome://extensions/` and enable Developer mode.
