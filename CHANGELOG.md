@@ -1,3 +1,9 @@
+# 88.0.4324.182-2
+* Add fix for DoH
+* Change description for WebGL flag
+* Add GPC (Global Privacy Control) support (Warning: turning this on may *increase* your browser's fingerprint!)
+* Add separate `arm64` and `x86` F-Droid repo
+
 # 88.0.4324.182-1
 * Upstream important security fix
   <details>
