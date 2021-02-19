@@ -1,3 +1,8 @@
+# 88.0.4324.182-2
+* Add fix for DoH
+* Change description for WebGL flag
+* Add GPC (Global Privacy Control) support
+
 # 88.0.4324.182-1
 * Upstream important security fix
   <details>

@@ -39,6 +39,7 @@ ungoogled-chromium-android/Remove-ntp-sites.patch
 ungoogled-chromium-android/Add-save-data-flag.patch
 ungoogled-chromium-android/Add-always-desktop-option.patch
 ungoogled-chromium-android/Add-force-tablet-ui-option.patch
+ungoogled-chromium-android/Add-global-privacy-control.patch
 Bromite/Add-exit-menu-item.patch
 Bromite/Add-flag-to-disable-WebGL.patch
 Bromite/Add-flags-to-disable-device-motion-orientation-APIs.patch
