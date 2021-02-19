@@ -186,9 +186,11 @@ There are three methods to install extensions:
 
 ## F-Droid Repository
 
-I have set up a F-Droid repository. Because of the limitation of its server tools, the binaries are compiled towards `arm`. They are compatible on 64-bit `arm64` devices too.
+I have set up a F-Droid repository. You can use F-Droid client and add the following repository, depending on your device:
 
-You can use F-Droid client and add [this repository](https://www.droidware.info/fdroid/repo?fingerprint=2144449AB1DD270EC31B6087409B5D0EA39A75A9F290DA62AC1B238A0EAAF851).
+ - For 32-bit `arm` devices, add [this repository](https://www.droidware.info/fdroid/repo?fingerprint=2144449AB1DD270EC31B6087409B5D0EA39A75A9F290DA62AC1B238A0EAAF851)
+ - For 64-bit `arm64` devices, add [this repository](https://www.droidware.info/arm64/fdroid/repo?fingerprint=2144449AB1DD270EC31B6087409B5D0EA39A75A9F290DA62AC1B238A0EAAF851)
+ - For `x86` devices, add [this repository](https://www.droidware.info/x86/fdroid/repo?fingerprint=2144449AB1DD270EC31B6087409B5D0EA39A75A9F290DA62AC1B238A0EAAF851)
 
 ## Credits
 

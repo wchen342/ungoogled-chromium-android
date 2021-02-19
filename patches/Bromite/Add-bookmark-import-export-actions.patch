@@ -374,7 +374,7 @@ Completely remove contacts picker permission from the file dialog
          protected NativePage buildDownloadsPage(Tab tab) {
 --- a/chrome/browser/BUILD.gn
 +++ b/chrome/browser/BUILD.gn
-@@ -190,6 +190,8 @@ static_library("browser") {
+@@ -192,6 +192,8 @@ static_library("browser") {
      "bitmap_fetcher/bitmap_fetcher_service.h",
      "bitmap_fetcher/bitmap_fetcher_service_factory.cc",
      "bitmap_fetcher/bitmap_fetcher_service_factory.h",
@@ -383,7 +383,7 @@ Completely remove contacts picker permission from the file dialog
      "bluetooth/bluetooth_chooser_context.cc",
      "bluetooth/bluetooth_chooser_context.h",
      "bluetooth/bluetooth_chooser_context_factory.cc",
-@@ -1862,6 +1864,8 @@ static_library("browser") {
+@@ -1865,6 +1867,8 @@ static_library("browser") {
      "web_data_service_factory.h",
      "window_placement/window_placement_permission_context.cc",
      "window_placement/window_placement_permission_context.h",
@@ -392,7 +392,7 @@ Completely remove contacts picker permission from the file dialog
    ]
  
    configs += [
-@@ -3395,8 +3399,6 @@ static_library("browser") {
+@@ -3396,8 +3400,6 @@ static_library("browser") {
        "badging/badge_manager_factory.h",
        "banners/app_banner_manager_desktop.cc",
        "banners/app_banner_manager_desktop.h",
@@ -834,8 +834,8 @@ Completely remove contacts picker permission from the file dialog
 +      "importer/imported_bookmark_entry.cc",
 +      "importer/imported_bookmark_entry.h",
      ]
-   } else {
      # Non-Android.
+     public_deps += [ "//chrome/common/importer" ]
 --- a/chrome/utility/BUILD.gn
 +++ b/chrome/utility/BUILD.gn
 @@ -71,8 +71,6 @@ static_library("utility") {
@@ -959,7 +959,7 @@ Completely remove contacts picker permission from the file dialog
  // than true bookmarks.
 --- a/ui/android/java/src/org/chromium/ui/base/SelectFileDialog.java
 +++ b/ui/android/java/src/org/chromium/ui/base/SelectFileDialog.java
-@@ -35,6 +35,7 @@ import org.chromium.base.task.AsyncTask;
+@@ -38,6 +38,7 @@ import org.chromium.base.task.AsyncTask;
  import org.chromium.base.task.PostTask;
  import org.chromium.base.task.TaskTraits;
  import org.chromium.ui.R;
@@ -967,7 +967,7 @@ Completely remove contacts picker permission from the file dialog
  import org.chromium.ui.UiUtils;
  
  import java.io.File;
-@@ -53,6 +54,7 @@ public class SelectFileDialog implements
+@@ -58,6 +59,7 @@ public class SelectFileDialog implements
      private static final String TAG = "SelectFileDialog";
      private static final String IMAGE_TYPE = "image";
      private static final String VIDEO_TYPE = "video";
@@ -975,7 +975,7 @@ Completely remove contacts picker permission from the file dialog
      private static final String AUDIO_TYPE = "audio";
      private static final String ALL_TYPES = "*/*";
  
-@@ -143,6 +145,11 @@ public class SelectFileDialog implements
+@@ -149,6 +151,11 @@ public class SelectFileDialog implements
          mFileTypes = fileTypes;
      }
  
@@ -987,7 +987,7 @@ Completely remove contacts picker permission from the file dialog
      /**
       * Creates and starts an intent based on the passed fileTypes and capture value.
       * @param fileTypes MIME types requested (i.e. "image/*")
-@@ -170,7 +177,7 @@ public class SelectFileDialog implements
+@@ -177,7 +184,7 @@ public class SelectFileDialog implements
          List<String> missingPermissions = new ArrayList<>();
          String storagePermission = Manifest.permission.READ_EXTERNAL_STORAGE;
          boolean shouldUsePhotoPicker = shouldUsePhotoPicker();
@@ -996,7 +996,7 @@ Completely remove contacts picker permission from the file dialog
              if (!window.hasPermission(storagePermission)) missingPermissions.add(storagePermission);
          } else {
              if (((mSupportsImageCapture && shouldShowImageTypes())
-@@ -198,7 +205,7 @@ public class SelectFileDialog implements
+@@ -205,7 +212,7 @@ public class SelectFileDialog implements
                          }
  
                          // TODO(finnur): Remove once we figure out the cause of crbug.com/950024.
@@ -1005,7 +1005,7 @@ Completely remove contacts picker permission from the file dialog
                              if (permissions.length != requestPermissions.length) {
                                  throw new RuntimeException(
                                          String.format("Permissions arrays misaligned: %d != %d",
-@@ -212,7 +219,7 @@ public class SelectFileDialog implements
+@@ -219,7 +226,7 @@ public class SelectFileDialog implements
                              }
                          }
  
@@ -1014,7 +1014,7 @@ Completely remove contacts picker permission from the file dialog
                              onFileNotSelected();
                              return;
                          }
-@@ -358,6 +365,7 @@ public class SelectFileDialog implements
+@@ -385,6 +392,7 @@ public class SelectFileDialog implements
              }
              if (!mimeTypes.contains(mimeType)) mimeTypes.add(mimeType);
          }
@@ -1022,7 +1022,7 @@ Completely remove contacts picker permission from the file dialog
          return mimeTypes;
      }
  
-@@ -659,6 +667,10 @@ public class SelectFileDialog implements
+@@ -686,6 +694,10 @@ public class SelectFileDialog implements
          return countAcceptTypesFor(superType) == mFileTypes.size();
      }
  
@@ -1046,7 +1046,7 @@ Completely remove contacts picker permission from the file dialog
  
 --- a/ui/shell_dialogs/select_file_dialog_android.cc
 +++ b/ui/shell_dialogs/select_file_dialog_android.cc
-@@ -140,6 +140,12 @@ void SelectFileDialogImpl::SelectFileImp
+@@ -144,6 +144,12 @@ void SelectFileDialogImpl::SelectFileImp
                                     owning_window->GetJavaObject());
  }
  

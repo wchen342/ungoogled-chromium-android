@@ -14,7 +14,7 @@ trichrome_webview_target=trichrome_webview_apk
 chromium_version=88.0.4324.182
 ungoogled_chromium_version=88.0.4324.182
 ungoogled_chromium_revision=1
-ungoogled_chromium_android_revision=1
+ungoogled_chromium_android_revision=2
 
 # Show env
 pwd

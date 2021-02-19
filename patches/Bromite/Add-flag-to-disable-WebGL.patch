@@ -27,11 +27,11 @@ Subject: Add flag to disable WebGL
      "enable-autofill-account-wallet-storage is also enabled.";
  
 +const char kDisableWebGLName[] = "Disable all versions of WebGL";
-+const char kDisableWebGLDescription[] = "Disable all versions of WebGL";
++const char kDisableWebGLDescription[] = "Disable all versions of WebGL. Note that selecting 'enable' for this flag will enable, and selecting 'disable' will disable WebGL.";
 +
  // Non-Android -----------------------------------------------------------------
  
- #else  // !defined(OS_ANDROID)
+ 
 --- a/chrome/browser/flag_descriptions.h
 +++ b/chrome/browser/flag_descriptions.h
 @@ -1877,6 +1877,9 @@ extern const char kTabbedAppOverflowMenu
@@ -43,4 +43,4 @@ Subject: Add flag to disable WebGL
 +
  // Non-Android ----------------------------------------------------------------
  
- #else  // !defined(OS_ANDROID)
+ 
