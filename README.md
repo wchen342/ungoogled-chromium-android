@@ -47,7 +47,6 @@ In descending order of significance (i.e. most important objective first):
    * Add `Startpage.com` and `Qwant.com` as search engine options
    * Add new folder button in bookmark manager
    * Add back flags to enable deprecated TLS warnings
-   * Add back flags to enable process sharing
    * Add flag to enable update notifications (disabled by default and will only send a single `GET` request to my server periodically)
    * Add flags to always send `save-data` flag in header
    * Add flags to force tablet UI and desktop mode
@@ -148,41 +147,14 @@ For a more customized building process, see building instructions from [the orig
 ## Reporting and Contributing
 
 * For reporting issues and contacting, see [SUPPORT](SUPPORT.md)
-* This project is still in its early stage, so contributions are welcomed.
+* Bug reports and code contributions are welcomed.
 
 ## Extensions
 
-*Note: the extension-support version is experimental. It is not officially a part of `ungoogled-chromium`. Only use it if you want to help testing, or you know what you are doing! I will not be responsible for any loss or damage caused.*
+*The extension support version has been discontinued.* The last version is `88.0.4324.182`. It will still be available for downloading, but no new version will be released.
 
-The extension-support version is *NOT* a successor of Kiwi browser.
+The extension patches can be found at [chromium-android-extension](https://github.com/wchen342/chromium-android-extension). Anyone interested is welcomed to fork and keeps working on it.
 
-Some common extensions are known to work. Please report what extensions are working or not in discussions.
-
-There are three methods to install extensions:
- - Method 1 (the easiest way):
-   1. Go to `chrome://flags/` and change `#extension-mime-request-handling` to `Always prompt for install` and relaunch your browser.
-   2. Go to chrome webstore page
-   3. Switch to desktop site
-   4. Search for the extension you want to install and click `Add to Chromium`
-   5. The browser should prompt for installation after finishing downloading
-   6. Check `chrome://extensions/` and you should see the extension there.
- - Method 2 (Direct Download):
-   1. Go to `chrome://flags/` and change `#extension-mime-request-handling` to `Always prompt for install` and relaunch your browser.
-   2. Get direct link to `crx` file following the instructions [here](https://ungoogled-software.github.io/ungoogled-chromium-wiki/faq#downloading-the-crx-file).
-      1. Optionally, you can use a third-party website to download the `crx` file. However, do so at your own risk, as I will take *absolutely no* responsibility for problems caused by using a third party website or service.
-   3. Paste the link into omnibox and go to that link.
-   4. The browser should prompt for installation after finishing downloading
-   5. Check `chrome://extensions/` and you should see the extension there.
- - Method 3 (Developer Mode Folder Loading. This method only supports Android 5.1 to 10):
-   1. Download extension following the instructions [here](https://ungoogled-software.github.io/ungoogled-chromium-wiki/faq#downloading-the-crx-file).
-      1. Optionally, you can use a third-party website to download the `crx` file. However, do so at your own risk, as I will take *absolutely no* responsibility for problems caused by using a third party website or service.
-   2. Extract the `crx` file into a folder with`unzip`/`7z` and copy the folder to your device.
-      1. For an alternative way to extract the crx` file on device, see [this comment](https://github.com/ungoogled-software/ungoogled-chromium-android/issues/49#issuecomment-767683754).
-   3. **Notice for Android 10**: as a workaround for a [permission issue](https://github.com/wchen342/ungoogled-chromium-android/issues/27), you need to enable "Allow from unknown source" for "Ungoogled Chromium Extensions".
-   4. **Make sure you also give storage access**.
-   5. Open `chrome://extensions/` and enable Developer mode.
-   6. Click `Load unpacked` and select the folder you copied. Notice that Android has two file selections, one for selecting files and one for selecting folders. Make sure you use the right one.
-   7. Refresh and you shall see the extension in the list.
 
 ## F-Droid Repository
 

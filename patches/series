@@ -4,7 +4,6 @@ src-fix/fix-unkown-warning-clang.patch
 src-fix/fix-safe-browsing-prefs.patch
 src-fix/fix-prefs.patch
 src-fix/fix-base-feature.patch
-src-fix/webview-extra-deps.patch
 Vanadium/0020-disable-media-router-media-remoting-by-default.patch
 Vanadium/0021-disable-media-router-by-default.patch
 Unobtainium/kill-Auth.patch
@@ -30,7 +29,6 @@ ungoogled-chromium-android/Disable-prefetch.patch
 ungoogled-chromium-android/Add-more-search-engines.patch
 ungoogled-chromium-android/Add-folder-button-bookmark.patch
 ungoogled-chromium-android/Mark-http-as-dangerous-mixed-content-warning.patch
-ungoogled-chromium-android/Enable-flag-process-sharing.patch
 ungoogled-chromium-android/Enable-update-notification.patch
 ungoogled-chromium-android/Enable-ProactivelySwapBrowsingInstance.patch
 ungoogled-chromium-android/Disable-homepage-by-default.patch
@@ -39,7 +37,6 @@ ungoogled-chromium-android/Remove-ntp-sites.patch
 ungoogled-chromium-android/Add-save-data-flag.patch
 ungoogled-chromium-android/Add-always-desktop-option.patch
 ungoogled-chromium-android/Add-force-tablet-ui-option.patch
-ungoogled-chromium-android/Add-global-privacy-control.patch
 Bromite/Add-exit-menu-item.patch
 Bromite/Add-flag-to-disable-WebGL.patch
 Bromite/Add-flags-to-disable-device-motion-orientation-APIs.patch

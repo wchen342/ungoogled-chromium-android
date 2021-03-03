@@ -11,10 +11,10 @@ trichrome_chrome_apk_target=trichrome_library_apk
 webview_target=system_webview_apk
 trichrome_webview_target=trichrome_webview_apk
 
-chromium_version=88.0.4324.182
-ungoogled_chromium_version=88.0.4324.182
+chromium_version=89.0.4389.72
+ungoogled_chromium_version=89.0.4389.72
 ungoogled_chromium_revision=1
-ungoogled_chromium_android_revision=2
+ungoogled_chromium_android_revision=1
 
 # Show env
 pwd
@@ -211,7 +211,7 @@ for i in $(seq 1 10); do prepare_repos && s=0 && break || s=$? && reverse_change
 
 ## Run ungoogled-chromium scripts
 # Patch prune list and domain substitution
-# TODO some pruned binaries are excluded since they will cause android build to fail
+# Some pruned binaries are excluded since they will cause android build to fail
 patch -p1 --ignore-whitespace -i patches/Other/ungoogled-main-repo-fix.patch --no-backup-if-mismatch
 # Remove the cache file if exists
 cache_file="domsubcache.tar.gz"
