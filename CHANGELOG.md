@@ -1,3 +1,7 @@
+# 89.0.4389.72-1
+* Include several enhancements from Vanadium
+* Add proxy settings, disable AMP on sites
+
 # 88.0.4324.182-2
 * Add fix for DoH
 * Change description for WebGL flag

@@ -253,7 +253,7 @@
 +}
 --- a/chrome/android/chrome_java_sources.gni
 +++ b/chrome/android/chrome_java_sources.gni
-@@ -533,6 +533,7 @@ chrome_java_sources = [
+@@ -520,6 +520,7 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/dom_distiller/ReaderModeManager.java",
    "java/src/org/chromium/chrome/browser/dom_distiller/TabDistillabilityProvider.java",
    "java/src/org/chromium/chrome/browser/download/ChromeDownloadDelegate.java",
@@ -261,7 +261,7 @@
    "java/src/org/chromium/chrome/browser/download/DownloadActivity.java",
    "java/src/org/chromium/chrome/browser/download/DownloadBroadcastManagerImpl.java",
    "java/src/org/chromium/chrome/browser/download/DownloadController.java",
-@@ -1072,6 +1073,7 @@ chrome_java_sources = [
+@@ -948,6 +949,7 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateController.java",
    "java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateControllerFactory.java",
    "java/src/org/chromium/chrome/browser/omaha/inline/NoopInlineUpdateController.java",
@@ -396,7 +396,7 @@
          }
 --- a/chrome/browser/flags/android/chrome_feature_list.cc
 +++ b/chrome/browser/flags/android/chrome_feature_list.cc
-@@ -526,6 +526,7 @@ const base::Feature kIncognitoScreenshot
+@@ -541,6 +541,7 @@ const base::Feature kIncognitoScreenshot
  
  const base::Feature kInlineUpdateFlow{"InlineUpdateFlow",
                                        base::FEATURE_DISABLED_BY_DEFAULT};
@@ -426,7 +426,7 @@
    return std::make_unique<UpdateNotificationConfig>();
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
-@@ -1077,7 +1077,7 @@ by a child template that "extends" this
+@@ -1033,7 +1033,7 @@ by a child template that "extends" this
          <service android:name="org.chromium.chrome.browser.tracing.TracingNotificationService"
              android:exported="false"/>
  
@@ -437,7 +437,7 @@
          <meta-data android:name="org.chromium.content.browser.SMART_CLIP_PROVIDER"
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -1984,7 +1984,7 @@ To change this setting, <ph name="BEGIN_
+@@ -1990,7 +1990,7 @@ To change this setting, <ph name="BEGIN_
          Update Chrome
        </message>
        <message name="IDS_UPDATE_NOTIFICATION_TEXT_BODY_DEFAULT" desc="Default text showing in the update notification body, kindly telling user to update to the latest version of Chrome.">
@@ -618,7 +618,7 @@
 +}
 --- a/chrome/browser/flag_descriptions.cc
 +++ b/chrome/browser/flag_descriptions.cc
-@@ -3202,10 +3202,9 @@ const char kVoiceButtonInTopToolbarName[
+@@ -3281,10 +3281,9 @@ const char kVoiceButtonInTopToolbarName[
  const char kVoiceButtonInTopToolbarDescription[] =
      "Enables showing the voice search button in the top toolbar";
  

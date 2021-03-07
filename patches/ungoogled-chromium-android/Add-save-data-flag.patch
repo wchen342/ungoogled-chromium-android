@@ -2,27 +2,26 @@ description: Add flag for save-data-header
 author: Wengling Chen <feiyu2817@gmail.com>
 
 ---
- chrome/browser/about_flags.cc                                |    4 ++++
+ chrome/browser/about_flags.cc                                |    3 +++
  chrome/browser/flag_descriptions.cc                          |    4 ++++
  chrome/browser/flag_descriptions.h                           |    3 +++
  content/browser/loader/browser_initiated_resource_request.cc |    5 +++--
  services/network/public/cpp/features.cc                      |    4 ++++
  services/network/public/cpp/features.h                       |    2 ++
- 6 files changed, 20 insertions(+), 2 deletions(-)
+ 6 files changed, 19 insertions(+), 2 deletions(-)
 
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -4253,6 +4253,10 @@ const FeatureEntry kFeatureEntries[] = {
-      flag_descriptions::kDisableKeepaliveFetchDescription, kOsAll,
-      FEATURE_VALUE_TYPE(network::features::kDisableKeepaliveFetch)},
- 
+@@ -4464,6 +4464,9 @@ const FeatureEntry kFeatureEntries[] = {
+      FEATURE_WITH_PARAMS_VALUE_TYPE(features::kMBIMode,
+                                     kMBIModeVariations,
+                                     "MBIMode")},
 +    {"enable-save-data-header", flag_descriptions::kEnableSaveDataHeaderName,
 +     flag_descriptions::kEnableSaveDataHeaderDescription, kOsAndroid,
 +     FEATURE_VALUE_TYPE(network::features::kEnableSaveDataHeader)},
-+
-     {"delay-async-script-execution",
-      flag_descriptions::kDelayAsyncScriptExecutionName,
-      flag_descriptions::kDelayAsyncScriptExecutionDescription, kOsAll,
+ 
+     {"delay-competing-low-priority-requests",
+      flag_descriptions::kDelayCompetingLowPriorityRequestsName,
 --- a/services/network/public/cpp/features.cc
 +++ b/services/network/public/cpp/features.cc
 @@ -146,6 +146,10 @@ const base::FeatureParam<std::string>
@@ -33,9 +32,9 @@ author: Wengling Chen <feiyu2817@gmail.com>
 +const base::Feature kEnableSaveDataHeader{"EnableSaveDataHeader",
 +                                           base::FEATURE_DISABLED_BY_DEFAULT};
 +
- // Attach the origin of the destination URL to the "origin" header
- const base::Feature
-     kDeriveOriginFromUrlForNeitherGetNorHeadRequestWhenHavingSpecialAccess{
+ // Controls whether a |request_initiator| that mismatches
+ // |request_initiator_origin_lock| leads to 1) failing the HTTP request and 2)
+ // calling mojo::ReportBadMessage (on desktop platforms, where NetworkService
 --- a/services/network/public/cpp/features.h
 +++ b/services/network/public/cpp/features.h
 @@ -56,6 +56,8 @@ extern const base::FeatureParam<std::str
@@ -44,12 +43,12 @@ author: Wengling Chen <feiyu2817@gmail.com>
  COMPONENT_EXPORT(NETWORK_CPP)
 +extern const base::Feature kEnableSaveDataHeader;
 +COMPONENT_EXPORT(NETWORK_CPP)
- extern const base::Feature
-     kDeriveOriginFromUrlForNeitherGetNorHeadRequestWhenHavingSpecialAccess;
+ extern const base::Feature kRequestInitiatorSiteLockEnfocement;
  COMPONENT_EXPORT(NETWORK_CPP)
+ extern const base::Feature kCertVerifierService;
 --- a/chrome/browser/flag_descriptions.cc
 +++ b/chrome/browser/flag_descriptions.cc
-@@ -887,6 +887,10 @@ const char kDisableKeepaliveFetchDescrip
+@@ -896,6 +896,10 @@ const char kDisableKeepaliveFetchDescrip
      "Disable fetch with keepalive set "
      "(https://fetch.spec.whatwg.org/#request-keepalive-flag).";
  
@@ -62,7 +61,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
  const char kExperimentalAccessibilityLanguageDetectionDescription[] =
 --- a/chrome/browser/flag_descriptions.h
 +++ b/chrome/browser/flag_descriptions.h
-@@ -498,6 +498,9 @@ extern const char kDiagnosticsAppDescrip
+@@ -506,6 +506,9 @@ extern const char kDiagnosticsAppDescrip
  extern const char kDisableKeepaliveFetchName[];
  extern const char kDisableKeepaliveFetchDescription[];
  

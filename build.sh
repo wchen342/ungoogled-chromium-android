@@ -160,6 +160,15 @@ function prepare_repos {
   git reset --hard FETCH_HEAD
   popd
 
+  libdav1d_commit=$(grep 'dav1d\.git' src/DEPS | cut -d\' -f8)
+  mkdir src/third_party/dav1d/libdav1d
+  pushd src/third_party/dav1d/libdav1d
+  git init
+  git remote add origin https://chromium.googlesource.com/external/github.com/videolan/dav1d.git
+  git fetch --depth 1 --no-tags origin "${libdav1d_commit}" || return $?
+  git reset --hard FETCH_HEAD
+  popd
+
   # update node
   mkdir -p src/third_party/node/linux/node-linux-x64/bin
   ln -s /usr/bin/node src/third_party/node/linux/node-linux-x64/bin/

@@ -3,16 +3,16 @@ Date: Sun, 14 Apr 2019 12:08:27 +0200
 Subject: Remove all sync and account permissions/features from manifest
 
 ---
- chrome/android/java/AndroidManifest.xml                                           |   18 ----------
- chrome/android/java/src/org/chromium/chrome/browser/sync/AndroidSyncSettings.java |    2 -
- 2 files changed, 1 insertion(+), 19 deletions(-)
+ chrome/android/java/AndroidManifest.xml                                           |    8 --------
+ chrome/android/java/src/org/chromium/chrome/browser/sync/AndroidSyncSettings.java |    2 +-
+ 2 files changed, 1 insertion(+), 9 deletions(-)
 
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
-@@ -48,24 +48,18 @@ by a child template that "extends" this
-     {% if target_sdk_version|int > 27 or target_sdk_version == "Q" %}
-         <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-     {% endif %}
+@@ -47,24 +47,18 @@ by a child template that "extends" this
+     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+     <uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" />
+     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 -    <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
      <uses-permission android:name="android.permission.INTERNET"/>
 -    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS"/>
@@ -34,7 +34,7 @@ Subject: Remove all sync and account permissions/features from manifest
      {% set enable_vr = enable_vr|default(0) %}
      {% if enable_vr == "true" %}
      <!-- Indicates use of Android's VR-mode, available only on Android N+. -->
-@@ -102,8 +96,6 @@ by a child template that "extends" this
+@@ -101,8 +95,6 @@ by a child template that "extends" this
      <uses-permission android:name="com.android.browser.permission.WRITE_HISTORY_BOOKMARKS"/>
      <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT"/>
  
@@ -43,26 +43,9 @@ Subject: Remove all sync and account permissions/features from manifest
      {% block extra_uses_permissions %}
      {% endblock %}
  
-@@ -874,16 +866,6 @@ by a child template that "extends" this
-                 android:resource="@xml/file_paths" />
-         </provider>
- 
--        <!-- Sync adapter for browser invalidation. -->
--        <service android:name="org.chromium.chrome.browser.invalidation.ChromeBrowserSyncAdapterService"
--            android:exported="false">
--            <intent-filter>
--                <action android:name="android.content.SyncAdapter" />
--            </intent-filter>
--            <meta-data android:name="android.content.SyncAdapter"
--                       android:resource="@xml/syncadapter" />
--        </service>
--
-         <!-- Broadcast receiver that will be notified of account changes -->
-         <receiver android:name="org.chromium.chrome.browser.services.AccountsChangedReceiver"
-             android:exported="true">
 --- a/chrome/android/java/src/org/chromium/chrome/browser/sync/AndroidSyncSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/AndroidSyncSettings.java
-@@ -284,7 +284,7 @@ public class AndroidSyncSettings {
+@@ -260,7 +260,7 @@ public class AndroidSyncSettings {
              mIsSyncable = false;
              mChromeSyncEnabled = false;
          }

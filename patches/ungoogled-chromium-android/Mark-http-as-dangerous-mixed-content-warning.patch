@@ -3,29 +3,17 @@ Date: Thu, 28 May 2020 01:13:08 -0400
 Subject: Enable legacy TLS warnings and mark-http-as-dangerous by default
 
 ---
- components/security_state/core/features.cc       |    2 +-
- components/security_state/core/security_state.cc |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ components/security_state/core/features.cc |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 --- a/components/security_state/core/features.cc
 +++ b/components/security_state/core/features.cc
-@@ -16,7 +16,7 @@ const char kMarkHttpAsParameterWarningAn
- const char kMarkHttpAsParameterDangerWarning[] = "danger-warning";
+@@ -8,7 +8,7 @@ namespace security_state {
+ namespace features {
  
  const base::Feature kLegacyTLSWarnings{"LegacyTLSWarnings",
 -                                       base::FEATURE_DISABLED_BY_DEFAULT};
 +                                       base::FEATURE_ENABLED_BY_DEFAULT};
  
- const base::Feature kSafetyTipUI{"SafetyTip",
-                                  base::FEATURE_DISABLED_BY_DEFAULT};
---- a/components/security_state/core/security_state.cc
-+++ b/components/security_state/core/security_state.cc
-@@ -37,7 +37,7 @@ SecurityLevel GetSecurityLevelForNonSecu
-       return input_events.insecure_field_edited ? DANGEROUS : WARNING;
-     }
-   }
--  return WARNING;
-+  return DANGEROUS;
- }
+ const base::Feature kSafetyTipUI{"SafetyTip", base::FEATURE_ENABLED_BY_DEFAULT};
  
- std::string GetHistogramSuffixForSecurityLevel(

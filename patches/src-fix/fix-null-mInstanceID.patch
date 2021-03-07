@@ -1,13 +1,16 @@
-diff --git a/components/gcm_driver/instance_id/android/java/src/org/chromium/components/gcm_driver/instance_id/InstanceIDBridge.java b/components/gcm_driver/instance_id/android/java/src/org/chromium/components/gcm_driver/instance_id/InstanceIDBridge.java
+---
+ components/gcm_driver/instance_id/android/java/src/org/chromium/components/gcm_driver/instance_id/InstanceIDBridge.java |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
 --- a/components/gcm_driver/instance_id/android/java/src/org/chromium/components/gcm_driver/instance_id/InstanceIDBridge.java
 +++ b/components/gcm_driver/instance_id/android/java/src/org/chromium/components/gcm_driver/instance_id/InstanceIDBridge.java
-@@ -127,7 +127,10 @@ public class InstanceIDBridge {
+@@ -121,7 +121,10 @@ public class InstanceIDBridge {
                              SubscriptionFlagManager.buildSubscriptionUniqueId(
                                      mSubtype, authorizedEntity),
                              flags);
--                    return mInstanceID.getToken(authorizedEntity, scope, extras);
+-                    return mInstanceID.getToken(authorizedEntity, scope);
 +                    if (mInstanceID != null)
-+                        return mInstanceID.getToken(authorizedEntity, scope, extras);
++                        return mInstanceID.getToken(authorizedEntity, scope);
 +                    else
 +                        return "";
                  } catch (IOException ex) {

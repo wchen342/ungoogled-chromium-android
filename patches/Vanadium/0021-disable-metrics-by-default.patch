@@ -1,0 +1,20 @@
+From 76edf9475f4fd717376ac1eb707966d8feec61d8 Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Thu, 24 Nov 2016 11:41:00 -0500
+Subject: [PATCH 21/73] disable metrics by default
+
+---
+ chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivityBase.java |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivityBase.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivityBase.java
+@@ -44,7 +44,7 @@ public abstract class FirstRunActivityBa
+     static final String SHOW_SEARCH_ENGINE_PAGE = "ShowSearchEnginePage";
+     static final String SHOW_SIGNIN_PAGE = "ShowSignIn";
+ 
+-    public static final boolean DEFAULT_METRICS_AND_CRASH_REPORTING = true;
++    public static final boolean DEFAULT_METRICS_AND_CRASH_REPORTING = false;
+ 
+     private boolean mNativeInitialized;
+ 

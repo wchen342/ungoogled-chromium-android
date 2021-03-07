@@ -11,14 +11,14 @@ Subject: Remove dependency on
  chrome/android/java/AndroidManifest.xml                                                                                          |    9 -
  chrome/android/java/src/org/chromium/chrome/browser/AppHooks.java                                                                |   14 -
  chrome/android/java/src/org/chromium/chrome/browser/PlayServicesVersionInfo.java                                                 |   12 -
- chrome/android/java/src/org/chromium/chrome/browser/externalauth/ExternalAuthUtils.java                                          |   12 -
- chrome/android/java/src/org/chromium/chrome/browser/externalauth/UserRecoverableErrorHandler.java                                |    7 
  chrome/android/java/src/org/chromium/chrome/browser/gcore/ChromeGoogleApiClientImpl.java                                         |   25 ---
  chrome/android/java/src/org/chromium/chrome/browser/gcore/GoogleApiClientHelper.java                                             |   82 ----------
  chrome/android/java/src/org/chromium/chrome/browser/omaha/UpdateStatusProvider.java                                              |   10 -
  chrome/test/android/BUILD.gn                                                                                                     |    2 
  components/background_task_scheduler/BUILD.gn                                                                                    |    3 
  components/background_task_scheduler/internal/BUILD.gn                                                                           |    6 
+ components/externalauth/android/java/src/org/chromium/components/externalauth/ExternalAuthUtils.java                             |   12 -
+ components/externalauth/android/java/src/org/chromium/components/externalauth/UserRecoverableErrorHandler.java                   |    6 
  components/media_router/browser/android/BUILD.gn                                                                                 |    1 
  components/media_router/browser/android/java/src/org/chromium/components/media_router/BrowserMediaRouter.java                    |   18 --
  components/signin/core/browser/android/BUILD.gn                                                                                  |    2 
@@ -34,11 +34,11 @@ Subject: Remove dependency on
  third_party/android_deps/BUILD.gn                                                                                                |    4 
  third_party/android_deps/util/org/chromium/gms/ChromiumPlayServicesAvailability.java                                             |   10 -
  third_party/android_deps/util/org/chromium/gms/shadows/ShadowChromiumPlayServicesAvailability.java                               |    2 
- 29 files changed, 19 insertions(+), 257 deletions(-)
+ 29 files changed, 19 insertions(+), 256 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -278,9 +278,6 @@ android_library("chrome_java") {
+@@ -276,9 +276,6 @@ android_library("chrome_java") {
      ":partner_location_descriptor_proto_java",
      ":update_proto_java",
      ":usage_stats_proto_java",
@@ -47,8 +47,8 @@ Subject: Remove dependency on
 -    "$google_play_services_package:google_play_services_tasks_java",
      "//base:base_java",
      "//base:jni_java",
-     "//chrome/android/features/keyboard_accessory:public_java",
-@@ -766,8 +763,6 @@ junit_binary("chrome_junit_tests") {
+     "//cc:cc_java",
+@@ -777,8 +774,6 @@ junit_binary("chrome_junit_tests") {
      ":chrome_app_java_resources",
      ":chrome_java",
      ":partner_location_descriptor_proto_java",
@@ -57,7 +57,7 @@ Subject: Remove dependency on
      "//base:base_java",
      "//base:base_java_test_support",
      "//base:base_junit_test_support",
-@@ -981,9 +976,6 @@ android_library("chrome_test_java") {
+@@ -1019,9 +1014,6 @@ android_library("chrome_test_java") {
      ":chrome_app_java_resources",
      ":chrome_test_util_java",
      ":partner_location_descriptor_proto_java",
@@ -79,7 +79,7 @@ Subject: Remove dependency on
      "//components/browser_ui/media/android:java",
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
-@@ -783,15 +783,6 @@ by a child template that "extends" this
+@@ -773,15 +773,6 @@ by a child template that "extends" this
              </intent-filter>
          </activity>
  
@@ -107,7 +107,7 @@ Subject: Remove dependency on
  import org.chromium.base.ContextUtils;
  import org.chromium.base.annotations.CalledByNative;
  import org.chromium.chrome.browser.banners.AppDetailsDelegate;
-@@ -327,16 +324,7 @@ public abstract class AppHooks {
+@@ -294,16 +291,7 @@ public abstract class AppHooks {
       * same as {@link GoogleApiAvailability#isGooglePlayServicesAvailable()}.
       */
      public int isGoogleApiAvailableWithMinApkVersion(int minApkVersion) {
@@ -125,85 +125,6 @@ Subject: Remove dependency on
      }
  
      /**
---- a/chrome/android/java/src/org/chromium/chrome/browser/externalauth/ExternalAuthUtils.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/externalauth/ExternalAuthUtils.java
-@@ -15,9 +15,6 @@ import android.text.TextUtils;
- import androidx.annotation.VisibleForTesting;
- import androidx.annotation.WorkerThread;
- 
--import com.google.android.gms.common.ConnectionResult;
--import com.google.android.gms.common.GoogleApiAvailability;
--
- import org.chromium.base.ContextUtils;
- import org.chromium.base.Log;
- import org.chromium.base.StrictModeContext;
-@@ -157,9 +154,7 @@ public class ExternalAuthUtils {
-      *         when it is updating.
-      */
-     public boolean isGooglePlayServicesMissing(final Context context) {
--        final int resultCode = checkGooglePlayServicesAvailable(context);
--        return (resultCode == ConnectionResult.SERVICE_MISSING
--                || resultCode == ConnectionResult.SERVICE_INVALID);
-+        return true;
-     }
- 
-     /**
-@@ -176,7 +171,6 @@ public class ExternalAuthUtils {
-     public boolean canUseGooglePlayServices(final UserRecoverableErrorHandler errorHandler) {
-         Context context = ContextUtils.getApplicationContext();
-         final int resultCode = checkGooglePlayServicesAvailable(context);
--        if (resultCode == ConnectionResult.SUCCESS) return true;
-         // resultCode is some kind of error.
-         Log.v(TAG, "Unable to use Google Play Services: %s", describeError(resultCode));
-         if (isUserRecoverableError(resultCode)) {
-@@ -253,7 +247,7 @@ public class ExternalAuthUtils {
-      * @return true If the code represents a user-recoverable error
-      */
-     protected boolean isUserRecoverableError(final int errorCode) {
--        return GoogleApiAvailability.getInstance().isUserResolvableError(errorCode);
-+        return false;
-     }
- 
-     /**
-@@ -263,6 +257,6 @@ public class ExternalAuthUtils {
-      * @return a textual description of the error code
-      */
-     protected String describeError(final int errorCode) {
--        return GoogleApiAvailability.getInstance().getErrorString(errorCode);
-+        return "";
-     }
- }
---- a/chrome/android/java/src/org/chromium/chrome/browser/externalauth/UserRecoverableErrorHandler.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/externalauth/UserRecoverableErrorHandler.java
-@@ -9,8 +9,6 @@ import android.app.Dialog;
- import android.content.Context;
- import android.content.DialogInterface;
- 
--import com.google.android.gms.common.GoogleApiAvailability;
--
- import org.chromium.base.ThreadUtils;
- import org.chromium.base.metrics.RecordUserAction;
- 
-@@ -90,7 +88,6 @@ public abstract class UserRecoverableErr
-             if (!sNotificationShown.getAndSet(true)) {
-                 return;
-             }
--            GoogleApiAvailability.getInstance().showErrorNotification(context, errorCode);
-         }
-     }
- 
-@@ -183,11 +180,7 @@ public abstract class UserRecoverableErr
-                 cancelDialog();
-             }
-             if (mDialog == null) {
--                mDialog = GoogleApiAvailability.getInstance().getErrorDialog(
--                        mActivity, errorCode, NO_RESPONSE_REQUIRED);
-                 mErrorCode = errorCode;
--
--                DialogUserActionRecorder.createAndAttachToDialog(mDialog);
-             }
-             // This can happen if |errorCode| is ConnectionResult.SERVICE_INVALID.
-             if (mDialog != null && !mDialog.isShowing()) {
 --- a/chrome/android/java/src/org/chromium/chrome/browser/gcore/ChromeGoogleApiClientImpl.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/gcore/ChromeGoogleApiClientImpl.java
 @@ -6,9 +6,6 @@ package org.chromium.chrome.browser.gcor
@@ -215,8 +136,8 @@ Subject: Remove dependency on
 -
  import org.chromium.base.Log;
  import org.chromium.base.TraceEvent;
- import org.chromium.chrome.browser.AppHooks;
-@@ -23,7 +20,6 @@ public class ChromeGoogleApiClientImpl i
+ import org.chromium.components.externalauth.ExternalAuthUtils;
+@@ -22,7 +19,6 @@ public class ChromeGoogleApiClientImpl i
      private static final String TAG = "Icing";
  
      private final Context mApplicationContext;
@@ -224,7 +145,7 @@ Subject: Remove dependency on
      private final ExternalAuthUtils mExternalAuthUtils;
  
      /**
-@@ -33,10 +29,9 @@ public class ChromeGoogleApiClientImpl i
+@@ -32,10 +28,9 @@ public class ChromeGoogleApiClientImpl i
       * @param requireFirstPartyBuild true if the given client can only be used in a first-party
       *            build.
       */
@@ -233,10 +154,10 @@ Subject: Remove dependency on
              boolean requireFirstPartyBuild) {
          mApplicationContext = context.getApplicationContext();
 -        mClient = client;
-         mExternalAuthUtils = AppHooks.get().getExternalAuthUtils();
+         mExternalAuthUtils = ExternalAuthUtils.getInstance();
          if (requireFirstPartyBuild && !mExternalAuthUtils.isChromeGoogleSigned()) {
              throw new IllegalStateException("GoogleApiClient requires first-party build");
-@@ -45,7 +40,6 @@ public class ChromeGoogleApiClientImpl i
+@@ -44,7 +39,6 @@ public class ChromeGoogleApiClientImpl i
  
      @Override
      public void disconnect() {
@@ -244,7 +165,7 @@ Subject: Remove dependency on
      }
  
      @Override
-@@ -61,24 +55,11 @@ public class ChromeGoogleApiClientImpl i
+@@ -60,24 +54,11 @@ public class ChromeGoogleApiClientImpl i
      @Override
      public boolean connectWithTimeout(long timeout) {
          TraceEvent.begin("ChromeGoogleApiClientImpl:connectWithTimeout");
@@ -447,7 +368,7 @@ Subject: Remove dependency on
 -    "$google_play_services_package:google_play_services_basement_java",
      "//base:base_java",
      "//base:base_java_test_support",
-     "//chrome/android:chrome_java",
+     "//chrome/android:base_module_java",
 --- a/components/background_task_scheduler/BUILD.gn
 +++ b/components/background_task_scheduler/BUILD.gn
 @@ -121,9 +121,6 @@ if (is_android) {
@@ -492,19 +413,19 @@ Subject: Remove dependency on
  }
 --- a/content/public/android/BUILD.gn
 +++ b/content/public/android/BUILD.gn
-@@ -75,9 +75,6 @@ action_with_pydeps("generate_sandboxed_s
- android_library("content_java") {
+@@ -139,9 +139,6 @@ android_library("content_main_dex_java")
+ android_library("content_full_java") {
    deps = [
-     ":content_java_resources",
+     ":content_main_dex_java",
 -    "$google_play_services_package:google_play_services_base_java",
 -    "$google_play_services_package:google_play_services_basement_java",
 -    "$google_play_services_package:google_play_services_tasks_java",
      "//base:base_java",
      "//base:jni_java",
-     "//components/download/public/common:public_java",
+     "//build:chromeos_buildflags",
 --- a/content/test/BUILD.gn
 +++ b/content/test/BUILD.gn
-@@ -2609,9 +2609,6 @@ if (is_android) {
+@@ -2630,9 +2630,6 @@ if (is_android) {
      testonly = true
      sources = content_java_sources_needing_jni
      deps = [
@@ -516,7 +437,7 @@ Subject: Remove dependency on
        "//ui/android:ui_full_java",
 --- a/device/BUILD.gn
 +++ b/device/BUILD.gn
-@@ -421,8 +421,6 @@ if (is_android) {
+@@ -422,8 +422,6 @@ if (is_android) {
    junit_binary("device_junit_tests") {
      sources = [ "gamepad/android/junit/src/org/chromium/device/gamepad/GamepadMappingsTest.java" ]
      deps = [
@@ -559,7 +480,7 @@ Subject: Remove dependency on
        "//mojo/public/java:base_java",
 --- a/services/device/geolocation/BUILD.gn
 +++ b/services/device/geolocation/BUILD.gn
-@@ -155,8 +155,6 @@ if (is_android) {
+@@ -156,8 +156,6 @@ if (is_android) {
  
      deps = [
        ":geolocation_jni_headers",
@@ -603,7 +524,7 @@ Subject: Remove dependency on
        "//components/background_task_scheduler:background_task_scheduler_task_ids_java",
 --- a/chrome/android/features/cablev2_authenticator/BUILD.gn
 +++ b/chrome/android/features/cablev2_authenticator/BUILD.gn
-@@ -16,8 +16,6 @@ android_library("java") {
+@@ -17,8 +17,6 @@ android_library("java") {
  
    deps = [
      ":java_resources",
@@ -614,7 +535,7 @@ Subject: Remove dependency on
      "//content/public/android:content_java",
 --- a/chrome/android/features/cablev2_authenticator/java/src/org/chromium/chrome/browser/webauth/authenticator/CableAuthenticator.java
 +++ b/chrome/android/features/cablev2_authenticator/java/src/org/chromium/chrome/browser/webauth/authenticator/CableAuthenticator.java
-@@ -22,8 +22,6 @@ import android.util.Base64;
+@@ -23,8 +23,6 @@ import android.util.Base64;
  import androidx.core.app.NotificationCompat;
  import androidx.core.app.NotificationManagerCompat;
  
@@ -625,7 +546,7 @@ Subject: Remove dependency on
  import org.chromium.base.annotations.CalledByNative;
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -1144,8 +1144,6 @@ android_aar_prebuilt("google_play_servic
+@@ -1163,8 +1163,6 @@ android_aar_prebuilt("google_play_servic
      ":androidx_collection_collection_java",
      ":androidx_core_core_java",
      ":androidx_fragment_fragment_java",
@@ -634,7 +555,7 @@ Subject: Remove dependency on
    ]
  
    # Removing drawables from GMS .aars as they are unused bloat.
-@@ -1176,7 +1174,7 @@ android_aar_prebuilt("google_play_servic
+@@ -1195,7 +1193,7 @@ android_aar_prebuilt("google_play_servic
  android_aar_prebuilt("google_play_services_tasks_java") {
    aar_path = "libs/com_google_android_gms_play_services_tasks/play-services-tasks-17.0.0.aar"
    info_path = "libs/com_google_android_gms_play_services_tasks/com_google_android_gms_play_services_tasks.info"
@@ -653,7 +574,7 @@ Subject: Remove dependency on
 -
  import org.chromium.base.ContextUtils;
  import org.chromium.base.annotations.CalledByNative;
- import org.chromium.chrome.browser.externalauth.ExternalAuthUtils;
+ import org.chromium.components.externalauth.ExternalAuthUtils;
 @@ -29,7 +27,7 @@ public class PlayServicesVersionInfo {
      public static String getGmsInfo() {
          Context context = ContextUtils.getApplicationContext();
@@ -720,20 +641,10 @@ Subject: Remove dependency on
 -import com.google.android.gms.common.ConnectionResult;
 -import com.google.android.gms.common.GoogleApiAvailability;
 -
+ // Refer to go/doubledown-play-services#new-apis for more detail.
  public final class ChromiumPlayServicesAvailability {
      /**
-      * The minimum GMS version we're requesting. isGooglePlayServicesAvailable will fail if the
-@@ -30,8 +27,7 @@ public final class ChromiumPlayServicesA
-      * PM/UX.
-      */
-     public static int getGooglePlayServicesConnectionResult(final Context context) {
--        return GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(
--                context, GMS_VERSION_NUMBER);
-+        return 1;  //SERVICE_MISSING
-     }
- 
-     /**
-@@ -44,8 +40,6 @@ public final class ChromiumPlayServicesA
+@@ -30,9 +27,7 @@ public final class ChromiumPlayServicesA
       * PM/UX.
       */
      public static boolean isGooglePlayServicesAvailable(final Context context) {
@@ -741,6 +652,16 @@ Subject: Remove dependency on
 -                       context, GMS_VERSION_NUMBER)
 -                == ConnectionResult.SUCCESS;
 +        return false;
+     }
+ 
+     /**
+@@ -50,7 +45,6 @@ public final class ChromiumPlayServicesA
+      * PM/UX.
+      */
+     public static int getGooglePlayServicesConnectionResult(final Context context) {
+-        return GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(
+-                context, GMS_VERSION_NUMBER);
++        return 1;  //SERVICE_MISSING
      }
  }
 --- a/third_party/android_deps/util/org/chromium/gms/shadows/ShadowChromiumPlayServicesAvailability.java
@@ -791,3 +712,83 @@ Subject: Remove dependency on
 +        return null;
      }
  }
+--- a/components/externalauth/android/java/src/org/chromium/components/externalauth/ExternalAuthUtils.java
++++ b/components/externalauth/android/java/src/org/chromium/components/externalauth/ExternalAuthUtils.java
+@@ -15,9 +15,6 @@ import android.text.TextUtils;
+ import androidx.annotation.VisibleForTesting;
+ import androidx.annotation.WorkerThread;
+ 
+-import com.google.android.gms.common.ConnectionResult;
+-import com.google.android.gms.common.GoogleApiAvailability;
+-
+ import org.chromium.base.ContextUtils;
+ import org.chromium.base.Log;
+ import org.chromium.base.StrictModeContext;
+@@ -170,9 +167,7 @@ public class ExternalAuthUtils {
+      *         when it is updating.
+      */
+     public boolean isGooglePlayServicesMissing(final Context context) {
+-        final int resultCode = checkGooglePlayServicesAvailable(context);
+-        return (resultCode == ConnectionResult.SERVICE_MISSING
+-                || resultCode == ConnectionResult.SERVICE_INVALID);
++        return true;
+     }
+ 
+     /**
+@@ -189,7 +184,6 @@ public class ExternalAuthUtils {
+     public boolean canUseGooglePlayServices(final UserRecoverableErrorHandler errorHandler) {
+         Context context = ContextUtils.getApplicationContext();
+         final int resultCode = checkGooglePlayServicesAvailable(context);
+-        if (resultCode == ConnectionResult.SUCCESS) return true;
+         // resultCode is some kind of error.
+         Log.v(TAG, "Unable to use Google Play Services: %s", describeError(resultCode));
+         if (isUserRecoverableError(resultCode)) {
+@@ -274,7 +268,7 @@ public class ExternalAuthUtils {
+      * @return true If the code represents a user-recoverable error
+      */
+     protected boolean isUserRecoverableError(final int errorCode) {
+-        return GoogleApiAvailability.getInstance().isUserResolvableError(errorCode);
++        return false;
+     }
+ 
+     /**
+@@ -284,7 +278,7 @@ public class ExternalAuthUtils {
+      * @return a textual description of the error code
+      */
+     protected String describeError(final int errorCode) {
+-        return GoogleApiAvailability.getInstance().getErrorString(errorCode);
++        return "";
+     }
+ 
+     /**
+--- a/components/externalauth/android/java/src/org/chromium/components/externalauth/UserRecoverableErrorHandler.java
++++ b/components/externalauth/android/java/src/org/chromium/components/externalauth/UserRecoverableErrorHandler.java
+@@ -9,8 +9,6 @@ import android.app.Dialog;
+ import android.content.Context;
+ import android.content.DialogInterface;
+ 
+-import com.google.android.gms.common.GoogleApiAvailability;
+-
+ import org.chromium.base.ThreadUtils;
+ import org.chromium.base.metrics.RecordUserAction;
+ 
+@@ -89,7 +87,6 @@ public abstract class UserRecoverableErr
+             if (!sNotificationShown.getAndSet(true)) {
+                 return;
+             }
+-            GoogleApiAvailability.getInstance().showErrorNotification(context, errorCode);
+         }
+     }
+ 
+@@ -182,11 +179,8 @@ public abstract class UserRecoverableErr
+                 cancelDialog();
+             }
+             if (mDialog == null) {
+-                mDialog = GoogleApiAvailability.getInstance().getErrorDialog(
+-                        mActivity, errorCode, NO_RESPONSE_REQUIRED);
+                 mErrorCode = errorCode;
+ 
+-                DialogUserActionRecorder.createAndAttachToDialog(mDialog);
+             }
+             // This can happen if |errorCode| is ConnectionResult.SERVICE_INVALID.
+             if (mDialog != null && !mDialog.isShowing()) {

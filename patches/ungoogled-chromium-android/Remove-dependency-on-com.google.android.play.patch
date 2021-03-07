@@ -7,14 +7,15 @@ Subject: Remove dependency on com.google.android.play
  chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/FakeAppUpdateManagerWrapper.java   |   60 --
  chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateControllerFactory.java |   16 
  chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/PlayInlineUpdateController.java    |  226 ----------
+ components/externalauth/android/BUILD.gn                                                            |    3 
  third_party/android_deps/BUILD.gn                                                                   |    2 
  third_party/google_android_play_core/BUILD.gn                                                       |    5 
  weblayer/shell/android/BUILD.gn                                                                     |    1 
- 7 files changed, 4 insertions(+), 307 deletions(-)
+ 8 files changed, 4 insertions(+), 310 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -507,7 +507,6 @@ android_library("chrome_java") {
+@@ -518,7 +518,6 @@ android_library("chrome_java") {
      "//third_party/blink/public/mojom:android_mojo_bindings_java",
      "//third_party/blink/public/mojom:mojom_platform_java",
      "//third_party/gif_player:gif_player_java",
@@ -478,7 +479,7 @@ Subject: Remove dependency on com.google.android.play
 -}
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -82,7 +82,7 @@ java_annotation_processor("dagger_proces
+@@ -90,7 +90,7 @@ java_annotation_processor("auto_service_
  
  android_library("chromium_play_services_availability_java") {
    sources = [ "util/org/chromium/gms/ChromiumPlayServicesAvailability.java" ]
@@ -497,3 +498,22 @@ Subject: Remove dependency on com.google.android.play
      "//base:base_java",
      "//components/strictmode/android:java",
      "//third_party/android_deps:android_support_v4_java",
+--- a/components/externalauth/android/BUILD.gn
++++ b/components/externalauth/android/BUILD.gn
+@@ -27,8 +27,6 @@ android_library("google_delegate_public_
+ android_library("java") {
+   deps = [
+     ":google_delegate_java",
+-    "$google_play_services_package:google_play_services_base_java",
+-    "$google_play_services_package:google_play_services_basement_java",
+     "//base:base_java",
+     "//components/embedder_support/android:browser_context_java",
+     "//components/embedder_support/android:util_java",
+@@ -50,7 +48,6 @@ android_library("junit") {
+ 
+   deps = [
+     ":java",
+-    "$google_play_services_package:google_play_services_basement_java",
+     "//base:base_java",
+     "//base:base_java_test_support",
+     "//base:base_junit_test_support",

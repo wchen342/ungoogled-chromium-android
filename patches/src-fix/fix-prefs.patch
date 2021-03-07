@@ -10,7 +10,7 @@ Subject: fix build error with prefs.h
  
 --- a/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninFragmentBase.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninFragmentBase.java
-@@ -430,8 +430,7 @@ public abstract class SigninFragmentBase
+@@ -438,8 +438,7 @@ public abstract class SigninFragmentBase
      private void runStateMachineAndSignin(boolean settingsClicked) {
          mConfirmSyncDataStateMachine = new ConfirmSyncDataStateMachine(
                  new ConfirmSyncDataStateMachineDelegate(getChildFragmentManager()),
@@ -22,7 +22,7 @@ Subject: fix build error with prefs.h
                      public void onConfirm(boolean wipeData) {
 --- a/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninPromoUtil.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninPromoUtil.java
-@@ -51,9 +51,7 @@ public class SigninPromoUtil {
+@@ -59,9 +59,7 @@ public class SigninPromoUtil {
          boolean isSignedIn = IdentityServicesProvider.get()
                                       .getIdentityManager(Profile.getLastUsedRegularProfile())
                                       .hasPrimaryAccount();

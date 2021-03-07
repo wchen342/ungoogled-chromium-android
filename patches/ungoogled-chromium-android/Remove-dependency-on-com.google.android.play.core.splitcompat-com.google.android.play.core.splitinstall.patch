@@ -3,7 +3,8 @@ Date: Fri, 10 Jan 2020 21:49:36 -0500
 Subject: Remove dependency on com.google.android.play.core.splitcompat, com.google.android.play.core.splitinstall
 
 ---
- chrome/android/java/src/org/chromium/chrome/browser/language/AppLocaleUtils.java                                            |   24 ----
+ chrome/android/BUILD.gn                                                                                                     |    1 
+ chrome/android/java/src/org/chromium/chrome/browser/language/AppLocaleUtils.java                                            |   23 ----
  components/module_installer/android/BUILD.gn                                                                                |    2 
  components/module_installer/android/java/src/org/chromium/components/module_installer/engine/FakeEngine.java                |   13 --
  components/module_installer/android/java/src/org/chromium/components/module_installer/engine/SplitCompatEngine.java         |   50 ----------
@@ -15,7 +16,7 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
  components/module_installer/android/java/src/org/chromium/components/module_installer/logger/SplitInstallStatusLogger.java  |   27 -----
  components/module_installer/android/java/src/org/chromium/components/module_installer/util/CrashKeyRecorder.java            |    6 -
  components/module_installer/android/java/src/org/chromium/components/module_installer/util/SplitCompatInitializer.java      |    5 -
- 12 files changed, 18 insertions(+), 230 deletions(-)
+ 13 files changed, 18 insertions(+), 230 deletions(-)
 
 --- a/components/module_installer/android/java/src/org/chromium/components/module_installer/engine/FakeEngine.java
 +++ b/components/module_installer/android/java/src/org/chromium/components/module_installer/engine/FakeEngine.java
@@ -539,7 +540,7 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
  import org.chromium.base.BundleUtils;
  import org.chromium.base.ContextUtils;
  import org.chromium.base.Log;
-@@ -83,7 +78,6 @@ public class AppLocaleUtils {
+@@ -86,7 +81,6 @@ public class AppLocaleUtils {
                      GlobalAppLocaleController.getInstance().isOverridden(), BundleUtils.isBundle());
              Log.i(TAG, "Override Locale: %s", getAppLanguagePref());
              logInstalledLanguages(context);
@@ -547,15 +548,15 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
              logInstalledLanguages(context);
          }
      }
-@@ -92,17 +86,7 @@ public class AppLocaleUtils {
-      * For bundle builds ensure that the language split for languageName is download.
+@@ -95,17 +89,8 @@ public class AppLocaleUtils {
+      * For bundle builds ensure that the language split for languageName is downloaded.
       */
-     private static void ensureLaguageSplitInstalled(String languageName) {
+     private static void ensureLanguageSplitInstalled(String languageName) {
 -        SplitInstallManager splitInstallManager =
 -                SplitInstallManagerFactory.create(ContextUtils.getApplicationContext());
--
+ 
          // TODO(perrier): check if languageName is already installed. https://crbug.com/1103806
--        if (languageName != null) {
+-        if (!TextUtils.equals(languageName, SYSTEM_LANGUAGE_VALUE)) {
 -            SplitInstallRequest installRequest =
 -                    SplitInstallRequest.newBuilder()
 -                            .addLanguage(Locale.forLanguageTag(languageName))
@@ -565,7 +566,7 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
      }
  
      /**
-@@ -110,12 +94,6 @@ public class AppLocaleUtils {
+@@ -113,12 +98,6 @@ public class AppLocaleUtils {
       * @param context Context to log installed languages on.
       */
      private static void logInstalledLanguages(Context context) {
@@ -579,3 +580,13 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
 +        Log.i(TAG, "Installed Languages: None - not a bundle");
      }
  }
+--- a/chrome/android/BUILD.gn
++++ b/chrome/android/BUILD.gn
+@@ -2192,7 +2192,6 @@ android_library("base_module_java") {
+     "//third_party/android_deps:androidx_annotation_annotation_java",
+     "//third_party/android_deps:androidx_collection_collection_java",
+     "//third_party/android_deps:androidx_fragment_fragment_java",
+-    "//third_party/google_android_play_core:com_google_android_play_core_java",
+     "//ui/android:ui_no_recycler_view_java",
+ 
+     # Deps needed for child processes.

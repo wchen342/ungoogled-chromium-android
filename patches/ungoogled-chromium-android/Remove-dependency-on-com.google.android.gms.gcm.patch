@@ -18,7 +18,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -284,7 +284,6 @@ android_library("chrome_java") {
+@@ -282,7 +282,6 @@ android_library("chrome_java") {
      "$google_play_services_package:google_play_services_cast_framework_java",
      "$google_play_services_package:google_play_services_cast_java",
      "$google_play_services_package:google_play_services_fido_java",
@@ -26,7 +26,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
      "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
      "$google_play_services_package:google_play_services_vision_common_java",
-@@ -997,7 +996,6 @@ android_library("chrome_test_java") {
+@@ -1035,7 +1034,6 @@ android_library("chrome_test_java") {
      "$google_play_services_package:google_play_services_cast_framework_java",
      "$google_play_services_package:google_play_services_cast_java",
      "$google_play_services_package:google_play_services_fido_java",
@@ -34,7 +34,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
      "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
      "//base:base_java",
-@@ -1953,7 +1951,6 @@ android_library("browser_java_test_suppo
+@@ -2014,7 +2012,6 @@ android_library("browser_java_test_suppo
    ]
    deps = [
      ":chrome_java",
@@ -42,14 +42,14 @@ The snippets are already disabled in native codes, this will disable it on Java 
      "//base:base_java",
      "//base:base_java_test_support",
      "//chrome/browser/profiles/android:java",
-@@ -2131,7 +2128,6 @@ android_library("base_module_java") {
+@@ -2203,7 +2200,6 @@ android_library("base_module_java") {
    ]
    deps = [
      ":chrome_base_module_resources",
 -    "$google_play_services_package:google_play_services_gcm_java",
      "//base:base_java",
-     "//components/embedder_support/android:application_java",
-     "//components/media_router/browser/android:cast_options_provider_java",
+     "//base:jni_java",
+     "//chrome/browser/download/android:file_provider_java",
 --- a/components/background_task_scheduler/BUILD.gn
 +++ b/components/background_task_scheduler/BUILD.gn
 @@ -124,7 +124,6 @@ if (is_android) {
@@ -62,7 +62,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
        "internal:proto_java",
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -1273,24 +1273,6 @@ android_aar_prebuilt("google_play_servic
+@@ -1292,24 +1292,6 @@ android_aar_prebuilt("google_play_servic
  }
  
  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
@@ -309,7 +309,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
 -                    break;
 -
 -                // This is only for tests.
--                case ServiceManagerStartupUtils.TASK_TAG:
+-                case MinimalBrowserStartupUtils.TASK_TAG:
 -                    handleServicificationStartupTask(context, taskTag);
 -                    break;
 -
@@ -348,15 +348,15 @@ The snippets are already disabled in native codes, this will disable it on Java 
  import org.chromium.base.test.util.CriteriaHelper;
 @@ -20,7 +18,7 @@ import org.chromium.content_public.brows
  /**
-  * Class for launching the service manager only mode for tests.
+  * Class for launching the minimal browser mode for tests.
   */
 -public class ServicificationBackgroundService extends ChromeBackgroundServiceImpl {
 +public class ServicificationBackgroundService {
      private boolean mLaunchBrowserCalled;
      private boolean mNativeLoaded;
-     private boolean mSupportsServiceManagerOnly;
+     private boolean mSupportsMinimalBrowser;
 @@ -29,33 +27,6 @@ public class ServicificationBackgroundSe
-         mSupportsServiceManagerOnly = supportsServiceManagerOnly;
+         mSupportsMinimalBrowser = supportsMinimalBrowser;
      }
  
 -    @Override
@@ -377,8 +377,8 @@ The snippets are already disabled in native codes, this will disable it on Java 
 -            }
 -
 -            @Override
--            public boolean startServiceManagerOnly() {
--                return mSupportsServiceManagerOnly;
+-            public boolean startMinimalBrowser() {
+-                return mSupportsMinimalBrowser;
 -            }
 -        };
 -

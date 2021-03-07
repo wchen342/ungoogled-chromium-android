@@ -3,13 +3,13 @@ Date: Fri, 22 Jun 2018 17:06:15 +0200
 Subject: kill Auth
 
 ---
- chrome/android/java/src/org/chromium/chrome/browser/signin/SigninHelper.java                                     |   22 -----
+ chrome/browser/signin/services/android/java/src/org/chromium/chrome/browser/signin/services/SigninHelper.java    |   19 ----
  components/signin/core/browser/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java |   42 ----------
- 2 files changed, 4 insertions(+), 60 deletions(-)
+ 2 files changed, 3 insertions(+), 58 deletions(-)
 
---- a/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninHelper.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninHelper.java
-@@ -10,10 +10,6 @@ import android.content.Context;
+--- a/chrome/browser/signin/services/android/java/src/org/chromium/chrome/browser/signin/services/SigninHelper.java
++++ b/chrome/browser/signin/services/android/java/src/org/chromium/chrome/browser/signin/services/SigninHelper.java
+@@ -10,10 +10,6 @@ import android.util.Pair;
  
  import androidx.annotation.VisibleForTesting;
  
@@ -20,28 +20,25 @@ Subject: kill Auth
  import org.chromium.base.ApplicationState;
  import org.chromium.base.ApplicationStatus;
  import org.chromium.base.ContextUtils;
-@@ -64,23 +60,7 @@ public class SigninHelper implements App
+@@ -55,21 +51,6 @@ public class SigninHelper implements App
+             implements SigninHelper.AccountChangeEventChecker {
          @Override
-         public List<String> getAccountChangeEvents(
-                 Context context, int index, String accountName) {
+         public List<String> getAccountChangeEvents(Context context, int index, String accountName) {
 -            try {
--                List<AccountChangeEvent> list = GoogleAuthUtil.getAccountChangeEvents(
--                        context, index, accountName);
--                List<String> result = new ArrayList<>(list.size());
--                for (AccountChangeEvent e : list) {
--                    if (e.getChangeType() == GoogleAuthUtil.CHANGE_TYPE_ACCOUNT_RENAMED_TO) {
--                        result.add(e.getChangeData());
+-                List<AccountChangeEvent> accountChangeEvents =
+-                        GoogleAuthUtil.getAccountChangeEvents(context, index, accountName);
+-                List<String> changedNames = new ArrayList<>(accountChangeEvents.size());
+-                for (AccountChangeEvent event : accountChangeEvents) {
+-                    if (event.getChangeType() == GoogleAuthUtil.CHANGE_TYPE_ACCOUNT_RENAMED_TO) {
+-                        changedNames.add(event.getChangeData());
 -                    } else {
--                        result.add(null);
+-                        changedNames.add(null);
 -                    }
 -                }
--                return result;
--            } catch (IOException e) {
--                Log.w(TAG, "Failed to get change events", e);
--            } catch (GoogleAuthException e) {
+-                return changedNames;
+-            } catch (IOException | GoogleAuthException e) {
 -                Log.w(TAG, "Failed to get change events", e);
 -            }
-+
              return new ArrayList<>(0);
          }
      }

@@ -18,7 +18,7 @@ Subject: kill GCM
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -512,7 +512,6 @@ android_library("chrome_java") {
+@@ -523,7 +523,6 @@ android_library("chrome_java") {
      "//third_party/android_deps:material_design_java",
      "//third_party/android_deps:protobuf_lite_runtime_java",
      "//third_party/android_media:android_media_java",
@@ -36,10 +36,10 @@ Subject: kill GCM
    "java/src/org/chromium/chrome/browser/ChromeBackupAgentImpl.java",
    "java/src/org/chromium/chrome/browser/ChromeBackupWatcher.java",
    "java/src/org/chromium/chrome/browser/ChromeBaseAppCompatActivity.java",
-@@ -1344,10 +1343,6 @@ chrome_java_sources = [
+@@ -1217,10 +1216,6 @@ chrome_java_sources = [
+   "java/src/org/chromium/chrome/browser/searchwidget/SearchWidgetProvider.java",
    "java/src/org/chromium/chrome/browser/send_tab_to_self/SendTabToSelfShareActivity.java",
    "java/src/org/chromium/chrome/browser/services/AccountsChangedReceiver.java",
-   "java/src/org/chromium/chrome/browser/services/AndroidChildAccountHelper.java",
 -  "java/src/org/chromium/chrome/browser/services/gcm/ChromeGcmListenerServiceImpl.java",
 -  "java/src/org/chromium/chrome/browser/services/gcm/GCMBackgroundServiceImpl.java",
 -  "java/src/org/chromium/chrome/browser/services/gcm/GCMBackgroundTask.java",
@@ -49,7 +49,7 @@ Subject: kill GCM
    "java/src/org/chromium/chrome/browser/settings/SettingsLauncherImpl.java",
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
-@@ -88,23 +88,18 @@ by a child template that "extends" this
+@@ -87,23 +87,18 @@ by a child template that "extends" this
      <permission android:name="{{ manifest_package }}.permission.CHILD_SERVICE" android:protectionLevel="signature" />
      <permission android:name="{{ manifest_package }}.permission.READ_WRITE_BOOKMARK_FOLDERS" android:protectionLevel="signatureOrSystem" />
      <permission android:name="{{ manifest_package }}.TOS_ACKED" android:protectionLevel="signatureOrSystem" />
@@ -73,7 +73,7 @@ Subject: kill GCM
      <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT"/>
  
      <uses-permission android:name="com.google.android.apps.now.CURRENT_ACCOUNT_ACCESS" />
-@@ -979,36 +974,6 @@ by a child template that "extends" this
+@@ -935,36 +930,6 @@ by a child template that "extends" this
              android:configChanges="orientation|keyboardHidden|keyboard|screenSize|mcc|mnc|screenLayout|smallestScreenSize"
              android:hardwareAccelerated="false" />
  
@@ -110,7 +110,7 @@ Subject: kill GCM
          <!-- Android Notification service listener -->
          <service android:name="org.chromium.chrome.browser.notifications.NotificationService"
              android:exported="false"/>
-@@ -1032,28 +997,10 @@ by a child template that "extends" this
+@@ -988,28 +953,10 @@ by a child template that "extends" this
              android:exported="false"
              android:permission="android.permission.BIND_JOB_SERVICE"/>
  
@@ -141,7 +141,7 @@ Subject: kill GCM
              tools:ignore="ExportedService" />
 --- a/chrome/android/java/src/org/chromium/chrome/browser/background_task_scheduler/ChromeBackgroundTaskFactory.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/background_task_scheduler/ChromeBackgroundTaskFactory.java
-@@ -19,7 +19,6 @@ import org.chromium.chrome.browser.offli
+@@ -20,7 +20,6 @@ import org.chromium.chrome.browser.offli
  import org.chromium.chrome.browser.offlinepages.prefetch.OfflineNotificationBackgroundTask;
  import org.chromium.chrome.browser.offlinepages.prefetch.PrefetchBackgroundTask;
  import org.chromium.chrome.browser.omaha.OmahaService;
@@ -149,7 +149,7 @@ Subject: kill GCM
  import org.chromium.chrome.browser.webapps.WebApkUpdateTask;
  import org.chromium.components.background_task_scheduler.BackgroundTask;
  import org.chromium.components.background_task_scheduler.BackgroundTaskFactory;
-@@ -59,8 +58,6 @@ public class ChromeBackgroundTaskFactory
+@@ -60,8 +59,6 @@ public class ChromeBackgroundTaskFactory
          switch (taskId) {
              case TaskIds.OMAHA_JOB_ID:
                  return new OmahaService();
@@ -190,7 +190,7 @@ Subject: kill GCM
  
 --- a/components/gcm_driver/instance_id/android/java/src/org/chromium/components/gcm_driver/instance_id/InstanceIDBridge.java
 +++ b/components/gcm_driver/instance_id/android/java/src/org/chromium/components/gcm_driver/instance_id/InstanceIDBridge.java
-@@ -29,7 +29,6 @@ public class InstanceIDBridge {
+@@ -27,7 +27,6 @@ public class InstanceIDBridge {
       * Underlying InstanceIDWithSubtype. May be shared by multiple InstanceIDBridges. Must be
       * initialized on a background thread.
       */
@@ -198,7 +198,7 @@ Subject: kill GCM
  
      private static boolean sBlockOnAsyncTasksForTesting;
  
-@@ -74,7 +73,7 @@ public class InstanceIDBridge {
+@@ -72,7 +71,7 @@ public class InstanceIDBridge {
          new BridgeAsyncTask<String>() {
              @Override
              protected String doBackgroundWork() {
@@ -207,7 +207,7 @@ Subject: kill GCM
              }
              @Override
              protected void sendResultToNative(String id) {
-@@ -90,7 +89,7 @@ public class InstanceIDBridge {
+@@ -88,7 +87,7 @@ public class InstanceIDBridge {
          new BridgeAsyncTask<Long>() {
              @Override
              protected Long doBackgroundWork() {
@@ -216,7 +216,7 @@ Subject: kill GCM
              }
              @Override
              protected void sendResultToNative(Long creationTime) {
-@@ -116,24 +115,7 @@ public class InstanceIDBridge {
+@@ -110,24 +109,7 @@ public class InstanceIDBridge {
          new BridgeAsyncTask<String>() {
              @Override
              protected String doBackgroundWork() {
@@ -232,7 +232,7 @@ Subject: kill GCM
 -                                    mSubtype, authorizedEntity),
 -                            flags);
 -                    if (mInstanceID != null)
--                        return mInstanceID.getToken(authorizedEntity, scope, extras);
+-                        return mInstanceID.getToken(authorizedEntity, scope);
 -                    else
 -                        return "";
 -                } catch (IOException ex) {
@@ -242,7 +242,7 @@ Subject: kill GCM
              }
              @Override
              protected void sendResultToNative(String token) {
-@@ -150,21 +132,7 @@ public class InstanceIDBridge {
+@@ -144,21 +126,7 @@ public class InstanceIDBridge {
          new BridgeAsyncTask<Boolean>() {
              @Override
              protected Boolean doBackgroundWork() {
@@ -265,7 +265,7 @@ Subject: kill GCM
              }
              @Override
              protected void sendResultToNative(Boolean success) {
-@@ -180,12 +148,7 @@ public class InstanceIDBridge {
+@@ -174,12 +142,7 @@ public class InstanceIDBridge {
          new BridgeAsyncTask<Boolean>() {
              @Override
              protected Boolean doBackgroundWork() {
@@ -279,7 +279,7 @@ Subject: kill GCM
              }
              @Override
              protected void sendResultToNative(Boolean success) {
-@@ -215,11 +178,6 @@ public class InstanceIDBridge {
+@@ -209,11 +172,6 @@ public class InstanceIDBridge {
                  @Override
                  @SuppressWarnings("NoSynchronizedThisCheck") // Only used/accessible by native.
                  protected Result doInBackground() {

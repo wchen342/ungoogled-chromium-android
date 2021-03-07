@@ -6,7 +6,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
 ---
  chrome/android/BUILD.gn                                                                                                    |    2 
  chrome/android/features/cablev2_authenticator/BUILD.gn                                                                     |    2 
- chrome/android/features/cablev2_authenticator/java/src/org/chromium/chrome/browser/webauth/authenticator/QRScanDialog.java |   50 ----
+ chrome/android/features/cablev2_authenticator/java/src/org/chromium/chrome/browser/webauth/authenticator/QRScanDialog.java |   27 --
  chrome/browser/share/android/java/src/org/chromium/chrome/browser/share/qrcode/scan_tab/QrCodeScanMediator.java            |   55 ----
  services/BUILD.gn                                                                                                          |    4 
  services/shape_detection/BUILD.gn                                                                                          |    2 
@@ -14,7 +14,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
  services/shape_detection/android/java/src/org/chromium/shape_detection/FaceDetectionImplGmsCore.java                       |   93 --------
  services/shape_detection/android/java/src/org/chromium/shape_detection/TextDetectionImpl.java                              |   56 ----
  third_party/android_deps/BUILD.gn                                                                                          |   69 ------
- 10 files changed, 8 insertions(+), 439 deletions(-)
+ 10 files changed, 9 insertions(+), 415 deletions(-)
 
 --- a/services/BUILD.gn
 +++ b/services/BUILD.gn
@@ -344,7 +344,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
      }
  
      @Override
-     public void detect(org.chromium.skia.mojom.Bitmap bitmapData, DetectResponse callback) {
+     public void detect(org.chromium.skia.mojom.BitmapN32 bitmapData, DetectResponse callback) {
 -        // The vision library will be downloaded the first time the API is used
 -        // on the device; this happens "fast", but it might have not completed,
 -        // bail in this case. Also, the API was disabled between and v.9.0 and
@@ -409,7 +409,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
  }
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -1183,36 +1183,6 @@ android_aar_prebuilt("google_play_servic
+@@ -1202,36 +1202,6 @@ android_aar_prebuilt("google_play_servic
  }
  
  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
@@ -446,7 +446,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
  android_aar_prebuilt("com_google_android_material_material_java") {
    aar_path =
        "libs/com_google_android_material_material/material-1.2.0-alpha06.aar"
-@@ -2165,26 +2135,6 @@ java_prebuilt("com_github_kevinstern_sof
+@@ -2189,26 +2159,6 @@ java_prebuilt("com_github_kevinstern_sof
  }
  
  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
@@ -473,7 +473,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
  android_aar_prebuilt("google_play_services_flags_java") {
    aar_path = "libs/com_google_android_gms_play_services_flags/play-services-flags-17.0.0.aar"
    info_path = "libs/com_google_android_gms_play_services_flags/com_google_android_gms_play_services_flags.info"
-@@ -2198,25 +2148,6 @@ android_aar_prebuilt("google_play_servic
+@@ -2222,25 +2172,6 @@ android_aar_prebuilt("google_play_servic
    ]
  
    # Removing drawables from GMS .aars as they are unused bloat.
@@ -592,7 +592,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
  }
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -281,8 +281,6 @@ android_library("chrome_java") {
+@@ -279,8 +279,6 @@ android_library("chrome_java") {
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
      "$google_play_services_package:google_play_services_tasks_java",
@@ -600,10 +600,10 @@ Subject: Remove dependency on com.google.android.gms.vision,
 -    "$google_play_services_package:google_play_services_vision_java",
      "//base:base_java",
      "//base:jni_java",
-     "//chrome/android/features/keyboard_accessory:public_java",
+     "//cc:cc_java",
 --- a/chrome/android/features/cablev2_authenticator/BUILD.gn
 +++ b/chrome/android/features/cablev2_authenticator/BUILD.gn
-@@ -18,8 +18,6 @@ android_library("java") {
+@@ -19,8 +19,6 @@ android_library("java") {
      ":java_resources",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_tasks_java",
@@ -614,7 +614,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
      "//content/public/android:content_java",
 --- a/chrome/android/features/cablev2_authenticator/java/src/org/chromium/chrome/browser/webauth/authenticator/QRScanDialog.java
 +++ b/chrome/android/features/cablev2_authenticator/java/src/org/chromium/chrome/browser/webauth/authenticator/QRScanDialog.java
-@@ -15,10 +15,6 @@ import android.view.ViewGroup;
+@@ -17,10 +17,6 @@ import android.widget.LinearLayout;
  
  import androidx.fragment.app.DialogFragment;
  
@@ -625,15 +625,15 @@ Subject: Remove dependency on com.google.android.gms.vision,
  import org.chromium.base.Log;
  import org.chromium.base.ThreadUtils;
  import org.chromium.base.task.PostTask;
-@@ -45,7 +41,6 @@ class QRScanDialog extends DialogFragmen
-     public static interface Callback { void onQRCode(String value); }
+@@ -49,7 +45,6 @@ public class QRScanDialog extends Dialog
+     public static interface Callback { void onQRCode(String value, boolean link); }
  
      private final Callback mCallback;
 -    private BarcodeDetector mQRScanner;
+     private CheckBox mLinkCheckbox;
      private CameraView mCameraView;
      private ByteBuffer mBuffer;
-     private boolean mDismissed;
-@@ -88,50 +83,5 @@ class QRScanDialog extends DialogFragmen
+@@ -104,27 +99,7 @@ public class QRScanDialog extends Dialog
       * {@link #mBuffer}. Runs on a background thread.
       */
      private void findQRCodes(ByteBuffer buffer, Camera.Parameters cameraParams) {
@@ -658,29 +658,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
 -                              .build();
 -        SparseArray<Barcode> barcodes = mQRScanner.detect(frame);
 -        PostTask.postTask(UiThreadTaskTraits.DEFAULT, () -> handleQRCodes(barcodes));
--    }
--
--    /**
--     * Handles the results of QR detection. Runs on the UI thread.
--     */
--    private void handleQRCodes(SparseArray<Barcode> barcodes) {
--        ThreadUtils.assertOnUiThread();
--
--        // This dialog may have been dismissed while background QR detection was
--        // running.
--        if (mDismissed) {
--            return;
--        }
--
--        for (int i = 0; i < barcodes.size(); i++) {
--            String value = barcodes.valueAt(i).rawValue;
--            if (value.startsWith(FIDO_QR_PREFIX)) {
--                mCallback.onQRCode(value);
--                dismiss();
--                return;
--            }
--        }
--
--        mCameraView.rearmCallback();
++        Log.i(TAG, "BarcodeDetector failed to load");
      }
- }
+ 
+     /**

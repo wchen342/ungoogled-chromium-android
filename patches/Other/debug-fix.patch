@@ -20,7 +20,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
 
 --- a/components/signin/internal/identity_manager/primary_account_manager.cc
 +++ b/components/signin/internal/identity_manager/primary_account_manager.cc
-@@ -134,18 +134,6 @@ void PrimaryAccountManager::SetAuthentic
+@@ -130,18 +130,6 @@ void PrimaryAccountManager::SetSyncPrima
    DCHECK(!account_info.account_id.empty());
    DCHECK(!HasPrimaryAccount(signin::ConsentLevel::kSync));
  
@@ -41,7 +41,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  
 --- a/build/config/compiler/BUILD.gn
 +++ b/build/config/compiler/BUILD.gn
-@@ -224,7 +224,7 @@ config("compiler") {
+@@ -229,7 +229,7 @@ config("compiler") {
    cflags_cc = []
    cflags_objc = []
    cflags_objcc = []
@@ -50,16 +50,16 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
    defines = []
    configs = []
  
-@@ -1737,7 +1737,7 @@ config("no_rtti") {
- # (de)allocate memory on a different heap, which would spell trouble if pointers
+@@ -1751,7 +1751,7 @@ config("no_rtti") {
  # to heap-allocated memory are passed over shared library boundaries.
  config("export_dynamic") {
--  if (is_linux || export_libcxxabi_from_executables) {
-+  if (is_linux || export_libcxxabi_from_executables || is_android) {
+   # TODO(crbug.com/1052397): Revisit after target_os flip is completed.
+-  if (is_linux || is_chromeos_lacros || export_libcxxabi_from_executables) {
++  if (is_linux || is_chromeos_lacros || export_libcxxabi_from_executables || is_android) {
      ldflags = [ "-rdynamic" ]
    }
  }
-@@ -1962,8 +1962,6 @@ if (is_win) {
+@@ -1972,8 +1972,6 @@ if (is_win) {
  
        # Put data and code in their own sections, so that unused symbols
        # can be removed at link time with --gc-sections.
@@ -68,7 +68,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
      ]
  
      common_optimize_on_ldflags += [
-@@ -1971,7 +1969,6 @@ if (is_win) {
+@@ -1981,7 +1979,6 @@ if (is_win) {
        # See http://lwn.net/Articles/192624/ .
        # -O2 enables string tail merge optimization in gold and lld.
        "-Wl,-O2",
@@ -97,7 +97,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  SchemaValidatingPolicyHandler::~SchemaValidatingPolicyHandler() {}
 --- a/components/signin/internal/identity_manager/profile_oauth2_token_service_builder.cc
 +++ b/components/signin/internal/identity_manager/profile_oauth2_token_service_builder.cc
-@@ -177,7 +177,6 @@ std::unique_ptr<ProfileOAuth2TokenServic
+@@ -178,7 +178,6 @@ std::unique_ptr<ProfileOAuth2TokenServic
    // device ID is needed on the network thread, but can only be generated on the
    // main thread.
    std::string device_id = signin::GetSigninScopedDeviceId(pref_service);
@@ -107,7 +107,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
    return std::make_unique<ProfileOAuth2TokenService>(
 --- a/components/omnibox/browser/autocomplete_match.cc
 +++ b/components/omnibox/browser/autocomplete_match.cc
-@@ -1323,16 +1323,6 @@ bool AutocompleteMatch::IsEmptyAutocompl
+@@ -1355,16 +1355,6 @@ bool AutocompleteMatch::IsEmptyAutocompl
           split_autocompletion.Empty();
  }
  
@@ -126,8 +126,8 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
      const base::string16& text,
 --- a/components/omnibox/browser/autocomplete_result.cc
 +++ b/components/omnibox/browser/autocomplete_result.cc
-@@ -715,13 +715,6 @@ void AutocompleteResult::CopyFrom(const
-   matches_ = other.matches_;
+@@ -720,13 +720,6 @@ void AutocompleteResult::CopyFrom(const
+ #endif
  }
  
 -#if DCHECK_IS_ON()
@@ -154,7 +154,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
    for (ShortcutMap::const_iterator it(
 --- a/components/omnibox/browser/autocomplete_controller.cc
 +++ b/components/omnibox/browser/autocomplete_controller.cc
-@@ -716,9 +716,6 @@ void AutocompleteController::UpdateResul
+@@ -748,9 +748,6 @@ void AutocompleteController::UpdateResul
  
    // Need to validate before invoking CopyOldMatches as the old matches are not
    // valid against the current input.
@@ -178,7 +178,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  bool InputEventStreamValidator::ValidateImpl(
 --- a/services/network/network_context.cc
 +++ b/services/network/network_context.cc
-@@ -940,7 +940,6 @@ void NetworkContext::QueueReport(
+@@ -965,7 +965,6 @@ void NetworkContext::QueueReport(
      const net::NetworkIsolationKey& network_isolation_key,
      const base::Optional<std::string>& user_agent,
      base::Value body) {

@@ -4,23 +4,24 @@ Subject: Remove dependency on com.google.android.gms.auth
 
 ---
  chrome/android/BUILD.gn                                                                                          |    1 
+ chrome/browser/signin/services/android/BUILD.gn                                                                  |    1 
  components/background_task_scheduler/BUILD.gn                                                                    |    1 
  components/signin/core/browser/android/BUILD.gn                                                                  |    1 
- components/signin/core/browser/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java |   32 ----
+ components/signin/core/browser/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java |   32 ---
  content/public/android/BUILD.gn                                                                                  |    1 
  content/public/android/java/src/org/chromium/content/browser/sms/SmsProviderGms.java                             |    6 
- content/public/android/java/src/org/chromium/content/browser/sms/SmsUserConsentReceiver.java                     |   60 -------
- content/public/android/java/src/org/chromium/content/browser/sms/SmsVerificationReceiver.java                    |   80 ----------
+ content/public/android/java/src/org/chromium/content/browser/sms/SmsUserConsentReceiver.java                     |   59 -------
+ content/public/android/java/src/org/chromium/content/browser/sms/SmsVerificationReceiver.java                    |   84 ----------
  content/public/android/java/src/org/chromium/content/browser/sms/Wrappers.java                                   |   26 ---
  content/test/BUILD.gn                                                                                            |    1 
  remoting/android/java/src/org/chromium/chromoting/OAuthTokenConsumer.java                                        |    9 -
  remoting/android/java/src/org/chromium/chromoting/base/OAuthTokenFetcher.java                                    |   35 ----
  third_party/android_deps/BUILD.gn                                                                                |   47 -----
- 13 files changed, 9 insertions(+), 291 deletions(-)
+ 14 files changed, 9 insertions(+), 295 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -278,7 +278,6 @@ android_library("chrome_java") {
+@@ -276,7 +276,6 @@ android_library("chrome_java") {
      ":partner_location_descriptor_proto_java",
      ":update_proto_java",
      ":usage_stats_proto_java",
@@ -109,17 +110,17 @@ Subject: Remove dependency on com.google.android.gms.auth
      protected boolean hasGetAccountsPermission() {
 --- a/content/public/android/BUILD.gn
 +++ b/content/public/android/BUILD.gn
-@@ -75,7 +75,6 @@ action_with_pydeps("generate_sandboxed_s
- android_library("content_java") {
+@@ -139,7 +139,6 @@ android_library("content_main_dex_java")
+ android_library("content_full_java") {
    deps = [
-     ":content_java_resources",
+     ":content_main_dex_java",
 -    "$google_play_services_package:google_play_services_auth_api_phone_java",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
      "$google_play_services_package:google_play_services_tasks_java",
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -1137,53 +1137,6 @@ java_prebuilt("com_android_tools_build_j
+@@ -1156,53 +1156,6 @@ java_prebuilt("com_android_tools_build_j
  }
  
  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
@@ -273,7 +274,7 @@ Subject: Remove dependency on com.google.android.gms.auth
      public void destroy() {
          if (DEBUG) Log.d(TAG, "Destroying SmsUserConsentReceiver.");
          mDestroyed = true;
-@@ -66,62 +54,16 @@ public class SmsUserConsentReceiver exte
+@@ -66,62 +54,17 @@ public class SmsUserConsentReceiver exte
              return;
          }
  
@@ -284,7 +285,7 @@ Subject: Remove dependency on com.google.android.gms.auth
          if (intent.getExtras() == null) {
              return;
          }
--
+ 
 -        final Status status;
 -
 -        try {
@@ -317,7 +318,7 @@ Subject: Remove dependency on com.google.android.gms.auth
      void onConsentResult(int resultCode, Intent data) {
 -        if (resultCode == Activity.RESULT_OK) {
 -            String message = data.getStringExtra(SmsRetriever.EXTRA_SMS_MESSAGE);
--            mProvider.onReceive(message);
+-            mProvider.onReceive(message, GmsBackend.USER_CONSENT);
 -        } else if (resultCode == Activity.RESULT_CANCELED) {
 -            if (DEBUG) Log.d(TAG, "Activity result cancelled.");
 -            mProvider.onCancel();
@@ -354,9 +355,9 @@ Subject: Remove dependency on com.google.android.gms.auth
 -import com.google.android.gms.tasks.Task;
 -
  import org.chromium.base.Log;
+ import org.chromium.base.metrics.RecordHistogram;
  import org.chromium.ui.base.WindowAndroid;
- 
-@@ -55,15 +45,10 @@ public class SmsVerificationReceiver ext
+@@ -63,15 +53,10 @@ public class SmsVerificationReceiver ext
          // message is received.
          if (DEBUG) Log.i(TAG, "Registering intent filters.");
          IntentFilter filter = new IntentFilter();
@@ -372,7 +373,7 @@ Subject: Remove dependency on com.google.android.gms.auth
      public void destroy() {
          if (DEBUG) Log.d(TAG, "Destroying SmsVerificationReceiver.");
          mDestroyed = true;
-@@ -78,34 +63,9 @@ public class SmsVerificationReceiver ext
+@@ -86,34 +71,10 @@ public class SmsVerificationReceiver ext
              return;
          }
  
@@ -383,7 +384,7 @@ Subject: Remove dependency on com.google.android.gms.auth
          if (intent.getExtras() == null) {
              return;
          }
--
+ 
 -        final Status status;
 -
 -        try {
@@ -397,7 +398,7 @@ Subject: Remove dependency on com.google.android.gms.auth
 -            case CommonStatusCodes.SUCCESS:
 -                String message = intent.getExtras().getString(SmsCodeRetriever.EXTRA_SMS_CODE_LINE);
 -                if (DEBUG) Log.d(TAG, "Got message: %s!", message);
--                mProvider.onReceive(message);
+-                mProvider.onReceive(message, GmsBackend.VERIFICATION);
 -                break;
 -            case CommonStatusCodes.TIMEOUT:
 -                if (DEBUG) Log.d(TAG, "Timeout");
@@ -407,18 +408,21 @@ Subject: Remove dependency on com.google.android.gms.auth
      }
  
      public void onPermissionDone(WindowAndroid window, int resultCode) {
-@@ -126,50 +86,10 @@ public class SmsVerificationReceiver ext
-      */
+@@ -135,56 +96,11 @@ public class SmsVerificationReceiver ext
      public void onRetrieverTaskFailure(WindowAndroid window, Exception e) {
          if (DEBUG) Log.d(TAG, "Task failed. Attempting recovery.", e);
+         BackendAvailability availability = BackendAvailability.AVAILABLE;
 -        ApiException exception = (ApiException) e;
 -        if (exception.getStatusCode() == SmsRetrieverStatusCodes.API_NOT_CONNECTED) {
+-            availability = BackendAvailability.API_NOT_CONNECTED;
 -            mProvider.onMethodNotAvailable();
 -            Log.d(TAG, "update GMS services.");
 -        } else if (exception.getStatusCode() == SmsRetrieverStatusCodes.PLATFORM_NOT_SUPPORTED) {
+-            availability = BackendAvailability.PLATFORM_NOT_SUPPORTED;
 -            mProvider.onMethodNotAvailable();
 -            Log.d(TAG, "old android platform.");
 -        } else if (exception.getStatusCode() == SmsRetrieverStatusCodes.API_NOT_AVAILABLE) {
+-            availability = BackendAvailability.API_NOT_AVAILABLE;
 -            mProvider.onMethodNotAvailable();
 -            Log.d(TAG, "not the default browser.");
 -        } else if (exception.getStatusCode() == SmsRetrieverStatusCodes.USER_PERMISSION_REQUIRED) {
@@ -448,19 +452,22 @@ Subject: Remove dependency on com.google.android.gms.auth
 -        } else {
 -            Log.w(TAG, "Unexpected exception", e);
 -        }
+         reportBackendAvailability(availability);
      }
  
      public void listen(WindowAndroid window) {
          Wrappers.SmsRetrieverClientWrapper client = mProvider.getClient();
 -        Task<Void> task = client.startSmsCodeBrowserRetriever();
 -
+-        task.addOnSuccessListener(
+-                unused -> { this.reportBackendAvailability(BackendAvailability.AVAILABLE); });
 -        task.addOnFailureListener((Exception e) -> { this.onRetrieverTaskFailure(window, e); });
  
          if (DEBUG) Log.d(TAG, "Installed task");
      }
 --- a/content/test/BUILD.gn
 +++ b/content/test/BUILD.gn
-@@ -2609,7 +2609,6 @@ if (is_android) {
+@@ -2630,7 +2630,6 @@ if (is_android) {
      testonly = true
      sources = content_java_sources_needing_jni
      deps = [
@@ -558,7 +565,7 @@ Subject: Remove dependency on com.google.android.gms.auth
  }
 --- a/content/public/android/java/src/org/chromium/content/browser/sms/SmsProviderGms.java
 +++ b/content/public/android/java/src/org/chromium/content/browser/sms/SmsProviderGms.java
-@@ -129,9 +129,7 @@ public class SmsProviderGms {
+@@ -126,9 +126,7 @@ public class SmsProviderGms {
          if (mClient != null) {
              return mClient;
          }
@@ -569,10 +576,20 @@ Subject: Remove dependency on com.google.android.gms.auth
  
          return mClient;
      }
-@@ -153,4 +151,4 @@ public class SmsProviderGms {
-         void onTimeout(long nativeSmsProviderGms);
+@@ -151,4 +149,4 @@ public class SmsProviderGms {
          void onCancel(long nativeSmsProviderGms);
+         void onNotAvailable(long nativeSmsProviderGms);
      }
 -}
 \ No newline at end of file
 +}
+--- a/chrome/browser/signin/services/android/BUILD.gn
++++ b/chrome/browser/signin/services/android/BUILD.gn
+@@ -29,7 +29,6 @@ android_library("java") {
+   ]
+   deps = [
+     ":java_resources",
+-    "$google_play_services_package:google_play_services_auth_base_java",
+     "//base:base_java",
+     "//base:jni_java",
+     "//chrome/browser/preferences:java",
