@@ -3,11 +3,11 @@ Date: Sat, 7 Sep 2019 15:07:42 +0200
 Subject: Add option to not persist tabs across sessions
 
 ---
- chrome/android/java/res/xml/privacy_preferences.xml                                       |   16 ++++++---
+ chrome/android/java/res/xml/privacy_preferences.xml                                       |   16 ++++++----
  chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java             |    4 +-
- chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java |   17 +++++++++-
+ chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java |   16 +++++++++-
  chrome/browser/ui/android/strings/android_chrome_strings.grd                              |    6 +++
- 4 files changed, 36 insertions(+), 7 deletions(-)
+ 4 files changed, 35 insertions(+), 7 deletions(-)
 
 --- a/chrome/android/java/res/xml/privacy_preferences.xml
 +++ b/chrome/android/java/res/xml/privacy_preferences.xml
@@ -87,21 +87,18 @@ Subject: Add option to not persist tabs across sessions
  import org.chromium.chrome.R;
  import org.chromium.chrome.browser.feedback.HelpAndFeedbackLauncherImpl;
  import org.chromium.chrome.browser.flags.ChromeFeatureList;
-@@ -53,10 +56,13 @@ public class PrivacySettings
+@@ -51,8 +54,10 @@ public class PrivacySettings
+     private static final String PREF_SAFE_BROWSING = "safe_browsing";
+     private static final String PREF_CLEAR_BROWSING_DATA = "clear_browsing_data";
      private static final String PREF_PRIVACY_SANDBOX = "privacy_sandbox";
++    private static final String PREF_CLOSE_TABS_ON_EXIT = "close_tabs_on_exit";
      private static final String[] NEW_PRIVACY_PREFERENCE_ORDER = {PREF_CLEAR_BROWSING_DATA,
              PREF_SAFE_BROWSING, PREF_CAN_MAKE_PAYMENT, PREF_NETWORK_PREDICTIONS, PREF_USAGE_STATS,
 +            PREF_CLOSE_TABS_ON_EXIT,
              PREF_SECURE_DNS, PREF_DO_NOT_TRACK, PREF_PRIVACY_SANDBOX};
  
      private ManagedPreferenceDelegate mManagedPreferenceDelegate;
- 
-+    private static final String PREF_CLOSE_TABS_ON_EXIT = "close_tabs_on_exit";
-+
-     @Override
-     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-         PrivacyPreferencesManagerImpl privacyPrefManager =
-@@ -151,7 +157,11 @@ public class PrivacySettings
+@@ -151,7 +156,11 @@ public class PrivacySettings
      @Override
      public boolean onPreferenceChange(Preference preference, Object newValue) {
          String key = preference.getKey();
@@ -114,7 +111,7 @@ Subject: Add option to not persist tabs across sessions
              UserPrefs.get(Profile.getLastUsedRegularProfile())
                      .setBoolean(Pref.CAN_MAKE_PAYMENT_ENABLED, (boolean) newValue);
          } else if (PREF_NETWORK_PREDICTIONS.equals(key)) {
-@@ -215,6 +225,11 @@ public class PrivacySettings
+@@ -215,6 +224,11 @@ public class PrivacySettings
                  getPreferenceScreen().removePreference(usageStatsPref);
              }
          }

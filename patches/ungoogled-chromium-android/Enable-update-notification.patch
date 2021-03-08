@@ -1,16 +1,14 @@
 ---
- chrome/android/chrome_java_sources.gni                                                              |    2 
+ chrome/android/chrome_java_sources.gni                                                              |    1 
  chrome/android/java/AndroidManifest.xml                                                             |    2 
- chrome/android/java/src/org/chromium/chrome/browser/download/ChromeUpdateDownloadDelegate.java      |  167 +++++++
  chrome/android/java/src/org/chromium/chrome/browser/omaha/UpdateConfigs.java                        |    9 
  chrome/android/java/src/org/chromium/chrome/browser/omaha/UpdateStatusProvider.java                 |   20 
  chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateControllerFactory.java |    2 
  chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/UCInlineUpdateController.java      |  236 ++++++++++
- chrome/browser/flag_descriptions.cc                                                                 |    5 
  chrome/browser/flags/android/chrome_feature_list.cc                                                 |    1 
  chrome/browser/ui/android/strings/android_chrome_strings.grd                                        |    2 
  chrome/browser/updates/update_notification_config.cc                                                |    4 
- 11 files changed, 437 insertions(+), 13 deletions(-)
+ 9 files changed, 267 insertions(+), 10 deletions(-)
 
 --- /dev/null
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/UCInlineUpdateController.java
@@ -253,15 +251,7 @@
 +}
 --- a/chrome/android/chrome_java_sources.gni
 +++ b/chrome/android/chrome_java_sources.gni
-@@ -520,6 +520,7 @@ chrome_java_sources = [
-   "java/src/org/chromium/chrome/browser/dom_distiller/ReaderModeManager.java",
-   "java/src/org/chromium/chrome/browser/dom_distiller/TabDistillabilityProvider.java",
-   "java/src/org/chromium/chrome/browser/download/ChromeDownloadDelegate.java",
-+  "java/src/org/chromium/chrome/browser/download/ChromeUpdateDownloadDelegate.java",
-   "java/src/org/chromium/chrome/browser/download/DownloadActivity.java",
-   "java/src/org/chromium/chrome/browser/download/DownloadBroadcastManagerImpl.java",
-   "java/src/org/chromium/chrome/browser/download/DownloadController.java",
-@@ -948,6 +949,7 @@ chrome_java_sources = [
+@@ -948,6 +948,7 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateController.java",
    "java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateControllerFactory.java",
    "java/src/org/chromium/chrome/browser/omaha/inline/NoopInlineUpdateController.java",
@@ -446,188 +436,3 @@
        </message>
        <message name="IDS_UPDATE_NOTIFICATION_TITLE_EXPERIMENTAL_UPDATE_CHROME" desc="Experimental version A title of update notification to remind user to update Chrome.">
          Update Chrome
---- /dev/null
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/download/ChromeUpdateDownloadDelegate.java
-@@ -0,0 +1,167 @@
-+// Copyright 2021 The Ungoogled Chromium Authors. All rights reserved.
-+//
-+// This file is part of Ungoogled Chromium Android.
-+//
-+// Ungoogled Chromium Android is free software: you can redistribute it
-+// and/or modify it under the terms of the GNU General Public License as
-+// published by the Free Software Foundation, either version 3 of the
-+// License, or any later version.
-+//
-+// Ungoogled Chromium Android is distributed in the hope that it will be
-+// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-+// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+// GNU General Public License for more details.
-+//
-+// You should have received a copy of the GNU General Public License
-+// along with Ungoogled Chromium Android.  If not,
-+// see <https://www.gnu.org/licenses/>.
-+
-+package org.chromium.chrome.browser.download;
-+
-+import android.Manifest.permission;
-+import android.app.DownloadManager;
-+import android.content.pm.PackageManager;
-+import android.net.Uri;
-+import android.os.Environment;
-+import android.text.TextUtils;
-+import android.util.Pair;
-+import android.webkit.MimeTypeMap;
-+import android.webkit.URLUtil;
-+
-+import androidx.annotation.VisibleForTesting;
-+
-+import org.chromium.base.Log;
-+import org.chromium.base.ThreadUtils;
-+import org.chromium.base.UserData;
-+import org.chromium.base.UserDataHost;
-+import org.chromium.base.task.AsyncTask;
-+import org.chromium.chrome.browser.tab.Tab;
-+import org.chromium.components.embedder_support.util.UrlConstants;
-+import org.chromium.ui.base.PermissionCallback;
-+import org.chromium.ui.base.WindowAndroid;
-+
-+import java.io.File;
-+
-+/**
-+ * Chrome implementation of the ContentViewDownloadDelegate interface.
-+ * Extends from the Context Menu Download Delegate.
-+ *
-+ * Listens to POST and GET download events. GET download requests are passed along to the
-+ * Android Download Manager. POST downloads are expected to be handled natively and listener
-+ * is responsible for adding the completed download to the download manager.
-+ */
-+public class ChromeUpdateDownloadDelegate  extends ChromeDownloadDelegate
-+        implements DownloadController.Observer {
-+    private static final String TAG = "UpdateDownload";
-+
-+    private static final Class<ChromeUpdateDownloadDelegate> USER_DATA_KEY = ChromeUpdateDownloadDelegate.class;
-+    private Tab mTab;
-+
-+    public static ChromeUpdateDownloadDelegate from(Tab tab) {
-+        UserDataHost host = tab.getUserDataHost();
-+        ChromeUpdateDownloadDelegate controller = host.getUserData(USER_DATA_KEY);
-+        return controller == null ? host.setUserData(USER_DATA_KEY,
-+                new ChromeUpdateDownloadDelegate(tab))
-+                : controller;
-+    }
-+
-+    /**
-+     * Creates ChromeUpdateDownloadDelegate.
-+     * @param tab The corresponding tab instance.
-+     */
-+    @VisibleForTesting
-+    ChromeUpdateDownloadDelegate(Tab tab) {
-+        super(tab);
-+        mTab = tab;
-+        DownloadController.setDownloadNotificationService(this);
-+    }
-+
-+    @Override
-+    public void destroy() {
-+        mTab = null;
-+        super.destroy();
-+    }
-+
-+    /**
-+     * Call this function to send download to android DownloadManager.
-+     *
-+     * @param url URL to be downloaded.
-+     * @return whether the download is successfully started
-+     */
-+    public boolean startDownload(String url) {
-+        Uri uri = Uri.parse(url);
-+        String scheme = uri.normalizeScheme().getScheme();
-+        if (!UrlConstants.HTTP_SCHEME.equals(scheme) && !UrlConstants.HTTPS_SCHEME.equals(scheme)) {
-+            return false;
-+        }
-+        if (mTab == null) return false;
-+        String fileExtenstion = MimeTypeMap.getFileExtensionFromUrl(url);
-+        String fileName = URLUtil.guessFileName(url, null, fileExtenstion);
-+        final DownloadInfo downloadInfo =
-+                new DownloadInfo.Builder().setUrl(url).setFileName(fileName).build();
-+        WindowAndroid window = mTab.getWindowAndroid();
-+        if (window.hasPermission(permission.WRITE_EXTERNAL_STORAGE)) {
-+            onDownloadStartNoStream(downloadInfo);
-+        } else if (window.canRequestPermission(permission.WRITE_EXTERNAL_STORAGE)) {
-+            PermissionCallback permissionCallback = (permissions, grantResults) -> {
-+                if (grantResults.length > 0
-+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-+                    onDownloadStartNoStream(downloadInfo);
-+                }
-+            };
-+            window.requestPermissions(
-+                    new String[] {permission.WRITE_EXTERNAL_STORAGE}, permissionCallback);
-+        }
-+        return true;
-+    }
-+
-+    /**
-+     * Should not be called.
-+     */
-+    @Override
-+    public boolean shouldInterceptContextMenuDownload(String url) {
-+        return false;
-+    }
-+
-+    /**
-+     * Notify the host application that a download is finished.
-+     *
-+     * @param downloadInfo Information about the completed download.
-+     */
-+    @Override
-+    public void onDownloadCompleted(DownloadInfo downloadInfo) {
-+        Log.d(TAG, "onDownloadCompleted");
-+    }
-+
-+    /**
-+     * Notify the host application that a download is in progress.
-+     *
-+     * @param downloadInfo Information about the in-progress download.
-+     */
-+    @Override
-+    public void onDownloadUpdated(DownloadInfo downloadInfo) {
-+        Log.d(TAG, "onDownloadUpdated");
-+
-+    }
-+
-+    /**
-+     * Notify the host application that a download is cancelled.
-+     *
-+     * @param downloadInfo Information about the cancelled download.
-+     */
-+    @Override
-+    public void onDownloadCancelled(DownloadInfo downloadInfo) {
-+        Log.d(TAG, "onDownloadCancelled");
-+    }
-+
-+    /**
-+     * Notify the host application that a download is interrupted.
-+     *
-+     * @param downloadInfo Information about the completed download.
-+     * @param isAutoResumable Download can be auto resumed when network becomes available.
-+     */
-+    @Override
-+    public void onDownloadInterrupted(DownloadInfo downloadInfo, boolean isAutoResumable) {
-+        Log.d(TAG, "onDownloadInterrupted");
-+    }
-+}
---- a/chrome/browser/flag_descriptions.cc
-+++ b/chrome/browser/flag_descriptions.cc
-@@ -3281,10 +3281,9 @@ const char kVoiceButtonInTopToolbarName[
- const char kVoiceButtonInTopToolbarDescription[] =
-     "Enables showing the voice search button in the top toolbar";
- 
--const char kInlineUpdateFlowName[] = "Enable Google Play inline update flow";
-+const char kInlineUpdateFlowName[] = "Enable inline update flow";
- const char kInlineUpdateFlowDescription[] =
--    "When this flag is set, instead of taking the user to the Google Play "
--    "Store when an update is available, the user is presented with an inline "
-+    "When this flag is set,  the user is presented with an inline "
-     "flow where they do not have to leave Chrome until the update is ready "
-     "to install.";
- 

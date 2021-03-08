@@ -22,6 +22,7 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
  chrome/browser/safe_browsing/android/java/src/org/chromium/chrome/browser/safe_browsing/settings/RadioButtonGroupSafeBrowsingPreference.java |   37 -
  chrome/browser/safe_browsing/android/java/src/org/chromium/chrome/browser/safe_browsing/settings/SafeBrowsingSettingsFragment.java           |  170 --------
  chrome/browser/safe_browsing/android/java/src/org/chromium/chrome/browser/safe_browsing/settings/StandardProtectionSettingsFragment.java     |    8 
+ components/safe_browsing/core/features.cc                                                                                                    |    2 
  weblayer/browser/browser_context_impl.cc                                                                                                     |    2 
  weblayer/browser/browser_process.cc                                                                                                          |   11 
  weblayer/browser/browser_process.h                                                                                                           |    4 
@@ -30,7 +31,7 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
  weblayer/browser/profile_impl.cc                                                                                                             |   16 
  weblayer/browser/safe_browsing/safe_browsing_blocking_page.cc                                                                                |    8 
  weblayer/browser/safe_browsing/safe_browsing_service.cc                                                                                      |  200 ----------
- 27 files changed, 53 insertions(+), 558 deletions(-)
+ 28 files changed, 54 insertions(+), 559 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
@@ -1259,3 +1260,14 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
      auto* sb_service = BrowserProcess::GetInstance()->GetSafeBrowsingService();
      if (sb_service)
        safe_browsing_context = sb_service->GetNetworkContext();
+--- a/components/safe_browsing/core/features.cc
++++ b/components/safe_browsing/core/features.cc
+@@ -121,7 +121,7 @@ constexpr base::FeatureParam<bool> kShou
+     &kPasswordProtectionForSignedInUsers, "DeprecateOldProto", false};
+ 
+ const base::Feature kSafeBrowsingSectionUIAndroid{
+-    "SafeBrowsingSecuritySectionUIAndroid", base::FEATURE_ENABLED_BY_DEFAULT};
++    "SafeBrowsingSecuritySectionUIAndroid", base::FEATURE_DISABLED_BY_DEFAULT};
+ 
+ const base::Feature kSuspiciousSiteTriggerQuotaFeature{
+     "SafeBrowsingSuspiciousSiteTriggerQuota", base::FEATURE_ENABLED_BY_DEFAULT};

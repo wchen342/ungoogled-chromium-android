@@ -4,6 +4,7 @@ src-fix/fix-unkown-warning-clang.patch
 src-fix/fix-safe-browsing-prefs.patch
 src-fix/fix-prefs.patch
 src-fix/fix-base-feature.patch
+src-fix/fix-search-template.patch
 Vanadium/0003-switch-to-fstack-protector-strong.patch
 Vanadium/0016-disable-seed-based-field-trials.patch
 Vanadium/0017-disable-fetching-variations.patch
@@ -56,5 +57,3 @@ Bromite/DoH-secure-mode-by-default.patch
 Bromite/Revert-flags-remove-disable-pull-to-refresh-effect.patch
 Bromite/Disable-DRM-media-origin-IDs-preprovisioning.patch
 Bromite/AImageReader-CFI-crash-mitigations.patch
-
-Other/debug-fix.patch
