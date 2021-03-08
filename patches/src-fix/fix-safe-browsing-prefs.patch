@@ -22,6 +22,7 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
  chrome/browser/safe_browsing/android/java/src/org/chromium/chrome/browser/safe_browsing/settings/RadioButtonGroupSafeBrowsingPreference.java |   37 -
  chrome/browser/safe_browsing/android/java/src/org/chromium/chrome/browser/safe_browsing/settings/SafeBrowsingSettingsFragment.java           |  170 --------
  chrome/browser/safe_browsing/android/java/src/org/chromium/chrome/browser/safe_browsing/settings/StandardProtectionSettingsFragment.java     |    8 
+ components/safe_browsing/content/browser/client_side_detection_service.cc                                                                    |   18 
  components/safe_browsing/core/features.cc                                                                                                    |    2 
  weblayer/browser/browser_context_impl.cc                                                                                                     |    2 
  weblayer/browser/browser_process.cc                                                                                                          |   11 
@@ -31,7 +32,7 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
  weblayer/browser/profile_impl.cc                                                                                                             |   16 
  weblayer/browser/safe_browsing/safe_browsing_blocking_page.cc                                                                                |    8 
  weblayer/browser/safe_browsing/safe_browsing_service.cc                                                                                      |  200 ----------
- 28 files changed, 54 insertions(+), 559 deletions(-)
+ 29 files changed, 56 insertions(+), 575 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
@@ -1271,3 +1272,38 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
  
  const base::Feature kSuspiciousSiteTriggerQuotaFeature{
      "SafeBrowsingSuspiciousSiteTriggerQuota", base::FEATURE_ENABLED_BY_DEFAULT};
+--- a/components/safe_browsing/content/browser/client_side_detection_service.cc
++++ b/components/safe_browsing/content/browser/client_side_detection_service.cc
+@@ -73,19 +73,6 @@ ClientSideDetectionService::ClientSideDe
+ 
+   url_loader_factory_ = delegate_->GetSafeBrowsingURLLoaderFactory();
+ 
+-  pref_change_registrar_.Init(delegate_->GetPrefs());
+-  pref_change_registrar_.Add(
+-      prefs::kSafeBrowsingEnabled,
+-      base::BindRepeating(&ClientSideDetectionService::OnPrefsUpdated,
+-                          base::Unretained(this)));
+-  pref_change_registrar_.Add(
+-      prefs::kSafeBrowsingEnhanced,
+-      base::BindRepeating(&ClientSideDetectionService::OnPrefsUpdated,
+-                          base::Unretained(this)));
+-  pref_change_registrar_.Add(
+-      prefs::kSafeBrowsingScoutReportingEnabled,
+-      base::BindRepeating(&ClientSideDetectionService::OnPrefsUpdated,
+-                          base::Unretained(this)));
+   // Do an initial check of the prefs.
+   OnPrefsUpdated();
+ }
+@@ -100,10 +87,9 @@ void ClientSideDetectionService::Shutdow
+ 
+ void ClientSideDetectionService::OnPrefsUpdated() {
+   DCHECK_CURRENTLY_ON(BrowserThread::UI);
+-  bool enabled = IsSafeBrowsingEnabled(*delegate_->GetPrefs());
++  bool enabled = false;
+   bool extended_reporting =
+-      IsEnhancedProtectionEnabled(*delegate_->GetPrefs()) ||
+-      IsExtendedReportingEnabled(*delegate_->GetPrefs());
++      false;
+   if (enabled == enabled_ && extended_reporting_ == extended_reporting)
+     return;
+ 
