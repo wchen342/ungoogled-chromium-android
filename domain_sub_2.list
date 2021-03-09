@@ -91,7 +91,6 @@
 ./base/win/shortcut.h
 ./build/android/incremental_install/java/org/chromium/incrementalinstall/ClassLoaderPatcher.java
 ./build/android/pylib/device/commands/BUILD.gn
-./build/android/pylib/device/commands/java/src/org/chromium/android/commands/unzip/Unzip.java
 ./build/config/android/rules.gni
 ./build/config/compiler/BUILD.gn
 ./BUILD.gn

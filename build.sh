@@ -11,8 +11,8 @@ trichrome_chrome_apk_target=trichrome_library_apk
 webview_target=system_webview_apk
 trichrome_webview_target=trichrome_webview_apk
 
-chromium_version=89.0.4389.72
-ungoogled_chromium_version=89.0.4389.72
+chromium_version=89.0.4389.82
+ungoogled_chromium_version=89.0.4389.82
 ungoogled_chromium_revision=1
 ungoogled_chromium_android_revision=1
 
@@ -107,7 +107,9 @@ function prepare_repos {
   patch_applied=false
 
   ## Clone ungoogled-chromium repo
-  git clone https://github.com/Eloston/ungoogled-chromium.git -b ${ungoogled_chromium_version}-${ungoogled_chromium_revision} || return $?
+  git clone https://github.com/Eloston/ungoogled-chromium.git -b ${ungoogled_chromium_version}-${ungoogled_chromium_revision} \
+   || git clone https://github.com/wchen342/ungoogled-chromium.git -b ${ungoogled_chromium_version}-${ungoogled_chromium_revision} \
+   || return $?
 
   ## Clone chromium repo
   git clone --depth 1 --no-tags https://chromium.googlesource.com/chromium/src.git -b ${chromium_version} || return $?

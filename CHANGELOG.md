@@ -1,3 +1,6 @@
+# 89.0.4389.82-1
+* ungoogled-chromium version update
+
 # 89.0.4389.72-1
 * Include several enhancements from Vanadium
 * Add proxy settings, disable AMP on sites
