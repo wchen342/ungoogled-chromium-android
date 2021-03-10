@@ -22,7 +22,9 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
  chrome/browser/safe_browsing/android/java/src/org/chromium/chrome/browser/safe_browsing/settings/RadioButtonGroupSafeBrowsingPreference.java |   37 -
  chrome/browser/safe_browsing/android/java/src/org/chromium/chrome/browser/safe_browsing/settings/SafeBrowsingSettingsFragment.java           |  170 --------
  chrome/browser/safe_browsing/android/java/src/org/chromium/chrome/browser/safe_browsing/settings/StandardProtectionSettingsFragment.java     |    8 
- components/safe_browsing/content/browser/client_side_detection_service.cc                                                                    |   18 
+ components/safe_browsing/content/browser/client_side_detection_host.cc                                                                       |    9 
+ components/safe_browsing/content/browser/client_side_detection_host.h                                                                        |    2 
+ components/safe_browsing/content/browser/client_side_detection_service.cc                                                                    |   23 -
  components/safe_browsing/core/features.cc                                                                                                    |    2 
  weblayer/browser/browser_context_impl.cc                                                                                                     |    2 
  weblayer/browser/browser_process.cc                                                                                                          |   11 
@@ -30,9 +32,12 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
  weblayer/browser/browsing_data_remover_delegate.cc                                                                                           |    2 
  weblayer/browser/content_browser_client_impl.cc                                                                                              |   18 
  weblayer/browser/profile_impl.cc                                                                                                             |   16 
+ weblayer/browser/safe_browsing/client_side_detection_service_delegate.cc                                                                     |    2 
  weblayer/browser/safe_browsing/safe_browsing_blocking_page.cc                                                                                |    8 
  weblayer/browser/safe_browsing/safe_browsing_service.cc                                                                                      |  200 ----------
- 29 files changed, 56 insertions(+), 575 deletions(-)
+ weblayer/browser/safe_browsing/safe_browsing_tab_observer.cc                                                                                 |   11 
+ weblayer/browser/subresource_filter_client_impl.cc                                                                                           |    2 
+ 34 files changed, 69 insertions(+), 593 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
@@ -1274,11 +1279,10 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
      "SafeBrowsingSuspiciousSiteTriggerQuota", base::FEATURE_ENABLED_BY_DEFAULT};
 --- a/components/safe_browsing/content/browser/client_side_detection_service.cc
 +++ b/components/safe_browsing/content/browser/client_side_detection_service.cc
-@@ -73,19 +73,6 @@ ClientSideDetectionService::ClientSideDe
- 
+@@ -74,18 +74,7 @@ ClientSideDetectionService::ClientSideDe
    url_loader_factory_ = delegate_->GetSafeBrowsingURLLoaderFactory();
  
--  pref_change_registrar_.Init(delegate_->GetPrefs());
+   pref_change_registrar_.Init(delegate_->GetPrefs());
 -  pref_change_registrar_.Add(
 -      prefs::kSafeBrowsingEnabled,
 -      base::BindRepeating(&ClientSideDetectionService::OnPrefsUpdated,
@@ -1291,10 +1295,11 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
 -      prefs::kSafeBrowsingScoutReportingEnabled,
 -      base::BindRepeating(&ClientSideDetectionService::OnPrefsUpdated,
 -                          base::Unretained(this)));
++
    // Do an initial check of the prefs.
    OnPrefsUpdated();
  }
-@@ -100,10 +87,9 @@ void ClientSideDetectionService::Shutdow
+@@ -100,10 +89,9 @@ void ClientSideDetectionService::Shutdow
  
  void ClientSideDetectionService::OnPrefsUpdated() {
    DCHECK_CURRENTLY_ON(BrowserThread::UI);
@@ -1307,3 +1312,116 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
    if (enabled == enabled_ && extended_reporting_ == extended_reporting)
      return;
  
+@@ -215,10 +203,7 @@ void ClientSideDetectionService::StartCl
+     return;
+   }
+ 
+-#if 1
+-  if (!callback.is_null())
+-    callback.Run(GURL(request->url()), false);
+-#else
++#if 0
+   // Fill in metadata about which model we used.
+   request->set_model_filename(model_loader_->name());
+   if (is_extended_reporting || is_enhanced_reporting) {
+--- a/components/safe_browsing/content/browser/client_side_detection_host.h
++++ b/components/safe_browsing/content/browser/client_side_detection_host.h
+@@ -22,6 +22,8 @@
+ #include "services/service_manager/public/cpp/binder_registry.h"
+ #include "url/gurl.h"
+ 
++class PrefService;
++
+ namespace base {
+ class TickClock;
+ }
+--- a/components/safe_browsing/content/browser/client_side_detection_host.cc
++++ b/components/safe_browsing/content/browser/client_side_detection_host.cc
+@@ -108,7 +108,7 @@ class ClientSideDetectionHost::ShouldCla
+ 
+     // Don't start classification if |url_| is whitelisted by enterprise policy.
+     if (host_->delegate_->GetPrefs() &&
+-        IsURLWhitelistedByPolicy(url_, *host_->delegate_->GetPrefs())) {
++        false) {
+       DontClassifyForPhishing(NO_CLASSIFY_WHITELISTED_BY_POLICY);
+     }
+ 
+@@ -433,8 +433,7 @@ void ClientSideDetectionHost::PhishingDe
+       VLOG(2) << "Phash Score: " << match.vision_matched_phash_score();
+       VLOG(2) << "EMD Score: " << match.vision_matched_emd_score();
+     }
+-    if (!IsExtendedReportingEnabled(*delegate_->GetPrefs()) &&
+-        !IsEnhancedProtectionEnabled(*delegate_->GetPrefs())) {
++    if (true) {
+       // These fields should only be set for SBER users.
+       verdict->clear_screenshot_digest();
+       verdict->clear_screenshot_phash();
+@@ -452,8 +451,8 @@ void ClientSideDetectionHost::PhishingDe
+                          /*is_from_cache=*/false);
+       csd_service_->SendClientReportPhishingRequest(
+           std::move(verdict),
+-          IsExtendedReportingEnabled(*delegate_->GetPrefs()),
+-          IsEnhancedProtectionEnabled(*delegate_->GetPrefs()),
++          false,
++          false,
+           std::move(callback));
+     }
+   }
+--- a/weblayer/browser/safe_browsing/safe_browsing_tab_observer.cc
++++ b/weblayer/browser/safe_browsing/safe_browsing_tab_observer.cc
+@@ -24,16 +24,11 @@ SafeBrowsingTabObserver::SafeBrowsingTab
+   PrefService* prefs = browser_context->pref_service();
+   if (prefs) {
+     pref_change_registrar_.Init(prefs);
+-    pref_change_registrar_.Add(
+-        ::prefs::kSafeBrowsingEnabled,
+-        base::BindRepeating(
+-            &SafeBrowsingTabObserver::UpdateSafebrowsingDetectionHost,
+-            base::Unretained(this)));
+ 
+     safe_browsing::ClientSideDetectionService* csd_service =
+         ClientSideDetectionServiceFactory::GetForBrowserContext(
+             browser_context);
+-    if (safe_browsing::IsSafeBrowsingEnabled(*prefs) &&
++    if (false &&
+         BrowserProcess::GetInstance()->GetSafeBrowsingService() &&
+         csd_service) {
+       safebrowsing_detection_host_ =
+@@ -53,7 +48,7 @@ void SafeBrowsingTabObserver::UpdateSafe
+       static_cast<BrowserContextImpl*>(web_contents_->GetBrowserContext());
+   PrefService* prefs = browser_context->pref_service();
+ 
+-  bool safe_browsing = safe_browsing::IsSafeBrowsingEnabled(*prefs);
++  bool safe_browsing = false;
+   safe_browsing::ClientSideDetectionService* csd_service =
+       ClientSideDetectionServiceFactory::GetForBrowserContext(browser_context);
+   if (safe_browsing && csd_service) {
+@@ -72,4 +67,4 @@ void SafeBrowsingTabObserver::UpdateSafe
+ 
+ WEB_CONTENTS_USER_DATA_KEY_IMPL(SafeBrowsingTabObserver)
+ 
+-}  // namespace weblayer
+\ No newline at end of file
++}  // namespace weblayer
+--- a/weblayer/browser/safe_browsing/client_side_detection_service_delegate.cc
++++ b/weblayer/browser/safe_browsing/client_side_detection_service_delegate.cc
+@@ -34,7 +34,7 @@ scoped_refptr<network::SharedURLLoaderFa
+ ClientSideDetectionServiceDelegate::GetSafeBrowsingURLLoaderFactory() {
+   SafeBrowsingService* sb_service =
+       BrowserProcess::GetInstance()->GetSafeBrowsingService();
+-  return sb_service ? sb_service->GetURLLoaderFactory() : nullptr;
++  return nullptr;
+ }
+ 
+ safe_browsing::ChromeUserPopulation::ProfileManagementStatus
+--- a/weblayer/browser/subresource_filter_client_impl.cc
++++ b/weblayer/browser/subresource_filter_client_impl.cc
+@@ -35,7 +35,7 @@ namespace {
+ // available. Otherwise returns nullptr.
+ const scoped_refptr<safe_browsing::SafeBrowsingDatabaseManager>
+ GetDatabaseManagerFromSafeBrowsingService() {
+-#if defined(OS_ANDROID)
++#if 0
+   SafeBrowsingService* safe_browsing_service =
+       BrowserProcess::GetInstance()->GetSafeBrowsingService();
+   return safe_browsing_service

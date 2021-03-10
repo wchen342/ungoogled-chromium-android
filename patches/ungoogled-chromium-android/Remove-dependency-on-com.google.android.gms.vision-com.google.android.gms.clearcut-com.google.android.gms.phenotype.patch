@@ -6,7 +6,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
 ---
  chrome/android/BUILD.gn                                                                                                    |    2 
  chrome/android/features/cablev2_authenticator/BUILD.gn                                                                     |    2 
- chrome/android/features/cablev2_authenticator/java/src/org/chromium/chrome/browser/webauth/authenticator/QRScanDialog.java |   27 --
+ chrome/android/features/cablev2_authenticator/java/src/org/chromium/chrome/browser/webauth/authenticator/QRScanDialog.java |   47 ----
  chrome/browser/share/android/java/src/org/chromium/chrome/browser/share/qrcode/scan_tab/QrCodeScanMediator.java            |   55 ----
  services/BUILD.gn                                                                                                          |    4 
  services/shape_detection/BUILD.gn                                                                                          |    2 
@@ -14,7 +14,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
  services/shape_detection/android/java/src/org/chromium/shape_detection/FaceDetectionImplGmsCore.java                       |   93 --------
  services/shape_detection/android/java/src/org/chromium/shape_detection/TextDetectionImpl.java                              |   56 ----
  third_party/android_deps/BUILD.gn                                                                                          |   69 ------
- 10 files changed, 9 insertions(+), 415 deletions(-)
+ 10 files changed, 9 insertions(+), 435 deletions(-)
 
 --- a/services/BUILD.gn
 +++ b/services/BUILD.gn
@@ -633,7 +633,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
      private CheckBox mLinkCheckbox;
      private CameraView mCameraView;
      private ByteBuffer mBuffer;
-@@ -104,27 +99,7 @@ public class QRScanDialog extends Dialog
+@@ -104,50 +99,10 @@ public class QRScanDialog extends Dialog
       * {@link #mBuffer}. Runs on a background thread.
       */
      private void findQRCodes(ByteBuffer buffer, Camera.Parameters cameraParams) {
@@ -662,3 +662,26 @@ Subject: Remove dependency on com.google.android.gms.vision,
      }
  
      /**
+      * Handles the results of QR detection. Runs on the UI thread.
+      */
+-    private void handleQRCodes(SparseArray<Barcode> barcodes) {
+-        ThreadUtils.assertOnUiThread();
+-
+-        // This dialog may have been dismissed while background QR detection was
+-        // running.
+-        if (mDismissed) {
+-            return;
+-        }
+-
+-        for (int i = 0; i < barcodes.size(); i++) {
+-            String value = barcodes.valueAt(i).rawValue;
+-            if (value.startsWith(FIDO_QR_PREFIX)) {
+-                mCallback.onQRCode(value, mLinkCheckbox.isChecked());
+-                dismiss();
+-                return;
+-            }
+-        }
+-
+-        mCameraView.rearmCallback();
+-    }
+ }
