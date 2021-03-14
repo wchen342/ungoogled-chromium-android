@@ -1,3 +1,6 @@
+# 89.0.4389.90-1
+* Upstream security fixes
+
 # 89.0.4389.82-1
 * ungoogled-chromium version update
 
