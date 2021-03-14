@@ -5,6 +5,7 @@ src-fix/fix-safe-browsing-prefs.patch
 src-fix/fix-prefs.patch
 src-fix/fix-base-feature.patch
 src-fix/fix-search-template.patch
+src-fix/webview_extra_deps.patch
 Vanadium/0003-switch-to-fstack-protector-strong.patch
 Vanadium/0016-disable-seed-based-field-trials.patch
 Vanadium/0017-disable-fetching-variations.patch
