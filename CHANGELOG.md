@@ -1,3 +1,7 @@
+# 89.0.4389.114-1
+* Upstream security fixes
+* Use 64-bit targets for arm64
+
 # 89.0.4389.90-1
 * Upstream security fixes
 

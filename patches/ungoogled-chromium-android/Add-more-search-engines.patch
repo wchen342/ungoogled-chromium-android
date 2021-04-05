@@ -5,8 +5,8 @@ Subject: Add Startpage.com and Qwant.com search engines
 ---
  components/search_engines/prepopulated_engines.json        |   12 
  components/search_engines/search_engine_type.h             |    1 
- components/search_engines/template_url_prepopulate_data.cc |  216 +++++++++++++
- 3 files changed, 229 insertions(+)
+ components/search_engines/template_url_prepopulate_data.cc |  214 +++++++++++++
+ 3 files changed, 227 insertions(+)
 
 --- a/components/search_engines/prepopulated_engines.json
 +++ b/components/search_engines/prepopulated_engines.json
@@ -41,975 +41,973 @@ Subject: Add Startpage.com and Qwant.com search engines
 @@ -30,6 +30,8 @@ namespace {
  // Default (for countries with no better engine set)
  const PrepopulatedEngine* const engines_default[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &duckduckgo,
-     &google,
      &bing,
-@@ -41,6 +43,8 @@ const PrepopulatedEngine* const engines_
+     &yahoo,
+ };
+@@ -39,6 +41,8 @@ const PrepopulatedEngine* const engines_
  // United Arab Emirates
  const PrepopulatedEngine* const engines_AE[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -51,6 +55,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -48,6 +52,8 @@ const PrepopulatedEngine* const engines_
  // Albania
  const PrepopulatedEngine* const engines_AL[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -61,6 +67,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -57,6 +63,8 @@ const PrepopulatedEngine* const engines_
  // Argentina
  const PrepopulatedEngine* const engines_AR[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo_ar,
-@@ -71,6 +79,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -66,6 +74,8 @@ const PrepopulatedEngine* const engines_
  // Austria
  const PrepopulatedEngine* const engines_AT[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &duckduckgo,
-@@ -81,6 +91,8 @@ const PrepopulatedEngine* const engines_
+     &yahoo_at,
+@@ -75,6 +85,8 @@ const PrepopulatedEngine* const engines_
  // Australia
  const PrepopulatedEngine* const engines_AU[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo_au,
-@@ -91,6 +103,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -84,6 +96,8 @@ const PrepopulatedEngine* const engines_
  // Bosnia and Herzegovina
  const PrepopulatedEngine* const engines_BA[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -100,6 +114,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -92,6 +106,8 @@ const PrepopulatedEngine* const engines_
  // Belgium
  const PrepopulatedEngine* const engines_BE[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -110,6 +126,8 @@ const PrepopulatedEngine* const engines_
+     &ecosia,
+@@ -101,6 +117,8 @@ const PrepopulatedEngine* const engines_
  // Bulgaria
  const PrepopulatedEngine* const engines_BG[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -120,6 +138,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -110,6 +128,8 @@ const PrepopulatedEngine* const engines_
  // Bahrain
  const PrepopulatedEngine* const engines_BH[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -130,6 +150,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -119,6 +139,8 @@ const PrepopulatedEngine* const engines_
  // Burundi
  const PrepopulatedEngine* const engines_BI[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -140,6 +162,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -128,6 +150,8 @@ const PrepopulatedEngine* const engines_
  // Brunei
  const PrepopulatedEngine* const engines_BN[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -150,6 +174,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -137,6 +161,8 @@ const PrepopulatedEngine* const engines_
  // Bolivia
  const PrepopulatedEngine* const engines_BO[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -160,6 +186,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -146,6 +172,8 @@ const PrepopulatedEngine* const engines_
  // Brazil
  const PrepopulatedEngine* const engines_BR[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo_br,
-@@ -170,6 +198,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -155,6 +183,8 @@ const PrepopulatedEngine* const engines_
  // Belarus
  const PrepopulatedEngine* const engines_BY[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &yandex_by,
      &mail_ru,
-@@ -180,6 +210,8 @@ const PrepopulatedEngine* const engines_
+     &bing,
+@@ -164,6 +194,8 @@ const PrepopulatedEngine* const engines_
  // Belize
  const PrepopulatedEngine* const engines_BZ[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -190,6 +222,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -173,6 +205,8 @@ const PrepopulatedEngine* const engines_
  // Canada
  const PrepopulatedEngine* const engines_CA[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo_ca,
-@@ -200,6 +234,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -182,6 +216,8 @@ const PrepopulatedEngine* const engines_
  // Switzerland
  const PrepopulatedEngine* const engines_CH[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &duckduckgo,
-@@ -210,6 +246,8 @@ const PrepopulatedEngine* const engines_
+     &ecosia,
+@@ -191,6 +227,8 @@ const PrepopulatedEngine* const engines_
  // Chile
  const PrepopulatedEngine* const engines_CL[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo_es,
-@@ -220,6 +258,8 @@ const PrepopulatedEngine* const engines_
- // China
- const PrepopulatedEngine* const engines_CN[] = {
-     &searx,
-+    &startpage,
-+    &qwant,
      &duckduckgo,
+@@ -202,6 +240,8 @@ const PrepopulatedEngine* const engines_
      &baidu,
      &sogou,
-@@ -231,6 +271,8 @@ const PrepopulatedEngine* const engines_
+     &google,
++    &startpage,
++    &qwant,
+     &bing,
+     &so_360,
+ };
+@@ -209,6 +249,8 @@ const PrepopulatedEngine* const engines_
  // Colombia
  const PrepopulatedEngine* const engines_CO[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo_es,
-@@ -241,6 +283,8 @@ const PrepopulatedEngine* const engines_
+     &ecosia,
+@@ -218,6 +260,8 @@ const PrepopulatedEngine* const engines_
  // Costa Rica
  const PrepopulatedEngine* const engines_CR[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -251,6 +295,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -227,6 +271,8 @@ const PrepopulatedEngine* const engines_
  // Czech Republic
  const PrepopulatedEngine* const engines_CZ[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &seznam_cz,
      &bing,
-@@ -261,6 +307,8 @@ const PrepopulatedEngine* const engines_
+     &yahoo,
+@@ -236,6 +282,8 @@ const PrepopulatedEngine* const engines_
  // Germany
  const PrepopulatedEngine* const engines_DE[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &duckduckgo,
-@@ -271,6 +319,8 @@ const PrepopulatedEngine* const engines_
+     &ecosia,
+@@ -245,6 +293,8 @@ const PrepopulatedEngine* const engines_
  // Denmark
  const PrepopulatedEngine* const engines_DK[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo_dk,
-@@ -281,6 +331,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -254,6 +304,8 @@ const PrepopulatedEngine* const engines_
  // Dominican Republic
  const PrepopulatedEngine* const engines_DO[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -291,6 +343,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -263,6 +315,8 @@ const PrepopulatedEngine* const engines_
  // Algeria
  const PrepopulatedEngine* const engines_DZ[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &yahoo_uk,
      &bing,
-@@ -301,6 +355,8 @@ const PrepopulatedEngine* const engines_
+     &yandex_ru,
+@@ -272,6 +326,8 @@ const PrepopulatedEngine* const engines_
  // Ecuador
  const PrepopulatedEngine* const engines_EC[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -311,6 +367,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -281,6 +337,8 @@ const PrepopulatedEngine* const engines_
  // Estonia
  const PrepopulatedEngine* const engines_EE[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &duckduckgo,
-     &google,
      &bing,
-@@ -322,6 +380,8 @@ const PrepopulatedEngine* const engines_
+     &yandex_ru,
+     &yahoo,
+@@ -290,6 +348,8 @@ const PrepopulatedEngine* const engines_
  // Egypt
  const PrepopulatedEngine* const engines_EG[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &yahoo,
      &bing,
-@@ -332,6 +392,8 @@ const PrepopulatedEngine* const engines_
+     &yandex_com,
+@@ -299,6 +359,8 @@ const PrepopulatedEngine* const engines_
  // Spain
  const PrepopulatedEngine* const engines_ES[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo_es,
-@@ -342,6 +404,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -308,6 +370,8 @@ const PrepopulatedEngine* const engines_
  // Finland
  const PrepopulatedEngine* const engines_FI[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo_fi,
-@@ -352,6 +416,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -317,6 +381,8 @@ const PrepopulatedEngine* const engines_
  // Faroe Islands
  const PrepopulatedEngine* const engines_FO[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo_dk,
-@@ -362,6 +428,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -326,6 +392,7 @@ const PrepopulatedEngine* const engines_
  // France
  const PrepopulatedEngine* const engines_FR[] = {
-     &searx,
-+    &startpage,
-+    &qwant,
-     &duckduckgo,
      &google,
++    &startpage,
      &bing,
-@@ -373,6 +441,8 @@ const PrepopulatedEngine* const engines_
+     &yahoo_fr,
+     &qwant,
+@@ -335,6 +402,8 @@ const PrepopulatedEngine* const engines_
  // United Kingdom
  const PrepopulatedEngine* const engines_GB[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo_uk,
-@@ -383,6 +453,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -344,6 +413,8 @@ const PrepopulatedEngine* const engines_
  // Greece
  const PrepopulatedEngine* const engines_GR[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -393,6 +465,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -353,6 +424,8 @@ const PrepopulatedEngine* const engines_
  // Guatemala
  const PrepopulatedEngine* const engines_GT[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -403,6 +477,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -362,6 +435,8 @@ const PrepopulatedEngine* const engines_
  // Hong Kong
  const PrepopulatedEngine* const engines_HK[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &yahoo_hk,
      &bing,
-@@ -413,6 +489,8 @@ const PrepopulatedEngine* const engines_
+     &baidu,
+@@ -371,6 +446,8 @@ const PrepopulatedEngine* const engines_
  // Honduras
  const PrepopulatedEngine* const engines_HN[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -423,6 +501,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -380,6 +457,8 @@ const PrepopulatedEngine* const engines_
  // Croatia
  const PrepopulatedEngine* const engines_HR[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -433,6 +513,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -389,6 +468,8 @@ const PrepopulatedEngine* const engines_
  // Hungary
  const PrepopulatedEngine* const engines_HU[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -443,6 +525,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -398,6 +479,8 @@ const PrepopulatedEngine* const engines_
  // Indonesia
  const PrepopulatedEngine* const engines_ID[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &yahoo_id,
      &bing,
-@@ -453,6 +537,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -407,6 +490,8 @@ const PrepopulatedEngine* const engines_
  // Ireland
  const PrepopulatedEngine* const engines_IE[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -463,6 +549,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -416,6 +501,8 @@ const PrepopulatedEngine* const engines_
  // Israel
  const PrepopulatedEngine* const engines_IL[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yandex_ru,
-@@ -473,6 +561,8 @@ const PrepopulatedEngine* const engines_
+     &yahoo,
+@@ -425,6 +512,8 @@ const PrepopulatedEngine* const engines_
  // India
  const PrepopulatedEngine* const engines_IN[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo_in,
-@@ -483,6 +573,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -434,6 +523,8 @@ const PrepopulatedEngine* const engines_
  // Iraq
  const PrepopulatedEngine* const engines_IQ[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo_uk,
-@@ -493,6 +585,8 @@ const PrepopulatedEngine* const engines_
+     &yandex_com,
+@@ -443,6 +534,8 @@ const PrepopulatedEngine* const engines_
  // Iran
  const PrepopulatedEngine* const engines_IR[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &duckduckgo,
-     &google,
      &bing,
-@@ -504,6 +598,8 @@ const PrepopulatedEngine* const engines_
+     &yahoo,
+     &ask,
+@@ -452,6 +545,8 @@ const PrepopulatedEngine* const engines_
  // Iceland
  const PrepopulatedEngine* const engines_IS[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -514,6 +610,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -461,6 +556,8 @@ const PrepopulatedEngine* const engines_
  // Italy
  const PrepopulatedEngine* const engines_IT[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -524,6 +622,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -470,6 +567,8 @@ const PrepopulatedEngine* const engines_
  // Jamaica
  const PrepopulatedEngine* const engines_JM[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -534,6 +634,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -479,6 +578,8 @@ const PrepopulatedEngine* const engines_
  // Jordan
  const PrepopulatedEngine* const engines_JO[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -544,6 +646,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -488,6 +589,8 @@ const PrepopulatedEngine* const engines_
  // Japan
  const PrepopulatedEngine* const engines_JP[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &yahoo_jp,
      &bing,
-@@ -554,6 +658,8 @@ const PrepopulatedEngine* const engines_
+     &baidu,
+@@ -497,6 +600,8 @@ const PrepopulatedEngine* const engines_
  // Kenya
  const PrepopulatedEngine* const engines_KE[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -564,6 +670,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -506,6 +611,8 @@ const PrepopulatedEngine* const engines_
  // South Korea
  const PrepopulatedEngine* const engines_KR[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &duckduckgo,
-     &google,
      &naver,
-@@ -575,6 +683,8 @@ const PrepopulatedEngine* const engines_
+     &bing,
+     &daum,
+@@ -515,6 +622,8 @@ const PrepopulatedEngine* const engines_
  // Kuwait
  const PrepopulatedEngine* const engines_KW[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -585,6 +695,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -524,6 +633,8 @@ const PrepopulatedEngine* const engines_
  // Kazakhstan
  const PrepopulatedEngine* const engines_KZ[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &duckduckgo,
-     &google,
      &yandex_kz,
-@@ -596,6 +708,8 @@ const PrepopulatedEngine* const engines_
+     &mail_ru,
+     &bing,
+@@ -533,6 +644,8 @@ const PrepopulatedEngine* const engines_
  // Lebanon
  const PrepopulatedEngine* const engines_LB[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -606,6 +720,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -542,6 +655,8 @@ const PrepopulatedEngine* const engines_
  // Liechtenstein
  const PrepopulatedEngine* const engines_LI[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &duckduckgo,
-@@ -616,6 +732,8 @@ const PrepopulatedEngine* const engines_
+     &yahoo,
+@@ -551,6 +666,8 @@ const PrepopulatedEngine* const engines_
  // Lithuania
  const PrepopulatedEngine* const engines_LT[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -626,6 +744,8 @@ const PrepopulatedEngine* const engines_
+     &yandex_ru,
+@@ -560,6 +677,8 @@ const PrepopulatedEngine* const engines_
  // Luxembourg
  const PrepopulatedEngine* const engines_LU[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &duckduckgo,
-@@ -636,6 +756,8 @@ const PrepopulatedEngine* const engines_
+     &yahoo,
+@@ -569,6 +688,8 @@ const PrepopulatedEngine* const engines_
  // Latvia
  const PrepopulatedEngine* const engines_LV[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yandex_ru,
-@@ -646,6 +768,8 @@ const PrepopulatedEngine* const engines_
+     &yahoo,
+@@ -578,6 +699,8 @@ const PrepopulatedEngine* const engines_
  // Libya
  const PrepopulatedEngine* const engines_LY[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -656,6 +780,8 @@ const PrepopulatedEngine* const engines_
+     &yandex_com,
+@@ -587,6 +710,8 @@ const PrepopulatedEngine* const engines_
  // Morocco
  const PrepopulatedEngine* const engines_MA[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &yahoo_fr,
      &bing,
-@@ -666,6 +792,8 @@ const PrepopulatedEngine* const engines_
+     &yandex_com,
+@@ -596,6 +721,7 @@ const PrepopulatedEngine* const engines_
  // Monaco
  const PrepopulatedEngine* const engines_MC[] = {
-     &searx,
-+    &startpage,
-+    &qwant,
      &google,
++    &startpage,
      &bing,
      &yahoo,
-@@ -676,6 +804,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -605,6 +731,8 @@ const PrepopulatedEngine* const engines_
  // Moldova
  const PrepopulatedEngine* const engines_MD[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &duckduckgo,
-     &google,
-     &yandex_ru,
-@@ -687,6 +817,8 @@ const PrepopulatedEngine* const engines_
- // Montenegro
- const PrepopulatedEngine* const engines_ME[] = {
-     &searx,
-+    &startpage,
-+    &qwant,
-     &google,
-     &bing,
-     &yahoo,
-@@ -697,6 +829,8 @@ const PrepopulatedEngine* const engines_
- // Macedonia
- const PrepopulatedEngine* const engines_MK[] = {
-     &searx,
-+    &startpage,
-+    &qwant,
-     &google,
-     &bing,
-     &yahoo,
-@@ -707,6 +841,8 @@ const PrepopulatedEngine* const engines_
- // Mexico
- const PrepopulatedEngine* const engines_MX[] = {
-     &searx,
-+    &startpage,
-+    &qwant,
-     &google,
-     &bing,
-     &yahoo_mx,
-@@ -717,6 +853,8 @@ const PrepopulatedEngine* const engines_
- // Malaysia
- const PrepopulatedEngine* const engines_MY[] = {
-     &searx,
-+    &startpage,
-+    &qwant,
-     &google,
-     &bing,
-     &yahoo_my,
-@@ -727,6 +865,8 @@ const PrepopulatedEngine* const engines_
- // Nicaragua
- const PrepopulatedEngine* const engines_NI[] = {
-     &searx,
-+    &startpage,
-+    &qwant,
-     &google,
-     &bing,
-     &yahoo,
-@@ -737,6 +877,8 @@ const PrepopulatedEngine* const engines_
- // Netherlands
- const PrepopulatedEngine* const engines_NL[] = {
-     &searx,
-+    &startpage,
-+    &qwant,
-     &google,
-     &bing,
-     &duckduckgo,
-@@ -747,6 +889,8 @@ const PrepopulatedEngine* const engines_
- // Norway
- const PrepopulatedEngine* const engines_NO[] = {
-     &searx,
-+    &startpage,
-+    &qwant,
-     &google,
-     &bing,
-     &yahoo,
-@@ -757,6 +901,8 @@ const PrepopulatedEngine* const engines_
- // New Zealand
- const PrepopulatedEngine* const engines_NZ[] = {
-     &searx,
-+    &startpage,
-+    &qwant,
-     &google,
-     &bing,
-     &yahoo_nz,
-@@ -767,6 +913,8 @@ const PrepopulatedEngine* const engines_
- // Oman
- const PrepopulatedEngine* const engines_OM[] = {
-     &searx,
-+    &startpage,
-+    &qwant,
-     &google,
-     &bing,
-     &yahoo,
-@@ -777,6 +925,8 @@ const PrepopulatedEngine* const engines_
- // Panama
- const PrepopulatedEngine* const engines_PA[] = {
-     &searx,
-+    &startpage,
-+    &qwant,
-     &google,
-     &bing,
-     &yahoo,
-@@ -787,6 +937,8 @@ const PrepopulatedEngine* const engines_
- // Peru
- const PrepopulatedEngine* const engines_PE[] = {
-     &searx,
-+    &startpage,
-+    &qwant,
-     &google,
-     &bing,
-     &yahoo_es,
-@@ -797,6 +949,8 @@ const PrepopulatedEngine* const engines_
- // Philippines
- const PrepopulatedEngine* const engines_PH[] = {
-     &searx,
-+    &startpage,
-+    &qwant,
-     &google,
-     &bing,
-     &yahoo,
-@@ -807,6 +961,8 @@ const PrepopulatedEngine* const engines_
- // Pakistan
- const PrepopulatedEngine* const engines_PK[] = {
-     &searx,
-+    &startpage,
-+    &qwant,
-     &google,
-     &yahoo,
-     &bing,
-@@ -817,6 +973,8 @@ const PrepopulatedEngine* const engines_
- // Poland
- const PrepopulatedEngine* const engines_PL[] = {
-     &searx,
-+    &startpage,
-+    &qwant,
-     &google,
-     &bing,
-     &yahoo,
-@@ -826,6 +984,8 @@ const PrepopulatedEngine* const engines_
- // Puerto Rico
- const PrepopulatedEngine* const engines_PR[] = {
-     &searx,
-+    &startpage,
-+    &qwant,
-     &google,
-     &bing,
-     &yahoo,
-@@ -836,6 +996,8 @@ const PrepopulatedEngine* const engines_
- // Portugal
- const PrepopulatedEngine* const engines_PT[] = {
-     &searx,
-+    &startpage,
-+    &qwant,
-     &google,
-     &bing,
-     &yahoo,
-@@ -846,6 +1008,8 @@ const PrepopulatedEngine* const engines_
- // Paraguay
- const PrepopulatedEngine* const engines_PY[] = {
-     &searx,
-+    &startpage,
-+    &qwant,
-     &google,
-     &bing,
-     &yahoo,
-@@ -856,6 +1020,8 @@ const PrepopulatedEngine* const engines_
- // Qatar
- const PrepopulatedEngine* const engines_QA[] = {
-     &searx,
-+    &startpage,
-+    &qwant,
-     &google,
-     &bing,
-     &yahoo,
-@@ -866,6 +1032,8 @@ const PrepopulatedEngine* const engines_
- // Romania
- const PrepopulatedEngine* const engines_RO[] = {
-     &searx,
-+    &startpage,
-+    &qwant,
-     &google,
-     &bing,
-     &yahoo,
-@@ -876,6 +1044,8 @@ const PrepopulatedEngine* const engines_
- // Serbia
- const PrepopulatedEngine* const engines_RS[] = {
-     &searx,
-+    &startpage,
-+    &qwant,
-     &google,
-     &bing,
-     &yahoo,
-@@ -886,6 +1056,8 @@ const PrepopulatedEngine* const engines_
- // Russia
- const PrepopulatedEngine* const engines_RU[] = {
-     &searx,
-+    &startpage,
-+    &qwant,
-     &google,
      &yandex_ru,
      &mail_ru,
-@@ -896,6 +1068,8 @@ const PrepopulatedEngine* const engines_
+     &bing,
+@@ -614,6 +742,8 @@ const PrepopulatedEngine* const engines_
+ // Montenegro
+ const PrepopulatedEngine* const engines_ME[] = {
+     &google,
++    &startpage,
++    &qwant,
+     &bing,
+     &yahoo,
+     &yandex_ru,
+@@ -623,6 +753,8 @@ const PrepopulatedEngine* const engines_
+ // Macedonia
+ const PrepopulatedEngine* const engines_MK[] = {
+     &google,
++    &startpage,
++    &qwant,
+     &bing,
+     &yahoo,
+     &duckduckgo,
+@@ -632,6 +764,8 @@ const PrepopulatedEngine* const engines_
+ // Mexico
+ const PrepopulatedEngine* const engines_MX[] = {
+     &google,
++    &startpage,
++    &qwant,
+     &bing,
+     &yahoo_mx,
+     &duckduckgo,
+@@ -641,6 +775,8 @@ const PrepopulatedEngine* const engines_
+ // Malaysia
+ const PrepopulatedEngine* const engines_MY[] = {
+     &google,
++    &startpage,
++    &qwant,
+     &bing,
+     &yahoo_my,
+     &duckduckgo,
+@@ -650,6 +786,8 @@ const PrepopulatedEngine* const engines_
+ // Nicaragua
+ const PrepopulatedEngine* const engines_NI[] = {
+     &google,
++    &startpage,
++    &qwant,
+     &bing,
+     &yahoo,
+     &duckduckgo,
+@@ -659,6 +797,8 @@ const PrepopulatedEngine* const engines_
+ // Netherlands
+ const PrepopulatedEngine* const engines_NL[] = {
+     &google,
++    &startpage,
++    &qwant,
+     &bing,
+     &duckduckgo,
+     &yahoo_nl,
+@@ -668,6 +808,8 @@ const PrepopulatedEngine* const engines_
+ // Norway
+ const PrepopulatedEngine* const engines_NO[] = {
+     &google,
++    &startpage,
++    &qwant,
+     &bing,
+     &yahoo,
+     &duckduckgo,
+@@ -677,6 +819,8 @@ const PrepopulatedEngine* const engines_
+ // New Zealand
+ const PrepopulatedEngine* const engines_NZ[] = {
+     &google,
++    &startpage,
++    &qwant,
+     &bing,
+     &yahoo_nz,
+     &duckduckgo,
+@@ -686,6 +830,8 @@ const PrepopulatedEngine* const engines_
+ // Oman
+ const PrepopulatedEngine* const engines_OM[] = {
+     &google,
++    &startpage,
++    &qwant,
+     &bing,
+     &yahoo,
+     &duckduckgo,
+@@ -695,6 +841,8 @@ const PrepopulatedEngine* const engines_
+ // Panama
+ const PrepopulatedEngine* const engines_PA[] = {
+     &google,
++    &startpage,
++    &qwant,
+     &bing,
+     &yahoo,
+     &duckduckgo,
+@@ -704,6 +852,8 @@ const PrepopulatedEngine* const engines_
+ // Peru
+ const PrepopulatedEngine* const engines_PE[] = {
+     &google,
++    &startpage,
++    &qwant,
+     &bing,
+     &yahoo_es,
+     &ecosia,
+@@ -713,6 +863,8 @@ const PrepopulatedEngine* const engines_
+ // Philippines
+ const PrepopulatedEngine* const engines_PH[] = {
+     &google,
++    &startpage,
++    &qwant,
+     &bing,
+     &yahoo,
+     &ecosia,
+@@ -722,6 +874,8 @@ const PrepopulatedEngine* const engines_
+ // Pakistan
+ const PrepopulatedEngine* const engines_PK[] = {
+     &google,
++    &startpage,
++    &qwant,
+     &yahoo,
+     &bing,
+     &duckduckgo,
+@@ -731,6 +885,8 @@ const PrepopulatedEngine* const engines_
+ // Poland
+ const PrepopulatedEngine* const engines_PL[] = {
+     &google,
++    &startpage,
++    &qwant,
+     &bing,
+     &yahoo,
+     &duckduckgo,
+@@ -739,6 +895,8 @@ const PrepopulatedEngine* const engines_
+ // Puerto Rico
+ const PrepopulatedEngine* const engines_PR[] = {
+     &google,
++    &startpage,
++    &qwant,
+     &bing,
+     &yahoo,
+     &duckduckgo,
+@@ -748,6 +906,8 @@ const PrepopulatedEngine* const engines_
+ // Portugal
+ const PrepopulatedEngine* const engines_PT[] = {
+     &google,
++    &startpage,
++    &qwant,
+     &bing,
+     &yahoo,
+     &duckduckgo,
+@@ -757,6 +917,8 @@ const PrepopulatedEngine* const engines_
+ // Paraguay
+ const PrepopulatedEngine* const engines_PY[] = {
+     &google,
++    &startpage,
++    &qwant,
+     &bing,
+     &yahoo,
+     &duckduckgo,
+@@ -766,6 +928,8 @@ const PrepopulatedEngine* const engines_
+ // Qatar
+ const PrepopulatedEngine* const engines_QA[] = {
+     &google,
++    &startpage,
++    &qwant,
+     &bing,
+     &yahoo,
+     &duckduckgo,
+@@ -775,6 +939,8 @@ const PrepopulatedEngine* const engines_
+ // Romania
+ const PrepopulatedEngine* const engines_RO[] = {
+     &google,
++    &startpage,
++    &qwant,
+     &bing,
+     &yahoo,
+     &duckduckgo,
+@@ -784,6 +950,8 @@ const PrepopulatedEngine* const engines_
+ // Serbia
+ const PrepopulatedEngine* const engines_RS[] = {
+     &google,
++    &startpage,
++    &qwant,
+     &bing,
+     &yahoo,
+     &duckduckgo,
+@@ -793,6 +961,8 @@ const PrepopulatedEngine* const engines_
+ // Russia
+ const PrepopulatedEngine* const engines_RU[] = {
+     &google,
++    &startpage,
++    &qwant,
+     &yandex_ru,
+     &mail_ru,
+     &bing,
+@@ -802,6 +972,8 @@ const PrepopulatedEngine* const engines_
  // Rwanda
  const PrepopulatedEngine* const engines_RW[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -906,6 +1080,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -811,6 +983,8 @@ const PrepopulatedEngine* const engines_
  // Saudi Arabia
  const PrepopulatedEngine* const engines_SA[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -916,6 +1092,8 @@ const PrepopulatedEngine* const engines_
+     &yandex_com,
+@@ -820,6 +994,8 @@ const PrepopulatedEngine* const engines_
  // Sweden
  const PrepopulatedEngine* const engines_SE[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo_se,
-@@ -926,6 +1104,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -829,6 +1005,8 @@ const PrepopulatedEngine* const engines_
  // Singapore
  const PrepopulatedEngine* const engines_SG[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -936,6 +1116,8 @@ const PrepopulatedEngine* const engines_
+     &baidu,
+@@ -838,6 +1016,8 @@ const PrepopulatedEngine* const engines_
  // Slovenia
  const PrepopulatedEngine* const engines_SI[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &duckduckgo,
-@@ -945,6 +1127,8 @@ const PrepopulatedEngine* const engines_
+     &yahoo,
+@@ -846,6 +1026,8 @@ const PrepopulatedEngine* const engines_
  // Slovakia
  const PrepopulatedEngine* const engines_SK[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -955,6 +1139,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -855,6 +1037,8 @@ const PrepopulatedEngine* const engines_
  // El Salvador
  const PrepopulatedEngine* const engines_SV[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -965,6 +1151,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -864,6 +1048,8 @@ const PrepopulatedEngine* const engines_
  // Syria
  const PrepopulatedEngine* const engines_SY[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -975,6 +1163,8 @@ const PrepopulatedEngine* const engines_
+     &yandex_ru,
+@@ -873,6 +1059,8 @@ const PrepopulatedEngine* const engines_
  // Thailand
  const PrepopulatedEngine* const engines_TH[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -985,6 +1175,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -882,6 +1070,8 @@ const PrepopulatedEngine* const engines_
  // Tunisia
  const PrepopulatedEngine* const engines_TN[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &yahoo_fr,
      &bing,
-@@ -995,6 +1187,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -891,6 +1081,8 @@ const PrepopulatedEngine* const engines_
  // Turkey
  const PrepopulatedEngine* const engines_TR[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &yandex_tr,
      &yahoo_tr,
-@@ -1005,6 +1199,8 @@ const PrepopulatedEngine* const engines_
+     &bing,
+@@ -900,6 +1092,8 @@ const PrepopulatedEngine* const engines_
  // Trinidad and Tobago
  const PrepopulatedEngine* const engines_TT[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -1015,6 +1211,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -909,6 +1103,8 @@ const PrepopulatedEngine* const engines_
  // Taiwan
  const PrepopulatedEngine* const engines_TW[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &duckduckgo,
-     &google,
      &yahoo_tw,
-@@ -1026,6 +1224,8 @@ const PrepopulatedEngine* const engines_
+     &bing,
+     &baidu,
+@@ -918,6 +1114,8 @@ const PrepopulatedEngine* const engines_
  // Tanzania
  const PrepopulatedEngine* const engines_TZ[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -1036,6 +1236,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -927,6 +1125,8 @@ const PrepopulatedEngine* const engines_
  // Ukraine
  const PrepopulatedEngine* const engines_UA[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &yandex_ua,
      &bing,
-@@ -1046,6 +1248,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -936,6 +1136,8 @@ const PrepopulatedEngine* const engines_
  // United States
  const PrepopulatedEngine* const engines_US[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -1056,6 +1260,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -945,6 +1147,8 @@ const PrepopulatedEngine* const engines_
  // Uruguay
  const PrepopulatedEngine* const engines_UY[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -1066,6 +1272,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -954,6 +1158,8 @@ const PrepopulatedEngine* const engines_
  // Venezuela
  const PrepopulatedEngine* const engines_VE[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &yahoo_ve,
      &bing,
-@@ -1076,6 +1284,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -963,6 +1169,8 @@ const PrepopulatedEngine* const engines_
  // Vietnam
  const PrepopulatedEngine* const engines_VN[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &duckduckgo,
-     &google,
      &coccoc,
-@@ -1087,6 +1297,8 @@ const PrepopulatedEngine* const engines_
+     &bing,
+     &yahoo,
+@@ -972,6 +1180,8 @@ const PrepopulatedEngine* const engines_
  // Yemen
  const PrepopulatedEngine* const engines_YE[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -1097,6 +1309,8 @@ const PrepopulatedEngine* const engines_
+     &yandex_ru,
+@@ -981,6 +1191,8 @@ const PrepopulatedEngine* const engines_
  // South Africa
  const PrepopulatedEngine* const engines_ZA[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
-@@ -1107,6 +1321,8 @@ const PrepopulatedEngine* const engines_
+     &duckduckgo,
+@@ -990,6 +1202,8 @@ const PrepopulatedEngine* const engines_
  // Zimbabwe
  const PrepopulatedEngine* const engines_ZW[] = {
-     &searx,
+     &google,
 +    &startpage,
 +    &qwant,
-     &google,
      &bing,
      &yahoo,
+     &duckduckgo,
 --- a/components/search_engines/search_engine_type.h
 +++ b/components/search_engines/search_engine_type.h
 @@ -53,6 +53,7 @@ enum SearchEngineType {

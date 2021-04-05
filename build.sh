@@ -5,16 +5,7 @@ set -eu -o pipefail
 # gn from OpenSUSE Tumbleweed.
 # Assuming python2.
 
-chrome_modern_target=chrome_modern_public_bundle
-trichrome_chrome_bundle_target=trichrome_chrome_bundle
-trichrome_chrome_apk_target=trichrome_library_apk
-webview_target=system_webview_apk
-trichrome_webview_target=trichrome_webview_apk
-
-chromium_version=89.0.4389.90
-ungoogled_chromium_version=89.0.4389.82
-ungoogled_chromium_revision=1
-ungoogled_chromium_android_revision=1
+source .build_config
 
 # Show env
 pwd
@@ -81,13 +72,19 @@ if [[ "$ARCH" != "arm64" ]] && [[ "$ARCH" != "arm" ]] && [[ "$ARCH" != "x86" ]];
     exit 4
 fi
 
-if [[ "$TARGET" != "$chrome_modern_target" ]] && [[ "$TARGET" != "$trichrome_chrome_bundle_target" ]] && [[ "$TARGET" != "$webview_target" ]] && [[ "$TARGET" != "$trichrome_webview_target" ]] && [[ "$TARGET" != "all" ]]; then
+if [[ "$TARGET" != "chrome_modern_target" ]] && [[ "$TARGET" != "trichrome_chrome_bundle_target" ]] && [[ "$TARGET" != "webview_target" ]] && [[ "$TARGET" != "trichrome_webview_target" ]] && [[ "$TARGET" != "all" ]]; then
     echo "Wrong target"
     exit 5
 fi
 
-echo "arch: $ARCH, target: $TARGET, debug: $DEBUG"
+# 64-bit TriChrome
+if [[ "$ARCH" == "arm64" ]] && [[ "$TARGET" == "trichrome_chrome_bundle_target" ]]; then
+  TARGET_EXPANDED=${trichrome_chrome_64_bundle_target}
+else
+  TARGET_EXPANDED=${!TARGET}
+fi
 
+echo "arch: $ARCH, target: $TARGET, target expanded: ${TARGET_EXPANDED}, debug: $DEBUG"
 
 path_modified=false
 patch_applied=false
@@ -353,14 +350,14 @@ apk_out_folder="apk_out"
 mkdir "${apk_out_folder}"
 pushd src
 if [[ "$TARGET" != "all" ]]; then
-  ninja -C "${output_folder}" "$TARGET"
-  if [[ "$TARGET" == "$trichrome_chrome_bundle_target" ]] || [[ "$TARGET" == "$chrome_modern_target" ]]; then
-    ../bundle_generate_apk.sh -o "${output_folder}" -t "$TARGET"
+  ninja -C "${output_folder}" "${TARGET_EXPANDED}"
+  if [[ "$TARGET" == "trichrome_chrome_bundle_target" ]] || [[ "$TARGET" == "chrome_modern_target" ]]; then
+    ../bundle_generate_apk.sh -o "${output_folder}" -a "${ARCH}" -t "${TARGET_EXPANDED}"
   fi
   find . -iname "*.apk" -exec cp -f {} ../"${apk_out_folder}" \;
 else
   ninja -C out/Default "$chrome_modern_target"
-  ../bundle_generate_apk.sh -o "${output_folder}" -t "$chrome_modern_target"
+  ../bundle_generate_apk.sh -o "${output_folder}" -a "${ARCH}" -t "$chrome_modern_target"
   ninja -C out/Default "$webview_target"
   ninja -C out/Default "$trichrome_webview_target"
   find . -iname "*.apk" -exec cp -f {} ../"${apk_out_folder}" \;
@@ -368,7 +365,7 @@ else
   # arm64+TriChrome needs to be run separately, otherwise it will fail
   if [[ "$ARCH" != "arm64" ]]; then
     ninja -C "${output_folder}" "$trichrome_chrome_bundle_target"
-    ../bundle_generate_apk.sh -o "${output_folder}" -t "$trichrome_chrome_bundle_target"
+    ../bundle_generate_apk.sh -o "${output_folder}" -a "${ARCH}" -t "$trichrome_chrome_bundle_target"
     find . -iname "*.apk" -exec cp -f {} ../"${apk_out_folder}" \;
   fi
 fi

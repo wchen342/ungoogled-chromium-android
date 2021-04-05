@@ -199,7 +199,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  
 --- a/base/logging.cc
 +++ b/base/logging.cc
-@@ -879,7 +879,7 @@ LogMessage::~LogMessage() {
+@@ -884,7 +884,7 @@ LogMessage::~LogMessage() {
  #if defined(OFFICIAL_BUILD) && defined(NDEBUG)
        IMMEDIATE_CRASH();
  #else

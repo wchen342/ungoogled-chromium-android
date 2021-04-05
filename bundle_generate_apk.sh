@@ -3,10 +3,8 @@
 
 set -o errexit -o nounset -o pipefail
 
-chrome_modern_target=chrome_modern_public_bundle
-trichrome_chrome_bundle_target=trichrome_chrome_bundle
-trichrome_chrome_apk_target=trichrome_library_apk
-webview_target=system_webview_apk
+SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+source "${SCRIPT_PATH}/.build_config"
 
 KEYSTORE=$PWD/../../uc_keystore/uc-release-key.keystore
 KEYSTORE_PASS=$PWD/../../uc_keystore/keystore_pass
@@ -23,8 +21,8 @@ if [[ ${PIPESTATUS[0]} -ne 4 ]]; then
     exit 1
 fi
 
-OPTIONS=o:t:
-LONGOPTS=output:,target:
+OPTIONS=o:a:t:
+LONGOPTS=output:,arch:,target:
 
 # -regarding ! and PIPESTATUS see above
 # -temporarily store output to be able to check for errors
@@ -48,6 +46,10 @@ while true; do
             OUTPUT="$2"
             shift 2
             ;;
+        -a|--arch)
+            ARCH="$2"
+            shift 2
+            ;;
         -t|--target)
             TARGET="$2"
             shift 2
@@ -63,6 +65,11 @@ while true; do
     esac
 done
 
+if [[ "$ARCH" != "arm64" ]] && [[ "$ARCH" != "arm" ]] && [[ "$ARCH" != "x86" ]]; then
+    echo "Wrong architecture"
+    exit 4
+fi
+
 if [[ "$TARGET" != "$chrome_modern_target" ]] && [[ "$TARGET" != "$trichrome_chrome_bundle_target" ]]; then
     echo "Wrong target"
     exit 4
@@ -76,9 +83,15 @@ fi
 case "$TARGET" in
     "$chrome_modern_target")
         FILENAME="ChromeModernPublic"
+        FILENAME_OUT="ChromeModernPublic"
         ;;
     "$trichrome_chrome_bundle_target")
         FILENAME="TrichromeChrome"
+        FILENAME_OUT="TrichromeChrome"
+        ;;
+    "$trichrome_chrome_64_bundle_target")
+        FILENAME="TrichromeChrome64"
+        FILENAME_OUT="TrichromeChrome"
         ;;
     *)
         echo "Filename parsing error"
@@ -86,7 +99,7 @@ case "$TARGET" in
         ;;
 esac
 
-echo "output: $OUTPUT, target: $TARGET, filename: $FILENAME"
+echo "output: $OUTPUT, arch: $ARCH, target: $TARGET, filename: $FILENAME"
 
 cd $OUTPUT/apks
 
@@ -96,12 +109,16 @@ cd release
 
 $BUNDLETOOL build-apks --aapt2 $AAPT2 --bundle ../"$FILENAME".aab --output "$FILENAME".apks --mode=universal --ks $KEYSTORE --ks-pass file:$KEYSTORE_PASS --ks-key-alias uc
 unzip "$FILENAME".apks universal.apk
-mv universal.apk "$FILENAME".apk
+mv universal.apk "${FILENAME_OUT}".apk
+$APKSIGNER sign --ks $KEYSTORE --ks-pass file:$KEYSTORE_PASS --ks-key-alias uc --in "${FILENAME_OUT}".apk --out "${FILENAME_OUT}".apk
 
 if [[ "$TARGET" == "$trichrome_chrome_bundle_target" ]]; then
     for app in TrichromeLibrary TrichromeWebView; do
-        if [ -f ../${app}.apk ]; then
+        if [ -f "../${app}.apk" ]; then
             $APKSIGNER sign --ks $KEYSTORE --ks-pass file:$KEYSTORE_PASS --ks-key-alias uc --in ../${app}.apk --out ${app}.apk
+        fi
+        if [ -f "../${app}64.apk" ]; then
+            $APKSIGNER sign --ks $KEYSTORE --ks-pass file:$KEYSTORE_PASS --ks-key-alias uc --in "../${app}64.apk" --out ${app}.apk
         fi
     done
 fi

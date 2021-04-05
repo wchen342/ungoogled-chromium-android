@@ -1,10 +1,7 @@
 #!/usr/bin/env bash
 set -eu -o pipefail
 
-chrome_modern_target=chrome_modern_public_bundle
-trichrome_chrome_bundle_target=trichrome_chrome_bundle
-trichrome_chrome_apk_target=trichrome_library_apk
-webview_target=system_webview_apk
+source .build_config
 
 # Create symbol links to gn, depot-tools
 pushd src
