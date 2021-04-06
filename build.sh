@@ -23,8 +23,8 @@ if [[ ${PIPESTATUS[0]} -ne 4 ]]; then
     exit 1
 fi
 
-OPTIONS=da:t:
-LONGOPTS=debug,arch:,target:
+OPTIONS=dla:t:
+LONGOPTS=debug,local-sdk,arch:,target:
 
 # -regarding ! and PIPESTATUS see above
 # -temporarily store output to be able to check for errors
@@ -39,13 +39,17 @@ fi
 # read getopt’s output this way to handle the quoting right:
 eval set -- "$PARSED"
 
-ARCH=- TARGET=- DEBUG=n
+ARCH=- TARGET=- DEBUG=n LOCAL_SDK=n
 
 # now enjoy the options in order and nicely split until we see --
 while true; do
     case "$1" in
         -d|--debug)
             DEBUG=y
+            shift
+            ;;
+        -l|--local-sdk)
+            LOCAL_SDK=y
             shift
             ;;
         -a|--arch)
@@ -84,7 +88,7 @@ else
   TARGET_EXPANDED=${!TARGET}
 fi
 
-echo "arch: $ARCH, target: $TARGET, target expanded: ${TARGET_EXPANDED}, debug: $DEBUG"
+echo "arch: $ARCH, target: $TARGET, target expanded: ${TARGET_EXPANDED}, debug: $DEBUG, local sdk: $LOCAL_SDK"
 
 path_modified=false
 patch_applied=false
@@ -278,14 +282,24 @@ sdk_link="https://android-rebuilds.beuc.net/dl/bundles/android-sdk_eng.11.0.0_r2
 sdk_tools_link="https://android-rebuilds.beuc.net/dl/repository/sdk-repo-linux-tools-26.1.1.zip"
 ndk_link="https://android-rebuilds.beuc.net/dl/repository/android-ndk-r20b-linux-x86_64.tar.bz2"
 
-mkdir android-rebuilds
-mkdir android-sdk
-mkdir android-ndk
-pushd android-rebuilds
-for i in $(seq 1 5); do curl -O ${sdk_link} && unzip -qqo android-sdk_eng.11.0.0_r27_linux-x86.zip -d ../android-sdk && rm -f android-sdk_eng.11.0.0_r27_linux-x86.zip && s=0 && break || s=$? && sleep 60; done; (exit $s)
-for i in $(seq 1 5); do curl -O ${sdk_tools_link} && unzip -qqo sdk-repo-linux-tools-26.1.1.zip -d ../android-sdk/android-sdk_eng.10.0.0_r14_linux-x86 && rm -f sdk-repo-linux-tools-26.1.1.zip && s=0 && break || s=$? && sleep 60; done; (exit $s)
-for i in $(seq 1 5); do curl -O ${ndk_link} && tar xjf android-ndk-r20b-linux-x86_64.tar.bz2 -C ../android-ndk && rm -f android-ndk-r20b-linux-x86_64.tar.bz2 && s=0 && break || s=$? && sleep 60; done; (exit $s)
-popd
+if [ "$LOCAL_SDK" = n ] ; then
+    mkdir android-rebuilds
+    mkdir android-sdk
+    mkdir android-ndk
+    pushd android-rebuilds
+    for i in $(seq 1 5); do curl -O ${sdk_link} && unzip -qqo android-sdk_eng.11.0.0_r27_linux-x86.zip -d ../android-sdk && rm -f android-sdk_eng.11.0.0_r27_linux-x86.zip && s=0 && break || s=$? && sleep 60; done; (exit $s)
+    for i in $(seq 1 5); do curl -O ${sdk_tools_link} && unzip -qqo sdk-repo-linux-tools-26.1.1.zip -d ../android-sdk/android-sdk_eng.10.0.0_r14_linux-x86 && rm -f sdk-repo-linux-tools-26.1.1.zip && s=0 && break || s=$? && sleep 60; done; (exit $s)
+    for i in $(seq 1 5); do curl -O ${ndk_link} && tar xjf android-ndk-r20b-linux-x86_64.tar.bz2 -C ../android-ndk && rm -f android-ndk-r20b-linux-x86_64.tar.bz2 && s=0 && break || s=$? && sleep 60; done; (exit $s)
+    popd
+else
+    mkdir android-sdk
+    mkdir android-ndk
+    pushd android-rebuilds
+    unzip -qqo android-sdk_eng.11.0.0_r27_linux-x86.zip -d ../android-sdk && rm -f android-sdk_eng.11.0.0_r27_linux-x86.zip && s=0 || s=$? && (exit $s)
+    unzip -qqo sdk-repo-linux-tools-26.1.1.zip -d ../android-sdk/android-sdk_eng.10.0.0_r14_linux-x86 && rm -f sdk-repo-linux-tools-26.1.1.zip && s=0 || s=$? && (exit $s)
+    tar xjf android-ndk-r20b-linux-x86_64.tar.bz2 -C ../android-ndk && rm -f android-ndk-r20b-linux-x86_64.tar.bz2 && s=0 || s=$? && (exit $s)
+    popd
+fi
 
 # Move ndk files into place
 cp -a "ndk_temp/${gn_file}" android-ndk/android-ndk-r20b
