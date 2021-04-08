@@ -70,7 +70,7 @@ if [[ "$ARCH" != "arm64" ]] && [[ "$ARCH" != "arm" ]] && [[ "$ARCH" != "x86" ]];
     exit 4
 fi
 
-if [[ "$TARGET" != "$chrome_modern_target" ]] && [[ "$TARGET" != "$trichrome_chrome_bundle_target" ]]; then
+if [[ "$TARGET" != "$chrome_modern_target" ]] && [[ "$TARGET" != "$trichrome_chrome_bundle_target" ]] && [[ "$TARGET" != "$trichrome_chrome_64_bundle_target" ]]; then
     echo "Wrong target"
     exit 4
 fi
@@ -115,10 +115,14 @@ $APKSIGNER sign --ks $KEYSTORE --ks-pass file:$KEYSTORE_PASS --ks-key-alias uc -
 if [[ "$TARGET" == "$trichrome_chrome_bundle_target" ]]; then
     for app in TrichromeLibrary TrichromeWebView; do
         if [ -f "../${app}.apk" ]; then
-            $APKSIGNER sign --ks $KEYSTORE --ks-pass file:$KEYSTORE_PASS --ks-key-alias uc --in ../${app}.apk --out ${app}.apk
+            $APKSIGNER sign --ks $KEYSTORE --ks-pass file:$KEYSTORE_PASS --ks-key-alias uc --in "../${app}.apk" --out "${app}.apk"
         fi
+    done
+fi
+if [[ "$TARGET" == "$trichrome_chrome_bundle_target" ]]; then
+    for app in TrichromeLibrary TrichromeWebView; do
         if [ -f "../${app}64.apk" ]; then
-            $APKSIGNER sign --ks $KEYSTORE --ks-pass file:$KEYSTORE_PASS --ks-key-alias uc --in "../${app}64.apk" --out ${app}.apk
+            $APKSIGNER sign --ks $KEYSTORE --ks-pass file:$KEYSTORE_PASS --ks-key-alias uc --in "../${app}64.apk" --out "${app}.apk"
         fi
     done
 fi
