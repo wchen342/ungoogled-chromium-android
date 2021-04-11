@@ -1,3 +1,6 @@
+# 89.0.4389.114-2
+* Fix Trichrome
+
 # 89.0.4389.114-1
 * Upstream security fixes
 * Use 64-bit targets for arm64

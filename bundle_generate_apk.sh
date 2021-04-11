@@ -119,7 +119,7 @@ if [[ "$TARGET" == "$trichrome_chrome_bundle_target" ]]; then
         fi
     done
 fi
-if [[ "$TARGET" == "$trichrome_chrome_bundle_target" ]]; then
+if [[ "$TARGET" == "$trichrome_chrome_64_bundle_target" ]]; then
     for app in TrichromeLibrary TrichromeWebView; do
         if [ -f "../${app}64.apk" ]; then
             $APKSIGNER sign --ks $KEYSTORE --ks-pass file:$KEYSTORE_PASS --ks-key-alias uc --in "../${app}64.apk" --out "${app}.apk"
