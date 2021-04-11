@@ -11,4 +11,4 @@ all=all
 chromium_version=89.0.4389.114
 ungoogled_chromium_version=89.0.4389.114
 ungoogled_chromium_revision=1
-ungoogled_chromium_android_revision=1
+ungoogled_chromium_android_revision=2
