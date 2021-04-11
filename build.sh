@@ -347,6 +347,8 @@ else
     cat ../android_flags.gn ../android_flags.debug.gn > "${output_folder}"/args.gn
 fi
 printf '\ntarget_cpu="'"$ARCH"'"\n' >> "${output_folder}"/args.gn
+# Trichrome doesn't forward version_name to base in bundle
+printf '\nandroid_override_version_name="'"${chromium_version}"'"\n' >> "${output_folder}"/args.gn
 gn gen "${output_folder}" --fail-on-unused-args
 popd
 
