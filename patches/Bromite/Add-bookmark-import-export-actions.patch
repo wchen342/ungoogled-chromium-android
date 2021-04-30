@@ -233,7 +233,7 @@ Completely remove contacts picker permission from the file dialog
       * Synchronously gets a list of bookmarks that match the specified search query.
       * @param query Keyword used for searching bookmarks.
       * @param maxNumberOfResult Maximum number of result to fetch.
-@@ -1017,6 +1060,24 @@ public class BookmarkBridge {
+@@ -1022,6 +1065,24 @@ public class BookmarkBridge {
          depthList.add(depth);
      }
  
@@ -258,7 +258,7 @@ Completely remove contacts picker permission from the file dialog
      private static List<Pair<Integer, Integer>> createPairsList(int[] left, int[] right) {
          List<Pair<Integer, Integer>> pairList = new ArrayList<Pair<Integer, Integer>>();
          for (int i = 0; i < left.length; i++) {
-@@ -1084,6 +1145,8 @@ public class BookmarkBridge {
+@@ -1089,6 +1150,8 @@ public class BookmarkBridge {
          int getChildCount(long nativeBookmarkBridge, BookmarkBridge caller, long id, int type);
          void getChildIDs(long nativeBookmarkBridge, BookmarkBridge caller, long id, int type,
                  List<BookmarkId> bookmarksList);
@@ -362,7 +362,7 @@ Completely remove contacts picker permission from the file dialog
          initWithView(mManager.getView());
 --- a/chrome/android/java/src/org/chromium/chrome/browser/native_page/NativePageFactory.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/native_page/NativePageFactory.java
-@@ -95,7 +95,8 @@ public class NativePageFactory {
+@@ -96,7 +96,8 @@ public class NativePageFactory {
  
          protected NativePage buildBookmarksPage(Tab tab) {
              return new BookmarkPage(mActivity.getComponentName(), mActivity.getSnackbarManager(),
@@ -374,7 +374,7 @@ Completely remove contacts picker permission from the file dialog
          protected NativePage buildDownloadsPage(Tab tab) {
 --- a/chrome/browser/BUILD.gn
 +++ b/chrome/browser/BUILD.gn
-@@ -203,6 +203,8 @@ static_library("browser") {
+@@ -204,6 +204,8 @@ static_library("browser") {
      "bitmap_fetcher/bitmap_fetcher_service.h",
      "bitmap_fetcher/bitmap_fetcher_service_factory.cc",
      "bitmap_fetcher/bitmap_fetcher_service_factory.h",
@@ -383,7 +383,7 @@ Completely remove contacts picker permission from the file dialog
      "bluetooth/bluetooth_chooser_context.cc",
      "bluetooth/bluetooth_chooser_context.h",
      "bluetooth/bluetooth_chooser_context_factory.cc",
-@@ -1910,6 +1912,8 @@ static_library("browser") {
+@@ -1891,6 +1893,8 @@ static_library("browser") {
      "webapps/chrome_webapps_client.h",
      "window_placement/window_placement_permission_context.cc",
      "window_placement/window_placement_permission_context.h",
@@ -392,15 +392,15 @@ Completely remove contacts picker permission from the file dialog
    ]
  
    configs += [
-@@ -3468,8 +3472,6 @@ static_library("browser") {
+@@ -3472,8 +3476,6 @@ static_library("browser") {
        "badging/badge_manager_factory.h",
        "banners/app_banner_manager_desktop.cc",
        "banners/app_banner_manager_desktop.h",
 -      "bookmarks/bookmark_html_writer.cc",
 -      "bookmarks/bookmark_html_writer.h",
-       "browsing_data/access_context_audit_database.cc",
-       "browsing_data/access_context_audit_database.h",
-       "browsing_data/access_context_audit_service.cc",
+       "browsing_data/chrome_browsing_data_lifetime_manager.cc",
+       "browsing_data/chrome_browsing_data_lifetime_manager.h",
+       "browsing_data/chrome_browsing_data_lifetime_manager_factory.cc",
 --- a/chrome/browser/android/bookmarks/bookmark_bridge.cc
 +++ b/chrome/browser/android/bookmarks/bookmark_bridge.cc
 @@ -39,6 +39,7 @@
@@ -835,11 +835,11 @@ Completely remove contacts picker permission from the file dialog
 +      "importer/imported_bookmark_entry.cc",
 +      "importer/imported_bookmark_entry.h",
      ]
+     deps += [ "//components/embedder_support/android/common:url_constants" ]
    } else {
-     # Non-Android.
 --- a/chrome/utility/BUILD.gn
 +++ b/chrome/utility/BUILD.gn
-@@ -73,8 +73,6 @@ static_library("utility") {
+@@ -79,8 +79,6 @@ static_library("utility") {
  
    if (!is_android) {
      sources += [
@@ -848,7 +848,7 @@ Completely remove contacts picker permission from the file dialog
        "importer/bookmarks_file_importer.cc",
        "importer/bookmarks_file_importer.h",
        "importer/external_process_importer_bridge.cc",
-@@ -191,6 +189,11 @@ static_library("utility") {
+@@ -180,6 +178,11 @@ static_library("utility") {
      }
    }
  

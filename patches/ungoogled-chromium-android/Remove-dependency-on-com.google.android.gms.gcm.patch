@@ -5,20 +5,19 @@ Subject: Remove dependency on com.google.android.gms.gcm
 It also disalbes Snippets, auto-update of offline pages and launching browser from background service.
 The snippets are already disabled in native codes, this will disable it on Java level.
 ---
- chrome/android/BUILD.gn                                                                                   |    4 
- chrome/android/java/src/com/google/ipc/invalidation/ticl/android2/channel/GcmRegistrationTaskService.java |   10 -
- chrome/android/java/src/org/chromium/chrome/browser/ChromeBackgroundServiceImpl.java                      |   44 ------
- chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatGcmListenerService.java               |   65 ----------
- chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatGcmTaskService.java                   |   40 ------
- chrome/android/javatests/src/org/chromium/chrome/browser/ServicificationBackgroundService.java            |   31 ----
+ chrome/android/BUILD.gn                                                                                   |    5 
+ chrome/android/java/src/com/google/ipc/invalidation/ticl/android2/channel/GcmRegistrationTaskService.java |   10 
+ chrome/android/java/src/org/chromium/chrome/browser/ChromeBackgroundServiceImpl.java                      |   44 -
+ chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatGcmListenerService.java               |   75 --
+ chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatGcmTaskService.java                   |   40 -
  components/background_task_scheduler/BUILD.gn                                                             |    1 
  components/background_task_scheduler/internal/BUILD.gn                                                    |    2 
- third_party/android_deps/BUILD.gn                                                                         |   18 --
- 9 files changed, 5 insertions(+), 210 deletions(-)
+ third_party/android_deps/BUILD.gn                                                                         |  263 ----------
+ 8 files changed, 4 insertions(+), 436 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -282,7 +282,6 @@ android_library("chrome_java") {
+@@ -283,7 +283,6 @@ android_library("chrome_java") {
      "$google_play_services_package:google_play_services_cast_framework_java",
      "$google_play_services_package:google_play_services_cast_java",
      "$google_play_services_package:google_play_services_fido_java",
@@ -26,7 +25,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
      "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
      "$google_play_services_package:google_play_services_vision_common_java",
-@@ -1035,7 +1034,6 @@ android_library("chrome_test_java") {
+@@ -1065,7 +1064,6 @@ android_library("chrome_test_java") {
      "$google_play_services_package:google_play_services_cast_framework_java",
      "$google_play_services_package:google_play_services_cast_java",
      "$google_play_services_package:google_play_services_fido_java",
@@ -34,7 +33,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
      "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
      "//base:base_java",
-@@ -2014,7 +2012,6 @@ android_library("browser_java_test_suppo
+@@ -2060,7 +2058,6 @@ android_library("browser_java_test_suppo
    ]
    deps = [
      ":chrome_java",
@@ -42,10 +41,11 @@ The snippets are already disabled in native codes, this will disable it on Java 
      "//base:base_java",
      "//base:base_java_test_support",
      "//chrome/browser/profiles/android:java",
-@@ -2203,7 +2200,6 @@ android_library("base_module_java") {
+@@ -2248,8 +2245,6 @@ android_library("base_module_java") {
    ]
    deps = [
      ":chrome_base_module_resources",
+-    "$google_play_services_package:google_firebase_firebase_messaging_java",
 -    "$google_play_services_package:google_play_services_gcm_java",
      "//base:base_java",
      "//base:jni_java",
@@ -62,7 +62,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
        "internal:proto_java",
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -1292,24 +1292,6 @@ android_aar_prebuilt("google_play_servic
+@@ -497,21 +497,6 @@ android_aar_prebuilt("google_play_servic
  }
  
  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
@@ -70,23 +70,296 @@ The snippets are already disabled in native codes, this will disable it on Java 
 -  aar_path = "libs/com_google_android_gms_play_services_gcm/play-services-gcm-17.0.0.aar"
 -  info_path = "libs/com_google_android_gms_play_services_gcm/com_google_android_gms_play_services_gcm.info"
 -  deps = [
--    ":androidx_collection_collection_java",
--    ":androidx_core_core_java",
--    ":androidx_legacy_legacy_support_core_utils_java",
 -    ":google_play_services_base_java",
 -    ":google_play_services_basement_java",
 -    ":google_play_services_iid_java",
 -    ":google_play_services_stats_java",
+-    "//third_party/androidx:androidx_collection_collection_java",
+-    "//third_party/androidx:androidx_core_core_java",
+-    "//third_party/androidx:androidx_legacy_legacy_support_core_utils_java",
 -  ]
--
--  # Removing drawables from GMS .aars as they are unused bloat.
--  strip_drawables = true
 -}
 -
 -# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
  android_aar_prebuilt("google_play_services_iid_java") {
    aar_path = "libs/com_google_android_gms_play_services_iid/play-services-iid-17.0.0.aar"
    info_path = "libs/com_google_android_gms_play_services_iid/com_google_android_gms_play_services_iid.info"
+@@ -747,33 +732,6 @@ java_prebuilt("com_google_errorprone_jav
+ }
+ 
+ # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+-android_aar_prebuilt("google_firebase_firebase_messaging_java") {
+-  aar_path = "libs/com_google_firebase_firebase_messaging/firebase-messaging-21.0.1.aar"
+-  info_path = "libs/com_google_firebase_firebase_messaging/com_google_firebase_firebase_messaging.info"
+-  deps = [
+-    ":google_android_datatransport_transport_api_java",
+-    ":google_firebase_firebase_common_java",
+-    ":google_firebase_firebase_components_java",
+-    ":google_firebase_firebase_encoders_java",
+-    ":google_firebase_firebase_encoders_json_java",
+-    ":google_firebase_firebase_iid_java",
+-    ":google_firebase_firebase_installations_interop_java",
+-    ":google_firebase_firebase_installations_java",
+-    ":google_firebase_firebase_measurement_connector_java",
+-    ":google_play_services_basement_java",
+-    ":google_play_services_cloud_messaging_java",
+-    ":google_play_services_stats_java",
+-    ":google_play_services_tasks_java",
+-    "//third_party/androidx:androidx_collection_collection_java",
+-    "//third_party/androidx:androidx_core_core_java",
+-  ]
+-
+-  # We removed the datatransport dependency to reduce binary size.
+-  # The library works without it as it's only used for logging.
+-  enable_bytecode_checks = false
+-}
+-
+-# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+ java_prebuilt("com_google_guava_failureaccess_java") {
+   jar_path = "libs/com_google_guava_failureaccess/failureaccess-1.0.1.jar"
+   output_name = "com_google_guava_failureaccess"
+@@ -1425,20 +1383,6 @@ java_prebuilt("com_github_kevinstern_sof
+ }
+ 
+ # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+-android_aar_prebuilt("google_android_datatransport_transport_api_java") {
+-  aar_path = "libs/com_google_android_datatransport_transport_api/transport-api-2.2.1.aar"
+-  info_path = "libs/com_google_android_datatransport_transport_api/com_google_android_datatransport_transport_api.info"
+-
+-  # To remove visibility constraint, add this dependency to
+-  # //third_party/android_deps/build.gradle.
+-  visibility = [
+-    ":*",
+-    "//third_party/androidx:*",
+-  ]
+-  deps = [ "//third_party/androidx:androidx_annotation_annotation_java" ]
+-}
+-
+-# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+ android_aar_prebuilt("google_play_services_clearcut_java") {
+   aar_path = "libs/com_google_android_gms_play_services_clearcut/play-services-clearcut-17.0.0.aar"
+   info_path = "libs/com_google_android_gms_play_services_clearcut/com_google_android_gms_play_services_clearcut.info"
+@@ -1459,23 +1403,6 @@ android_aar_prebuilt("google_play_servic
+ }
+ 
+ # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+-android_aar_prebuilt("google_play_services_cloud_messaging_java") {
+-  aar_path = "libs/com_google_android_gms_play_services_cloud_messaging/play-services-cloud-messaging-16.0.0.aar"
+-  info_path = "libs/com_google_android_gms_play_services_cloud_messaging/com_google_android_gms_play_services_cloud_messaging.info"
+-
+-  # To remove visibility constraint, add this dependency to
+-  # //third_party/android_deps/build.gradle.
+-  visibility = [
+-    ":*",
+-    "//third_party/androidx:*",
+-  ]
+-  deps = [
+-    ":google_play_services_basement_java",
+-    ":google_play_services_tasks_java",
+-  ]
+-}
+-
+-# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+ android_aar_prebuilt("google_play_services_flags_java") {
+   aar_path = "libs/com_google_android_gms_play_services_flags/play-services-flags-17.0.0.aar"
+   info_path = "libs/com_google_android_gms_play_services_flags/com_google_android_gms_play_services_flags.info"
+@@ -1660,196 +1587,6 @@ java_prebuilt("com_google_errorprone_jav
+ }
+ 
+ # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+-java_prebuilt("google_firebase_firebase_annotations_java") {
+-  jar_path = "libs/com_google_firebase_firebase_annotations/firebase-annotations-16.0.0.jar"
+-  output_name = "com_google_firebase_firebase_annotations"
+-  supports_android = true
+-
+-  # To remove visibility constraint, add this dependency to
+-  # //third_party/android_deps/build.gradle.
+-  visibility = [
+-    ":*",
+-    "//third_party/androidx:*",
+-  ]
+-}
+-
+-# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+-android_aar_prebuilt("google_firebase_firebase_common_java") {
+-  aar_path =
+-      "libs/com_google_firebase_firebase_common/firebase-common-19.5.0.aar"
+-  info_path = "libs/com_google_firebase_firebase_common/com_google_firebase_firebase_common.info"
+-
+-  # To remove visibility constraint, add this dependency to
+-  # //third_party/android_deps/build.gradle.
+-  visibility = [
+-    ":*",
+-    "//third_party/androidx:*",
+-  ]
+-  deps = [
+-    ":google_firebase_firebase_components_java",
+-    ":google_play_services_basement_java",
+-    ":google_play_services_tasks_java",
+-  ]
+-
+-  # Ignore missing kotlin.KotlinVersion definition in
+-  # com.google.firebase.platforminfo.KotlinDetector.
+-  enable_bytecode_checks = false
+-}
+-
+-# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+-android_aar_prebuilt("google_firebase_firebase_components_java") {
+-  aar_path = "libs/com_google_firebase_firebase_components/firebase-components-16.1.0.aar"
+-  info_path = "libs/com_google_firebase_firebase_components/com_google_firebase_firebase_components.info"
+-
+-  # To remove visibility constraint, add this dependency to
+-  # //third_party/android_deps/build.gradle.
+-  visibility = [
+-    ":*",
+-    "//third_party/androidx:*",
+-  ]
+-  deps = [
+-    ":google_firebase_firebase_annotations_java",
+-    "//third_party/androidx:androidx_annotation_annotation_java",
+-  ]
+-
+-  # Can't find com.google.firebase.components.Component$ComponentType.
+-  enable_bytecode_checks = false
+-}
+-
+-# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+-java_prebuilt("google_firebase_firebase_encoders_java") {
+-  jar_path =
+-      "libs/com_google_firebase_firebase_encoders/firebase-encoders-16.1.0.jar"
+-  output_name = "com_google_firebase_firebase_encoders"
+-  supports_android = true
+-
+-  # To remove visibility constraint, add this dependency to
+-  # //third_party/android_deps/build.gradle.
+-  visibility = [
+-    ":*",
+-    "//third_party/androidx:*",
+-  ]
+-  deps = [ "//third_party/androidx:androidx_annotation_annotation_java" ]
+-}
+-
+-# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+-android_aar_prebuilt("google_firebase_firebase_encoders_json_java") {
+-  aar_path = "libs/com_google_firebase_firebase_encoders_json/firebase-encoders-json-17.1.0.aar"
+-  info_path = "libs/com_google_firebase_firebase_encoders_json/com_google_firebase_firebase_encoders_json.info"
+-
+-  # To remove visibility constraint, add this dependency to
+-  # //third_party/android_deps/build.gradle.
+-  visibility = [
+-    ":*",
+-    "//third_party/androidx:*",
+-  ]
+-  deps = [
+-    ":google_firebase_firebase_encoders_java",
+-    "//third_party/androidx:androidx_annotation_annotation_java",
+-  ]
+-}
+-
+-# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+-android_aar_prebuilt("google_firebase_firebase_iid_java") {
+-  aar_path = "libs/com_google_firebase_firebase_iid/firebase-iid-21.0.1.aar"
+-  info_path = "libs/com_google_firebase_firebase_iid/com_google_firebase_firebase_iid.info"
+-
+-  # To remove visibility constraint, add this dependency to
+-  # //third_party/android_deps/build.gradle.
+-  visibility = [
+-    ":*",
+-    "//third_party/androidx:*",
+-  ]
+-  deps = [
+-    ":google_firebase_firebase_common_java",
+-    ":google_firebase_firebase_components_java",
+-    ":google_firebase_firebase_iid_interop_java",
+-    ":google_firebase_firebase_installations_interop_java",
+-    ":google_firebase_firebase_installations_java",
+-    ":google_play_services_basement_java",
+-    ":google_play_services_cloud_messaging_java",
+-    ":google_play_services_stats_java",
+-    ":google_play_services_tasks_java",
+-    "//third_party/androidx:androidx_collection_collection_java",
+-    "//third_party/androidx:androidx_core_core_java",
+-    "//third_party/androidx:androidx_legacy_legacy_support_core_utils_java",
+-  ]
+-}
+-
+-# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+-android_aar_prebuilt("google_firebase_firebase_iid_interop_java") {
+-  aar_path = "libs/com_google_firebase_firebase_iid_interop/firebase-iid-interop-17.0.0.aar"
+-  info_path = "libs/com_google_firebase_firebase_iid_interop/com_google_firebase_firebase_iid_interop.info"
+-
+-  # To remove visibility constraint, add this dependency to
+-  # //third_party/android_deps/build.gradle.
+-  visibility = [
+-    ":*",
+-    "//third_party/androidx:*",
+-  ]
+-  deps = [
+-    ":google_play_services_base_java",
+-    ":google_play_services_basement_java",
+-  ]
+-}
+-
+-# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+-android_aar_prebuilt("google_firebase_firebase_installations_java") {
+-  aar_path = "libs/com_google_firebase_firebase_installations/firebase-installations-16.3.5.aar"
+-  info_path = "libs/com_google_firebase_firebase_installations/com_google_firebase_firebase_installations.info"
+-
+-  # To remove visibility constraint, add this dependency to
+-  # //third_party/android_deps/build.gradle.
+-  visibility = [
+-    ":*",
+-    "//third_party/androidx:*",
+-  ]
+-  deps = [
+-    ":google_firebase_firebase_common_java",
+-    ":google_firebase_firebase_components_java",
+-    ":google_firebase_firebase_installations_interop_java",
+-    ":google_play_services_tasks_java",
+-  ]
+-
+-  # Can't find com.google.auto.value.AutoValue$Builder.
+-  enable_bytecode_checks = false
+-}
+-
+-# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+-android_aar_prebuilt("google_firebase_firebase_installations_interop_java") {
+-  aar_path = "libs/com_google_firebase_firebase_installations_interop/firebase-installations-interop-16.0.1.aar"
+-  info_path = "libs/com_google_firebase_firebase_installations_interop/com_google_firebase_firebase_installations_interop.info"
+-
+-  # To remove visibility constraint, add this dependency to
+-  # //third_party/android_deps/build.gradle.
+-  visibility = [
+-    ":*",
+-    "//third_party/androidx:*",
+-  ]
+-  deps = [
+-    ":google_firebase_firebase_annotations_java",
+-    ":google_play_services_tasks_java",
+-  ]
+-
+-  # Can't find com.google.auto.value.AutoValue$Builder.
+-  enable_bytecode_checks = false
+-}
+-
+-# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+-android_aar_prebuilt("google_firebase_firebase_measurement_connector_java") {
+-  aar_path = "libs/com_google_firebase_firebase_measurement_connector/firebase-measurement-connector-18.0.0.aar"
+-  info_path = "libs/com_google_firebase_firebase_measurement_connector/com_google_firebase_firebase_measurement_connector.info"
+-
+-  # To remove visibility constraint, add this dependency to
+-  # //third_party/android_deps/build.gradle.
+-  visibility = [
+-    ":*",
+-    "//third_party/androidx:*",
+-  ]
+-  deps = [ ":google_play_services_basement_java" ]
+-}
+-
+-# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+ java_prebuilt("com_google_googlejavaformat_google_java_format_java") {
+   jar_path = "libs/com_google_googlejavaformat_google_java_format/google-java-format-1.5.jar"
+   output_name = "com_google_googlejavaformat_google_java_format"
 --- a/components/background_task_scheduler/internal/BUILD.gn
 +++ b/components/background_task_scheduler/internal/BUILD.gn
 @@ -29,7 +29,6 @@ if (is_android) {
@@ -129,17 +402,18 @@ The snippets are already disabled in native codes, this will disable it on Java 
  }
 --- a/chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatGcmListenerService.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatGcmListenerService.java
-@@ -7,77 +7,14 @@ package org.chromium.chrome.browser.base
+@@ -7,87 +7,14 @@ package org.chromium.chrome.browser.base
  import android.content.Context;
  import android.os.Bundle;
  
--import com.google.android.gms.gcm.GcmListenerService;
+-import com.google.firebase.messaging.FirebaseMessagingService;
+-import com.google.firebase.messaging.RemoteMessage;
 -
  /**
   * GcmListenerService base class which will call through to the given {@link Impl}. This class must
   * be present in the base module, while the Impl can be in the chrome module.
   */
--public class SplitCompatGcmListenerService extends GcmListenerService {
+-public class SplitCompatGcmListenerService extends FirebaseMessagingService {
 +public class SplitCompatGcmListenerService {
      private String mServiceClassName;
 -    private Impl mImpl;
@@ -163,7 +437,9 @@ The snippets are already disabled in native codes, this will disable it on Java 
 -    }
 -
 -    @Override
--    public void onMessageReceived(String from, Bundle data) {
+-    public void onMessageReceived(RemoteMessage message) {
+-        String from = message.getFrom();
+-        Bundle data = message.toIntent().getExtras();
 -        mImpl.onMessageReceived(from, data);
 -    }
 -
@@ -173,13 +449,18 @@ The snippets are already disabled in native codes, this will disable it on Java 
 -    }
 -
 -    @Override
--    public void onSendError(String msgId, String error) {
+-    public void onSendError(String msgId, Exception error) {
 -        mImpl.onSendError(msgId, error);
 -    }
 -
 -    @Override
 -    public void onDeletedMessages() {
 -        mImpl.onDeletedMessages();
+-    }
+-
+-    @Override
+-    public void onNewToken(String token) {
+-        mImpl.onNewToken(token);
 -    }
 -
 -    /**
@@ -203,9 +484,11 @@ The snippets are already disabled in native codes, this will disable it on Java 
 -
 -        public void onMessageSent(String msgId) {}
 -
--        public void onSendError(String msgId, String error) {}
+-        public void onSendError(String msgId, Exception error) {}
 -
 -        public void onDeletedMessages() {}
+-
+-        public void onNewToken(String token) {}
 -    }
  }
 --- a/chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatGcmTaskService.java
@@ -335,57 +618,3 @@ The snippets are already disabled in native codes, this will disable it on Java 
 -        rescheduleBackgroundSyncTasksOnUpgrade();
 -    }
  }
---- a/chrome/android/javatests/src/org/chromium/chrome/browser/ServicificationBackgroundService.java
-+++ b/chrome/android/javatests/src/org/chromium/chrome/browser/ServicificationBackgroundService.java
-@@ -6,8 +6,6 @@ package org.chromium.chrome.browser;
- 
- import android.content.Context;
- 
--import com.google.android.gms.gcm.TaskParams;
--
- import org.junit.Assert;
- 
- import org.chromium.base.test.util.CriteriaHelper;
-@@ -20,7 +18,7 @@ import org.chromium.content_public.brows
- /**
-  * Class for launching the minimal browser mode for tests.
-  */
--public class ServicificationBackgroundService extends ChromeBackgroundServiceImpl {
-+public class ServicificationBackgroundService {
-     private boolean mLaunchBrowserCalled;
-     private boolean mNativeLoaded;
-     private boolean mSupportsMinimalBrowser;
-@@ -29,33 +27,6 @@ public class ServicificationBackgroundSe
-         mSupportsMinimalBrowser = supportsMinimalBrowser;
-     }
- 
--    @Override
--    public int onRunTask(final TaskParams params) {
--        mLaunchBrowserCalled = false;
--        return super.onRunTask(params);
--    }
--
--    @Override
--    protected void launchBrowser(Context context, String tag) {
--        mLaunchBrowserCalled = true;
--        mNativeLoaded = false;
--
--        final BrowserParts parts = new EmptyBrowserParts() {
--            @Override
--            public void finishNativeInitialization() {
--                mNativeLoaded = true;
--            }
--
--            @Override
--            public boolean startMinimalBrowser() {
--                return mSupportsMinimalBrowser;
--            }
--        };
--
--        ChromeBrowserInitializer.getInstance().handlePreNativeStartup(parts);
--        ChromeBrowserInitializer.getInstance().handlePostNativeStartup(true, parts);
--    }
--
-     // Posts an assertion task to the UI thread. Since this is only called after the call
-     // to onRunTask, it will be enqueued after any possible call to launchBrowser, and we
-     // can reliably check whether launchBrowser was called.

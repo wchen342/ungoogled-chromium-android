@@ -1,3 +1,7 @@
+From: Wengling Chen <feiyu2817@gmail.com>
+Fri, 30 Apr 2021 11:42:39 +0300
+Subject: Remove unused UI elements. Also disables autofill assistant.
+
 ---
  chrome/android/features/start_surface/public/java/src/org/chromium/chrome/features/start_surface/StartSurfaceConfiguration.java |    2 
  chrome/android/java/res/menu/main_menu.xml                                                                                      |    3 
@@ -18,8 +22,10 @@
  chrome/android/java/src/org/chromium/chrome/browser/sync/settings/GoogleServicesSettings.java                                   |    3 
  chrome/android/java/src/org/chromium/chrome/browser/sync/settings/ManageSyncSettings.java                                       |    3 
  chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java                                  |    3 
+ chrome/common/chrome_features.cc                                                                                                |    2 
+ components/autofill_assistant/browser/features.cc                                                                               |   10 -
  components/feed/core/shared_prefs/pref_names.cc                                                                                 |    4 
- 20 files changed, 8 insertions(+), 128 deletions(-)
+ 22 files changed, 14 insertions(+), 134 deletions(-)
 
 --- a/components/feed/core/shared_prefs/pref_names.cc
 +++ b/components/feed/core/shared_prefs/pref_names.cc
@@ -36,7 +42,7 @@
  }  // namespace prefs
 --- a/chrome/android/features/start_surface/public/java/src/org/chromium/chrome/features/start_surface/StartSurfaceConfiguration.java
 +++ b/chrome/android/features/start_surface/public/java/src/org/chromium/chrome/features/start_surface/StartSurfaceConfiguration.java
-@@ -131,7 +131,7 @@ public class StartSurfaceConfiguration {
+@@ -139,7 +139,7 @@ public class StartSurfaceConfiguration {
       */
      public static boolean getFeedArticlesVisibility() {
          return SharedPreferencesManager.getInstance().readBoolean(
@@ -47,7 +53,7 @@
      @VisibleForTesting
 --- a/chrome/android/java/src/org/chromium/chrome/browser/settings/SettingsActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/SettingsActivity.java
-@@ -247,11 +247,6 @@ public class SettingsActivity extends Ch
+@@ -250,11 +250,6 @@ public class SettingsActivity extends Ch
      @Override
      public boolean onCreateOptionsMenu(Menu menu) {
          super.onCreateOptionsMenu(menu);
@@ -88,7 +94,7 @@
      @Override
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-@@ -49,12 +49,11 @@ public class PrivacySettings
+@@ -52,12 +52,11 @@ public class PrivacySettings
      private static final String PREF_USAGE_STATS = "usage_stats_reporting";
      private static final String PREF_DO_NOT_TRACK = "do_not_track";
      private static final String PREF_SAFE_BROWSING = "safe_browsing";
@@ -102,7 +108,7 @@
  
      private ManagedPreferenceDelegate mManagedPreferenceDelegate;
  
-@@ -111,9 +110,6 @@ public class PrivacySettings
+@@ -126,9 +125,6 @@ public class PrivacySettings
          Preference secureDnsPref = findPreference(PREF_SECURE_DNS);
          secureDnsPref.setVisible(SecureDnsSettings.isUiEnabled());
  
@@ -112,7 +118,7 @@
          updateSummaries();
      }
  
-@@ -234,10 +230,6 @@ public class PrivacySettings
+@@ -255,10 +251,6 @@ public class PrivacySettings
      @Override
      public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
          menu.clear();
@@ -125,7 +131,7 @@
      @Override
 --- a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/GoogleServicesSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/GoogleServicesSettings.java
-@@ -185,9 +185,6 @@ public class GoogleServicesSettings
+@@ -186,9 +186,6 @@ public class GoogleServicesSettings
      @Override
      public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
          menu.clear();
@@ -137,7 +143,7 @@
      @Override
 --- a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/ManageSyncSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/ManageSyncSettings.java
-@@ -275,9 +275,6 @@ public class ManageSyncSettings extends
+@@ -285,9 +285,6 @@ public class ManageSyncSettings extends
      @Override
      public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
          menu.clear();
@@ -149,7 +155,7 @@
      @Override
 --- a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
-@@ -305,9 +305,6 @@ public class SyncAndServicesSettings ext
+@@ -311,9 +311,6 @@ public class SyncAndServicesSettings ext
      @Override
      public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
          menu.clear();
@@ -351,7 +357,7 @@
          return CommandLine.getInstance().hasSwitch(
 --- a/chrome/android/java/res/menu/main_menu.xml
 +++ b/chrome/android/java/res/menu/main_menu.xml
-@@ -111,9 +111,6 @@
+@@ -114,9 +114,6 @@
          <item android:id="@+id/preferences_id"
              android:title="@string/menu_settings"
              android:icon="@drawable/settings_cog" />
@@ -391,7 +397,7 @@
          }
 --- a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/BaseCustomTabActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/BaseCustomTabActivity.java
-@@ -482,7 +482,7 @@ public abstract class BaseCustomTabActiv
+@@ -497,7 +497,7 @@ public abstract class BaseCustomTabActiv
      @Override
      public boolean onMenuOrKeyboardAction(int id, boolean fromMenu) {
          // Disable creating new tabs, bookmark, history, print, help, focus_url, etc.
@@ -456,7 +462,7 @@
          android:contentDescription="@string/password_settings_export_action_description"
 --- a/chrome/android/java/src/org/chromium/chrome/browser/site_settings/ChromeSiteSettingsDelegate.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/site_settings/ChromeSiteSettingsDelegate.java
-@@ -207,7 +207,7 @@ public class ChromeSiteSettingsDelegate
+@@ -208,7 +208,7 @@ public class ChromeSiteSettingsDelegate
  
      @Override
      public boolean isHelpAndFeedbackEnabled() {
@@ -465,3 +471,47 @@
      }
  
      @Override
+--- a/components/autofill_assistant/browser/features.cc
++++ b/components/autofill_assistant/browser/features.cc
+@@ -14,14 +14,14 @@ const base::Feature kAutofillAssistant{"
+ 
+ // Controls whether to enable Assistant Autofill in a normal Chrome tab.
+ const base::Feature kAutofillAssistantChromeEntry{
+-    "AutofillAssistantChromeEntry", base::FEATURE_ENABLED_BY_DEFAULT};
++    "AutofillAssistantChromeEntry", base::FEATURE_DISABLED_BY_DEFAULT};
+ 
+ // Controls whether to enable dialog onboarding for Autofill Assistant
+ const base::Feature kAutofillAssistantDialogOnboarding{
+-    "AutofillAssistantDialogOnboarding", base::FEATURE_ENABLED_BY_DEFAULT};
++    "AutofillAssistantDialogOnboarding", base::FEATURE_DISABLED_BY_DEFAULT};
+ 
+ const base::Feature kAutofillAssistantDirectActions{
+-    "AutofillAssistantDirectActions", base::FEATURE_ENABLED_BY_DEFAULT};
++    "AutofillAssistantDirectActions", base::FEATURE_DISABLED_BY_DEFAULT};
+ 
+ // Controls whether to disable onboarding flow for Autofill Assistant
+ const base::Feature kAutofillAssistantDisableOnboardingFlow{
+@@ -30,10 +30,10 @@ const base::Feature kAutofillAssistantDi
+ 
+ // Controls whether to show the "Send feedback" chip while in an error state.
+ const base::Feature kAutofillAssistantFeedbackChip{
+-    "AutofillAssistantFeedbackChip", base::FEATURE_ENABLED_BY_DEFAULT};
++    "AutofillAssistantFeedbackChip", base::FEATURE_DISABLED_BY_DEFAULT};
+ 
+ const base::Feature kAutofillAssistantProactiveHelp{
+-    "AutofillAssistantProactiveHelp", base::FEATURE_ENABLED_BY_DEFAULT};
++    "AutofillAssistantProactiveHelp", base::FEATURE_DISABLED_BY_DEFAULT};
+ 
+ // Use Chrome's TabHelper system to deal with the life cycle of WebContent's
+ // depending Autofill Assistant objects.
+--- a/chrome/common/chrome_features.cc
++++ b/chrome/common/chrome_features.cc
+@@ -793,7 +793,7 @@ const base::Feature kRequestDesktopSiteF
+ 
+ #if defined(OS_ANDROID)
+ const base::Feature kSafetyCheckAndroid{"SafetyCheckAndroid",
+-                                        base::FEATURE_ENABLED_BY_DEFAULT};
++                                        base::FEATURE_DISABLED_BY_DEFAULT};
+ #endif
+ 
+ #if defined(OS_WIN)

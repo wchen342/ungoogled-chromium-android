@@ -5,10 +5,10 @@
  chrome/android/java/src/org/chromium/chrome/browser/omaha/UpdateStatusProvider.java                 |   20 
  chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateControllerFactory.java |    2 
  chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/UCInlineUpdateController.java      |  236 ++++++++++
- chrome/browser/flags/android/chrome_feature_list.cc                                                 |    1 
+ chrome/browser/flag-metadata.json                                                                   |    2 
  chrome/browser/ui/android/strings/android_chrome_strings.grd                                        |    2 
- chrome/browser/updates/update_notification_config.cc                                                |    4 
- 9 files changed, 267 insertions(+), 10 deletions(-)
+ chrome/browser/updates/update_notification_config.cc                                                |    2 
+ 9 files changed, 266 insertions(+), 10 deletions(-)
 
 --- /dev/null
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/UCInlineUpdateController.java
@@ -251,7 +251,7 @@
 +}
 --- a/chrome/android/chrome_java_sources.gni
 +++ b/chrome/android/chrome_java_sources.gni
-@@ -948,6 +948,7 @@ chrome_java_sources = [
+@@ -936,6 +936,7 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateController.java",
    "java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateControllerFactory.java",
    "java/src/org/chromium/chrome/browser/omaha/inline/NoopInlineUpdateController.java",
@@ -278,15 +278,6 @@
      private static final long DEFAULT_UPDATE_ATTRIBUTION_WINDOW_MS = 2 * DateUtils.DAY_IN_MILLIS;
  
      /** Possible update flow configurations. */
-@@ -235,7 +236,7 @@ public class UpdateConfigs {
-      */
-     public static boolean isUpdateNotificationEnabled() {
-         return ChromeFeatureList.getFieldTrialParamByFeatureAsBoolean(
--                ChromeFeatureList.INLINE_UPDATE_FLOW, UPDATE_NOTIFICATION_STATE_PARAM_NAME, false);
-+                ChromeFeatureList.INLINE_UPDATE_FLOW, UPDATE_NOTIFICATION_STATE_PARAM_NAME, true);
-     }
- 
-     /**
 @@ -301,6 +302,8 @@ public class UpdateConfigs {
       */
      @UpdateFlowConfiguration
@@ -304,8 +295,9 @@
 +                configuration.toLowerCase(Locale.US));
          return configuration.toLowerCase(Locale.US);
      }
- }
+-}
 \ No newline at end of file
++}
 --- a/chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateControllerFactory.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateControllerFactory.java
 @@ -21,6 +21,6 @@ public class InlineUpdateControllerFacto
@@ -384,16 +376,6 @@
              if (testStatus != null) return testStatus;
              return getRealStatus(mContext);
          }
---- a/chrome/browser/flags/android/chrome_feature_list.cc
-+++ b/chrome/browser/flags/android/chrome_feature_list.cc
-@@ -541,6 +541,7 @@ const base::Feature kIncognitoScreenshot
- 
- const base::Feature kInlineUpdateFlow{"InlineUpdateFlow",
-                                       base::FEATURE_DISABLED_BY_DEFAULT};
-+                                      //base::FEATURE_ENABLED_BY_DEFAULT};
- 
- const base::Feature kInstantStart{"InstantStart",
-                                   base::FEATURE_DISABLED_BY_DEFAULT};
 --- a/chrome/browser/updates/update_notification_config.cc
 +++ b/chrome/browser/updates/update_notification_config.cc
 @@ -25,7 +25,7 @@ bool GetFinchConfigBool(const std::strin
@@ -405,18 +387,9 @@
  
  // Default update notification schedule maximum interval in days.
  constexpr int kDefaultUpdateNotificationMaxInterval = 90;
-@@ -43,7 +43,7 @@ constexpr int kDefaultDeliverWindowEveni
- constexpr int kDefaultDeliverWindowEveningEnd = 20;
- 
- // Default update notification state.
--constexpr bool kDefaultUpdateNotificationState = false;
-+constexpr bool kDefaultUpdateNotificationState = true;
- 
- std::unique_ptr<UpdateNotificationConfig> UpdateNotificationConfig::Create() {
-   return std::make_unique<UpdateNotificationConfig>();
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
-@@ -1033,7 +1033,7 @@ by a child template that "extends" this
+@@ -1043,7 +1043,7 @@ by a child template that "extends" this
          <service android:name="org.chromium.chrome.browser.tracing.TracingNotificationService"
              android:exported="false"/>
  
@@ -427,7 +400,7 @@
          <meta-data android:name="org.chromium.content.browser.SMART_CLIP_PROVIDER"
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -1990,7 +1990,7 @@ To change this setting, <ph name="BEGIN_
+@@ -2033,7 +2033,7 @@ To change this setting, <ph name="BEGIN_
          Update Chrome
        </message>
        <message name="IDS_UPDATE_NOTIFICATION_TEXT_BODY_DEFAULT" desc="Default text showing in the update notification body, kindly telling user to update to the latest version of Chrome.">
@@ -436,3 +409,14 @@
        </message>
        <message name="IDS_UPDATE_NOTIFICATION_TITLE_EXPERIMENTAL_UPDATE_CHROME" desc="Experimental version A title of update notification to remind user to update Chrome.">
          Update Chrome
+--- a/chrome/browser/flag-metadata.json
++++ b/chrome/browser/flag-metadata.json
+@@ -1919,7 +1919,7 @@
+   {
+     "name": "enable-inline-update-flow",
+     "owners": [ "nyquist", "dtrainor" ],
+-    "expiry_milestone": 83
++    "expiry_milestone": -1
+   },
+   {
+     "name": "enable-instant-start",

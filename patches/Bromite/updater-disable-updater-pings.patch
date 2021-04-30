@@ -54,5 +54,5 @@ Chromium would still send background requests. Kill it.
    const bool pings_enabled_;
 -  const bool require_encryption_;
    const GURL url_source_override_;
-   const int initial_delay_;
+   const double initial_delay_;
  

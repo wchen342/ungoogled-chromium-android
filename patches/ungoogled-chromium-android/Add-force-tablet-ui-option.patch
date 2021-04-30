@@ -28,7 +28,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
          android:title="@string/accessibility_captions_title"/>
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -1155,6 +1155,12 @@ Your Google account may have other forms
+@@ -1195,6 +1195,12 @@ Your Google account may have other forms
        <message name="IDS_FORCE_DESKTOP_MODE_TITLE" desc="Title of the preference that allows the user to update force desktop mode settings.">
          Force Desktop Mode
        </message>
@@ -76,7 +76,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
      }
 --- a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
 +++ b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
-@@ -442,6 +442,7 @@ public final class ChromePreferenceKeys
+@@ -447,6 +447,7 @@ public final class ChromePreferenceKeys
      public static final String FONT_USER_SET_FORCE_ENABLE_ZOOM = "user_set_force_enable_zoom";
  
      public static final String FLAGS_FORCE_DESKTOP_MODE_ENABLED = "force_desktop_mode_enabled";
@@ -122,12 +122,12 @@ author: Wengling Chen <feiyu2817@gmail.com>
      "//base:base_java",
      "//base:jni_java",
 +    "//chrome/browser/preferences:java",
-     "//third_party/android_deps:androidx_annotation_annotation_java",
-     "//third_party/android_deps:androidx_appcompat_appcompat_java",
-     "//third_party/android_deps:androidx_appcompat_appcompat_resources_java",
+     "//third_party/androidx:androidx_annotation_annotation_java",
+     "//third_party/androidx:androidx_appcompat_appcompat_java",
+     "//third_party/androidx:androidx_appcompat_appcompat_resources_java",
 --- a/components/BUILD.gn
 +++ b/components/BUILD.gn
-@@ -488,7 +488,7 @@ test("components_unittests") {
+@@ -501,7 +501,7 @@ test("components_unittests") {
  
    # On LaCrOS, tests use ash-chrome as a window manager, thus the dependency.
    # On other platforms, no components should depend on Chrome.
@@ -136,7 +136,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
      assert_no_deps = [ "//chrome/*" ]
    }
  
-@@ -730,7 +730,7 @@ if (!is_ios && !is_fuchsia) {
+@@ -748,7 +748,7 @@ if (!is_ios && !is_fuchsia) {
  
      # On LaCrOS, tests use ash-chrome as a window manager, thus the dependency.
      # On other platforms, no components should depend on Chrome.

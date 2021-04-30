@@ -8,7 +8,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -34,7 +34,7 @@ import("java_sources.gni")
+@@ -35,7 +35,7 @@ import("java_sources.gni")
  import("static_initializers.gni")
  import("trichrome.gni")
  
@@ -17,7 +17,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
  if (android_channel != "default") {
    # android-binary-size trybot may checks if an internal Chrome variant's
    # AndroidManifest is as expected by ensuring the differences between its
-@@ -55,7 +55,7 @@ declare_args() {
+@@ -56,7 +56,7 @@ declare_args() {
    # for details.
    chrome_public_manifest_package = _default_package
  }

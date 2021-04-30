@@ -41,7 +41,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  
 --- a/build/config/compiler/BUILD.gn
 +++ b/build/config/compiler/BUILD.gn
-@@ -229,7 +229,7 @@ config("compiler") {
+@@ -237,7 +237,7 @@ config("compiler") {
    cflags_cc = []
    cflags_objc = []
    cflags_objcc = []
@@ -50,7 +50,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
    defines = []
    configs = []
  
-@@ -1751,7 +1751,7 @@ config("no_rtti") {
+@@ -1806,7 +1806,7 @@ config("no_rtti") {
  # to heap-allocated memory are passed over shared library boundaries.
  config("export_dynamic") {
    # TODO(crbug.com/1052397): Revisit after target_os flip is completed.
@@ -59,7 +59,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
      ldflags = [ "-rdynamic" ]
    }
  }
-@@ -1972,8 +1972,6 @@ if (is_win) {
+@@ -2027,8 +2027,6 @@ if (is_win) {
  
        # Put data and code in their own sections, so that unused symbols
        # can be removed at link time with --gc-sections.
@@ -68,7 +68,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
      ]
  
      common_optimize_on_ldflags += [
-@@ -1981,7 +1979,6 @@ if (is_win) {
+@@ -2036,7 +2034,6 @@ if (is_win) {
        # See http://lwn.net/Articles/192624/ .
        # -O2 enables string tail merge optimization in gold and lld.
        "-Wl,-O2",
@@ -76,7 +76,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
      ]
    }
  }
-@@ -2354,7 +2351,7 @@ config("symbols") {
+@@ -2414,7 +2411,7 @@ config("symbols") {
          # sections (llvm.org/PR34820).
          cflags += [ "-ggnu-pubnames" ]
        }
@@ -107,7 +107,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
    return std::make_unique<ProfileOAuth2TokenService>(
 --- a/components/omnibox/browser/autocomplete_match.cc
 +++ b/components/omnibox/browser/autocomplete_match.cc
-@@ -1355,16 +1355,6 @@ bool AutocompleteMatch::IsEmptyAutocompl
+@@ -1398,16 +1398,6 @@ bool AutocompleteMatch::IsEmptyAutocompl
           split_autocompletion.Empty();
  }
  
@@ -126,7 +126,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
      const base::string16& text,
 --- a/components/omnibox/browser/autocomplete_result.cc
 +++ b/components/omnibox/browser/autocomplete_result.cc
-@@ -720,13 +720,6 @@ void AutocompleteResult::CopyFrom(const
+@@ -716,13 +716,6 @@ void AutocompleteResult::CopyFrom(const
  #endif
  }
  
@@ -154,7 +154,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
    for (ShortcutMap::const_iterator it(
 --- a/components/omnibox/browser/autocomplete_controller.cc
 +++ b/components/omnibox/browser/autocomplete_controller.cc
-@@ -748,9 +748,6 @@ void AutocompleteController::UpdateResul
+@@ -744,9 +744,6 @@ void AutocompleteController::UpdateResul
  
    // Need to validate before invoking CopyOldMatches as the old matches are not
    // valid against the current input.
@@ -178,7 +178,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  bool InputEventStreamValidator::ValidateImpl(
 --- a/services/network/network_context.cc
 +++ b/services/network/network_context.cc
-@@ -965,7 +965,6 @@ void NetworkContext::QueueReport(
+@@ -964,7 +964,6 @@ void NetworkContext::QueueReport(
      const net::NetworkIsolationKey& network_isolation_key,
      const base::Optional<std::string>& user_agent,
      base::Value body) {
@@ -188,7 +188,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  void NetworkContext::QueueSignedExchangeReport(
 --- a/url/gurl.cc
 +++ b/url/gurl.cc
-@@ -158,7 +158,7 @@ const std::string& GURL::spec() const {
+@@ -159,7 +159,7 @@ const std::string& GURL::spec() const {
    if (is_valid_ || spec_.empty())
      return spec_;
  
@@ -199,7 +199,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  
 --- a/base/logging.cc
 +++ b/base/logging.cc
-@@ -884,7 +884,7 @@ LogMessage::~LogMessage() {
+@@ -885,7 +885,7 @@ LogMessage::~LogMessage() {
  #if defined(OFFICIAL_BUILD) && defined(NDEBUG)
        IMMEDIATE_CRASH();
  #else

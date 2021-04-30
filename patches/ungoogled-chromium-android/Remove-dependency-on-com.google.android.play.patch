@@ -7,15 +7,12 @@ Subject: Remove dependency on com.google.android.play
  chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/FakeAppUpdateManagerWrapper.java   |   60 --
  chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateControllerFactory.java |   16 
  chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/PlayInlineUpdateController.java    |  226 ----------
- components/externalauth/android/BUILD.gn                                                            |    3 
- third_party/android_deps/BUILD.gn                                                                   |    2 
  third_party/google_android_play_core/BUILD.gn                                                       |    5 
- weblayer/shell/android/BUILD.gn                                                                     |    1 
- 8 files changed, 4 insertions(+), 310 deletions(-)
+ 5 files changed, 3 insertions(+), 305 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -518,7 +518,6 @@ android_library("chrome_java") {
+@@ -529,7 +529,6 @@ android_library("chrome_java") {
      "//third_party/blink/public/mojom:android_mojo_bindings_java",
      "//third_party/blink/public/mojom:mojom_platform_java",
      "//third_party/gif_player:gif_player_java",
@@ -477,43 +474,3 @@ Subject: Remove dependency on com.google.android.play
 -  aar_path = "core-1.6.4.aar"
 -  info_path = "com_google_android_play_core.info"
 -}
---- a/third_party/android_deps/BUILD.gn
-+++ b/third_party/android_deps/BUILD.gn
-@@ -90,7 +90,7 @@ java_annotation_processor("auto_service_
- 
- android_library("chromium_play_services_availability_java") {
-   sources = [ "util/org/chromium/gms/ChromiumPlayServicesAvailability.java" ]
--  deps = [ "$google_play_services_package:google_play_services_base_java" ]
-+  deps = [  ]
- }
- 
- android_library("chromium_play_services_availability_shadows_java") {
---- a/weblayer/shell/android/BUILD.gn
-+++ b/weblayer/shell/android/BUILD.gn
-@@ -40,7 +40,6 @@ android_library("weblayer_shell_java") {
-   # google_play_services_version definition in the manifest.
-   deps = [
-     ":weblayer_shell_resources",
--    "$google_play_services_package:google_play_services_base_java",
-     "//base:base_java",
-     "//components/strictmode/android:java",
-     "//third_party/android_deps:android_support_v4_java",
---- a/components/externalauth/android/BUILD.gn
-+++ b/components/externalauth/android/BUILD.gn
-@@ -27,8 +27,6 @@ android_library("google_delegate_public_
- android_library("java") {
-   deps = [
-     ":google_delegate_java",
--    "$google_play_services_package:google_play_services_base_java",
--    "$google_play_services_package:google_play_services_basement_java",
-     "//base:base_java",
-     "//components/embedder_support/android:browser_context_java",
-     "//components/embedder_support/android:util_java",
-@@ -50,7 +48,6 @@ android_library("junit") {
- 
-   deps = [
-     ":java",
--    "$google_play_services_package:google_play_services_basement_java",
-     "//base:base_java",
-     "//base:base_java_test_support",
-     "//base:base_junit_test_support",

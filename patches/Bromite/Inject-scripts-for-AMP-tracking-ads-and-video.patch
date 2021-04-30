@@ -20,7 +20,7 @@ Send a random key press to circumvent idle status detection
 
 --- a/third_party/blink/renderer/core/dom/build.gni
 +++ b/third_party/blink/renderer/core/dom/build.gni
-@@ -165,6 +165,8 @@ blink_core_sources_dom = [
+@@ -167,6 +167,8 @@ blink_core_sources_dom = [
    "global_event_handlers.h",
    "icon_url.cc",
    "icon_url.h",
@@ -31,7 +31,7 @@ Send a random key press to circumvent idle status detection
    "id_target_observer_registry.cc",
 --- a/third_party/blink/renderer/core/dom/document.cc
 +++ b/third_party/blink/renderer/core/dom/document.cc
-@@ -273,6 +273,7 @@
+@@ -276,6 +276,7 @@
  #include "third_party/blink/renderer/core/page/scrolling/root_scroller_controller.h"
  #include "third_party/blink/renderer/core/page/scrolling/scroll_state_callback.h"
  #include "third_party/blink/renderer/core/page/scrolling/scrolling_coordinator.h"
@@ -39,7 +39,7 @@ Send a random key press to circumvent idle status detection
  #include "third_party/blink/renderer/core/page/scrolling/snap_coordinator.h"
  #include "third_party/blink/renderer/core/page/scrolling/text_fragment_anchor.h"
  #include "third_party/blink/renderer/core/page/scrolling/text_fragment_selector_generator.h"
-@@ -338,6 +339,8 @@
+@@ -341,6 +342,8 @@
  #include "third_party/blink/renderer/platform/wtf/text/string_buffer.h"
  #include "third_party/blink/renderer/platform/wtf/text/text_encoding_registry.h"
  
@@ -48,7 +48,7 @@ Send a random key press to circumvent idle status detection
  #ifndef NDEBUG
  using WeakDocumentSet = blink::HeapHashSet<blink::WeakMember<blink::Document>>;
  static WeakDocumentSet& liveDocumentSet();
-@@ -6912,6 +6915,61 @@ void Document::setAllowDeclarativeShadow
+@@ -6868,6 +6871,61 @@ void Document::setAllowDeclarativeShadow
        val ? AllowState::kAllow : AllowState::kDeny;
  }
  
@@ -110,7 +110,7 @@ Send a random key press to circumvent idle status detection
  void Document::FinishedParsing() {
    DCHECK(!GetScriptableDocumentParser() || !parser_->IsParsing());
    DCHECK(!GetScriptableDocumentParser() || ready_state_ != kLoading);
-@@ -6964,6 +7022,10 @@ void Document::FinishedParsing() {
+@@ -6920,6 +6978,10 @@ void Document::FinishedParsing() {
  
      frame->Loader().FinishedParsing();
  
@@ -123,7 +123,7 @@ Send a random key press to circumvent idle status detection
                           inspector_mark_load_event::Data(frame));
 --- a/third_party/blink/renderer/core/dom/document.h
 +++ b/third_party/blink/renderer/core/dom/document.h
-@@ -1699,6 +1699,9 @@ class CORE_EXPORT Document : public Cont
+@@ -1725,6 +1725,9 @@ class CORE_EXPORT Document : public Cont
    void AddAXContext(AXContext*);
    void RemoveAXContext(AXContext*);
  

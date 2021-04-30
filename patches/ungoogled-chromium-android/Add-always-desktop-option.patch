@@ -25,7 +25,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
          android:title="@string/accessibility_captions_title"/>
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -1149,6 +1149,12 @@ Your Google account may have other forms
+@@ -1189,6 +1189,12 @@ Your Google account may have other forms
        <message name="IDS_ACCESSIBILITY_CAPTIONS_TITLE" desc="Title of the preference that allows the user to update caption settings.">
          Captions
        </message>
@@ -40,7 +40,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
        <message name="IDS_LANGUAGE_SETTINGS" desc="Title for the Languages settings screen that allows users to manage their languages preferences. [CHAR-LIMIT=32]">
 --- a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
 +++ b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
-@@ -441,6 +441,8 @@ public final class ChromePreferenceKeys
+@@ -446,6 +446,8 @@ public final class ChromePreferenceKeys
      public static final String FONT_USER_FONT_SCALE_FACTOR = "user_font_scale_factor";
      public static final String FONT_USER_SET_FORCE_ENABLE_ZOOM = "user_set_force_enable_zoom";
  
@@ -84,7 +84,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
      }
 --- a/chrome/android/java/src/org/chromium/chrome/browser/tabmodel/TabModelSelectorImpl.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/tabmodel/TabModelSelectorImpl.java
-@@ -12,6 +12,8 @@ import androidx.annotation.VisibleForTes
+@@ -11,6 +11,8 @@ import androidx.annotation.VisibleForTes
  
  import org.chromium.base.supplier.Supplier;
  import org.chromium.chrome.browser.compositor.layouts.content.TabContentManager;
@@ -93,7 +93,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
  import org.chromium.chrome.browser.profiles.Profile;
  import org.chromium.chrome.browser.tab.SadTab;
  import org.chromium.chrome.browser.tab.Tab;
-@@ -191,6 +193,15 @@ public class TabModelSelectorImpl extend
+@@ -178,6 +180,15 @@ public class TabModelSelectorImpl extend
  
              @Override
              public void onPageLoadFinished(Tab tab, GURL url) {

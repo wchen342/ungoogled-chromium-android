@@ -29,7 +29,7 @@ Subject: kill Translate
          boolean notifyAdapter = false;
          // An optional Data Saver page.
          if (mFreProperties.getBoolean(SHOW_DATA_REDUCTION_PAGE)) {
-@@ -610,4 +616,9 @@ public class FirstRunActivity extends Fi
+@@ -605,4 +611,9 @@ public class FirstRunActivity extends Fi
          assert sObserver == null;
          sObserver = observer;
      }

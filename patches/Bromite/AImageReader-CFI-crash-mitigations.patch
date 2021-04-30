@@ -80,7 +80,7 @@ See discussions at:
    AndroidImageReader();
 --- a/chrome/browser/flag-metadata.json
 +++ b/chrome/browser/flag-metadata.json
-@@ -1724,7 +1724,7 @@
+@@ -1856,7 +1856,7 @@
    {
      "name": "enable-heavy-ad-intervention",
      "owners": [ "johnidel", "jkarlin" ],
@@ -91,7 +91,7 @@ See discussions at:
      "name": "enable-heuristic-stylus-palm-rejection",
 --- a/gpu/config/gpu_driver_bug_list.json
 +++ b/gpu/config/gpu_driver_bug_list.json
-@@ -3255,6 +3255,22 @@
+@@ -3237,6 +3237,22 @@
        ]
      },
      {
@@ -116,7 +116,7 @@ See discussions at:
        "description": "DXVA video decoder crashes on some AMD GPUs.",
 --- a/gpu/config/gpu_finch_features.cc
 +++ b/gpu/config/gpu_finch_features.cc
-@@ -38,6 +38,11 @@ bool FieldIsInBlocklist(const char* curr
+@@ -49,6 +49,11 @@ bool IsDeviceBlocked(const char* field,
  }  // namespace
  
  #if defined(OS_ANDROID)
@@ -128,7 +128,7 @@ See discussions at:
  // Used to limit GL version to 2.0 for skia raster on Android.
  const base::Feature kUseGles2ForOopR{"UseGles2ForOopR",
                                       base::FEATURE_DISABLED_BY_DEFAULT};
-@@ -55,7 +60,11 @@ const base::FeatureParam<std::string> kA
+@@ -70,7 +75,11 @@ const base::Feature kWebViewSurfaceContr
  
  // Use AImageReader for MediaCodec and MediaPlyer on android.
  const base::Feature kAImageReader{"AImageReader",
@@ -150,10 +150,10 @@ See discussions at:
 +GPU_EXPORT extern const base::Feature kAImageReaderMediaPlayer;
  GPU_EXPORT extern const base::Feature kUseGles2ForOopR;
  GPU_EXPORT extern const base::Feature kAndroidSurfaceControl;
- GPU_EXPORT extern const base::Feature kAImageReader;
+ GPU_EXPORT extern const base::Feature kWebViewSurfaceControl;
 --- a/gpu/config/gpu_util.cc
 +++ b/gpu/config/gpu_util.cc
-@@ -111,6 +111,9 @@ GpuFeatureStatus GetAndroidSurfaceContro
+@@ -112,6 +112,9 @@ GpuFeatureStatus GetAndroidSurfaceContro
  #if !defined(OS_ANDROID)
    return kGpuFeatureStatusDisabled;
  #else
@@ -163,7 +163,7 @@ See discussions at:
    if (!gpu_preferences.enable_android_surface_control)
      return kGpuFeatureStatusDisabled;
  
-@@ -316,6 +319,11 @@ void AdjustGpuFeatureStatusToWorkarounds
+@@ -317,6 +320,11 @@ void AdjustGpuFeatureStatusToWorkarounds
      gpu_feature_info->status_values[GPU_FEATURE_TYPE_ACCELERATED_WEBGL2] =
          kGpuFeatureStatusBlocklisted;
    }
@@ -183,11 +183,11 @@ See discussions at:
  disable_accelerated_av1_decode
 +disable_aimagereader
  disable_accelerated_av1_decode_d3d11
+ disable_accelerated_h264_encode
  disable_accelerated_vp8_decode
- disable_accelerated_vp8_encode
 --- a/gpu/ipc/service/gpu_init.cc
 +++ b/gpu/ipc/service/gpu_init.cc
-@@ -477,6 +477,11 @@ bool GpuInit::InitializeAndStartSandbox(
+@@ -488,6 +488,11 @@ bool GpuInit::InitializeAndStartSandbox(
      }
    }
  
@@ -209,7 +209,7 @@ See discussions at:
  #include "base/android/scoped_hardware_buffer_fence_sync.h"
  #include "base/bind.h"
  #include "base/feature_list.h"
-@@ -48,7 +49,15 @@ std::unique_ptr<ui::ScopedMakeCurrent> M
+@@ -49,7 +50,15 @@ std::unique_ptr<ui::ScopedMakeCurrent> M
  }
  
  TextureOwner::Mode GetTextureOwnerMode() {
@@ -228,7 +228,7 @@ See discussions at:
  }
 --- a/media/base/media_switches.cc
 +++ b/media/base/media_switches.cc
-@@ -608,6 +608,10 @@ const base::Feature kMediaDrmPreprovisio
+@@ -624,6 +624,10 @@ const base::Feature kMediaDrmPreprovisio
  const base::Feature kMediaDrmPreprovisioningAtStartup{
      "MediaDrmPreprovisioningAtStartup", base::FEATURE_ENABLED_BY_DEFAULT};
  
@@ -241,7 +241,7 @@ See discussions at:
  const base::Feature kDisableSurfaceLayerForVideo{
 --- a/media/base/media_switches.h
 +++ b/media/base/media_switches.h
-@@ -206,6 +206,7 @@ MEDIA_EXPORT extern const base::Feature
+@@ -210,6 +210,7 @@ MEDIA_EXPORT extern const base::Feature
  MEDIA_EXPORT extern const base::Feature kMediaDrmPersistentLicense;
  MEDIA_EXPORT extern const base::Feature kMediaDrmPreprovisioning;
  MEDIA_EXPORT extern const base::Feature kMediaDrmPreprovisioningAtStartup;

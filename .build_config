@@ -8,7 +8,7 @@ webview_target=system_webview_apk
 trichrome_webview_target=trichrome_webview_apk
 all=all
 
-chromium_version=89.0.4389.114
-ungoogled_chromium_version=89.0.4389.114
+chromium_version=90.0.4430.72
+ungoogled_chromium_version=90.0.4430.72
 ungoogled_chromium_revision=1
-ungoogled_chromium_android_revision=2
+ungoogled_chromium_android_revision=1

@@ -19,7 +19,7 @@ legacy acceleration events.
 
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -2789,6 +2789,12 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -2846,6 +2846,12 @@ const FeatureEntry kFeatureEntries[] = {
      {"enable-gpu-rasterization", flag_descriptions::kGpuRasterizationName,
       flag_descriptions::kGpuRasterizationDescription, kOsAll,
       MULTI_VALUE_TYPE(kEnableGpuRasterizationChoices)},
@@ -34,7 +34,7 @@ legacy acceleration events.
       MULTI_VALUE_TYPE(kEnableOopRasterizationChoices)},
 --- a/chrome/browser/flag_descriptions.cc
 +++ b/chrome/browser/flag_descriptions.cc
-@@ -755,6 +755,14 @@ const char kWinrtSensorsImplementationDe
+@@ -821,6 +821,14 @@ const char kWinrtSensorsImplementationDe
      "Enables usage of the Windows.Devices.Sensors WinRT APIs on Windows for "
      "sensors";
  
@@ -51,7 +51,7 @@ legacy acceleration events.
  const char kEnableGenericSensorExtraClassesDescription[] =
 --- a/chrome/browser/flag_descriptions.h
 +++ b/chrome/browser/flag_descriptions.h
-@@ -455,6 +455,12 @@ extern const char kWinrtGeolocationImple
+@@ -494,6 +494,12 @@ extern const char kWinrtGeolocationImple
  extern const char kWinrtSensorsImplementationName[];
  extern const char kWinrtSensorsImplementationDescription[];
  
@@ -78,7 +78,7 @@ legacy acceleration events.
  #else
 --- a/content/public/common/content_features.cc
 +++ b/content/public/common/content_features.cc
-@@ -837,6 +837,16 @@ const base::Feature kWebOtpBackendAuto{"
+@@ -886,6 +886,16 @@ const base::Feature kWebOtpBackendAuto{"
  // The JavaScript API for payments on the web.
  const base::Feature kWebPayments{"WebPayments",
                                   base::FEATURE_ENABLED_BY_DEFAULT};
@@ -97,7 +97,7 @@ legacy acceleration events.
  const base::Feature kWebPaymentsMinimalUI{"WebPaymentsMinimalUI",
 --- a/content/public/common/content_features.h
 +++ b/content/public/common/content_features.h
-@@ -197,6 +197,8 @@ CONTENT_EXPORT extern const base::Featur
+@@ -209,6 +209,8 @@ CONTENT_EXPORT extern const base::Featur
  CONTENT_EXPORT extern const base::Feature kWebXrHitTest;
  CONTENT_EXPORT extern const base::Feature kWebXrIncubations;
  
@@ -108,15 +108,15 @@ legacy acceleration events.
  CONTENT_EXPORT extern const base::Feature
 --- a/third_party/blink/public/platform/web_runtime_features.h
 +++ b/third_party/blink/public/platform/web_runtime_features.h
-@@ -97,6 +97,8 @@ class WebRuntimeFeatures {
+@@ -104,6 +104,8 @@ class WebRuntimeFeatures {
    BLINK_PLATFORM_EXPORT static void EnableCSSHexAlphaColor(bool);
    BLINK_PLATFORM_EXPORT static void EnableSameSiteByDefaultCookies(bool);
    BLINK_PLATFORM_EXPORT static void EnableScrollTopLeftInterop(bool);
 +  BLINK_PLATFORM_EXPORT static void EnableDeviceMotion(bool);
 +  BLINK_PLATFORM_EXPORT static void EnableDeviceOrientation(bool);
+   BLINK_PLATFORM_EXPORT static void EnableKeyboardAccessibleTooltip(bool);
    BLINK_PLATFORM_EXPORT static void EnableKeyboardFocusableScrollers(bool);
    BLINK_PLATFORM_EXPORT static void EnableDatabase(bool);
-   BLINK_PLATFORM_EXPORT static void EnableDecodeJpeg420ImagesToYUV(bool);
 --- a/third_party/blink/renderer/modules/modules_initializer.cc
 +++ b/third_party/blink/renderer/modules/modules_initializer.cc
 @@ -222,9 +222,13 @@ void ModulesInitializer::OnClearWindowOb
@@ -138,8 +138,8 @@ legacy acceleration events.
    // TODO(nhiroki): Figure out why ServiceWorkerContainer needs to be eagerly
 --- a/third_party/blink/renderer/platform/exported/web_runtime_features.cc
 +++ b/third_party/blink/renderer/platform/exported/web_runtime_features.cc
-@@ -175,6 +175,14 @@ void WebRuntimeFeatures::EnableScrollTop
-   RuntimeEnabledFeatures::SetScrollTopLeftInteropEnabled(enable);
+@@ -195,6 +195,14 @@ void WebRuntimeFeatures::EnableKeyboardA
+   RuntimeEnabledFeatures::SetKeyboardAccessibleTooltipEnabled(enable);
  }
  
 +void WebRuntimeFeatures::EnableDeviceMotion(bool enable) {
@@ -155,7 +155,7 @@ legacy acceleration events.
  }
 --- a/third_party/blink/renderer/platform/runtime_enabled_features.json5
 +++ b/third_party/blink/renderer/platform/runtime_enabled_features.json5
-@@ -1386,6 +1386,14 @@
+@@ -1438,6 +1438,14 @@
        status: "experimental",
      },
      {

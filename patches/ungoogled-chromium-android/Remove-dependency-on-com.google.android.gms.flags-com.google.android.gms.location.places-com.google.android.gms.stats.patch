@@ -9,7 +9,7 @@ Subject: Remove dependency on com.google.android.gms.flags,
 
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -2159,54 +2159,6 @@ java_prebuilt("com_github_kevinstern_sof
+@@ -1241,54 +1241,6 @@ java_prebuilt("com_github_kevinstern_sof
  }
  
  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
@@ -19,14 +19,14 @@ Subject: Remove dependency on com.google.android.gms.flags,
 -
 -  # To remove visibility constraint, add this dependency to
 -  # //third_party/android_deps/build.gradle.
--  visibility = [ ":*" ]
+-  visibility = [
+-    ":*",
+-    "//third_party/androidx:*",
+-  ]
 -  deps = [
 -    ":google_play_services_base_java",
 -    ":google_play_services_basement_java",
 -  ]
--
--  # Removing drawables from GMS .aars as they are unused bloat.
--  strip_drawables = true
 -}
 -
 -# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
@@ -36,11 +36,11 @@ Subject: Remove dependency on com.google.android.gms.flags,
 -
 -  # To remove visibility constraint, add this dependency to
 -  # //third_party/android_deps/build.gradle.
--  visibility = [ ":*" ]
+-  visibility = [
+-    ":*",
+-    "//third_party/androidx:*",
+-  ]
 -  deps = [ ":google_play_services_basement_java" ]
--
--  # Removing drawables from GMS .aars as they are unused bloat.
--  strip_drawables = true
 -}
 -
 -# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
@@ -50,14 +50,14 @@ Subject: Remove dependency on com.google.android.gms.flags,
 -
 -  # To remove visibility constraint, add this dependency to
 -  # //third_party/android_deps/build.gradle.
--  visibility = [ ":*" ]
--  deps = [
--    ":androidx_legacy_legacy_support_core_utils_java",
--    ":google_play_services_basement_java",
+-  visibility = [
+-    ":*",
+-    "//third_party/androidx:*",
 -  ]
--
--  # Removing drawables from GMS .aars as they are unused bloat.
--  strip_drawables = true
+-  deps = [
+-    ":google_play_services_basement_java",
+-    "//third_party/androidx:androidx_legacy_legacy_support_core_utils_java",
+-  ]
 -}
 -
 -# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.

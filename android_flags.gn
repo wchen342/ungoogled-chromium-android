@@ -16,6 +16,7 @@ enable_gvr_services=false
 enable_swiftshader=false
 exclude_unwind_tables=false
 ffmpeg_branding="Chrome"
+is_chromecast=false
 is_clang=true
 proprietary_codecs=true
 rtc_build_examples=false

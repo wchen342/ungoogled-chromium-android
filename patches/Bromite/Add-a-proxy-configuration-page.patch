@@ -67,7 +67,7 @@ for SimpleURLLoaders as well.
          android:title="@string/can_make_payment_title"
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-@@ -55,9 +55,10 @@ public class PrivacySettings
+@@ -58,9 +58,10 @@ public class PrivacySettings
      private static final String PREF_CLEAR_BROWSING_DATA = "clear_browsing_data";
      private static final String PREF_PRIVACY_SANDBOX = "privacy_sandbox";
      private static final String PREF_CLOSE_TABS_ON_EXIT = "close_tabs_on_exit";
@@ -92,7 +92,7 @@ for SimpleURLLoaders as well.
    builtins_to_provide.push_back(
 --- a/chrome/browser/browser_resources.grd
 +++ b/chrome/browser/browser_resources.grd
-@@ -136,6 +136,12 @@
+@@ -162,6 +162,12 @@
          <include name="IDR_VIDEO_PLAYER_JS" file="resources\video_tutorials\video_player.js" type="BINDATA" />
        </if>
  
@@ -169,16 +169,16 @@ for SimpleURLLoaders as well.
  };
 --- a/chrome/browser/prefs/browser_prefs.cc
 +++ b/chrome/browser/prefs/browser_prefs.cc
-@@ -409,6 +409,8 @@
+@@ -411,6 +411,8 @@
  #include "chrome/browser/media/feeds/media_feeds_service.h"
  #endif
  
 +#include "chrome/browser/net/proxy_service_factory.h"
 +
- namespace {
- 
- #if BUILDFLAG(IS_CHROMEOS_ASH)
-@@ -695,6 +697,8 @@ void RegisterLocalState(PrefRegistrySimp
+ #if BUILDFLAG(ENABLE_SESSION_SERVICE)
+ #include "chrome/browser/sessions/session_service_log.h"
+ #endif
+@@ -744,6 +746,8 @@ void RegisterLocalState(PrefRegistrySimp
    PluginsResourceService::RegisterPrefs(registry);
  #endif
  
@@ -613,7 +613,7 @@ for SimpleURLLoaders as well.
 +})();
 --- a/chrome/browser/ui/BUILD.gn
 +++ b/chrome/browser/ui/BUILD.gn
-@@ -254,6 +254,8 @@ static_library("ui") {
+@@ -256,6 +256,8 @@ static_library("ui") {
      "webui/metrics_handler.h",
      "webui/net_export_ui.cc",
      "webui/net_export_ui.h",
@@ -624,15 +624,15 @@ for SimpleURLLoaders as well.
      "webui/ntp_tiles_internals_ui.cc",
 --- a/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
 +++ b/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
-@@ -62,6 +62,7 @@
+@@ -53,6 +53,7 @@
  #include "chrome/browser/ui/webui/omnibox/omnibox_ui.h"
  #include "chrome/browser/ui/webui/policy/policy_ui.h"
  #include "chrome/browser/ui/webui/predictors/predictors_ui.h"
 +#include "chrome/browser/ui/webui/proxy_config_ui.h"
  #include "chrome/browser/ui/webui/quota_internals/quota_internals_ui.h"
- #include "chrome/browser/ui/webui/settings/settings_ui.h"
- #include "chrome/browser/ui/webui/settings/settings_utils.h"
-@@ -543,6 +544,8 @@ WebUIFactoryFunction GetWebUIFactoryFunc
+ #include "chrome/browser/ui/webui/signin_internals_ui.h"
+ #include "chrome/browser/ui/webui/sync_internals/sync_internals_ui.h"
+@@ -556,6 +557,8 @@ WebUIFactoryFunction GetWebUIFactoryFunc
      return &NewWebUI<MemoryInternalsUI>;
    if (url.host_piece() == chrome::kChromeUINetExportHost)
      return &NewWebUI<NetExportUI>;
@@ -1108,7 +1108,7 @@ for SimpleURLLoaders as well.
  const char kChromeUIChromeURLsHost[] = "chrome-urls";
  const char kChromeUIChromeURLsURL[] = "chrome://chrome-urls/";
  const char kChromeUIComponentsHost[] = "components";
-@@ -325,6 +327,7 @@ bool IsSystemWebUIHost(base::StringPiece
+@@ -327,6 +329,7 @@ bool IsSystemWebUIHost(base::StringPiece
        kChromeUIMobileSetupHost,
        kChromeUIMultiDeviceSetupHost,
        kChromeUINetworkHost,
@@ -1116,7 +1116,7 @@ for SimpleURLLoaders as well.
        kChromeUIOobeHost,
        kChromeUIOSCreditsHost,
        kChromeUIOSSettingsHost,
-@@ -523,6 +526,7 @@ const char* const kChromeHostURLs[] = {
+@@ -539,6 +542,7 @@ const char* const kChromeHostURLs[] = {
  #if !defined(OS_ANDROID)
  #if !BUILDFLAG(IS_CHROMEOS_ASH)
      kChromeUIAppLauncherPageHost,
@@ -1126,7 +1126,7 @@ for SimpleURLLoaders as well.
      kChromeUIDownloadsHost,
 --- a/chrome/common/webui_url_constants.h
 +++ b/chrome/common/webui_url_constants.h
-@@ -117,6 +117,8 @@ extern const char kChromeUIMemoryInterna
+@@ -120,6 +120,8 @@ extern const char kChromeUIMemoryInterna
  extern const char kChromeUINTPTilesInternalsHost[];
  extern const char kChromeUINaClHost[];
  extern const char kChromeUINetExportHost[];

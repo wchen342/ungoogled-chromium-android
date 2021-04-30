@@ -3,29 +3,16 @@ Date: Fri, 22 Jun 2018 17:11:38 +0200
 Subject: kill GCM
 
 ---
- chrome/android/BUILD.gn                                                                                                                                                 |    1 
  chrome/android/chrome_java_sources.gni                                                                                                                                  |    5 
- chrome/android/java/AndroidManifest.xml                                                                                                                                 |   53 --
+ chrome/android/java/AndroidManifest.xml                                                                                                                                 |   42 --
  chrome/android/java/src/org/chromium/chrome/browser/background_task_scheduler/ChromeBackgroundTaskFactory.java                                                          |    3 
  chrome/android/java/src/org/chromium/chrome/browser/services/gcm/GCMBackgroundTask.java                                                                                 |    1 
  components/background_task_scheduler/internal/android/java/src/org/chromium/components/background_task_scheduler/internal/BackgroundTaskGcmTaskService.java             |   65 ---
  components/background_task_scheduler/internal/android/java/src/org/chromium/components/background_task_scheduler/internal/BackgroundTaskSchedulerGcmNetworkManager.java |  180 ----------
- components/gcm_driver/android/BUILD.gn                                                                                                                                  |    1 
  components/gcm_driver/instance_id/android/BUILD.gn                                                                                                                      |    1 
  components/gcm_driver/instance_id/android/java/src/org/chromium/components/gcm_driver/instance_id/InstanceIDBridge.java                                                 |   52 --
- components/sync/android/BUILD.gn                                                                                                                                        |    1 
- 11 files changed, 11 insertions(+), 352 deletions(-)
+ 8 files changed, 11 insertions(+), 338 deletions(-)
 
---- a/chrome/android/BUILD.gn
-+++ b/chrome/android/BUILD.gn
-@@ -523,7 +523,6 @@ android_library("chrome_java") {
-     "//third_party/android_deps:material_design_java",
-     "//third_party/android_deps:protobuf_lite_runtime_java",
-     "//third_party/android_media:android_media_java",
--    "//third_party/android_sdk:android_gcm_java",
-     "//third_party/android_sdk/androidx_browser:androidx_browser_java",
-     "//third_party/android_swipe_refresh:android_swipe_refresh_java",
-     "//third_party/blink/public:blink_headers_java",
 --- a/chrome/android/chrome_java_sources.gni
 +++ b/chrome/android/chrome_java_sources.gni
 @@ -15,7 +15,6 @@ chrome_java_sources = [
@@ -36,7 +23,7 @@ Subject: kill GCM
    "java/src/org/chromium/chrome/browser/ChromeBackupAgentImpl.java",
    "java/src/org/chromium/chrome/browser/ChromeBackupWatcher.java",
    "java/src/org/chromium/chrome/browser/ChromeBaseAppCompatActivity.java",
-@@ -1217,10 +1216,6 @@ chrome_java_sources = [
+@@ -1205,10 +1204,6 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/searchwidget/SearchWidgetProvider.java",
    "java/src/org/chromium/chrome/browser/send_tab_to_self/SendTabToSelfShareActivity.java",
    "java/src/org/chromium/chrome/browser/services/AccountsChangedReceiver.java",
@@ -73,20 +60,10 @@ Subject: kill GCM
      <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT"/>
  
      <uses-permission android:name="com.google.android.apps.now.CURRENT_ACCOUNT_ACCESS" />
-@@ -935,36 +930,6 @@ by a child template that "extends" this
+@@ -944,25 +939,6 @@ by a child template that "extends" this
              android:configChanges="orientation|keyboardHidden|keyboard|screenSize|mcc|mnc|screenLayout|smallestScreenSize"
              android:hardwareAccelerated="false" />
  
--        <!-- Receiver for GCM messages. -->
--        <receiver android:name="com.google.android.gms.gcm.GcmReceiver"
--            android:exported="true"
--            android:permission="com.google.android.c2dm.permission.SEND">
--            <intent-filter>
--                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
--                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
--               <category android:name="{{ manifest_package }}"/>
--            </intent-filter>
--        </receiver>
 -        <!-- GcmTaskService for registration for Invalidations. Not actually implemented anymore. -->
 -        <service android:name="com.google.ipc.invalidation.ticl.android2.channel.GcmRegistrationTaskService"
 -            android:exported="true"
@@ -99,18 +76,17 @@ Subject: kill GCM
 -        <service android:name="org.chromium.chrome.browser.services.gcm.ChromeGcmListenerService"
 -            android:exported="false" >
 -            <intent-filter>
--              <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
 -            </intent-filter>
 -        </service>
 -        <service android:name="org.chromium.chrome.browser.services.gcm.GCMBackgroundService"
 -            android:exported="false"/>
 -        <service android:name="org.chromium.chrome.browser.services.gcm.InvalidationGcmUpstreamSender"
 -            android:exported="false"/>
--
+ 
          <!-- Android Notification service listener -->
          <service android:name="org.chromium.chrome.browser.notifications.NotificationService"
-             android:exported="false"/>
-@@ -988,28 +953,10 @@ by a child template that "extends" this
+@@ -987,28 +963,10 @@ by a child template that "extends" this
              android:exported="false"
              android:permission="android.permission.BIND_JOB_SERVICE"/>
  
@@ -141,7 +117,7 @@ Subject: kill GCM
              tools:ignore="ExportedService" />
 --- a/chrome/android/java/src/org/chromium/chrome/browser/background_task_scheduler/ChromeBackgroundTaskFactory.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/background_task_scheduler/ChromeBackgroundTaskFactory.java
-@@ -20,7 +20,6 @@ import org.chromium.chrome.browser.offli
+@@ -18,7 +18,6 @@ import org.chromium.chrome.browser.offli
  import org.chromium.chrome.browser.offlinepages.prefetch.OfflineNotificationBackgroundTask;
  import org.chromium.chrome.browser.offlinepages.prefetch.PrefetchBackgroundTask;
  import org.chromium.chrome.browser.omaha.OmahaService;
@@ -149,7 +125,7 @@ Subject: kill GCM
  import org.chromium.chrome.browser.webapps.WebApkUpdateTask;
  import org.chromium.components.background_task_scheduler.BackgroundTask;
  import org.chromium.components.background_task_scheduler.BackgroundTaskFactory;
-@@ -60,8 +59,6 @@ public class ChromeBackgroundTaskFactory
+@@ -59,8 +58,6 @@ public class ChromeBackgroundTaskFactory
          switch (taskId) {
              case TaskIds.OMAHA_JOB_ID:
                  return new OmahaService();
@@ -167,16 +143,6 @@ Subject: kill GCM
 -        ChromeGcmListenerServiceImpl.dispatchMessageToDriver(message);
          return false;
      }
- 
---- a/components/gcm_driver/android/BUILD.gn
-+++ b/components/gcm_driver/android/BUILD.gn
-@@ -15,7 +15,6 @@ android_library("gcm_driver_java") {
-     "//content/public/android:content_java",
-     "//third_party/android_deps:androidx_annotation_annotation_java",
-     "//third_party/android_deps:com_google_code_findbugs_jsr305_java",
--    "//third_party/android_sdk:android_gcm_java",
-   ]
-   annotation_processor_deps = [ "//base/android/jni_generator:jni_processor" ]
  
 --- a/components/gcm_driver/instance_id/android/BUILD.gn
 +++ b/components/gcm_driver/instance_id/android/BUILD.gn
@@ -291,16 +257,6 @@ Subject: kill GCM
                      return doBackgroundWork();
                  }
                  @Override
---- a/components/sync/android/BUILD.gn
-+++ b/components/sync/android/BUILD.gn
-@@ -13,7 +13,6 @@ android_library("sync_java") {
-     "//net/android:net_java",
-     "//third_party/android_deps:androidx_annotation_annotation_java",
-     "//third_party/android_deps:com_google_code_findbugs_jsr305_java",
--    "//third_party/android_sdk:android_gcm_java",
-   ]
-   annotation_processor_deps = [ "//base/android/jni_generator:jni_processor" ]
-   srcjar_deps = [ ":java_enums" ]
 --- a/components/background_task_scheduler/internal/android/java/src/org/chromium/components/background_task_scheduler/internal/BackgroundTaskGcmTaskService.java
 +++ b/components/background_task_scheduler/internal/android/java/src/org/chromium/components/background_task_scheduler/internal/BackgroundTaskGcmTaskService.java
 @@ -8,10 +8,6 @@ import android.os.Build;

@@ -56,7 +56,7 @@ Subject: Add option to not persist tabs across sessions
  </PreferenceScreen>
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-@@ -1117,8 +1117,10 @@ public class ChromeTabbedActivity extend
+@@ -1128,8 +1128,10 @@ public class ChromeTabbedActivity extend
              boolean hadCipherData =
                      CipherFactory.getInstance().restoreFromBundle(getSavedInstanceState());
  
@@ -67,7 +67,7 @@ Subject: Add option to not persist tabs across sessions
 +                ContextUtils.getAppSharedPreferences().getBoolean(PREF_CLOSE_TABS_ON_EXIT, false);
              if (noRestoreState) {
                  // Clear the state files because they are inconsistent and useless from now on.
-                 mTabModelSelectorImpl.clearState();
+                 mTabModelOrchestrator.clearState();
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 @@ -5,6 +5,7 @@
@@ -87,7 +87,7 @@ Subject: Add option to not persist tabs across sessions
  import org.chromium.chrome.R;
  import org.chromium.chrome.browser.feedback.HelpAndFeedbackLauncherImpl;
  import org.chromium.chrome.browser.flags.ChromeFeatureList;
-@@ -51,8 +54,10 @@ public class PrivacySettings
+@@ -54,8 +57,10 @@ public class PrivacySettings
      private static final String PREF_SAFE_BROWSING = "safe_browsing";
      private static final String PREF_CLEAR_BROWSING_DATA = "clear_browsing_data";
      private static final String PREF_PRIVACY_SANDBOX = "privacy_sandbox";
@@ -98,7 +98,7 @@ Subject: Add option to not persist tabs across sessions
              PREF_SECURE_DNS, PREF_DO_NOT_TRACK, PREF_PRIVACY_SANDBOX};
  
      private ManagedPreferenceDelegate mManagedPreferenceDelegate;
-@@ -151,7 +156,11 @@ public class PrivacySettings
+@@ -166,7 +171,11 @@ public class PrivacySettings
      @Override
      public boolean onPreferenceChange(Preference preference, Object newValue) {
          String key = preference.getKey();
@@ -111,9 +111,9 @@ Subject: Add option to not persist tabs across sessions
              UserPrefs.get(Profile.getLastUsedRegularProfile())
                      .setBoolean(Pref.CAN_MAKE_PAYMENT_ENABLED, (boolean) newValue);
          } else if (PREF_NETWORK_PREDICTIONS.equals(key)) {
-@@ -215,6 +224,11 @@ public class PrivacySettings
-                 getPreferenceScreen().removePreference(usageStatsPref);
-             }
+@@ -236,6 +245,11 @@ public class PrivacySettings
+             privacySandboxPreference.setSummary(
+                     PrivacySandboxSettingsFragment.getStatusString(getContext()));
          }
 +
 +        ChromeSwitchPreference closeTabsOnExitPref =
@@ -125,7 +125,7 @@ Subject: Add option to not persist tabs across sessions
      private ChromeManagedPreferenceDelegate createManagedPreferenceDelegate() {
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -3771,6 +3771,12 @@ Data from your Incognito session will on
+@@ -3803,6 +3803,12 @@ Data from your Incognito session will on
        <message name="IDS_CONTEXTMENU_IMAGE_TITLE" desc="The title of a context menu tab when the item pressed contains more than one type. This indicates that all the actions are related to the image.">
          IMAGE
        </message>

@@ -3,8 +3,8 @@ Date: Fri, 22 Jun 2018 17:06:15 +0200
 Subject: kill Auth
 
 ---
- chrome/browser/signin/services/android/java/src/org/chromium/chrome/browser/signin/services/SigninHelper.java    |   19 ----
- components/signin/core/browser/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java |   42 ----------
+ chrome/browser/signin/services/android/java/src/org/chromium/chrome/browser/signin/services/SigninHelper.java |   19 ----
+ components/signin/public/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java    |   42 ----------
  2 files changed, 3 insertions(+), 58 deletions(-)
 
 --- a/chrome/browser/signin/services/android/java/src/org/chromium/chrome/browser/signin/services/SigninHelper.java
@@ -42,8 +42,8 @@ Subject: kill Auth
              return new ArrayList<>(0);
          }
      }
---- a/components/signin/core/browser/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java
-+++ b/components/signin/core/browser/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java
+--- a/components/signin/public/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java
++++ b/components/signin/public/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java
 @@ -26,11 +26,6 @@ import android.os.SystemClock;
  
  import androidx.annotation.Nullable;

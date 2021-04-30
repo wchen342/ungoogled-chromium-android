@@ -4,7 +4,8 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
 
 ---
  chrome/android/BUILD.gn                                                                                                     |    1 
- chrome/android/java/src/org/chromium/chrome/browser/language/AppLocaleUtils.java                                            |   23 ----
+ chrome/browser/language/android/BUILD.gn                                                                                    |    1 
+ chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/AppLocaleUtils.java                           |   12 --
  components/module_installer/android/BUILD.gn                                                                                |    2 
  components/module_installer/android/java/src/org/chromium/components/module_installer/engine/FakeEngine.java                |   13 --
  components/module_installer/android/java/src/org/chromium/components/module_installer/engine/SplitCompatEngine.java         |   50 ----------
@@ -16,7 +17,7 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
  components/module_installer/android/java/src/org/chromium/components/module_installer/logger/SplitInstallStatusLogger.java  |   27 -----
  components/module_installer/android/java/src/org/chromium/components/module_installer/util/CrashKeyRecorder.java            |    6 -
  components/module_installer/android/java/src/org/chromium/components/module_installer/util/SplitCompatInitializer.java      |    5 -
- 13 files changed, 18 insertions(+), 230 deletions(-)
+ 14 files changed, 17 insertions(+), 221 deletions(-)
 
 --- a/components/module_installer/android/java/src/org/chromium/components/module_installer/engine/FakeEngine.java
 +++ b/components/module_installer/android/java/src/org/chromium/components/module_installer/engine/FakeEngine.java
@@ -513,7 +514,7 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
 @@ -37,7 +37,6 @@ android_library("module_installer_java")
      "//base:jni_java",
      "//components/crash/android:java",
-     "//third_party/android_deps:androidx_annotation_annotation_java",
+     "//third_party/androidx:androidx_annotation_annotation_java",
 -    "//third_party/google_android_play_core:com_google_android_play_core_java",
    ]
  
@@ -526,29 +527,19 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
      "//third_party/hamcrest:hamcrest_java",
    ]
  }
---- a/chrome/android/java/src/org/chromium/chrome/browser/language/AppLocaleUtils.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/language/AppLocaleUtils.java
-@@ -8,11 +8,6 @@ import android.content.Context;
+--- a/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/AppLocaleUtils.java
++++ b/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/AppLocaleUtils.java
+@@ -8,9 +8,6 @@ import android.content.Context;
  import android.preference.PreferenceManager;
  import android.text.TextUtils;
  
--import com.google.android.play.core.splitcompat.SplitCompat;
 -import com.google.android.play.core.splitinstall.SplitInstallManager;
 -import com.google.android.play.core.splitinstall.SplitInstallManagerFactory;
 -import com.google.android.play.core.splitinstall.SplitInstallRequest;
--
+ 
  import org.chromium.base.BundleUtils;
  import org.chromium.base.ContextUtils;
- import org.chromium.base.Log;
-@@ -86,7 +81,6 @@ public class AppLocaleUtils {
-                     GlobalAppLocaleController.getInstance().isOverridden(), BundleUtils.isBundle());
-             Log.i(TAG, "Override Locale: %s", getAppLanguagePref());
-             logInstalledLanguages(context);
--            SplitCompat.installActivity(context);
-             logInstalledLanguages(context);
-         }
-     }
-@@ -95,17 +89,8 @@ public class AppLocaleUtils {
+@@ -78,16 +75,7 @@ public class AppLocaleUtils {
       * For bundle builds ensure that the language split for languageName is downloaded.
       */
      private static void ensureLanguageSplitInstalled(String languageName) {
@@ -564,29 +555,24 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
 -            splitInstallManager.startInstall(installRequest);
 -        }
      }
- 
-     /**
-@@ -113,12 +98,6 @@ public class AppLocaleUtils {
-      * @param context Context to log installed languages on.
-      */
-     private static void logInstalledLanguages(Context context) {
--        if (BundleUtils.isBundle()) {
--            SplitInstallManager splitInstallManager = SplitInstallManagerFactory.create(context);
--            Log.i(TAG, "Installed Languages: %s",
--                    TextUtils.join(", ", splitInstallManager.getInstalledLanguages()));
--        } else {
--            Log.i(TAG, "Installed Languages: None - not a bundle");
--        }
-+        Log.i(TAG, "Installed Languages: None - not a bundle");
-     }
  }
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -2192,7 +2192,6 @@ android_library("base_module_java") {
-     "//third_party/android_deps:androidx_annotation_annotation_java",
-     "//third_party/android_deps:androidx_collection_collection_java",
-     "//third_party/android_deps:androidx_fragment_fragment_java",
+@@ -2238,7 +2238,6 @@ android_library("base_module_java") {
+     "//third_party/androidx:androidx_annotation_annotation_java",
+     "//third_party/androidx:androidx_collection_collection_java",
+     "//third_party/androidx:androidx_fragment_fragment_java",
 -    "//third_party/google_android_play_core:com_google_android_play_core_java",
      "//ui/android:ui_no_recycler_view_java",
  
      # Deps needed for child processes.
+--- a/chrome/browser/language/android/BUILD.gn
++++ b/chrome/browser/language/android/BUILD.gn
+@@ -13,7 +13,6 @@ android_library("base_module_java") {
+   deps = [
+     "//base:base_java",
+     "//chrome/browser/preferences:java",
+-    "//third_party/google_android_play_core:com_google_android_play_core_java",
+   ]
+ }
+ 
