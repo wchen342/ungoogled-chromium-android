@@ -15,8 +15,8 @@ author: Wengling Chen <feiyu2817@gmail.com>
  fieldtrial_testing_like_official_build=true
  google_api_key=""
  google_default_client_id=""
---- a/pruning.list
-+++ b/pruning.list
+--- a/ungoogled-chromium/pruning.list
++++ b/ungoogled-chromium/pruning.list
 @@ -17462,7 +17462,6 @@ third_party/pyelftools/test/testfiles_for_unittests/simple_gcc.elf.arm
  third_party/pywebsocket3/src/test/cert/client_cert.p12
  third_party/quic_trace/src/examples/example.json.gz

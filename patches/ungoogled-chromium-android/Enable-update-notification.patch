@@ -411,7 +411,7 @@
          Update Chrome
 --- a/chrome/browser/flag-metadata.json
 +++ b/chrome/browser/flag-metadata.json
-@@ -1919,7 +1919,7 @@
+@@ -1924,7 +1924,7 @@
    {
      "name": "enable-inline-update-flow",
      "owners": [ "nyquist", "dtrainor" ],

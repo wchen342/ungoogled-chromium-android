@@ -82,8 +82,12 @@ if [[ "$TARGET" != "chrome_modern_target" ]] && [[ "$TARGET" != "trichrome_chrom
 fi
 
 # 64-bit TriChrome
-if [[ "$ARCH" == "arm64" ]] && [[ "$TARGET" == "trichrome_chrome_bundle_target" ]]; then
-  TARGET_EXPANDED=${trichrome_chrome_64_bundle_target}
+if [[ "$ARCH" == "arm64" ]]; then
+  if [[ "$TARGET" == "trichrome_chrome_bundle_target" ]]; then
+    TARGET_EXPANDED=${trichrome_chrome_64_bundle_target}
+  elif [[ "$TARGET" == "trichrome_webview_target" ]]; then
+    TARGET_EXPANDED=trichrome_webview_64_target
+  fi
 else
   TARGET_EXPANDED=${!TARGET}
 fi
@@ -235,17 +239,6 @@ fi
 python3 ungoogled-chromium/utils/prune_binaries.py src ungoogled-chromium/pruning.list || true
 python3 ungoogled-chromium/utils/patches.py apply src ungoogled-chromium/patches
 python3 ungoogled-chromium/utils/domain_substitution.py apply -r ungoogled-chromium/domain_regex.list -f ungoogled-chromium/domain_substitution.list -c ${cache_file} src
-
-
-# Workaround for a building failure caused by safe browsing. The file is pre-generated with safe_browsing_mode=2. See https://github.com/nikolowry/bromite-builder/issues/1
-cp safe_browsing_proto_files/download_file_types.pb.h src/chrome/common/safe_browsing/download_file_types.pb.h
-cp safe_browsing_proto_files/webprotect.pb.h src/components/safe_browsing/core/proto/webprotect.pb.h
-# Copy overlay jars built from
-# //third_party/android_deps/local_modifications/androidx_fragment_fragment:androidx_fragment_fragment_partial_java
-# and
-# //third_party/android_deps/local_modifications/androidx_preference_preference:androidx_preference_preference_partial_java
-cp prebuilt_jar/androidx_fragment_fragment/androidx_fragment_fragment_java.jar src/third_party/android_deps/local_modifications/androidx_fragment_fragment
-cp prebuilt_jar/androidx_preference_preference/androidx_preference_preference_java.jar src/third_party/android_deps/local_modifications/androidx_preference_preference
 
 
 ## Prepare Android SDK/NDK

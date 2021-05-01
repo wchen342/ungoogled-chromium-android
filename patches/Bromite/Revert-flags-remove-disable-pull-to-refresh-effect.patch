@@ -12,7 +12,7 @@ This reverts commit 4e598f38a0e6dd3dbede009c6a99b2a520a94e1f.
 
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -3262,6 +3262,10 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -3267,6 +3267,10 @@ const FeatureEntry kFeatureEntries[] = {
       SINGLE_VALUE_TYPE(switches::kHostedAppQuitNotification)},
  #endif  // OS_MAC
  #if defined(OS_ANDROID)
@@ -25,7 +25,7 @@ This reverts commit 4e598f38a0e6dd3dbede009c6a99b2a520a94e1f.
       flag_descriptions::kTranslateForceTriggerOnEnglishDescription, kOsAndroid,
 --- a/chrome/browser/flag-metadata.json
 +++ b/chrome/browser/flag-metadata.json
-@@ -1092,6 +1092,11 @@
+@@ -1097,6 +1097,11 @@
      "expiry_milestone": -1
    },
    {
@@ -39,7 +39,7 @@ This reverts commit 4e598f38a0e6dd3dbede009c6a99b2a520a94e1f.
      "expiry_milestone": 83
 --- a/chrome/browser/flag_descriptions.cc
 +++ b/chrome/browser/flag_descriptions.cc
-@@ -3236,6 +3236,10 @@ const char kReadLaterDescription[] =
+@@ -3240,6 +3240,10 @@ const char kReadLaterDescription[] =
      "Allow users to save tabs for later. Enables a new button and menu for "
      "accessing tabs saved for later.";
  
@@ -52,7 +52,7 @@ This reverts commit 4e598f38a0e6dd3dbede009c6a99b2a520a94e1f.
      "Determines what pages the Reader Mode infobar is shown on.";
 --- a/chrome/browser/flag_descriptions.h
 +++ b/chrome/browser/flag_descriptions.h
-@@ -1873,6 +1873,9 @@ extern const char kQueryTilesMoreTrendin
+@@ -1876,6 +1876,9 @@ extern const char kQueryTilesMoreTrendin
  extern const char kQueryTilesSwapTrendingName[];
  extern const char kQueryTilesSwapTrendingDescription[];
  

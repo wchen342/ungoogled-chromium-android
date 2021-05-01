@@ -6,9 +6,10 @@ trichrome_chrome_64_bundle_target=trichrome_chrome_64_bundle
 trichrome_chrome_apk_target=trichrome_library_apk
 webview_target=system_webview_apk
 trichrome_webview_target=trichrome_webview_apk
+trichrome_webview_64_target=trichrome_webview_64_apk
 all=all
 
-chromium_version=90.0.4430.72
-ungoogled_chromium_version=90.0.4430.72
+chromium_version=90.0.4430.93
+ungoogled_chromium_version=90.0.4430.93
 ungoogled_chromium_revision=1
 ungoogled_chromium_android_revision=1
