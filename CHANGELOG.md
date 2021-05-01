@@ -1,3 +1,9 @@
+# 90.0.4430.93-1
+* Add 64-bit webview for Trichrome
+* Disable inline update by default
+* Remove "Safety Check" and proactive help
+* Disable TFLite
+
 # 89.0.4389.114-2
 * Fix Trichrome
 

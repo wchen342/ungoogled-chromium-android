@@ -86,7 +86,9 @@ if [[ "$ARCH" == "arm64" ]]; then
   if [[ "$TARGET" == "trichrome_chrome_bundle_target" ]]; then
     TARGET_EXPANDED=${trichrome_chrome_64_bundle_target}
   elif [[ "$TARGET" == "trichrome_webview_target" ]]; then
-    TARGET_EXPANDED=trichrome_webview_64_target
+    TARGET_EXPANDED=${trichrome_webview_64_target}
+  else
+    TARGET_EXPANDED=${!TARGET}
   fi
 else
   TARGET_EXPANDED=${!TARGET}
