@@ -70,7 +70,8 @@ if [[ "$ARCH" != "arm64" ]] && [[ "$ARCH" != "arm" ]] && [[ "$ARCH" != "x86" ]];
     exit 4
 fi
 
-if [[ "$TARGET" != "$chrome_modern_target" ]] && [[ "$TARGET" != "$trichrome_chrome_bundle_target" ]] && [[ "$TARGET" != "$trichrome_chrome_64_bundle_target" ]]; then
+if [[ "$TARGET" != "$chrome_modern_target" ]] && [[ "$TARGET" != "$trichrome_chrome_bundle_target" ]] && [[ "$TARGET" != "$trichrome_chrome_64_bundle_target" ]] \
+    && [[ "$TARGET" != "$trichrome_webview_target" ]] && [[ "$TARGET" != "$trichrome_webview_64_target" ]]; then
     echo "Wrong target"
     exit 4
 fi
@@ -107,19 +108,21 @@ rm -rf release
 mkdir release
 cd release
 
-$BUNDLETOOL build-apks --aapt2 $AAPT2 --bundle ../"$FILENAME".aab --output "$FILENAME".apks --mode=universal --ks $KEYSTORE --ks-pass file:$KEYSTORE_PASS --ks-key-alias uc
-unzip "$FILENAME".apks universal.apk
-mv universal.apk "${FILENAME_OUT}".apk
-$APKSIGNER sign --ks $KEYSTORE --ks-pass file:$KEYSTORE_PASS --ks-key-alias uc --in "${FILENAME_OUT}".apk --out "${FILENAME_OUT}".apk
+if [[ "$TARGET" != "$trichrome_webview_target" ]] && [[ "$TARGET" != "$trichrome_webview_64_target" ]]; then
+    $BUNDLETOOL build-apks --aapt2 $AAPT2 --bundle ../"$FILENAME".aab --output "$FILENAME".apks --mode=universal --ks $KEYSTORE --ks-pass file:$KEYSTORE_PASS --ks-key-alias uc
+    unzip "$FILENAME".apks universal.apk
+    mv universal.apk "${FILENAME_OUT}".apk
+    $APKSIGNER sign --ks $KEYSTORE --ks-pass file:$KEYSTORE_PASS --ks-key-alias uc --in "${FILENAME_OUT}".apk --out "${FILENAME_OUT}".apk
+fi
 
-if [[ "$TARGET" == "$trichrome_chrome_bundle_target" ]]; then
+if [[ "$TARGET" == "$trichrome_chrome_bundle_target" ]] || [[ "$TARGET" == "$trichrome_webview_target" ]]; then
     for app in TrichromeLibrary TrichromeWebView; do
         if [ -f "../${app}.apk" ]; then
             $APKSIGNER sign --ks $KEYSTORE --ks-pass file:$KEYSTORE_PASS --ks-key-alias uc --in "../${app}.apk" --out "${app}.apk"
         fi
     done
 fi
-if [[ "$TARGET" == "$trichrome_chrome_64_bundle_target" ]]; then
+if [[ "$TARGET" == "$trichrome_chrome_64_bundle_target" ]] || [[ "$TARGET" == "$trichrome_webview_64_target" ]]; then
     for app in TrichromeLibrary TrichromeWebView; do
         if [ -f "../${app}64.apk" ]; then
             $APKSIGNER sign --ks $KEYSTORE --ks-pass file:$KEYSTORE_PASS --ks-key-alias uc --in "../${app}64.apk" --out "${app}.apk"

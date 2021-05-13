@@ -8,13 +8,13 @@ Set proper injection script nonce
 Send a random key press to circumvent idle status detection
 ---
  third_party/blink/renderer/core/dom/build.gni                  |    2 
- third_party/blink/renderer/core/dom/document.cc                |   62 ++++++++++
+ third_party/blink/renderer/core/dom/document.cc                |   61 ++++++++++
  third_party/blink/renderer/core/dom/document.h                 |    3 
  third_party/blink/renderer/core/dom/extensions/anti_amp_cure.h |    6 
  third_party/blink/renderer/core/dom/extensions/video_bg_play.h |    6 
  third_party/blink/renderer/core/html/html_script_element.cc    |    5 
  third_party/blink/renderer/core/html/html_script_element.h     |    1 
- 7 files changed, 85 insertions(+)
+ 7 files changed, 84 insertions(+)
  create mode 100644 third_party/blink/renderer/core/dom/extensions/anti_amp_cure.h
  create mode 100644 third_party/blink/renderer/core/dom/extensions/video_bg_play.h
 
@@ -110,14 +110,13 @@ Send a random key press to circumvent idle status detection
  void Document::FinishedParsing() {
    DCHECK(!GetScriptableDocumentParser() || !parser_->IsParsing());
    DCHECK(!GetScriptableDocumentParser() || ready_state_ != kLoading);
-@@ -6920,6 +6978,10 @@ void Document::FinishedParsing() {
+@@ -6920,6 +6978,9 @@ void Document::FinishedParsing() {
  
      frame->Loader().FinishedParsing();
  
 +    if (!IsPrefetchOnly()) {
-+       injectScripts();
++      injectScripts();
 +    }
-+
      TRACE_EVENT_INSTANT1("devtools.timeline", "MarkDOMContent",
                           TRACE_EVENT_SCOPE_THREAD, "data",
                           inspector_mark_load_event::Data(frame));

@@ -362,7 +362,7 @@ mkdir "${apk_out_folder}"
 pushd src
 if [[ "$TARGET" != "all" ]]; then
   ninja -C "${output_folder}" "${TARGET_EXPANDED}"
-  if [[ "$TARGET" == "trichrome_chrome_bundle_target" ]] || [[ "$TARGET" == "chrome_modern_target" ]]; then
+  if [[ "$TARGET" == "trichrome_chrome_bundle_target" ]] || [[ "$TARGET" == "chrome_modern_target" ]] || [[ "$TARGET" == "trichrome_webview_target" ]]; then
     ../bundle_generate_apk.sh -o "${output_folder}" -a "${ARCH}" -t "${TARGET_EXPANDED}"
   fi
   find . -iname "*.apk" -exec cp -f {} ../"${apk_out_folder}" \;

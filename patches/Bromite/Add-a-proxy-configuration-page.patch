@@ -10,7 +10,7 @@ Store proxy settings in LocalState instead of Profile, so that proxy is used
 for SimpleURLLoaders as well.
 ---
  chrome/android/java/res/values/values.xml                                                 |    3 
- chrome/android/java/res/xml/privacy_preferences.xml                                       |    4 
+ chrome/android/java/res/xml/privacy_preferences.xml                                       |   11 
  chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java |    3 
  chrome/browser/autocomplete/chrome_autocomplete_provider_client.cc                        |    2 
  chrome/browser/browser_resources.grd                                                      |    6 
@@ -33,7 +33,7 @@ for SimpleURLLoaders as well.
  components/proxy_config/proxy_config_dictionary.h                                         |    7 
  net/proxy_resolution/proxy_config.cc                                                      |   52 +
  net/proxy_resolution/proxy_config.h                                                       |    3 
- 24 files changed, 995 insertions(+), 15 deletions(-)
+ 24 files changed, 999 insertions(+), 18 deletions(-)
  create mode 100644 chrome/browser/resources/proxy_config.css
  create mode 100644 chrome/browser/resources/proxy_config.html
  create mode 100644 chrome/browser/resources/proxy_config.js
@@ -54,31 +54,51 @@ for SimpleURLLoaders as well.
      <integer name="download_infobar_sweep_down_delay">800</integer>
 --- a/chrome/android/java/res/xml/privacy_preferences.xml
 +++ b/chrome/android/java/res/xml/privacy_preferences.xml
-@@ -7,6 +7,10 @@
-     xmlns:app="http://schemas.android.com/apk/res-auto"
-     android:orderingFromXml="false">
- 
+@@ -39,21 +39,26 @@
+         android:title="@string/settings_secure_dns_title"
+         android:fragment="org.chromium.chrome.browser.privacy.secure_dns.SecureDnsSettings"
+         android:order="5"/>
 +    <org.chromium.chrome.browser.about_settings.HyperlinkPreference
 +        android:key="proxy"
 +        android:title="@string/proxy_title"
-+        app:url="@string/proxy_url" />
-     <org.chromium.components.browser_ui.settings.ChromeSwitchPreference
-         android:key="can_make_payment"
-         android:title="@string/can_make_payment_title"
++        app:url="@string/proxy_url"
++        android:order="6"/>
+     <Preference
+         android:key="clear_browsing_data"
+         android:title="@string/clear_browsing_data_title"
+         android:summary="@string/clear_browsing_data_summary"
+         android:fragment="org.chromium.chrome.browser.browsing_data.ClearBrowsingDataTabsFragment"
+-        android:order="6"/>
++        android:order="7"/>
+     <Preference
+         android:key="safe_browsing"
+         android:title="@string/prefs_safe_browsing_title"
+         android:summary="@string/prefs_safe_browsing_summary"
+         android:fragment="org.chromium.chrome.browser.safe_browsing.settings.SafeBrowsingSettingsFragment"
+-        android:order="7"/>
++        android:order="8"/>
+     <Preference
+         android:key="privacy_sandbox"
+         android:title="@string/prefs_privacy_sandbox"
+         android:fragment="org.chromium.chrome.browser.privacy_sandbox.PrivacySandboxSettingsFragment"
+-        android:order="8"/>
++        android:order="9"/>
+ </PreferenceScreen>
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-@@ -58,9 +58,10 @@ public class PrivacySettings
+@@ -57,10 +57,11 @@ public class PrivacySettings
+     private static final String PREF_SAFE_BROWSING = "safe_browsing";
      private static final String PREF_CLEAR_BROWSING_DATA = "clear_browsing_data";
-     private static final String PREF_PRIVACY_SANDBOX = "privacy_sandbox";
      private static final String PREF_CLOSE_TABS_ON_EXIT = "close_tabs_on_exit";
 +    private static final String PREF_PROXY_OPTIONS = "proxy";
+     private static final String PREF_PRIVACY_SANDBOX = "privacy_sandbox";
      private static final String[] NEW_PRIVACY_PREFERENCE_ORDER = {PREF_CLEAR_BROWSING_DATA,
              PREF_SAFE_BROWSING, PREF_CAN_MAKE_PAYMENT, PREF_NETWORK_PREDICTIONS, PREF_USAGE_STATS,
--            PREF_CLOSE_TABS_ON_EXIT,
-+            PREF_CLOSE_TABS_ON_EXIT, PREF_PROXY_OPTIONS,
-             PREF_SECURE_DNS, PREF_DO_NOT_TRACK, PREF_PRIVACY_SANDBOX};
+-            PREF_SECURE_DNS, PREF_CLOSE_TABS_ON_EXIT, PREF_DO_NOT_TRACK, PREF_PRIVACY_SANDBOX};
++            PREF_SECURE_DNS, PREF_CLOSE_TABS_ON_EXIT, PREF_PROXY_OPTIONS, PREF_DO_NOT_TRACK, PREF_PRIVACY_SANDBOX};
  
      private ManagedPreferenceDelegate mManagedPreferenceDelegate;
+ 
 --- a/chrome/browser/autocomplete/chrome_autocomplete_provider_client.cc
 +++ b/chrome/browser/autocomplete/chrome_autocomplete_provider_client.cc
 @@ -331,6 +331,8 @@ std::vector<base::string16>
@@ -169,14 +189,14 @@ for SimpleURLLoaders as well.
  };
 --- a/chrome/browser/prefs/browser_prefs.cc
 +++ b/chrome/browser/prefs/browser_prefs.cc
-@@ -411,6 +411,8 @@
- #include "chrome/browser/media/feeds/media_feeds_service.h"
- #endif
+@@ -155,6 +155,8 @@
+ #include "printing/buildflags/buildflags.h"
+ #include "rlz/buildflags/buildflags.h"
  
 +#include "chrome/browser/net/proxy_service_factory.h"
 +
- #if BUILDFLAG(ENABLE_SESSION_SERVICE)
- #include "chrome/browser/sessions/session_service_log.h"
+ #if BUILDFLAG(ENABLE_BACKGROUND_MODE)
+ #include "chrome/browser/background/background_mode_manager.h"
  #endif
 @@ -744,6 +746,8 @@ void RegisterLocalState(PrefRegistrySimp
    PluginsResourceService::RegisterPrefs(registry);
@@ -543,14 +563,14 @@ for SimpleURLLoaders as well.
 +    renderConfig_: function() {
 +      if (this.currentConfig.auto_detect) {
 +        $(kIdModeAutoDetect).checked = true;
-+      } else if (this.currentConfig.rules.type == "none") {
-+        $(kIdModeEmpty).checked = true;
-+      } else if (this.currentConfig.rules.type == "direct") {
-+        $(kIdModeDirect).checked = true;
 +      } else if (this.currentConfig.hasOwnProperty('pac_url')) {
 +        $(kIdPacURL).value = this.currentConfig.pac_url;
 +        $(kIdPacMandatory).checked = this.currentConfig.pac_mandatory;
 +        $(kIdModeUsePacURL).checked = true;
++      } else if (this.currentConfig.rules.type == "none") {
++        $(kIdModeEmpty).checked = true;
++      } else if (this.currentConfig.rules.type == "direct") {
++        $(kIdModeDirect).checked = true;
 +      } else {
 +        $(kIdBypassRules).value = this.currentConfig.rules.bypass_rules;
 +        $(kIdReverseBypass).checked = this.currentConfig.rules.reverse_bypass;

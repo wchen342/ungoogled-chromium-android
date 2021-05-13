@@ -108,15 +108,15 @@ legacy acceleration events.
  CONTENT_EXPORT extern const base::Feature
 --- a/third_party/blink/public/platform/web_runtime_features.h
 +++ b/third_party/blink/public/platform/web_runtime_features.h
-@@ -104,6 +104,8 @@ class WebRuntimeFeatures {
-   BLINK_PLATFORM_EXPORT static void EnableCSSHexAlphaColor(bool);
-   BLINK_PLATFORM_EXPORT static void EnableSameSiteByDefaultCookies(bool);
-   BLINK_PLATFORM_EXPORT static void EnableScrollTopLeftInterop(bool);
+@@ -100,6 +100,8 @@ class WebRuntimeFeatures {
+   BLINK_PLATFORM_EXPORT static void EnableCookiesWithoutSameSiteMustBeSecure(
+       bool);
+   BLINK_PLATFORM_EXPORT static void EnableCanvas2dImageChromium(bool);
 +  BLINK_PLATFORM_EXPORT static void EnableDeviceMotion(bool);
 +  BLINK_PLATFORM_EXPORT static void EnableDeviceOrientation(bool);
-   BLINK_PLATFORM_EXPORT static void EnableKeyboardAccessibleTooltip(bool);
-   BLINK_PLATFORM_EXPORT static void EnableKeyboardFocusableScrollers(bool);
-   BLINK_PLATFORM_EXPORT static void EnableDatabase(bool);
+   BLINK_PLATFORM_EXPORT static void EnableCooperativeScheduling(bool);
+   BLINK_PLATFORM_EXPORT static void EnableCSSHexAlphaColor(bool);
+   BLINK_PLATFORM_EXPORT static void EnableSameSiteByDefaultCookies(bool);
 --- a/third_party/blink/renderer/modules/modules_initializer.cc
 +++ b/third_party/blink/renderer/modules/modules_initializer.cc
 @@ -222,9 +222,13 @@ void ModulesInitializer::OnClearWindowOb

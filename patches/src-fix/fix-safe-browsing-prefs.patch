@@ -300,7 +300,7 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
    ]
 --- a/chrome/browser/android/tab_web_contents_delegate_android.cc
 +++ b/chrome/browser/android/tab_web_contents_delegate_android.cc
-@@ -171,8 +171,6 @@ void TabWebContentsDelegateAndroid::Port
+@@ -172,8 +172,6 @@ void TabWebContentsDelegateAndroid::Port
    InfoBarService::CreateForWebContents(portal_contents);
    PrefsTabHelper::CreateForWebContents(portal_contents);
    DataReductionProxyTabHelper::CreateForWebContents(portal_contents);
@@ -311,7 +311,7 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
  void TabWebContentsDelegateAndroid::RunFileChooser(
 --- a/weblayer/browser/content_browser_client_impl.cc
 +++ b/weblayer/browser/content_browser_client_impl.cc
-@@ -492,8 +492,7 @@ ContentBrowserClientImpl::CreateURLLoade
+@@ -493,8 +493,7 @@ ContentBrowserClientImpl::CreateURLLoade
  #if defined(OS_ANDROID)
      BrowserContextImpl* browser_context_impl =
          static_cast<BrowserContextImpl*>(browser_context);
@@ -321,7 +321,7 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
  
      if (is_safe_browsing_enabled) {
        bool is_real_time_lookup_enabled =
-@@ -815,16 +814,6 @@ ContentBrowserClientImpl::CreateThrottle
+@@ -821,16 +820,6 @@ ContentBrowserClientImpl::CreateThrottle
  
  #if defined(OS_ANDROID)
    if (handle->IsInMainFrame()) {
@@ -338,7 +338,7 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
    }
  #endif
    return throttles;
-@@ -885,11 +874,6 @@ void ContentBrowserClientImpl::ExposeInt
+@@ -891,11 +880,6 @@ void ContentBrowserClientImpl::ExposeInt
        };
    registry->AddInterface(base::BindRepeating(create_spellcheck_host),
                           content::GetUIThreadTaskRunner({}));

@@ -4,13 +4,12 @@ Subject: Add exit menu item
 
 Corrected Exit functionality
 ---
- chrome/android/java/res/menu/main_menu.xml                                             |    5 +++++
- chrome/android/java/res/menu/main_menu_regroup.xml                                     |    3 +++
- chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java          |    3 +++
+ chrome/android/java/res/menu/main_menu.xml                                             |    6 ++++++
+ chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java          |    4 ++++
  chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java            |    6 ++++++
  chrome/android/java/src/org/chromium/chrome/browser/init/ChromeLifetimeController.java |    6 +++++-
  chrome/browser/ui/android/strings/android_chrome_strings.grd                           |    3 +++
- 6 files changed, 25 insertions(+), 1 deletion(-)
+ 5 files changed, 24 insertions(+), 1 deletion(-)
 
 --- a/chrome/android/java/res/menu/main_menu.xml
 +++ b/chrome/android/java/res/menu/main_menu.xml
@@ -24,38 +23,28 @@ Corrected Exit functionality
      </group>
  
      <!-- Items shown only in the tab switcher -->
-@@ -145,6 +148,8 @@
+@@ -145,6 +148,9 @@
          <item android:id="@id/preferences_id"
              android:title="@string/menu_settings"
              android:icon="@drawable/settings_cog" />
-+        <item android:id="@+id/exit_id"
-+            android:title="@string/menu_exit" />
-     </group>
- 
-     <!-- Items shown only in the tab switcher when start surface is enabled -->
---- a/chrome/android/java/res/menu/main_menu_regroup.xml
-+++ b/chrome/android/java/res/menu/main_menu_regroup.xml
-@@ -184,6 +184,9 @@
-             android:icon="@drawable/vr_headset" />
-         <item android:id="@+id/managed_by_menu_id"
-             android:title="@string/managed" />
 +        <item android:id="@+id/exit_id"
 +            android:title="@string/menu_exit"
 +            android:icon="@drawable/ic_exit_to_app_white_24dp" />
      </group>
  
-     <!-- Items shown only in the tab switcher -->
+     <!-- Items shown only in the tab switcher when start surface is enabled -->
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-@@ -58,6 +58,7 @@ import org.chromium.chrome.browser.Inten
- import org.chromium.chrome.browser.IntentHandler.TabOpenType;
- import org.chromium.chrome.browser.accessibility_tab_switcher.OverviewListLayout;
- import org.chromium.chrome.browser.app.ChromeActivity;
+@@ -191,6 +191,8 @@ import java.lang.annotation.RetentionPol
+ import java.util.List;
+ import java.util.Locale;
+ 
 +import org.chromium.chrome.browser.ApplicationLifetime;
- import org.chromium.chrome.browser.app.metrics.LaunchCauseMetrics;
- import org.chromium.chrome.browser.app.metrics.TabbedActivityLaunchCauseMetrics;
- import org.chromium.chrome.browser.app.tabmodel.AsyncTabParamsManagerSingleton;
-@@ -1858,6 +1859,8 @@ public class ChromeTabbedActivity extend
++
+ /**
+  * This is the main activity for ChromeMobile when not running in document mode.  All the tabs
+  * are accessible via a chrome specific tab switching UI.
+@@ -1858,6 +1860,8 @@ public class ChromeTabbedActivity extend
          } else if (id == R.id.close_tab) {
              getCurrentTabModel().closeTab(currentTab, true, false, true);
              RecordUserAction.record("MobileTabClosed");

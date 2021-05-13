@@ -1,3 +1,6 @@
+# 90.0.4430.212-1
+* Upstream security fixes
+
 # 90.0.4430.93-1
 * Add 64-bit webview for Trichrome
 * Disable inline update by default
