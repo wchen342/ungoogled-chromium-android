@@ -94,6 +94,14 @@ case "$TARGET" in
         FILENAME="TrichromeChrome64"
         FILENAME_OUT="TrichromeChrome"
         ;;
+    "$trichrome_webview_target")
+        FILENAME="TrichromeWebView"
+        FILENAME_OUT="TrichromeWebView"
+        ;;
+    "$trichrome_webview_64_target")
+        FILENAME="TrichromeWebView64"
+        FILENAME_OUT="TrichromeWebView"
+        ;;
     *)
         echo "Filename parsing error"
         exit 3
