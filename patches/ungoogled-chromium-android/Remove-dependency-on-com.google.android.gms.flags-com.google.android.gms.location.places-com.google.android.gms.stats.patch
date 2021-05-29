@@ -9,58 +9,58 @@ Subject: Remove dependency on com.google.android.gms.flags,
 
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -1241,54 +1241,6 @@ java_prebuilt("com_github_kevinstern_sof
- }
+@@ -1588,54 +1588,6 @@ if (build_with_chromium) {
+   }
  
- # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
--android_aar_prebuilt("google_play_services_flags_java") {
--  aar_path = "libs/com_google_android_gms_play_services_flags/play-services-flags-17.0.0.aar"
--  info_path = "libs/com_google_android_gms_play_services_flags/com_google_android_gms_play_services_flags.info"
+   # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+-  android_aar_prebuilt("google_play_services_flags_java") {
+-    aar_path = "libs/com_google_android_gms_play_services_flags/play-services-flags-17.0.0.aar"
+-    info_path = "libs/com_google_android_gms_play_services_flags/com_google_android_gms_play_services_flags.info"
 -
--  # To remove visibility constraint, add this dependency to
--  # //third_party/android_deps/build.gradle.
--  visibility = [
--    ":*",
--    "//third_party/androidx:*",
--  ]
--  deps = [
--    ":google_play_services_base_java",
--    ":google_play_services_basement_java",
--  ]
--}
+-    # To remove visibility constraint, add this dependency to
+-    # //third_party/android_deps/build.gradle.
+-    visibility = [
+-      ":*",
+-      "//third_party/androidx:*",
+-    ]
+-    deps = [
+-      ":google_play_services_base_java",
+-      ":google_play_services_basement_java",
+-    ]
+-  }
 -
--# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
--android_aar_prebuilt("google_play_services_places_placereport_java") {
--  aar_path = "libs/com_google_android_gms_play_services_places_placereport/play-services-places-placereport-17.0.0.aar"
--  info_path = "libs/com_google_android_gms_play_services_places_placereport/com_google_android_gms_play_services_places_placereport.info"
+-  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+-  android_aar_prebuilt("google_play_services_places_placereport_java") {
+-    aar_path = "libs/com_google_android_gms_play_services_places_placereport/play-services-places-placereport-17.0.0.aar"
+-    info_path = "libs/com_google_android_gms_play_services_places_placereport/com_google_android_gms_play_services_places_placereport.info"
 -
--  # To remove visibility constraint, add this dependency to
--  # //third_party/android_deps/build.gradle.
--  visibility = [
--    ":*",
--    "//third_party/androidx:*",
--  ]
--  deps = [ ":google_play_services_basement_java" ]
--}
+-    # To remove visibility constraint, add this dependency to
+-    # //third_party/android_deps/build.gradle.
+-    visibility = [
+-      ":*",
+-      "//third_party/androidx:*",
+-    ]
+-    deps = [ ":google_play_services_basement_java" ]
+-  }
 -
--# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
--android_aar_prebuilt("google_play_services_stats_java") {
--  aar_path = "libs/com_google_android_gms_play_services_stats/play-services-stats-17.0.0.aar"
--  info_path = "libs/com_google_android_gms_play_services_stats/com_google_android_gms_play_services_stats.info"
+-  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+-  android_aar_prebuilt("google_play_services_stats_java") {
+-    aar_path = "libs/com_google_android_gms_play_services_stats/play-services-stats-17.0.0.aar"
+-    info_path = "libs/com_google_android_gms_play_services_stats/com_google_android_gms_play_services_stats.info"
 -
--  # To remove visibility constraint, add this dependency to
--  # //third_party/android_deps/build.gradle.
--  visibility = [
--    ":*",
--    "//third_party/androidx:*",
--  ]
--  deps = [
--    ":google_play_services_basement_java",
--    "//third_party/androidx:androidx_legacy_legacy_support_core_utils_java",
--  ]
--}
+-    # To remove visibility constraint, add this dependency to
+-    # //third_party/android_deps/build.gradle.
+-    visibility = [
+-      ":*",
+-      "//third_party/androidx:*",
+-    ]
+-    deps = [
+-      ":google_play_services_basement_java",
+-      "//third_party/androidx:androidx_legacy_legacy_support_core_utils_java",
+-    ]
+-  }
 -
--# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
- java_prebuilt("com_google_auto_auto_common_java") {
-   jar_path = "libs/com_google_auto_auto_common/auto-common-0.10.jar"
-   output_name = "com_google_auto_auto_common"
+-  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+   java_prebuilt("com_squareup_javawriter_java") {
+     jar_path = "libs/com_squareup_javawriter/javawriter-2.1.1.jar"
+     output_name = "com_squareup_javawriter"

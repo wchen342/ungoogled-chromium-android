@@ -13,8 +13,8 @@ Corrected Exit functionality
 
 --- a/chrome/android/java/res/menu/main_menu.xml
 +++ b/chrome/android/java/res/menu/main_menu.xml
-@@ -119,6 +119,9 @@
-             android:icon="@drawable/vr_headset" />
+@@ -115,6 +115,9 @@
+             android:icon="@drawable/gm_filled_cardboard_24" />
          <item android:id="@+id/managed_by_menu_id"
              android:title="@string/managed" />
 +        <item android:id="@+id/exit_id"
@@ -23,7 +23,7 @@ Corrected Exit functionality
      </group>
  
      <!-- Items shown only in the tab switcher -->
-@@ -145,6 +148,9 @@
+@@ -141,6 +144,9 @@
          <item android:id="@id/preferences_id"
              android:title="@string/menu_settings"
              android:icon="@drawable/settings_cog" />
@@ -35,7 +35,7 @@ Corrected Exit functionality
      <!-- Items shown only in the tab switcher when start surface is enabled -->
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-@@ -191,6 +191,8 @@ import java.lang.annotation.RetentionPol
+@@ -198,6 +198,8 @@ import java.lang.annotation.RetentionPol
  import java.util.List;
  import java.util.Locale;
  
@@ -44,7 +44,7 @@ Corrected Exit functionality
  /**
   * This is the main activity for ChromeMobile when not running in document mode.  All the tabs
   * are accessible via a chrome specific tab switching UI.
-@@ -1858,6 +1860,8 @@ public class ChromeTabbedActivity extend
+@@ -1907,6 +1909,8 @@ public class ChromeTabbedActivity extend
          } else if (id == R.id.close_tab) {
              getCurrentTabModel().closeTab(currentTab, true, false, true);
              RecordUserAction.record("MobileTabClosed");
@@ -55,15 +55,15 @@ Corrected Exit functionality
              getTabModelSelector().closeAllTabs();
 --- a/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
-@@ -57,6 +57,7 @@ import org.chromium.base.supplier.Unowne
+@@ -58,6 +58,7 @@ import org.chromium.base.supplier.Unowne
  import org.chromium.chrome.R;
  import org.chromium.chrome.browser.ActivityTabProvider;
  import org.chromium.chrome.browser.AppHooks;
 +import org.chromium.chrome.browser.ApplicationLifetime;
  import org.chromium.chrome.browser.ChromeActivitySessionTracker;
- import org.chromium.chrome.browser.ChromeApplication;
- import org.chromium.chrome.browser.ChromeWindow;
-@@ -2200,6 +2201,11 @@ public abstract class ChromeActivity<C e
+ import org.chromium.chrome.browser.ChromeApplicationImpl;
+ import org.chromium.chrome.browser.ChromeKeyboardVisibilityDelegate;
+@@ -2234,6 +2235,11 @@ public abstract class ChromeActivity<C e
              return true;
          }
  
@@ -92,7 +92,7 @@ Corrected Exit functionality
      @Override
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -3008,6 +3008,9 @@ Data from your Incognito session will on
+@@ -3070,6 +3070,9 @@ Data from your Incognito session will on
        <message name="IDS_MENU_SETTINGS" desc="Menu item for opening browser settings. [CHAR-LIMIT=27]">
          Settings
        </message>

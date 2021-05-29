@@ -22,9 +22,9 @@ Subject: Remove dependency on
  components/externalauth/android/java/src/org/chromium/components/externalauth/UserRecoverableErrorHandler.java                   |    6 
  components/media_router/browser/android/BUILD.gn                                                                                 |    1 
  components/media_router/browser/android/java/src/org/chromium/components/media_router/BrowserMediaRouter.java                    |   18 --
- components/signin/core/browser/android/BUILD.gn                                                                                  |    1 
- components/signin/public/android/BUILD.gn                                                                                        |    1 
+ components/signin/public/android/BUILD.gn                                                                                        |    2 
  components/signin/public/android/java/src/org/chromium/components/signin/GmsAvailabilityException.java                           |    4 
+ components/webauthn/android/BUILD.gn                                                                                             |    1 
  content/public/android/BUILD.gn                                                                                                  |    3 
  content/public/android/java/src/org/chromium/content/browser/sms/SmsProviderGms.java                                             |    6 
  content/test/BUILD.gn                                                                                                            |    3 
@@ -34,17 +34,18 @@ Subject: Remove dependency on
  services/device/geolocation/BUILD.gn                                                                                             |    2 
  services/shape_detection/BUILD.gn                                                                                                |    2 
  services/shape_detection/android/java/src/org/chromium/shape_detection/BarcodeDetectionProviderImpl.java                         |   22 --
- third_party/android_deps/BUILD.gn                                                                                                |   41 -----
+ third_party/android_deps/BUILD.gn                                                                                                |   48 -----
+ third_party/android_deps/local_modifications/preconditions/javatests/BUILD.gn                                                    |    1 
  third_party/android_deps/util/org/chromium/gms/ChromiumPlayServicesAvailability.java                                             |   10 -
  third_party/android_deps/util/org/chromium/gms/shadows/ShadowChromiumPlayServicesAvailability.java                               |    2 
  weblayer/browser/java/BUILD.gn                                                                                                   |    1 
  weblayer/browser/java/org/chromium/weblayer_private/ChildProcessServiceImpl.java                                                 |    2 
  weblayer/shell/android/BUILD.gn                                                                                                  |    1 
- 35 files changed, 20 insertions(+), 304 deletions(-)
+ 36 files changed, 19 insertions(+), 314 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -277,9 +277,6 @@ android_library("chrome_java") {
+@@ -280,9 +280,6 @@ android_library("chrome_java") {
      ":partner_location_descriptor_proto_java",
      ":update_proto_java",
      ":usage_stats_proto_java",
@@ -52,9 +53,9 @@ Subject: Remove dependency on
 -    "$google_play_services_package:google_play_services_basement_java",
 -    "$google_play_services_package:google_play_services_tasks_java",
      "//base:base_java",
-     "//base:jni_java",
      "//cc:cc_java",
-@@ -797,8 +794,6 @@ junit_binary("chrome_junit_tests") {
+     "//chrome/android/features/keyboard_accessory:public_java",
+@@ -815,8 +812,6 @@ junit_binary("chrome_junit_tests") {
      ":chrome_app_java_resources",
      ":chrome_java",
      ":partner_location_descriptor_proto_java",
@@ -63,16 +64,16 @@ Subject: Remove dependency on
      "//base:base_java",
      "//base:base_java_test_support",
      "//base:base_junit_test_support",
-@@ -1049,9 +1044,6 @@ android_library("chrome_test_java") {
-     ":chrome_app_java_resources",
+@@ -1094,9 +1089,6 @@ android_library("chrome_test_java") {
      ":chrome_test_util_java",
+     ":chrome_test_util_jni",
      ":partner_location_descriptor_proto_java",
 -    "$google_play_services_package:google_play_services_base_java",
 -    "$google_play_services_package:google_play_services_basement_java",
 -    "$google_play_services_package:google_play_services_tasks_java",
      "//base:base_java",
      "//base:base_java_test_support",
-     "//base:jni_java",
+     "//base/test:test_support_java",
 --- a/components/media_router/browser/android/BUILD.gn
 +++ b/components/media_router/browser/android/BUILD.gn
 @@ -11,7 +11,6 @@ android_library("java") {
@@ -81,11 +82,11 @@ Subject: Remove dependency on
      ":java_resources",
 -    "$google_play_services_package:google_play_services_base_java",
      "//base:base_java",
-     "//base:jni_java",
      "//components/browser_ui/media/android:java",
+     "//content/public/android:content_java",
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
-@@ -773,15 +773,6 @@ by a child template that "extends" this
+@@ -780,15 +780,6 @@ by a child template that "extends" this
              </intent-filter>
          </activity>
  
@@ -113,7 +114,7 @@ Subject: Remove dependency on
  import org.chromium.base.ContextUtils;
  import org.chromium.base.annotations.CalledByNative;
  import org.chromium.chrome.browser.customtabs.CustomTabsConnection;
-@@ -286,16 +283,7 @@ public abstract class AppHooks {
+@@ -299,16 +296,7 @@ public abstract class AppHooks {
       * same as {@link GoogleApiAvailability#isGooglePlayServicesAvailable()}.
       */
      public int isGoogleApiAvailableWithMinApkVersion(int minApkVersion) {
@@ -366,7 +367,7 @@ Subject: Remove dependency on
          private long getSize(StatFs statFs) {
 --- a/chrome/test/android/BUILD.gn
 +++ b/chrome/test/android/BUILD.gn
-@@ -259,8 +259,6 @@ android_library("chrome_java_test_suppor
+@@ -258,8 +258,6 @@ android_library("chrome_java_test_suppor
    ]
  
    deps = [
@@ -387,16 +388,6 @@ Subject: Remove dependency on
        "internal:internal_java",
        "internal:proto_java",
        "//base:base_java",
---- a/components/signin/core/browser/android/BUILD.gn
-+++ b/components/signin/core/browser/android/BUILD.gn
-@@ -6,7 +6,6 @@ import("//build/config/android/rules.gni
- 
- android_library("java") {
-   deps = [
--    "$google_play_services_package:google_play_services_base_java",
-     "//base:base_java",
-     "//base:jni_java",
-     "//net/android:net_java",
 --- a/components/signin/public/android/java/src/org/chromium/components/signin/GmsAvailabilityException.java
 +++ b/components/signin/public/android/java/src/org/chromium/components/signin/GmsAvailabilityException.java
 @@ -4,8 +4,6 @@
@@ -418,7 +409,7 @@ Subject: Remove dependency on
  }
 --- a/content/public/android/BUILD.gn
 +++ b/content/public/android/BUILD.gn
-@@ -136,9 +136,6 @@ android_library("content_main_dex_java")
+@@ -135,9 +135,6 @@ android_library("content_main_dex_java")
  android_library("content_full_java") {
    deps = [
      ":content_main_dex_java",
@@ -426,11 +417,11 @@ Subject: Remove dependency on
 -    "$google_play_services_package:google_play_services_basement_java",
 -    "$google_play_services_package:google_play_services_tasks_java",
      "//base:base_java",
-     "//base:jni_java",
      "//build:chromeos_buildflags",
+     "//components/download/public/common:public_java",
 --- a/content/test/BUILD.gn
 +++ b/content/test/BUILD.gn
-@@ -2656,9 +2656,6 @@ if (is_android) {
+@@ -2707,9 +2707,6 @@ if (is_android) {
      testonly = true
      sources = content_java_sources_needing_jni
      deps = [
@@ -442,9 +433,9 @@ Subject: Remove dependency on
        "//ui/android:ui_full_java",
 --- a/device/BUILD.gn
 +++ b/device/BUILD.gn
-@@ -428,8 +428,6 @@ if (is_android) {
-   junit_binary("device_junit_tests") {
-     sources = [ "gamepad/android/junit/src/org/chromium/device/gamepad/GamepadMappingsTest.java" ]
+@@ -431,8 +431,6 @@ if (is_android) {
+       "gamepad/android/junit/src/org/chromium/device/gamepad/GamepadMappingsTest.java",
+     ]
      deps = [
 -      "$google_play_services_package:google_play_services_base_java",
 -      "$google_play_services_package:google_play_services_basement_java",
@@ -464,7 +455,7 @@ Subject: Remove dependency on
  
 --- a/services/BUILD.gn
 +++ b/services/BUILD.gn
-@@ -104,8 +104,6 @@ if (is_android) {
+@@ -110,8 +110,6 @@ if (is_android) {
        "shape_detection/android/junit/src/org/chromium/shape_detection/BitmapUtilsTest.java",
      ]
      deps = [
@@ -473,7 +464,7 @@ Subject: Remove dependency on
        "//base:base_java",
        "//base:base_java_test_support",
        "//base:base_junit_test_support",
-@@ -134,8 +132,6 @@ if (is_android) {
+@@ -140,8 +138,6 @@ if (is_android) {
        "shape_detection/android/javatests/src/org/chromium/shape_detection/TextDetectionImplTest.java",
      ]
      deps = [
@@ -491,8 +482,8 @@ Subject: Remove dependency on
 -      "$google_play_services_package:google_play_services_base_java",
 -      "$google_play_services_package:google_play_services_basement_java",
        "//base:base_java",
-       "//base:jni_java",
        "//components/location/android:location_java",
+       "//services/device/public/java:geolocation_java",
 --- a/services/shape_detection/BUILD.gn
 +++ b/services/shape_detection/BUILD.gn
 @@ -107,8 +107,6 @@ if (is_android) {
@@ -516,7 +507,7 @@ Subject: Remove dependency on
        "//base:base_java",
        "//components/background_task_scheduler:background_task_scheduler_task_ids_java",
        "//components/background_task_scheduler:public_java",
-@@ -98,9 +95,6 @@ if (is_android) {
+@@ -97,9 +94,6 @@ if (is_android) {
  
      deps = [
        ":internal_java",
@@ -535,11 +526,11 @@ Subject: Remove dependency on
 -    "$google_play_services_package:google_play_services_base_java",
 -    "$google_play_services_package:google_play_services_tasks_java",
      "//base:base_java",
-     "//base:jni_java",
      "//content/public/android:content_java",
+     "//third_party/android_deps:android_support_v7_appcompat_java",
 --- a/chrome/android/features/cablev2_authenticator/java/src/org/chromium/chrome/browser/webauth/authenticator/CableAuthenticator.java
 +++ b/chrome/android/features/cablev2_authenticator/java/src/org/chromium/chrome/browser/webauth/authenticator/CableAuthenticator.java
-@@ -23,8 +23,6 @@ import android.util.Base64;
+@@ -21,8 +21,6 @@ import android.os.Bundle;
  import androidx.core.app.NotificationCompat;
  import androidx.core.app.NotificationManagerCompat;
  
@@ -550,61 +541,68 @@ Subject: Remove dependency on
  import org.chromium.base.annotations.CalledByNative;
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -90,7 +90,7 @@ java_annotation_processor("auto_service_
+@@ -92,7 +92,6 @@ if (build_with_chromium) {
  
- android_library("chromium_play_services_availability_java") {
-   sources = [ "util/org/chromium/gms/ChromiumPlayServicesAvailability.java" ]
--  deps = [ "$google_play_services_package:google_play_services_base_java" ]
-+  deps = [  ]
- }
+   android_library("chromium_play_services_availability_java") {
+     sources = [ "util/org/chromium/gms/ChromiumPlayServicesAvailability.java" ]
+-    deps = [ "$google_play_services_package:google_play_services_base_java" ]
+   }
  
- android_library("chromium_play_services_availability_shadows_java") {
-@@ -384,45 +384,6 @@ android_aar_prebuilt("com_android_suppor
- }
+   android_library("chromium_play_services_availability_shadows_java") {
+@@ -1023,53 +1022,6 @@ if (build_with_chromium) {
+   }
  
- # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
--android_aar_prebuilt("google_play_services_base_java") {
--  aar_path = "libs/com_google_android_gms_play_services_base/play-services-base-17.5.0.aar"
--  info_path = "libs/com_google_android_gms_play_services_base/com_google_android_gms_play_services_base.info"
--  deps = [
--    ":google_play_services_basement_java",
--    ":google_play_services_tasks_java",
--    "//third_party/androidx:androidx_collection_collection_java",
--    "//third_party/androidx:androidx_core_core_java",
--    "//third_party/androidx:androidx_fragment_fragment_java",
--  ]
--  bytecode_rewriter_target =
--      "//build/android/bytecode:fragment_activity_replacer"
--}
+   # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+-  android_aar_prebuilt("google_play_services_base_java") {
+-    aar_path = "libs/com_google_android_gms_play_services_base/play-services-base-17.5.0.aar"
+-    info_path = "libs/com_google_android_gms_play_services_base/com_google_android_gms_play_services_base.info"
+-    deps = [
+-      ":google_play_services_basement_java",
+-      ":google_play_services_tasks_java",
+-      "//third_party/androidx:androidx_collection_collection_java",
+-      "//third_party/androidx:androidx_core_core_java",
+-      "//third_party/androidx:androidx_fragment_fragment_java",
+-    ]
+-    bytecode_rewriter_target =
+-        "//build/android/bytecode:fragment_activity_replacer"
+-  }
 -
--# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
--android_aar_prebuilt("google_play_services_basement_java") {
--  aar_path = "libs/com_google_android_gms_play_services_basement/play-services-basement-17.5.0.aar"
--  info_path = "libs/com_google_android_gms_play_services_basement/com_google_android_gms_play_services_basement.info"
--  deps = [
--    "//third_party/androidx:androidx_collection_collection_java",
--    "//third_party/androidx:androidx_core_core_java",
--    "//third_party/androidx:androidx_fragment_fragment_java",
--  ]
+-  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+-  android_aar_prebuilt("google_play_services_basement_java") {
+-    aar_path = "libs/com_google_android_gms_play_services_basement/play-services-basement-17.5.0.aar"
+-    info_path = "libs/com_google_android_gms_play_services_basement/com_google_android_gms_play_services_basement.info"
+-    deps = [
+-      "//third_party/androidx:androidx_collection_collection_java",
+-      "//third_party/androidx:androidx_core_core_java",
+-      "//third_party/androidx:androidx_fragment_fragment_java",
+-    ]
 -
--  # https://crbug.com/989505
--  jar_excluded_patterns = [ "META-INF/proguard/*" ]
--  input_jars_paths = [ "$android_sdk/optional/org.apache.http.legacy.jar" ]
--  bytecode_rewriter_target =
--      "//build/android/bytecode:fragment_activity_replacer"
--}
+-    jar_excluded_patterns = []
+-    if (!enable_java_asserts) {
+-      # Omit the file since we use our own copy.
+-      jar_excluded_patterns +=
+-          [ "com/google/android/gms/common/internal/Preconditions.class" ]
+-      deps += [ "//third_party/android_deps/local_modifications/preconditions:gms_stub_preconditions_java" ]
+-    }
 -
--# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
--android_aar_prebuilt("google_play_services_tasks_java") {
--  aar_path = "libs/com_google_android_gms_play_services_tasks/play-services-tasks-17.2.0.aar"
--  info_path = "libs/com_google_android_gms_play_services_tasks/com_google_android_gms_play_services_tasks.info"
--  deps = [ ":google_play_services_basement_java" ]
--}
+-    # https://crbug.com/989505
+-    jar_excluded_patterns += [ "META-INF/proguard/*" ]
+-    input_jars_paths = [ "$android_sdk/optional/org.apache.http.legacy.jar" ]
+-    bytecode_rewriter_target =
+-        "//build/android/bytecode:fragment_activity_replacer"
+-  }
 -
--# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
- android_aar_prebuilt("com_google_android_material_material_java") {
-   aar_path =
-       "libs/com_google_android_material_material/material-1.2.0-alpha06.aar"
+-  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+-  android_aar_prebuilt("google_play_services_tasks_java") {
+-    aar_path = "libs/com_google_android_gms_play_services_tasks/play-services-tasks-17.2.0.aar"
+-    info_path = "libs/com_google_android_gms_play_services_tasks/com_google_android_gms_play_services_tasks.info"
+-    deps = [ ":google_play_services_basement_java" ]
+-  }
+-
+-  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+   android_aar_prebuilt("com_google_android_material_material_java") {
+     aar_path =
+         "libs/com_google_android_material_material/material-1.2.0-alpha06.aar"
 --- a/chrome/android/java/src/org/chromium/chrome/browser/PlayServicesVersionInfo.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/PlayServicesVersionInfo.java
 @@ -7,8 +7,6 @@ package org.chromium.chrome.browser;
@@ -860,11 +858,19 @@ Subject: Remove dependency on
    deps = [
 -    "$google_play_services_package:google_play_services_base_java",
      "//base:base_java",
-     "//base:jni_java",
-     "//components/signin/core/browser/android:java",
+     "//net/android:net_java",
+     "//third_party/android_deps:android_support_v4_java",
+@@ -136,7 +135,6 @@ java_library("junit") {
+   deps = [
+     ":java",
+     ":signin_java_test_support",
+-    "$google_play_services_package:google_play_services_auth_base_java",
+     "//base:base_java",
+     "//base:base_java_test_support",
+     "//base:base_junit_test_support",
 --- a/weblayer/browser/java/BUILD.gn
 +++ b/weblayer/browser/java/BUILD.gn
-@@ -101,7 +101,6 @@ android_library("base_module_java") {
+@@ -102,7 +102,6 @@ android_library("base_module_java") {
    ]
    deps = [
      ":base_module_interfaces_java",
@@ -922,3 +928,23 @@ Subject: Remove dependency on
  
          return new ChildProcessServiceImpl(service, appContext);
      }
+--- a/components/webauthn/android/BUILD.gn
++++ b/components/webauthn/android/BUILD.gn
+@@ -22,7 +22,6 @@ android_library("java") {
+   ]
+   annotation_processor_deps = [ "//base/android/jni_generator:jni_processor" ]
+   deps = [
+-    "$google_play_services_package:google_play_services_tasks_java",
+     "//base:base_java",
+     "//base:jni_java",
+     "//components/externalauth/android:java",
+--- a/third_party/android_deps/local_modifications/preconditions/javatests/BUILD.gn
++++ b/third_party/android_deps/local_modifications/preconditions/javatests/BUILD.gn
+@@ -8,7 +8,6 @@ android_library("javatests") {
+   testonly = true
+   sources = [ "org/chromium/preconditions/PreconditionsTest.java" ]
+   deps = [
+-    "$google_play_services_package:google_play_services_basement_java",
+     "//base:base_java",
+     "//base:base_java_test_support",
+     "//base/test:test_support_java",

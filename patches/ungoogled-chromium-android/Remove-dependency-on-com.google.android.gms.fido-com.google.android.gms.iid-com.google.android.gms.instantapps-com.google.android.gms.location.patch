@@ -11,10 +11,11 @@ Subject: Remove dependency on com.google.android.gms.fido,
  chrome/android/features/cablev2_authenticator/java/src/org/chromium/chrome/browser/webauth/authenticator/CableAuthenticator.java                |  237 -------
  chrome/android/java/src/org/chromium/chrome/browser/externalnav/ExternalNavigationDelegateImpl.java                                             |    6 
  chrome/android/java/src/org/chromium/chrome/browser/instantapps/InstantAppsHandler.java                                                         |   51 -
- chrome/android/java/src/org/chromium/chrome/browser/webauth/Fido2CredentialRequest.java                                                         |  179 -----
- chrome/android/java/src/org/chromium/chrome/browser/webauth/Fido2Helper.java                                                                    |  335 ----------
  components/gcm_driver/instance_id/android/BUILD.gn                                                                                              |    2 
  components/gcm_driver/instance_id/android/java/src/org/chromium/components/gcm_driver/instance_id/InstanceIDWithSubtype.java                    |   26 
+ components/webauthn/android/BUILD.gn                                                                                                            |    1 
+ components/webauthn/android/java/src/org/chromium/components/webauthn/Fido2CredentialRequest.java                                               |  111 ---
+ components/webauthn/android/java/src/org/chromium/components/webauthn/Fido2Helper.java                                                          |  335 ----------
  device/BUILD.gn                                                                                                                                 |    1 
  services/BUILD.gn                                                                                                                               |    1 
  services/device/geolocation/BUILD.gn                                                                                                            |    1 
@@ -22,11 +23,11 @@ Subject: Remove dependency on com.google.android.gms.fido,
  third_party/android_deps/BUILD.gn                                                                                                               |   48 -
  third_party/libaddressinput/src/android/src/main/java/com/android/i18n/addressinput/autocomplete/gmscore/AddressAutocompleteApiImpl.java        |   65 -
  third_party/libaddressinput/src/android/src/main/java/com/android/i18n/addressinput/autocomplete/gmscore/AddressAutocompletePredictionImpl.java |   12 
- 17 files changed, 28 insertions(+), 1046 deletions(-)
+ 18 files changed, 28 insertions(+), 979 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -279,8 +279,6 @@ android_library("chrome_java") {
+@@ -282,8 +282,6 @@ android_library("chrome_java") {
      ":usage_stats_proto_java",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
@@ -35,7 +36,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
      "$google_play_services_package:google_play_services_tasks_java",
      "$google_play_services_package:google_play_services_vision_common_java",
      "$google_play_services_package:google_play_services_vision_java",
-@@ -803,7 +801,6 @@ junit_binary("chrome_junit_tests") {
+@@ -821,7 +819,6 @@ junit_binary("chrome_junit_tests") {
      ":partner_location_descriptor_proto_java",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
@@ -43,7 +44,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
      "//base:base_java",
      "//base:base_java_test_support",
      "//base:base_junit_test_support",
-@@ -1056,8 +1053,6 @@ android_library("chrome_test_java") {
+@@ -1101,8 +1098,6 @@ android_library("chrome_test_java") {
      ":partner_location_descriptor_proto_java",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
@@ -83,10 +84,10 @@ Subject: Remove dependency on com.google.android.gms.fido,
 -            "com.google.android.instantapps.START", "com.google.android.instantapps.nmr1.INSTALL",
 -            "com.google.android.instantapps.nmr1.VIEW"};
 -
-     /** Finch experiment name. */
-     private static final String INSTANT_APPS_EXPERIMENT_NAME = "InstantApps";
+     // Only two possible call sources for fallback intents, set boundary at n+1.
+     private static final int SOURCE_BOUNDARY = 3;
  
-@@ -93,14 +68,6 @@ public class InstantAppsHandler {
+@@ -84,14 +59,6 @@ public class InstantAppsHandler {
       * @return Whether the given intent is going to open an Instant App.
       */
      public static boolean isIntentToInstantApp(Intent intent) {
@@ -101,7 +102,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
          return false;
      }
  
-@@ -141,14 +108,7 @@ public class InstantAppsHandler {
+@@ -132,14 +99,7 @@ public class InstantAppsHandler {
                      SystemClock.elapsedRealtime() - startTime);
              intent.removeExtra(INSTANT_APP_START_TIME_EXTRA);
          }
@@ -117,7 +118,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
      }
  
      /**
-@@ -183,9 +143,8 @@ public class InstantAppsHandler {
+@@ -174,9 +134,8 @@ public class InstantAppsHandler {
              return false;
          }
  
@@ -129,7 +130,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
              maybeRecordFallbackStats(intent);
              Log.i(TAG, "Not handling with Instant Apps (DO_NOT_LAUNCH_EXTRA)");
              return false;
-@@ -215,7 +174,6 @@ public class InstantAppsHandler {
+@@ -206,7 +165,6 @@ public class InstantAppsHandler {
          }
  
          Intent callbackIntent = new Intent(intent);
@@ -137,7 +138,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
          callbackIntent.putExtra(INSTANT_APP_START_TIME_EXTRA, startTime);
  
          return tryLaunchingInstantApp(context, intent, isCustomTabsIntent, callbackIntent);
-@@ -318,12 +276,9 @@ public class InstantAppsHandler {
+@@ -309,12 +267,9 @@ public class InstantAppsHandler {
          Intent iaIntent = data.getIntent();
          if (data.getReferrer() != null) {
              iaIntent.putExtra(Intent.EXTRA_REFERRER, data.getReferrer());
@@ -158,9 +159,9 @@ Subject: Remove dependency on com.google.android.gms.fido,
    deps = [
 -    "$google_play_services_package:google_play_services_iid_java",
      "//base:base_java",
-     "//base:jni_java",
      "//components/gcm_driver/android:gcm_driver_java",
-@@ -34,7 +33,6 @@ android_library("instance_id_driver_java
+     "//third_party/androidx:androidx_annotation_annotation_java",
+@@ -33,7 +32,6 @@ android_library("instance_id_driver_java
  android_library("instance_id_driver_test_support_java") {
    deps = [
      ":instance_id_driver_java",
@@ -248,7 +249,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
      /** Fake subclasses can set {@link #sFakeFactoryForTesting} to an implementation of this. */
 --- a/device/BUILD.gn
 +++ b/device/BUILD.gn
-@@ -430,7 +430,6 @@ if (is_android) {
+@@ -433,7 +433,6 @@ if (is_android) {
      deps = [
        "$google_play_services_package:google_play_services_base_java",
        "$google_play_services_package:google_play_services_basement_java",
@@ -264,8 +265,8 @@ Subject: Remove dependency on com.google.android.gms.fido,
        "$google_play_services_package:google_play_services_basement_java",
 -      "$google_play_services_package:google_play_services_location_java",
        "//base:base_java",
-       "//base:jni_java",
        "//components/location/android:location_java",
+       "//services/device/public/java:geolocation_java",
 --- a/services/device/geolocation/android/java/src/org/chromium/device/geolocation/LocationProviderGmsCore.java
 +++ b/services/device/geolocation/android/java/src/org/chromium/device/geolocation/LocationProviderGmsCore.java
 @@ -8,15 +8,6 @@ import android.content.Context;
@@ -414,710 +415,64 @@ Subject: Remove dependency on com.google.android.gms.fido,
  }
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -416,54 +416,6 @@ android_aar_prebuilt("google_play_servic
- }
+@@ -1063,54 +1063,6 @@ if (build_with_chromium) {
+   }
  
- # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
--android_aar_prebuilt("google_play_services_fido_java") {
--  aar_path = "libs/com_google_android_gms_play_services_fido/play-services-fido-19.0.0-beta.aar"
--  info_path = "libs/com_google_android_gms_play_services_fido/com_google_android_gms_play_services_fido.info"
--  deps = [
--    ":google_play_services_base_java",
--    ":google_play_services_basement_java",
--    ":google_play_services_tasks_java",
--  ]
--}
+   # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+-  android_aar_prebuilt("google_play_services_fido_java") {
+-    aar_path = "libs/com_google_android_gms_play_services_fido/play-services-fido-19.0.0-beta.aar"
+-    info_path = "libs/com_google_android_gms_play_services_fido/com_google_android_gms_play_services_fido.info"
+-    deps = [
+-      ":google_play_services_base_java",
+-      ":google_play_services_basement_java",
+-      ":google_play_services_tasks_java",
+-    ]
+-  }
 -
--# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
--android_aar_prebuilt("google_play_services_iid_java") {
--  aar_path = "libs/com_google_android_gms_play_services_iid/play-services-iid-17.0.0.aar"
--  info_path = "libs/com_google_android_gms_play_services_iid/com_google_android_gms_play_services_iid.info"
--  deps = [
--    ":google_play_services_base_java",
--    ":google_play_services_basement_java",
--    ":google_play_services_stats_java",
--    ":google_play_services_tasks_java",
--    "//third_party/androidx:androidx_collection_collection_java",
--    "//third_party/androidx:androidx_core_core_java",
--  ]
--}
+-  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+-  android_aar_prebuilt("google_play_services_iid_java") {
+-    aar_path = "libs/com_google_android_gms_play_services_iid/play-services-iid-17.0.0.aar"
+-    info_path = "libs/com_google_android_gms_play_services_iid/com_google_android_gms_play_services_iid.info"
+-    deps = [
+-      ":google_play_services_base_java",
+-      ":google_play_services_basement_java",
+-      ":google_play_services_stats_java",
+-      ":google_play_services_tasks_java",
+-      "//third_party/androidx:androidx_collection_collection_java",
+-      "//third_party/androidx:androidx_core_core_java",
+-    ]
+-  }
 -
--# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
--android_aar_prebuilt("google_play_services_instantapps_java") {
--  aar_path = "libs/com_google_android_gms_play_services_instantapps/play-services-instantapps-17.0.0.aar"
--  info_path = "libs/com_google_android_gms_play_services_instantapps/com_google_android_gms_play_services_instantapps.info"
--  deps = [
--    ":google_play_services_base_java",
--    ":google_play_services_basement_java",
--    ":google_play_services_tasks_java",
--  ]
--}
+-  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+-  android_aar_prebuilt("google_play_services_instantapps_java") {
+-    aar_path = "libs/com_google_android_gms_play_services_instantapps/play-services-instantapps-17.0.0.aar"
+-    info_path = "libs/com_google_android_gms_play_services_instantapps/com_google_android_gms_play_services_instantapps.info"
+-    deps = [
+-      ":google_play_services_base_java",
+-      ":google_play_services_basement_java",
+-      ":google_play_services_tasks_java",
+-    ]
+-  }
 -
--# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
--android_aar_prebuilt("google_play_services_location_java") {
--  aar_path = "libs/com_google_android_gms_play_services_location/play-services-location-17.0.0.aar"
--  info_path = "libs/com_google_android_gms_play_services_location/com_google_android_gms_play_services_location.info"
--  deps = [
--    ":google_play_services_base_java",
--    ":google_play_services_basement_java",
--    ":google_play_services_places_placereport_java",
--    ":google_play_services_tasks_java",
--  ]
--}
+-  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+-  android_aar_prebuilt("google_play_services_location_java") {
+-    aar_path = "libs/com_google_android_gms_play_services_location/play-services-location-17.0.0.aar"
+-    info_path = "libs/com_google_android_gms_play_services_location/com_google_android_gms_play_services_location.info"
+-    deps = [
+-      ":google_play_services_base_java",
+-      ":google_play_services_basement_java",
+-      ":google_play_services_places_placereport_java",
+-      ":google_play_services_tasks_java",
+-    ]
+-  }
 -
--# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
- android_aar_prebuilt("google_play_services_tasks_java") {
-   aar_path = "libs/com_google_android_gms_play_services_tasks/play-services-tasks-17.2.0.aar"
-   info_path = "libs/com_google_android_gms_play_services_tasks/com_google_android_gms_play_services_tasks.info"
---- a/chrome/android/java/src/org/chromium/chrome/browser/webauth/Fido2CredentialRequest.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/webauth/Fido2CredentialRequest.java
-@@ -13,20 +13,6 @@ import android.os.SystemClock;
- import androidx.annotation.IntDef;
- import androidx.annotation.VisibleForTesting;
- 
--import com.google.android.gms.fido.Fido;
--import com.google.android.gms.fido.fido2.Fido2PendingIntent;
--import com.google.android.gms.fido.fido2.Fido2PrivilegedApiClient;
--import com.google.android.gms.fido.fido2.api.common.AuthenticatorAssertionResponse;
--import com.google.android.gms.fido.fido2.api.common.AuthenticatorAttestationResponse;
--import com.google.android.gms.fido.fido2.api.common.AuthenticatorErrorResponse;
--import com.google.android.gms.fido.fido2.api.common.AuthenticatorResponse;
--import com.google.android.gms.fido.fido2.api.common.BrowserPublicKeyCredentialCreationOptions;
--import com.google.android.gms.fido.fido2.api.common.BrowserPublicKeyCredentialRequestOptions;
--import com.google.android.gms.fido.fido2.api.common.PublicKeyCredential;
--import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialCreationOptions;
--import com.google.android.gms.tasks.OnSuccessListener;
--import com.google.android.gms.tasks.Task;
--
- import org.chromium.base.Callback;
- import org.chromium.base.ContextUtils;
- import org.chromium.base.Log;
-@@ -53,7 +39,6 @@ public class Fido2CredentialRequest impl
-     private static final String TAG = "Fido2Request";
-     private HandlerResponseCallback mCallback;
-     private HandlerResponseCallback mIsUserVerifyingPlatformAuthenticatorAvailableCallback;
--    private Fido2PrivilegedApiClient mFido2ApiClient;
-     private WebContents mWebContents;
-     private WindowAndroid mWindow;
-     private @RequestStatus int mRequestStatus;
-@@ -83,58 +68,6 @@ public class Fido2CredentialRequest impl
-         mCallback = null;
-     }
- 
--    // Listens for a Fido2PendingIntent.
--    private OnSuccessListener<Fido2PendingIntent> mIntentListener = new OnSuccessListener<
--            Fido2PendingIntent>() {
--        @Override
--        public void onSuccess(Fido2PendingIntent fido2PendingIntent) {
--            if (!fido2PendingIntent.hasPendingIntent()) {
--                Log.e(TAG, "Didn't receive a pending intent.");
--                returnErrorAndResetCallback(AuthenticatorStatus.UNKNOWN_ERROR);
--                return;
--            }
--
--            if (mWindow == null) {
--                mWindow = mWebContents.getTopLevelNativeWindow();
--                if (mWindow == null) {
--                    Log.e(TAG, "Couldn't get ActivityWindowAndroid.");
--                    returnErrorAndResetCallback(AuthenticatorStatus.UNKNOWN_ERROR);
--                    return;
--                }
--            }
--
--            final Activity activity = mWindow.getActivity().get();
--            if (activity == null) {
--                Log.e(TAG, "Null activity.");
--                returnErrorAndResetCallback(AuthenticatorStatus.UNKNOWN_ERROR);
--                return;
--            }
--
--            Callback<Integer> mIntentTrigger = (Integer result) -> {
--                try {
--                    fido2PendingIntent.launchPendingIntent(activity, result);
--                } catch (IntentSender.SendIntentException e) {
--                    Log.e(TAG, "Failed to send Fido2 register request to Google Play Services.");
--                    returnErrorAndResetCallback(AuthenticatorStatus.UNKNOWN_ERROR);
--                }
--            };
--
--            // Record starting time that will be used to establish a timeout that will
--            // be activated when we receive a response that cannot be returned to the
--            // relying party prior to timeout.
--            mStartTimeMs = SystemClock.elapsedRealtime();
--            int requestCode =
--                    mWindow.showCancelableIntent(mIntentTrigger, Fido2CredentialRequest.this, null);
--
--            if (requestCode == WindowAndroid.START_INTENT_FAILURE) {
--                Log.e(TAG, "Failed to send Fido2 request to Google Play Services.");
--                returnErrorAndResetCallback(AuthenticatorStatus.UNKNOWN_ERROR);
--            } else {
--                Log.e(TAG, "Sent a Fido2 request to Google Play Services.");
--            }
--        }
--    };
--
-     public void handleMakeCredentialRequest(
-             org.chromium.blink.mojom.PublicKeyCredentialCreationOptions options,
-             RenderFrameHost frameHost, Origin origin, HandlerResponseCallback callback) {
-@@ -148,33 +81,11 @@ public class Fido2CredentialRequest impl
- 
-         if (!initFido2ApiClient()) {
-             Log.e(TAG, "Google Play Services' Fido2PrivilegedApi is not available.");
--            returnErrorAndResetCallback(AuthenticatorStatus.UNKNOWN_ERROR);
-             return;
-         }
- 
-         int securityCheck = frameHost.performMakeCredentialWebAuthSecurityChecks(
-                 options.relyingParty.id, origin);
--        if (securityCheck != AuthenticatorStatus.SUCCESS) {
--            returnErrorAndResetCallback(securityCheck);
--            return;
--        }
--
--        PublicKeyCredentialCreationOptions credentialCreationOptions;
--        try {
--            credentialCreationOptions = Fido2Helper.toMakeCredentialOptions(options);
--        } catch (NoSuchAlgorithmException e) {
--            returnErrorAndResetCallback(AuthenticatorStatus.ALGORITHM_UNSUPPORTED);
--            return;
--        }
--
--        BrowserPublicKeyCredentialCreationOptions browserRequestOptions =
--                new BrowserPublicKeyCredentialCreationOptions.Builder()
--                        .setPublicKeyCredentialCreationOptions(credentialCreationOptions)
--                        .setOrigin(Uri.parse(convertOriginToString(origin)))
--                        .build();
--
--        Task<Fido2PendingIntent> result = mFido2ApiClient.getRegisterIntent(browserRequestOptions);
--        result.addOnSuccessListener(mIntentListener);
-     }
- 
-     public void handleGetAssertionRequest(PublicKeyCredentialRequestOptions options,
-@@ -189,33 +100,11 @@ public class Fido2CredentialRequest impl
- 
-         if (!initFido2ApiClient()) {
-             Log.e(TAG, "Google Play Services' Fido2PrivilegedApi is not available.");
--            returnErrorAndResetCallback(AuthenticatorStatus.UNKNOWN_ERROR);
-             return;
-         }
- 
-         int securityCheck =
-                 frameHost.performGetAssertionWebAuthSecurityChecks(options.relyingPartyId, origin);
--        if (securityCheck != AuthenticatorStatus.SUCCESS) {
--            returnErrorAndResetCallback(securityCheck);
--            return;
--        }
--
--        if (options.appid != null) {
--            mAppIdExtensionUsed = true;
--        }
--
--        com.google.android.gms.fido.fido2.api.common
--                .PublicKeyCredentialRequestOptions getAssertionOptions;
--        getAssertionOptions = Fido2Helper.toGetAssertionOptions(options);
--
--        BrowserPublicKeyCredentialRequestOptions browserRequestOptions =
--                new BrowserPublicKeyCredentialRequestOptions.Builder()
--                        .setPublicKeyCredentialRequestOptions(getAssertionOptions)
--                        .setOrigin(Uri.parse(convertOriginToString(origin)))
--                        .build();
--
--        Task<Fido2PendingIntent> result = mFido2ApiClient.getSignIntent(browserRequestOptions);
--        result.addOnSuccessListener(mIntentListener);
-     }
- 
-     public void handleIsUserVerifyingPlatformAuthenticatorAvailableRequest(
-@@ -236,32 +125,17 @@ public class Fido2CredentialRequest impl
-             return;
-         }
- 
--        Task<Boolean> result =
--                mFido2ApiClient.isUserVerifyingPlatformAuthenticatorAvailable()
--                        .addOnSuccessListener((isUVPAA) -> {
--                            mIsUserVerifyingPlatformAuthenticatorAvailableCallback
--                                    .onIsUserVerifyingPlatformAuthenticatorAvailableResponse(
--                                            isUVPAA);
--                            mIsUserVerifyingPlatformAuthenticatorAvailableCallback = null;
--                        });
-     }
- 
-     /* Initialize the FIDO2 browser API client. */
-     private boolean initFido2ApiClient() {
--        if (mFido2ApiClient != null) {
--            return true;
--        }
- 
-         if (!ExternalAuthUtils.getInstance().canUseGooglePlayServices(
-                     new UserRecoverableErrorHandler.Silent())) {
-             return false;
-         }
- 
--        mFido2ApiClient = Fido.getFido2PrivilegedApiClient(ContextUtils.getApplicationContext());
--        if (mFido2ApiClient == null) {
--            return false;
--        }
--        return true;
-+        return false;
-     }
- 
-     @VisibleForTesting
-@@ -280,13 +154,11 @@ public class Fido2CredentialRequest impl
-         if (data == null) {
-             Log.e(TAG, "Received a null intent.");
-             // The user canceled the request.
--            returnErrorAndResetCallback(AuthenticatorStatus.NOT_ALLOWED_ERROR);
-             return;
-         }
- 
-         switch (resultCode) {
-             case Activity.RESULT_CANCELED:
--                returnErrorAndResetCallback(AuthenticatorStatus.NOT_ALLOWED_ERROR);
-                 break;
-             case Activity.RESULT_OK:
-                 processIntentResult(data);
-@@ -294,62 +166,21 @@ public class Fido2CredentialRequest impl
-             default:
-                 // Something went wrong.
-                 Log.e(TAG, "Failed with result code" + resultCode);
--                returnErrorAndResetCallback(AuthenticatorStatus.UNKNOWN_ERROR);
-                 break;
-         }
-     }
- 
-     private void processPublicKeyCredential(Intent data) {
--        PublicKeyCredential publicKeyCredential = PublicKeyCredential.deserializeFromBytes(
--                data.getByteArrayExtra(FIDO2_KEY_CREDENTIAL_EXTRA));
--        AuthenticatorResponse response = publicKeyCredential.getResponse();
--        if (response instanceof AuthenticatorErrorResponse) {
--            processErrorResponse((AuthenticatorErrorResponse) response);
--        } else if (response instanceof AuthenticatorAttestationResponse) {
--            try {
--                mCallback.onRegisterResponse(AuthenticatorStatus.SUCCESS,
--                        Fido2Helper.toMakeCredentialResponse(publicKeyCredential));
--                mCallback = null;
--            } catch (NoSuchAlgorithmException e) {
--                returnErrorAndResetCallback(AuthenticatorStatus.ALGORITHM_UNSUPPORTED);
--            }
--        } else if (response instanceof AuthenticatorAssertionResponse) {
--            mCallback.onSignResponse(AuthenticatorStatus.SUCCESS,
--                    Fido2Helper.toGetAssertionResponse(publicKeyCredential, mAppIdExtensionUsed));
--            mCallback = null;
--        }
--    }
--
--    private void processErrorResponse(AuthenticatorErrorResponse errorResponse) {
--        Log.e(TAG,
--                "Google Play Services FIDO2 API returned an error: "
--                        + errorResponse.getErrorMessage());
--        int authenticatorStatus = Fido2Helper.convertError(
--                errorResponse.getErrorCode(), errorResponse.getErrorMessage());
--        returnErrorAndResetCallback(authenticatorStatus);
-     }
- 
-     private void processKeyResponse(Intent data) {
-         switch (mRequestStatus) {
-             case REGISTER_REQUEST:
-                 Log.e(TAG, "Received a register response from Google Play Services FIDO2 API");
--                try {
--                    mCallback.onRegisterResponse(AuthenticatorStatus.SUCCESS,
--                            Fido2Helper.toMakeCredentialResponse(
--                                    AuthenticatorAttestationResponse.deserializeFromBytes(
--                                            data.getByteArrayExtra(
--                                                    Fido.FIDO2_KEY_RESPONSE_EXTRA))));
--                } catch (NoSuchAlgorithmException e) {
--                    returnErrorAndResetCallback(AuthenticatorStatus.ALGORITHM_UNSUPPORTED);
--                }
-+                returnErrorAndResetCallback(AuthenticatorStatus.ALGORITHM_UNSUPPORTED);
-                 break;
-             case SIGN_REQUEST:
-                 Log.e(TAG, "Received a sign response from Google Play Services FIDO2 API");
--                mCallback.onSignResponse(AuthenticatorStatus.SUCCESS,
--                        Fido2Helper.toGetAssertionResponse(
--                                AuthenticatorAssertionResponse.deserializeFromBytes(
--                                        data.getByteArrayExtra(Fido.FIDO2_KEY_RESPONSE_EXTRA)),
--                                mAppIdExtensionUsed));
-                 break;
-         }
-         mCallback = null;
-@@ -361,17 +192,11 @@ public class Fido2CredentialRequest impl
-         // [Attestation/Assertion/Error] Response.
-         if (data.hasExtra(FIDO2_KEY_CREDENTIAL_EXTRA)) {
-             processPublicKeyCredential(data);
--        } else if (data.hasExtra(Fido.FIDO2_KEY_ERROR_EXTRA)) {
--            processErrorResponse(AuthenticatorErrorResponse.deserializeFromBytes(
--                    data.getByteArrayExtra(Fido.FIDO2_KEY_ERROR_EXTRA)));
--        } else if (data.hasExtra(Fido.FIDO2_KEY_RESPONSE_EXTRA)) {
--            processKeyResponse(data);
-         } else {
-             // Something went wrong.
-             Log.e(TAG,
-                     "The response is missing FIDO2_KEY_RESPONSE_EXTRA "
-                             + "and FIDO2_KEY_CREDENTIAL_EXTRA.");
--            returnErrorAndResetCallback(AuthenticatorStatus.UNKNOWN_ERROR);
-         }
-     }
- 
---- a/chrome/android/java/src/org/chromium/chrome/browser/webauth/Fido2Helper.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/webauth/Fido2Helper.java
-@@ -6,26 +6,6 @@ package org.chromium.chrome.browser.weba
- 
- import android.util.Base64;
- 
--import com.google.android.gms.fido.common.Transport;
--import com.google.android.gms.fido.fido2.api.common.Attachment;
--import com.google.android.gms.fido.fido2.api.common.AttestationConveyancePreference;
--import com.google.android.gms.fido.fido2.api.common.AuthenticationExtensions;
--import com.google.android.gms.fido.fido2.api.common.AuthenticationExtensionsClientOutputs;
--import com.google.android.gms.fido.fido2.api.common.AuthenticatorAssertionResponse;
--import com.google.android.gms.fido.fido2.api.common.AuthenticatorAttestationResponse;
--import com.google.android.gms.fido.fido2.api.common.AuthenticatorSelectionCriteria;
--import com.google.android.gms.fido.fido2.api.common.ErrorCode;
--import com.google.android.gms.fido.fido2.api.common.FidoAppIdExtension;
--import com.google.android.gms.fido.fido2.api.common.PublicKeyCredential;
--import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialCreationOptions;
--import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialDescriptor;
--import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialParameters;
--import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialRpEntity;
--import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialType;
--import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialUserEntity;
--import com.google.android.gms.fido.fido2.api.common.UserVerificationMethodExtension;
--import com.google.android.gms.fido.fido2.api.common.UvmEntries;
--
- import org.chromium.base.Log;
- import org.chromium.base.annotations.CalledByNative;
- import org.chromium.base.annotations.NativeMethods;
-@@ -64,225 +44,6 @@ public final class Fido2Helper {
-     static final double MAX_TIMEOUT_SECONDS = 600;
- 
-     /**
--     * Converts mojo options to gmscore options.
--     * @param options Options passed in from the renderer.
--     * @return Options to be passed to Fido2 API.
--     * @throws NoSuchAlgorithmException
--     */
--    public static PublicKeyCredentialCreationOptions toMakeCredentialOptions(
--            org.chromium.blink.mojom.PublicKeyCredentialCreationOptions options)
--            throws NoSuchAlgorithmException {
--        // Pack incoming options as Fido2's BrowserMakeCredentialOptions.
--        String rpIcon = options.relyingParty.icon != null ? options.relyingParty.icon.url : null;
--        PublicKeyCredentialRpEntity rp = new PublicKeyCredentialRpEntity(
--                options.relyingParty.id, options.relyingParty.name, rpIcon);
--
--        String userIcon = options.user.icon != null ? options.user.icon.url : null;
--        PublicKeyCredentialUserEntity user = new PublicKeyCredentialUserEntity(
--                options.user.id, options.user.name, userIcon, options.user.displayName);
--
--        List<PublicKeyCredentialParameters> parameters = new ArrayList<>();
--        for (org.chromium.blink.mojom.PublicKeyCredentialParameters param :
--                options.publicKeyParameters) {
--            if (param.algorithmIdentifier == ECDSA_COSE_IDENTIFIER
--                    && param.type == org.chromium.blink.mojom.PublicKeyCredentialType.PUBLIC_KEY) {
--                parameters.add(new PublicKeyCredentialParameters(
--                        PublicKeyCredentialType.PUBLIC_KEY.toString(), param.algorithmIdentifier));
--            }
--        }
--
--        // Check that at least one incoming param is supported by the FIDO2 API.
--        if (parameters.size() == 0 && options.publicKeyParameters.length != 0) {
--            Log.e(TAG, "None of the requested parameters are supported.");
--            throw new NoSuchAlgorithmException();
--        }
--
--        List<PublicKeyCredentialDescriptor> excludeCredentials =
--                convertCredentialDescriptor(options.excludeCredentials);
--
--        AuthenticatorSelectionCriteria selection =
--                convertSelectionCriteria(options.authenticatorSelection);
--
--        AttestationConveyancePreference attestationPreference =
--                convertAttestationPreference(options.attestation);
--
--        PublicKeyCredentialCreationOptions credentialCreationOptions =
--                new PublicKeyCredentialCreationOptions.Builder()
--                        .setRp(rp)
--                        .setUser(user)
--                        .setChallenge(options.challenge)
--                        .setParameters(parameters)
--                        .setTimeoutSeconds(adjustTimeout(options.timeout))
--                        .setExcludeList(excludeCredentials)
--                        .setAuthenticatorSelection(selection)
--                        .setAttestationConveyancePreference(attestationPreference)
--                        .build();
--        return credentialCreationOptions;
--    }
--
--    /**
--     * Converts gmscore AuthenticatorAttestationResponse to mojo MakeCredentialAuthenticatorResponse
--     * @param data Response from the Fido2 API.
--     * @return Response to be passed to the renderer.
--     */
--    public static MakeCredentialAuthenticatorResponse toMakeCredentialResponse(
--            AuthenticatorAttestationResponse data) throws NoSuchAlgorithmException {
--        MakeCredentialAuthenticatorResponse response = new MakeCredentialAuthenticatorResponse();
--        CommonCredentialInfo info = new CommonCredentialInfo();
--
--        response.attestationObject = data.getAttestationObject();
--        AttestationObjectParts parts = new AttestationObjectParts();
--        if (!Fido2HelperJni.get().parseAttestationObject(response.attestationObject, parts)) {
--            // A failure to parse the attestation object is fatal to the request
--            // on desktop and so the same behavior is used here.
--            throw new NoSuchAlgorithmException();
--        }
--        response.publicKeyAlgo = parts.coseAlgorithm;
--        info.authenticatorData = parts.authenticatorData;
--        response.publicKeyDer = parts.spki;
--
--        // An empty transports array indicates that we don't have any
--        // information about the available transports.
--        response.transports = new int[] {};
--
--        info.id = encodeId(data.getKeyHandle());
--        info.rawId = data.getKeyHandle();
--        info.clientDataJson = data.getClientDataJSON();
--        response.info = info;
--        return response;
--    }
--
--    public static MakeCredentialAuthenticatorResponse toMakeCredentialResponse(
--            PublicKeyCredential data) throws NoSuchAlgorithmException {
--        MakeCredentialAuthenticatorResponse response =
--                toMakeCredentialResponse((AuthenticatorAttestationResponse) data.getResponse());
--        return response;
--    }
--
--    /**
--     * Converts mojo options to gmscore options.
--     * @param options Options passed in from the renderer.
--     * @return Options to be passed to Fido2 API.
--     */
--    public static com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialRequestOptions
--    toGetAssertionOptions(PublicKeyCredentialRequestOptions options) {
--        List<PublicKeyCredentialDescriptor> allowCredentials =
--                convertCredentialDescriptor(options.allowCredentials);
--
--        FidoAppIdExtension fidoAppIdExtension =
--                (options.appid != null) ? new FidoAppIdExtension(options.appid) : null;
--        UserVerificationMethodExtension userVerificationMethodExtension =
--                new UserVerificationMethodExtension(options.userVerificationMethods);
--        AuthenticationExtensions authenticationExtensions =
--                new AuthenticationExtensions.Builder()
--                        .setFido2Extension(fidoAppIdExtension)
--                        .setUserVerificationMethodExtension(userVerificationMethodExtension)
--                        .build();
--
--        // Pack options as Fido2's BrowserPublicKeyCredentialRequestOptions.
--        com.google.android.gms.fido.fido2.api.common
--                .PublicKeyCredentialRequestOptions credentialRequestOptions =
--                new com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialRequestOptions
--                        .Builder()
--                        .setChallenge(options.challenge)
--                        .setTimeoutSeconds(adjustTimeout(options.timeout))
--                        .setRpId(options.relyingPartyId)
--                        .setAllowList(allowCredentials)
--                        /* TODO add back UserVerificationRequirement when the FIDO2 API supports it
--                         */
--                        .setAuthenticationExtensions(authenticationExtensions)
--                        .build();
--        return credentialRequestOptions;
--    }
--
--    /**
--     * Helper method that creates GetAssertionAuthenticatorResponse objects.
--     */
--    public static GetAssertionAuthenticatorResponse toGetAssertionResponse(
--            AuthenticatorAssertionResponse data, boolean appIdExtensionUsed) {
--        GetAssertionAuthenticatorResponse response = new GetAssertionAuthenticatorResponse();
--        CommonCredentialInfo info = new CommonCredentialInfo();
--        response.signature = data.getSignature();
--        response.echoAppidExtension = appIdExtensionUsed;
--        info.authenticatorData = data.getAuthenticatorData();
--        info.id = encodeId(data.getKeyHandle());
--        info.rawId = data.getKeyHandle();
--        info.clientDataJson = data.getClientDataJSON();
--        response.info = info;
--        return response;
--    }
--
--    public static GetAssertionAuthenticatorResponse toGetAssertionResponse(
--            PublicKeyCredential data, boolean appIdExtensionUsed) {
--        GetAssertionAuthenticatorResponse response = toGetAssertionResponse(
--                (AuthenticatorAssertionResponse) data.getResponse(), appIdExtensionUsed);
--        AuthenticationExtensionsClientOutputs extensionsClientOutputs =
--                data.getClientExtensionResults();
--
--        if (extensionsClientOutputs != null && extensionsClientOutputs.getUvmEntries() != null) {
--            response.echoUserVerificationMethods = true;
--            response.userVerificationMethods =
--                    getUserVerificationMethods(extensionsClientOutputs.getUvmEntries());
--        }
--        return response;
--    }
--
--    /**
--     * Helper method to convert AuthenticatorErrorResponse errors.
--     * @param errorCode
--     * @return error code corresponding to an AuthenticatorStatus.
--     */
--    public static int convertError(ErrorCode errorCode, String errorMsg) {
--        // TODO(b/113347251): Use specific error codes instead of strings when GmsCore Fido2
--        // provides them.
--        switch (errorCode) {
--            case SECURITY_ERR:
--                // AppId or rpID fails validation.
--                return AuthenticatorStatus.INVALID_DOMAIN;
--            case TIMEOUT_ERR:
--                return AuthenticatorStatus.NOT_ALLOWED_ERROR;
--            case ENCODING_ERR:
--                // Error encoding results (after user consent).
--                return AuthenticatorStatus.UNKNOWN_ERROR;
--            case NOT_ALLOWED_ERR:
--                // The implementation doesn't support resident keys.
--                if (errorMsg != null
--                        && (errorMsg.equals(NON_EMPTY_ALLOWLIST_ERROR_MSG)
--                                || errorMsg.equals(NON_VALID_ALLOWED_CREDENTIALS_ERROR_MSG))) {
--                    return AuthenticatorStatus.EMPTY_ALLOW_CREDENTIALS;
--                }
--                // The request is not allowed, possibly because the user denied permission.
--                return AuthenticatorStatus.NOT_ALLOWED_ERROR;
--            case DATA_ERR:
--            // Incoming requests were malformed/inadequate. Fallthrough.
--            case NOT_SUPPORTED_ERR:
--                // Request parameters were not supported.
--                return AuthenticatorStatus.ANDROID_NOT_SUPPORTED_ERROR;
--            case CONSTRAINT_ERR:
--                if (errorMsg != null && errorMsg.equals(NO_SCREENLOCK_ERROR_MSG)) {
--                    return AuthenticatorStatus.USER_VERIFICATION_UNSUPPORTED;
--                } else {
--                    // The user attempted to use a credential that was already registered.
--                    return AuthenticatorStatus.CREDENTIAL_EXCLUDED;
--                }
--            case INVALID_STATE_ERR:
--                if (errorMsg != null && errorMsg.equals(CREDENTIAL_EXISTS_ERROR_MSG)) {
--                    return AuthenticatorStatus.CREDENTIAL_EXCLUDED;
--                }
--            // else fallthrough.
--            case UNKNOWN_ERR:
--                if (errorMsg != null && errorMsg.equals(LOW_LEVEL_ERROR_MSG)) {
--                    // The error message returned from GmsCore when the user attempted to use a
--                    // credential that is not registered.
--                    return AuthenticatorStatus.CREDENTIAL_NOT_RECOGNIZED;
--                }
--            // fall through
--            default:
--                return AuthenticatorStatus.UNKNOWN_ERROR;
--        }
--    }
--
--    /**
-      * Base64 encodes the raw id.
-      * @param keyHandle the raw id (key handle of the credential).
-      * @return Base64-encoded id.
-@@ -293,102 +54,6 @@ public final class Fido2Helper {
-     }
- 
-     /**
--     * Parses uvmEntries into userVerificationMethods
--     * @param uvmEntries defined in gmscore.
--     * @return userVerificationMethods defined in authenticato.mojom.
--     */
--    private static UvmEntry[] getUserVerificationMethods(UvmEntries uvmEntries) {
--        List<com.google.android.gms.fido.fido2.api.common.UvmEntry> uvmEntryList =
--                uvmEntries.getUvmEntryList();
--        UvmEntry[] userVerificationMethods = new UvmEntry[uvmEntryList.size()];
--        for (int i = 0; i < uvmEntryList.size(); i++) {
--            UvmEntry uvmEntry = new UvmEntry();
--            uvmEntry.userVerificationMethod = uvmEntryList.get(i).getUserVerificationMethod();
--            uvmEntry.keyProtectionType = uvmEntryList.get(i).getKeyProtectionType();
--            uvmEntry.matcherProtectionType = uvmEntryList.get(i).getMatcherProtectionType();
--            userVerificationMethods[i] = uvmEntry;
--        }
--        return userVerificationMethods;
--    }
--
--    private static List<PublicKeyCredentialDescriptor> convertCredentialDescriptor(
--            org.chromium.blink.mojom.PublicKeyCredentialDescriptor[] mojoDescriptors) {
--        if (mojoDescriptors == null) {
--            return null;
--        }
--
--        List<PublicKeyCredentialDescriptor> descriptors = new ArrayList<>();
--        for (org.chromium.blink.mojom.PublicKeyCredentialDescriptor descriptor : mojoDescriptors) {
--            descriptors.add(
--                    new PublicKeyCredentialDescriptor(PublicKeyCredentialType.PUBLIC_KEY.toString(),
--                            descriptor.id, toTransportList(descriptor.transports)));
--        }
--        return descriptors;
--    }
--
--    private static AuthenticatorSelectionCriteria convertSelectionCriteria(
--            org.chromium.blink.mojom.AuthenticatorSelectionCriteria mojoSelection) {
--        AuthenticatorSelectionCriteria selection = null;
--        if (mojoSelection != null) {
--            /* Sets UserVerificationRequirement and RequireResidentKey to default until the FIDO2
--             * API supports the other options. */
--            selection =
--                    new AuthenticatorSelectionCriteria.Builder()
--                            .setAttachment(convertAttachment(mojoSelection.authenticatorAttachment))
--                            .build();
--        }
--        return selection;
--    }
--
--    private static List<Transport> toTransportList(int[] mojoTransports) {
--        List<Transport> fidoTransports = new ArrayList<>();
--        for (int transport : mojoTransports) {
--            fidoTransports.add(convertTransport(transport));
--        }
--        return fidoTransports;
--    }
--
--    private static Transport convertTransport(int transport) {
--        switch (transport) {
--            case AuthenticatorTransport.USB:
--                return Transport.USB;
--            case AuthenticatorTransport.NFC:
--                return Transport.NFC;
--            case AuthenticatorTransport.BLE:
--                return Transport.BLUETOOTH_LOW_ENERGY;
--            case AuthenticatorTransport.INTERNAL:
--                return Transport.INTERNAL;
--            default:
--                return Transport.USB;
--        }
--    }
--
--    private static Attachment convertAttachment(int attachment) {
--        if (attachment == AuthenticatorAttachment.NO_PREFERENCE) {
--            return null;
--        } else if (attachment == AuthenticatorAttachment.CROSS_PLATFORM) {
--            return Attachment.CROSS_PLATFORM;
--        } else {
--            return Attachment.PLATFORM;
--        }
--    }
--
--    private static AttestationConveyancePreference convertAttestationPreference(int preference) {
--        switch (preference) {
--            case org.chromium.blink.mojom.AttestationConveyancePreference.NONE:
--                return AttestationConveyancePreference.NONE;
--            case org.chromium.blink.mojom.AttestationConveyancePreference.INDIRECT:
--                return AttestationConveyancePreference.INDIRECT;
--            case org.chromium.blink.mojom.AttestationConveyancePreference.DIRECT:
--                return AttestationConveyancePreference.DIRECT;
--            case org.chromium.blink.mojom.AttestationConveyancePreference.ENTERPRISE:
--                return AttestationConveyancePreference.NONE;
--            default:
--                return AttestationConveyancePreference.NONE;
--        }
--    }
--
--    /**
-      * Adjusts a timeout between a reasonable minimum and maximum.
-      *
-      * @param timeout The unadjusted timeout as specified by the website. May be null.
+-  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+   android_aar_prebuilt("google_play_services_tasks_java") {
+     aar_path = "libs/com_google_android_gms_play_services_tasks/play-services-tasks-17.2.0.aar"
+     info_path = "libs/com_google_android_gms_play_services_tasks/com_google_android_gms_play_services_tasks.info"
 --- a/chrome/android/java/src/org/chromium/chrome/browser/externalnav/ExternalNavigationDelegateImpl.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/externalnav/ExternalNavigationDelegateImpl.java
-@@ -218,12 +218,6 @@ public class ExternalNavigationDelegateI
+@@ -219,12 +219,6 @@ public class ExternalNavigationDelegateI
  
      @Override
      public void maybeAdjustInstantAppExtras(Intent intent, boolean isIntentToInstantApp) {
@@ -1163,7 +518,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
          return false;
 --- a/services/BUILD.gn
 +++ b/services/BUILD.gn
-@@ -106,7 +106,6 @@ if (is_android) {
+@@ -112,7 +112,6 @@ if (is_android) {
      deps = [
        "$google_play_services_package:google_play_services_base_java",
        "$google_play_services_package:google_play_services_basement_java",
@@ -1173,7 +528,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
        "//base:base_java",
 --- a/chrome/android/features/cablev2_authenticator/java/src/org/chromium/chrome/browser/webauth/authenticator/CableAuthenticator.java
 +++ b/chrome/android/features/cablev2_authenticator/java/src/org/chromium/chrome/browser/webauth/authenticator/CableAuthenticator.java
-@@ -23,25 +23,6 @@ import android.util.Base64;
+@@ -21,25 +21,6 @@ import android.os.Bundle;
  import androidx.core.app.NotificationCompat;
  import androidx.core.app.NotificationManagerCompat;
  
@@ -1199,7 +554,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
  import com.google.android.gms.tasks.Task;
  
  import org.chromium.base.ContextUtils;
-@@ -173,130 +154,17 @@ class CableAuthenticator {
+@@ -140,130 +121,17 @@ class CableAuthenticator {
      public void makeCredential(String rpId, byte[] clientDataHash, byte[] userId, int[] algorithms,
              byte[][] excludedCredentialIds, boolean residentKeyRequired) {
          // TODO: handle concurrent requests
@@ -1334,7 +689,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
      }
  
      /**
-@@ -339,100 +207,15 @@ class CableAuthenticator {
+@@ -307,100 +175,15 @@ class CableAuthenticator {
      }
  
      private boolean onRegisterResponse(int resultCode, Intent data) {
@@ -1570,3 +925,568 @@ Subject: Remove dependency on com.google.android.gms.fido,
 +    return "";
    }
  }
+--- a/components/webauthn/android/java/src/org/chromium/components/webauthn/Fido2CredentialRequest.java
++++ b/components/webauthn/android/java/src/org/chromium/components/webauthn/Fido2CredentialRequest.java
+@@ -13,18 +13,6 @@ import android.os.SystemClock;
+ import androidx.annotation.IntDef;
+ import androidx.annotation.VisibleForTesting;
+ 
+-import com.google.android.gms.fido.Fido;
+-import com.google.android.gms.fido.fido2.Fido2PrivilegedApiClient;
+-import com.google.android.gms.fido.fido2.api.common.AuthenticatorAssertionResponse;
+-import com.google.android.gms.fido.fido2.api.common.AuthenticatorAttestationResponse;
+-import com.google.android.gms.fido.fido2.api.common.AuthenticatorErrorResponse;
+-import com.google.android.gms.fido.fido2.api.common.AuthenticatorResponse;
+-import com.google.android.gms.fido.fido2.api.common.BrowserPublicKeyCredentialCreationOptions;
+-import com.google.android.gms.fido.fido2.api.common.BrowserPublicKeyCredentialRequestOptions;
+-import com.google.android.gms.fido.fido2.api.common.PublicKeyCredential;
+-import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialCreationOptions;
+-import com.google.android.gms.tasks.Task;
+-
+ import org.chromium.base.ContextUtils;
+ import org.chromium.base.Log;
+ import org.chromium.blink.mojom.AuthenticatorStatus;
+@@ -51,7 +39,6 @@ public class Fido2CredentialRequest impl
+     private GetAssertionResponseCallback mGetAssertionCallback;
+     private MakeCredentialResponseCallback mMakeCredentialCallback;
+     private FidoErrorResponseCallback mErrorCallback;
+-    private Fido2PrivilegedApiClient mFido2ApiClient;
+     private WebContents mWebContents;
+     private WindowAndroid mWindow;
+     private @RequestStatus int mRequestStatus;
+@@ -108,24 +95,6 @@ public class Fido2CredentialRequest impl
+             returnErrorAndResetCallback(securityCheck);
+             return;
+         }
+-
+-        PublicKeyCredentialCreationOptions credentialCreationOptions;
+-        try {
+-            credentialCreationOptions = Fido2Helper.toMakeCredentialOptions(options);
+-        } catch (NoSuchAlgorithmException e) {
+-            returnErrorAndResetCallback(AuthenticatorStatus.ALGORITHM_UNSUPPORTED);
+-            return;
+-        }
+-
+-        BrowserPublicKeyCredentialCreationOptions browserRequestOptions =
+-                new BrowserPublicKeyCredentialCreationOptions.Builder()
+-                        .setPublicKeyCredentialCreationOptions(credentialCreationOptions)
+-                        .setOrigin(Uri.parse(convertOriginToString(origin)))
+-                        .build();
+-
+-        Task<PendingIntent> result =
+-                mFido2ApiClient.getRegisterPendingIntent(browserRequestOptions);
+-        result.addOnSuccessListener(this::onGotPendingIntent);
+     }
+ 
+     public void handleGetAssertionRequest(PublicKeyCredentialRequestOptions options,
+@@ -156,19 +125,6 @@ public class Fido2CredentialRequest impl
+         if (options.appid != null) {
+             mAppIdExtensionUsed = true;
+         }
+-
+-        com.google.android.gms.fido.fido2.api.common
+-                .PublicKeyCredentialRequestOptions getAssertionOptions;
+-        getAssertionOptions = Fido2Helper.toGetAssertionOptions(options);
+-
+-        BrowserPublicKeyCredentialRequestOptions browserRequestOptions =
+-                new BrowserPublicKeyCredentialRequestOptions.Builder()
+-                        .setPublicKeyCredentialRequestOptions(getAssertionOptions)
+-                        .setOrigin(Uri.parse(convertOriginToString(origin)))
+-                        .build();
+-
+-        Task<PendingIntent> result = mFido2ApiClient.getSignPendingIntent(browserRequestOptions);
+-        result.addOnSuccessListener(this::onGotPendingIntent);
+     }
+ 
+     public void handleIsUserVerifyingPlatformAuthenticatorAvailableRequest(
+@@ -184,31 +140,16 @@ public class Fido2CredentialRequest impl
+             callback.onIsUserVerifyingPlatformAuthenticatorAvailableResponse(false);
+             return;
+         }
+-
+-        Task<Boolean> result =
+-                mFido2ApiClient.isUserVerifyingPlatformAuthenticatorAvailable()
+-                        .addOnSuccessListener((isUVPAA) -> {
+-                            callback.onIsUserVerifyingPlatformAuthenticatorAvailableResponse(
+-                                    isUVPAA);
+-                        });
+     }
+ 
+     /* Initialize the FIDO2 browser API client. */
+     private boolean initFido2ApiClient() {
+-        if (mFido2ApiClient != null) {
+-            return true;
+-        }
+-
+         if (!ExternalAuthUtils.getInstance().canUseGooglePlayServices(
+                     new UserRecoverableErrorHandler.Silent())) {
+             return false;
+         }
+ 
+-        mFido2ApiClient = Fido.getFido2PrivilegedApiClient(ContextUtils.getApplicationContext());
+-        if (mFido2ApiClient == null) {
+-            return false;
+-        }
+-        return true;
++        return false;
+     }
+ 
+     // Handles a PendingIntent from the GMSCore Fido library.
+@@ -255,13 +196,11 @@ public class Fido2CredentialRequest impl
+         if (data == null) {
+             Log.e(TAG, "Received a null intent.");
+             // The user canceled the request.
+-            returnErrorAndResetCallback(AuthenticatorStatus.NOT_ALLOWED_ERROR);
+             return;
+         }
+ 
+         switch (resultCode) {
+             case Activity.RESULT_CANCELED:
+-                returnErrorAndResetCallback(AuthenticatorStatus.NOT_ALLOWED_ERROR);
+                 break;
+             case Activity.RESULT_OK:
+                 processIntentResult(data);
+@@ -275,56 +214,16 @@ public class Fido2CredentialRequest impl
+     }
+ 
+     private void processPublicKeyCredential(Intent data) {
+-        PublicKeyCredential publicKeyCredential = PublicKeyCredential.deserializeFromBytes(
+-                data.getByteArrayExtra(FIDO2_KEY_CREDENTIAL_EXTRA));
+-        AuthenticatorResponse response = publicKeyCredential.getResponse();
+-        if (response instanceof AuthenticatorErrorResponse) {
+-            processErrorResponse((AuthenticatorErrorResponse) response);
+-        } else if (response instanceof AuthenticatorAttestationResponse) {
+-            try {
+-                mMakeCredentialCallback.onRegisterResponse(AuthenticatorStatus.SUCCESS,
+-                        Fido2Helper.toMakeCredentialResponse(publicKeyCredential));
+-                mMakeCredentialCallback = null;
+-            } catch (NoSuchAlgorithmException e) {
+-                returnErrorAndResetCallback(AuthenticatorStatus.ALGORITHM_UNSUPPORTED);
+-            }
+-        } else if (response instanceof AuthenticatorAssertionResponse) {
+-            mGetAssertionCallback.onSignResponse(AuthenticatorStatus.SUCCESS,
+-                    Fido2Helper.toGetAssertionResponse(publicKeyCredential, mAppIdExtensionUsed));
+-            mGetAssertionCallback = null;
+-        }
+-    }
+-
+-    private void processErrorResponse(AuthenticatorErrorResponse errorResponse) {
+-        Log.e(TAG,
+-                "Google Play Services FIDO2 API returned an error: "
+-                        + errorResponse.getErrorMessage());
+-        int authenticatorStatus = Fido2Helper.convertError(
+-                errorResponse.getErrorCode(), errorResponse.getErrorMessage());
+-        returnErrorAndResetCallback(authenticatorStatus);
+     }
+ 
+     private void processKeyResponse(Intent data) {
+         switch (mRequestStatus) {
+             case REGISTER_REQUEST:
+                 Log.e(TAG, "Received a register response from Google Play Services FIDO2 API");
+-                try {
+-                    mMakeCredentialCallback.onRegisterResponse(AuthenticatorStatus.SUCCESS,
+-                            Fido2Helper.toMakeCredentialResponse(
+-                                    AuthenticatorAttestationResponse.deserializeFromBytes(
+-                                            data.getByteArrayExtra(
+-                                                    Fido.FIDO2_KEY_RESPONSE_EXTRA))));
+-                } catch (NoSuchAlgorithmException e) {
+-                    returnErrorAndResetCallback(AuthenticatorStatus.ALGORITHM_UNSUPPORTED);
+-                }
++                returnErrorAndResetCallback(AuthenticatorStatus.ALGORITHM_UNSUPPORTED);
+                 break;
+             case SIGN_REQUEST:
+                 Log.e(TAG, "Received a sign response from Google Play Services FIDO2 API");
+-                mGetAssertionCallback.onSignResponse(AuthenticatorStatus.SUCCESS,
+-                        Fido2Helper.toGetAssertionResponse(
+-                                AuthenticatorAssertionResponse.deserializeFromBytes(
+-                                        data.getByteArrayExtra(Fido.FIDO2_KEY_RESPONSE_EXTRA)),
+-                                mAppIdExtensionUsed));
+                 break;
+         }
+         mMakeCredentialCallback = null;
+@@ -337,17 +236,11 @@ public class Fido2CredentialRequest impl
+         // [Attestation/Assertion/Error] Response.
+         if (data.hasExtra(FIDO2_KEY_CREDENTIAL_EXTRA)) {
+             processPublicKeyCredential(data);
+-        } else if (data.hasExtra(Fido.FIDO2_KEY_ERROR_EXTRA)) {
+-            processErrorResponse(AuthenticatorErrorResponse.deserializeFromBytes(
+-                    data.getByteArrayExtra(Fido.FIDO2_KEY_ERROR_EXTRA)));
+-        } else if (data.hasExtra(Fido.FIDO2_KEY_RESPONSE_EXTRA)) {
+-            processKeyResponse(data);
+         } else {
+             // Something went wrong.
+             Log.e(TAG,
+                     "The response is missing FIDO2_KEY_RESPONSE_EXTRA "
+                             + "and FIDO2_KEY_CREDENTIAL_EXTRA.");
+-            returnErrorAndResetCallback(AuthenticatorStatus.UNKNOWN_ERROR);
+         }
+     }
+ 
+--- a/components/webauthn/android/java/src/org/chromium/components/webauthn/Fido2Helper.java
++++ b/components/webauthn/android/java/src/org/chromium/components/webauthn/Fido2Helper.java
+@@ -8,26 +8,6 @@ import android.util.Base64;
+ 
+ import androidx.annotation.VisibleForTesting;
+ 
+-import com.google.android.gms.fido.common.Transport;
+-import com.google.android.gms.fido.fido2.api.common.Attachment;
+-import com.google.android.gms.fido.fido2.api.common.AttestationConveyancePreference;
+-import com.google.android.gms.fido.fido2.api.common.AuthenticationExtensions;
+-import com.google.android.gms.fido.fido2.api.common.AuthenticationExtensionsClientOutputs;
+-import com.google.android.gms.fido.fido2.api.common.AuthenticatorAssertionResponse;
+-import com.google.android.gms.fido.fido2.api.common.AuthenticatorAttestationResponse;
+-import com.google.android.gms.fido.fido2.api.common.AuthenticatorSelectionCriteria;
+-import com.google.android.gms.fido.fido2.api.common.ErrorCode;
+-import com.google.android.gms.fido.fido2.api.common.FidoAppIdExtension;
+-import com.google.android.gms.fido.fido2.api.common.PublicKeyCredential;
+-import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialCreationOptions;
+-import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialDescriptor;
+-import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialParameters;
+-import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialRpEntity;
+-import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialType;
+-import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialUserEntity;
+-import com.google.android.gms.fido.fido2.api.common.UserVerificationMethodExtension;
+-import com.google.android.gms.fido.fido2.api.common.UvmEntries;
+-
+ import org.chromium.base.Log;
+ import org.chromium.base.annotations.CalledByNative;
+ import org.chromium.base.annotations.JNINamespace;
+@@ -70,225 +50,6 @@ public final class Fido2Helper {
+     public static final double MAX_TIMEOUT_SECONDS = 600;
+ 
+     /**
+-     * Converts mojo options to gmscore options.
+-     * @param options Options passed in from the renderer.
+-     * @return Options to be passed to Fido2 API.
+-     * @throws NoSuchAlgorithmException
+-     */
+-    public static PublicKeyCredentialCreationOptions toMakeCredentialOptions(
+-            org.chromium.blink.mojom.PublicKeyCredentialCreationOptions options)
+-            throws NoSuchAlgorithmException {
+-        // Pack incoming options as Fido2's BrowserMakeCredentialOptions.
+-        String rpIcon = options.relyingParty.icon != null ? options.relyingParty.icon.url : null;
+-        PublicKeyCredentialRpEntity rp = new PublicKeyCredentialRpEntity(
+-                options.relyingParty.id, options.relyingParty.name, rpIcon);
+-
+-        String userIcon = options.user.icon != null ? options.user.icon.url : null;
+-        PublicKeyCredentialUserEntity user = new PublicKeyCredentialUserEntity(
+-                options.user.id, options.user.name, userIcon, options.user.displayName);
+-
+-        List<PublicKeyCredentialParameters> parameters = new ArrayList<>();
+-        for (org.chromium.blink.mojom.PublicKeyCredentialParameters param :
+-                options.publicKeyParameters) {
+-            if (param.algorithmIdentifier == ECDSA_COSE_IDENTIFIER
+-                    && param.type == org.chromium.blink.mojom.PublicKeyCredentialType.PUBLIC_KEY) {
+-                parameters.add(new PublicKeyCredentialParameters(
+-                        PublicKeyCredentialType.PUBLIC_KEY.toString(), param.algorithmIdentifier));
+-            }
+-        }
+-
+-        // Check that at least one incoming param is supported by the FIDO2 API.
+-        if (parameters.size() == 0 && options.publicKeyParameters.length != 0) {
+-            Log.e(TAG, "None of the requested parameters are supported.");
+-            throw new NoSuchAlgorithmException();
+-        }
+-
+-        List<PublicKeyCredentialDescriptor> excludeCredentials =
+-                convertCredentialDescriptor(options.excludeCredentials);
+-
+-        AuthenticatorSelectionCriteria selection =
+-                convertSelectionCriteria(options.authenticatorSelection);
+-
+-        AttestationConveyancePreference attestationPreference =
+-                convertAttestationPreference(options.attestation);
+-
+-        PublicKeyCredentialCreationOptions credentialCreationOptions =
+-                new PublicKeyCredentialCreationOptions.Builder()
+-                        .setRp(rp)
+-                        .setUser(user)
+-                        .setChallenge(options.challenge)
+-                        .setParameters(parameters)
+-                        .setTimeoutSeconds(adjustTimeout(options.timeout))
+-                        .setExcludeList(excludeCredentials)
+-                        .setAuthenticatorSelection(selection)
+-                        .setAttestationConveyancePreference(attestationPreference)
+-                        .build();
+-        return credentialCreationOptions;
+-    }
+-
+-    /**
+-     * Converts gmscore AuthenticatorAttestationResponse to mojo MakeCredentialAuthenticatorResponse
+-     * @param data Response from the Fido2 API.
+-     * @return Response to be passed to the renderer.
+-     */
+-    public static MakeCredentialAuthenticatorResponse toMakeCredentialResponse(
+-            AuthenticatorAttestationResponse data) throws NoSuchAlgorithmException {
+-        MakeCredentialAuthenticatorResponse response = new MakeCredentialAuthenticatorResponse();
+-        CommonCredentialInfo info = new CommonCredentialInfo();
+-
+-        response.attestationObject = data.getAttestationObject();
+-        AttestationObjectParts parts = new AttestationObjectParts();
+-        if (!Fido2HelperJni.get().parseAttestationObject(response.attestationObject, parts)) {
+-            // A failure to parse the attestation object is fatal to the request
+-            // on desktop and so the same behavior is used here.
+-            throw new NoSuchAlgorithmException();
+-        }
+-        response.publicKeyAlgo = parts.coseAlgorithm;
+-        info.authenticatorData = parts.authenticatorData;
+-        response.publicKeyDer = parts.spki;
+-
+-        // An empty transports array indicates that we don't have any
+-        // information about the available transports.
+-        response.transports = new int[] {};
+-
+-        info.id = encodeId(data.getKeyHandle());
+-        info.rawId = data.getKeyHandle();
+-        info.clientDataJson = data.getClientDataJSON();
+-        response.info = info;
+-        return response;
+-    }
+-
+-    public static MakeCredentialAuthenticatorResponse toMakeCredentialResponse(
+-            PublicKeyCredential data) throws NoSuchAlgorithmException {
+-        MakeCredentialAuthenticatorResponse response =
+-                toMakeCredentialResponse((AuthenticatorAttestationResponse) data.getResponse());
+-        return response;
+-    }
+-
+-    /**
+-     * Converts mojo options to gmscore options.
+-     * @param options Options passed in from the renderer.
+-     * @return Options to be passed to Fido2 API.
+-     */
+-    public static com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialRequestOptions
+-    toGetAssertionOptions(PublicKeyCredentialRequestOptions options) {
+-        List<PublicKeyCredentialDescriptor> allowCredentials =
+-                convertCredentialDescriptor(options.allowCredentials);
+-
+-        FidoAppIdExtension fidoAppIdExtension =
+-                (options.appid != null) ? new FidoAppIdExtension(options.appid) : null;
+-        UserVerificationMethodExtension userVerificationMethodExtension =
+-                new UserVerificationMethodExtension(options.userVerificationMethods);
+-        AuthenticationExtensions authenticationExtensions =
+-                new AuthenticationExtensions.Builder()
+-                        .setFido2Extension(fidoAppIdExtension)
+-                        .setUserVerificationMethodExtension(userVerificationMethodExtension)
+-                        .build();
+-
+-        // Pack options as Fido2's BrowserPublicKeyCredentialRequestOptions.
+-        com.google.android.gms.fido.fido2.api.common
+-                .PublicKeyCredentialRequestOptions credentialRequestOptions =
+-                new com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialRequestOptions
+-                        .Builder()
+-                        .setChallenge(options.challenge)
+-                        .setTimeoutSeconds(adjustTimeout(options.timeout))
+-                        .setRpId(options.relyingPartyId)
+-                        .setAllowList(allowCredentials)
+-                        /* TODO add back UserVerificationRequirement when the FIDO2 API supports it
+-                         */
+-                        .setAuthenticationExtensions(authenticationExtensions)
+-                        .build();
+-        return credentialRequestOptions;
+-    }
+-
+-    /**
+-     * Helper method that creates GetAssertionAuthenticatorResponse objects.
+-     */
+-    public static GetAssertionAuthenticatorResponse toGetAssertionResponse(
+-            AuthenticatorAssertionResponse data, boolean appIdExtensionUsed) {
+-        GetAssertionAuthenticatorResponse response = new GetAssertionAuthenticatorResponse();
+-        CommonCredentialInfo info = new CommonCredentialInfo();
+-        response.signature = data.getSignature();
+-        response.echoAppidExtension = appIdExtensionUsed;
+-        info.authenticatorData = data.getAuthenticatorData();
+-        info.id = encodeId(data.getKeyHandle());
+-        info.rawId = data.getKeyHandle();
+-        info.clientDataJson = data.getClientDataJSON();
+-        response.info = info;
+-        return response;
+-    }
+-
+-    public static GetAssertionAuthenticatorResponse toGetAssertionResponse(
+-            PublicKeyCredential data, boolean appIdExtensionUsed) {
+-        GetAssertionAuthenticatorResponse response = toGetAssertionResponse(
+-                (AuthenticatorAssertionResponse) data.getResponse(), appIdExtensionUsed);
+-        AuthenticationExtensionsClientOutputs extensionsClientOutputs =
+-                data.getClientExtensionResults();
+-
+-        if (extensionsClientOutputs != null && extensionsClientOutputs.getUvmEntries() != null) {
+-            response.echoUserVerificationMethods = true;
+-            response.userVerificationMethods =
+-                    getUserVerificationMethods(extensionsClientOutputs.getUvmEntries());
+-        }
+-        return response;
+-    }
+-
+-    /**
+-     * Helper method to convert AuthenticatorErrorResponse errors.
+-     * @param errorCode
+-     * @return error code corresponding to an AuthenticatorStatus.
+-     */
+-    public static int convertError(ErrorCode errorCode, String errorMsg) {
+-        // TODO(b/113347251): Use specific error codes instead of strings when GmsCore Fido2
+-        // provides them.
+-        switch (errorCode) {
+-            case SECURITY_ERR:
+-                // AppId or rpID fails validation.
+-                return AuthenticatorStatus.INVALID_DOMAIN;
+-            case TIMEOUT_ERR:
+-                return AuthenticatorStatus.NOT_ALLOWED_ERROR;
+-            case ENCODING_ERR:
+-                // Error encoding results (after user consent).
+-                return AuthenticatorStatus.UNKNOWN_ERROR;
+-            case NOT_ALLOWED_ERR:
+-                // The implementation doesn't support resident keys.
+-                if (errorMsg != null
+-                        && (errorMsg.equals(NON_EMPTY_ALLOWLIST_ERROR_MSG)
+-                                || errorMsg.equals(NON_VALID_ALLOWED_CREDENTIALS_ERROR_MSG))) {
+-                    return AuthenticatorStatus.EMPTY_ALLOW_CREDENTIALS;
+-                }
+-                // The request is not allowed, possibly because the user denied permission.
+-                return AuthenticatorStatus.NOT_ALLOWED_ERROR;
+-            case DATA_ERR:
+-            // Incoming requests were malformed/inadequate. Fallthrough.
+-            case NOT_SUPPORTED_ERR:
+-                // Request parameters were not supported.
+-                return AuthenticatorStatus.ANDROID_NOT_SUPPORTED_ERROR;
+-            case CONSTRAINT_ERR:
+-                if (errorMsg != null && errorMsg.equals(NO_SCREENLOCK_ERROR_MSG)) {
+-                    return AuthenticatorStatus.USER_VERIFICATION_UNSUPPORTED;
+-                } else {
+-                    // The user attempted to use a credential that was already registered.
+-                    return AuthenticatorStatus.CREDENTIAL_EXCLUDED;
+-                }
+-            case INVALID_STATE_ERR:
+-                if (errorMsg != null && errorMsg.equals(CREDENTIAL_EXISTS_ERROR_MSG)) {
+-                    return AuthenticatorStatus.CREDENTIAL_EXCLUDED;
+-                }
+-            // else fallthrough.
+-            case UNKNOWN_ERR:
+-                if (errorMsg != null && errorMsg.equals(LOW_LEVEL_ERROR_MSG)) {
+-                    // The error message returned from GmsCore when the user attempted to use a
+-                    // credential that is not registered.
+-                    return AuthenticatorStatus.CREDENTIAL_NOT_RECOGNIZED;
+-                }
+-            // fall through
+-            default:
+-                return AuthenticatorStatus.UNKNOWN_ERROR;
+-        }
+-    }
+-
+-    /**
+      * Base64 encodes the raw id.
+      * @param keyHandle the raw id (key handle of the credential).
+      * @return Base64-encoded id.
+@@ -299,102 +60,6 @@ public final class Fido2Helper {
+     }
+ 
+     /**
+-     * Parses uvmEntries into userVerificationMethods
+-     * @param uvmEntries defined in gmscore.
+-     * @return userVerificationMethods defined in authenticato.mojom.
+-     */
+-    private static UvmEntry[] getUserVerificationMethods(UvmEntries uvmEntries) {
+-        List<com.google.android.gms.fido.fido2.api.common.UvmEntry> uvmEntryList =
+-                uvmEntries.getUvmEntryList();
+-        UvmEntry[] userVerificationMethods = new UvmEntry[uvmEntryList.size()];
+-        for (int i = 0; i < uvmEntryList.size(); i++) {
+-            UvmEntry uvmEntry = new UvmEntry();
+-            uvmEntry.userVerificationMethod = uvmEntryList.get(i).getUserVerificationMethod();
+-            uvmEntry.keyProtectionType = uvmEntryList.get(i).getKeyProtectionType();
+-            uvmEntry.matcherProtectionType = uvmEntryList.get(i).getMatcherProtectionType();
+-            userVerificationMethods[i] = uvmEntry;
+-        }
+-        return userVerificationMethods;
+-    }
+-
+-    private static List<PublicKeyCredentialDescriptor> convertCredentialDescriptor(
+-            org.chromium.blink.mojom.PublicKeyCredentialDescriptor[] mojoDescriptors) {
+-        if (mojoDescriptors == null) {
+-            return null;
+-        }
+-
+-        List<PublicKeyCredentialDescriptor> descriptors = new ArrayList<>();
+-        for (org.chromium.blink.mojom.PublicKeyCredentialDescriptor descriptor : mojoDescriptors) {
+-            descriptors.add(
+-                    new PublicKeyCredentialDescriptor(PublicKeyCredentialType.PUBLIC_KEY.toString(),
+-                            descriptor.id, toTransportList(descriptor.transports)));
+-        }
+-        return descriptors;
+-    }
+-
+-    private static AuthenticatorSelectionCriteria convertSelectionCriteria(
+-            org.chromium.blink.mojom.AuthenticatorSelectionCriteria mojoSelection) {
+-        AuthenticatorSelectionCriteria selection = null;
+-        if (mojoSelection != null) {
+-            /* Sets UserVerificationRequirement and RequireResidentKey to default until the FIDO2
+-             * API supports the other options. */
+-            selection =
+-                    new AuthenticatorSelectionCriteria.Builder()
+-                            .setAttachment(convertAttachment(mojoSelection.authenticatorAttachment))
+-                            .build();
+-        }
+-        return selection;
+-    }
+-
+-    private static List<Transport> toTransportList(int[] mojoTransports) {
+-        List<Transport> fidoTransports = new ArrayList<>();
+-        for (int transport : mojoTransports) {
+-            fidoTransports.add(convertTransport(transport));
+-        }
+-        return fidoTransports;
+-    }
+-
+-    private static Transport convertTransport(int transport) {
+-        switch (transport) {
+-            case AuthenticatorTransport.USB:
+-                return Transport.USB;
+-            case AuthenticatorTransport.NFC:
+-                return Transport.NFC;
+-            case AuthenticatorTransport.BLE:
+-                return Transport.BLUETOOTH_LOW_ENERGY;
+-            case AuthenticatorTransport.INTERNAL:
+-                return Transport.INTERNAL;
+-            default:
+-                return Transport.USB;
+-        }
+-    }
+-
+-    private static Attachment convertAttachment(int attachment) {
+-        if (attachment == AuthenticatorAttachment.NO_PREFERENCE) {
+-            return null;
+-        } else if (attachment == AuthenticatorAttachment.CROSS_PLATFORM) {
+-            return Attachment.CROSS_PLATFORM;
+-        } else {
+-            return Attachment.PLATFORM;
+-        }
+-    }
+-
+-    private static AttestationConveyancePreference convertAttestationPreference(int preference) {
+-        switch (preference) {
+-            case org.chromium.blink.mojom.AttestationConveyancePreference.NONE:
+-                return AttestationConveyancePreference.NONE;
+-            case org.chromium.blink.mojom.AttestationConveyancePreference.INDIRECT:
+-                return AttestationConveyancePreference.INDIRECT;
+-            case org.chromium.blink.mojom.AttestationConveyancePreference.DIRECT:
+-                return AttestationConveyancePreference.DIRECT;
+-            case org.chromium.blink.mojom.AttestationConveyancePreference.ENTERPRISE:
+-                return AttestationConveyancePreference.NONE;
+-            default:
+-                return AttestationConveyancePreference.NONE;
+-        }
+-    }
+-
+-    /**
+      * Adjusts a timeout between a reasonable minimum and maximum.
+      *
+      * @param timeout The unadjusted timeout as specified by the website. May be null.
+--- a/components/webauthn/android/BUILD.gn
++++ b/components/webauthn/android/BUILD.gn
+@@ -22,7 +22,6 @@ android_library("java") {
+   ]
+   annotation_processor_deps = [ "//base/android/jni_generator:jni_processor" ]
+   deps = [
+-    "$google_play_services_package:google_play_services_fido_java",
+     "$google_play_services_package:google_play_services_tasks_java",
+     "//base:base_java",
+     "//base:jni_java",

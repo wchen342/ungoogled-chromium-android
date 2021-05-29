@@ -1,3 +1,7 @@
+# 91.0.4472.77-1
+* Trichrome `apk` support can end any time due to Google decided to remove the ability of not using split modules, as well as stripe the ability of building `apk`s directly for some time now. After that, you will have to manually install an `aab` file using `bundletool` and a specific `aapt2` file. I will try to keep fixing it as long as I can but it can stop working any time from now on.
+  * Adding to their recent move of limiting APIs, I reflect [the call from the Fedora chromium package maintainer](https://src.fedoraproject.org/rpms/chromium/blob/c4e9feabf040cc2f0c4bac40e8d06fbaf8923c33/f/chromium.spec#_178) that at this point, if you really value _free software as in freedom_, you would be better off use something else instead, like `Fennec F-Droid`.
+
 # 90.0.4430.212-1
 * Upstream security fixes
 

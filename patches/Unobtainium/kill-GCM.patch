@@ -18,12 +18,12 @@ Subject: kill GCM
 @@ -15,7 +15,6 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/ChromeActionModeHandler.java",
    "java/src/org/chromium/chrome/browser/ChromeActivitySessionTracker.java",
-   "java/src/org/chromium/chrome/browser/ChromeApplication.java",
+   "java/src/org/chromium/chrome/browser/ChromeApplicationImpl.java",
 -  "java/src/org/chromium/chrome/browser/ChromeBackgroundServiceImpl.java",
    "java/src/org/chromium/chrome/browser/ChromeBackupAgentImpl.java",
    "java/src/org/chromium/chrome/browser/ChromeBackupWatcher.java",
    "java/src/org/chromium/chrome/browser/ChromeBaseAppCompatActivity.java",
-@@ -1205,10 +1204,6 @@ chrome_java_sources = [
+@@ -1172,10 +1171,6 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/searchwidget/SearchWidgetProvider.java",
    "java/src/org/chromium/chrome/browser/send_tab_to_self/SendTabToSelfShareActivity.java",
    "java/src/org/chromium/chrome/browser/services/AccountsChangedReceiver.java",
@@ -36,7 +36,7 @@ Subject: kill GCM
    "java/src/org/chromium/chrome/browser/settings/SettingsLauncherImpl.java",
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
-@@ -87,23 +87,18 @@ by a child template that "extends" this
+@@ -86,21 +86,16 @@ by a child template that "extends" this
      <permission android:name="{{ manifest_package }}.permission.CHILD_SERVICE" android:protectionLevel="signature" />
      <permission android:name="{{ manifest_package }}.permission.READ_WRITE_BOOKMARK_FOLDERS" android:protectionLevel="signatureOrSystem" />
      <permission android:name="{{ manifest_package }}.TOS_ACKED" android:protectionLevel="signatureOrSystem" />
@@ -54,13 +54,11 @@ Subject: kill GCM
      <uses-permission android:name="{{ manifest_package }}.TOS_ACKED" />
  
      <uses-permission android:name="com.chrome.permission.DEVICE_EXTRAS" />
-     <uses-permission android:name="com.android.browser.permission.READ_HISTORY_BOOKMARKS"/>
-     <uses-permission android:name="com.android.browser.permission.WRITE_HISTORY_BOOKMARKS"/>
 -    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
      <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT"/>
  
      <uses-permission android:name="com.google.android.apps.now.CURRENT_ACCOUNT_ACCESS" />
-@@ -944,25 +939,6 @@ by a child template that "extends" this
+@@ -951,25 +946,6 @@ by a child template that "extends" this
              android:configChanges="orientation|keyboardHidden|keyboard|screenSize|mcc|mnc|screenLayout|smallestScreenSize"
              android:hardwareAccelerated="false" />
  
@@ -86,7 +84,7 @@ Subject: kill GCM
  
          <!-- Android Notification service listener -->
          <service android:name="org.chromium.chrome.browser.notifications.NotificationService"
-@@ -987,28 +963,10 @@ by a child template that "extends" this
+@@ -994,28 +970,10 @@ by a child template that "extends" this
              android:exported="false"
              android:permission="android.permission.BIND_JOB_SERVICE"/>
  
@@ -146,7 +144,7 @@ Subject: kill GCM
  
 --- a/components/gcm_driver/instance_id/android/BUILD.gn
 +++ b/components/gcm_driver/instance_id/android/BUILD.gn
-@@ -28,7 +28,6 @@ android_library("instance_id_driver_java
+@@ -27,7 +27,6 @@ android_library("instance_id_driver_java
  
    sources = [
      "java/src/org/chromium/components/gcm_driver/instance_id/InstanceIDBridge.java",

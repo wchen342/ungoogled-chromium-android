@@ -1010,11 +1010,11 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
 --- a/components/search_engines/search_engine_type.h
 +++ b/components/search_engines/search_engine_type.h
-@@ -53,6 +53,7 @@ enum SearchEngineType {
-   SEARCH_ENGINE_SOFTONIC,
-   SEARCH_ENGINE_SOGOU,
-   SEARCH_ENGINE_SOSO,
-+  SEARCH_ENGINE_STARTPAGE,
-   SEARCH_ENGINE_SWEETPACKS,
-   SEARCH_ENGINE_TERRA,
-   SEARCH_ENGINE_TUT,
+@@ -75,6 +75,7 @@ enum SearchEngineType {
+   SEARCH_ENGINE_PRIVACYWALL = 58,
+   SEARCH_ENGINE_ECOSIA = 59,
+   SEARCH_ENGINE_SEARX = 60,
++  SEARCH_ENGINE_STARTPAGE = 61,
+ 
+   SEARCH_ENGINE_MAX  // Bounding value needed for UMA histogram macro.
+ };

@@ -10,8 +10,8 @@ Store proxy settings in LocalState instead of Profile, so that proxy is used
 for SimpleURLLoaders as well.
 ---
  chrome/android/java/res/values/values.xml                                                 |    3 
- chrome/android/java/res/xml/privacy_preferences.xml                                       |   11 
- chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java |    3 
+ chrome/android/java/res/xml/privacy_preferences.xml                                       |    4 
+ chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java |    1 
  chrome/browser/autocomplete/chrome_autocomplete_provider_client.cc                        |    2 
  chrome/browser/browser_resources.grd                                                      |    6 
  chrome/browser/net/proxy_service_factory.cc                                               |   23 
@@ -33,7 +33,7 @@ for SimpleURLLoaders as well.
  components/proxy_config/proxy_config_dictionary.h                                         |    7 
  net/proxy_resolution/proxy_config.cc                                                      |   52 +
  net/proxy_resolution/proxy_config.h                                                       |    3 
- 24 files changed, 999 insertions(+), 18 deletions(-)
+ 24 files changed, 994 insertions(+), 14 deletions(-)
  create mode 100644 chrome/browser/resources/proxy_config.css
  create mode 100644 chrome/browser/resources/proxy_config.html
  create mode 100644 chrome/browser/resources/proxy_config.js
@@ -42,7 +42,7 @@ for SimpleURLLoaders as well.
 
 --- a/chrome/android/java/res/values/values.xml
 +++ b/chrome/android/java/res/values/values.xml
-@@ -32,6 +32,9 @@
+@@ -29,6 +29,9 @@
      <integer name="reload_button_level_reload">0</integer>
      <integer name="reload_button_level_stop">1</integer>
  
@@ -54,56 +54,32 @@ for SimpleURLLoaders as well.
      <integer name="download_infobar_sweep_down_delay">800</integer>
 --- a/chrome/android/java/res/xml/privacy_preferences.xml
 +++ b/chrome/android/java/res/xml/privacy_preferences.xml
-@@ -39,21 +39,26 @@
+@@ -38,6 +38,10 @@
+         android:key="secure_dns"
          android:title="@string/settings_secure_dns_title"
-         android:fragment="org.chromium.chrome.browser.privacy.secure_dns.SecureDnsSettings"
-         android:order="5"/>
+         android:fragment="org.chromium.chrome.browser.privacy.secure_dns.SecureDnsSettings"/>
 +    <org.chromium.chrome.browser.about_settings.HyperlinkPreference
 +        android:key="proxy"
 +        android:title="@string/proxy_title"
-+        app:url="@string/proxy_url"
-+        android:order="6"/>
++        app:url="@string/proxy_url"/>
      <Preference
-         android:key="clear_browsing_data"
-         android:title="@string/clear_browsing_data_title"
-         android:summary="@string/clear_browsing_data_summary"
-         android:fragment="org.chromium.chrome.browser.browsing_data.ClearBrowsingDataTabsFragment"
--        android:order="6"/>
-+        android:order="7"/>
-     <Preference
-         android:key="safe_browsing"
-         android:title="@string/prefs_safe_browsing_title"
-         android:summary="@string/prefs_safe_browsing_summary"
-         android:fragment="org.chromium.chrome.browser.safe_browsing.settings.SafeBrowsingSettingsFragment"
--        android:order="7"/>
-+        android:order="8"/>
-     <Preference
-         android:key="privacy_sandbox"
-         android:title="@string/prefs_privacy_sandbox"
-         android:fragment="org.chromium.chrome.browser.privacy_sandbox.PrivacySandboxSettingsFragment"
--        android:order="8"/>
-+        android:order="9"/>
- </PreferenceScreen>
+         android:fragment="org.chromium.chrome.browser.privacy.settings.DoNotTrackSettings"
+         android:key="do_not_track"
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-@@ -57,10 +57,11 @@ public class PrivacySettings
+@@ -57,6 +57,7 @@ public class PrivacySettings
      private static final String PREF_SAFE_BROWSING = "safe_browsing";
      private static final String PREF_CLEAR_BROWSING_DATA = "clear_browsing_data";
      private static final String PREF_CLOSE_TABS_ON_EXIT = "close_tabs_on_exit";
 +    private static final String PREF_PROXY_OPTIONS = "proxy";
      private static final String PREF_PRIVACY_SANDBOX = "privacy_sandbox";
-     private static final String[] NEW_PRIVACY_PREFERENCE_ORDER = {PREF_CLEAR_BROWSING_DATA,
-             PREF_SAFE_BROWSING, PREF_CAN_MAKE_PAYMENT, PREF_NETWORK_PREDICTIONS, PREF_USAGE_STATS,
--            PREF_SECURE_DNS, PREF_CLOSE_TABS_ON_EXIT, PREF_DO_NOT_TRACK, PREF_PRIVACY_SANDBOX};
-+            PREF_SECURE_DNS, PREF_CLOSE_TABS_ON_EXIT, PREF_PROXY_OPTIONS, PREF_DO_NOT_TRACK, PREF_PRIVACY_SANDBOX};
  
      private ManagedPreferenceDelegate mManagedPreferenceDelegate;
- 
 --- a/chrome/browser/autocomplete/chrome_autocomplete_provider_client.cc
 +++ b/chrome/browser/autocomplete/chrome_autocomplete_provider_client.cc
-@@ -331,6 +331,8 @@ std::vector<base::string16>
+@@ -343,6 +343,8 @@ std::vector<std::u16string>
  ChromeAutocompleteProviderClient::GetBuiltinsToProvideAsUserTypes() {
-   std::vector<base::string16> builtins_to_provide;
+   std::vector<std::u16string> builtins_to_provide;
    builtins_to_provide.push_back(
 +      base::ASCIIToUTF16(chrome::kChromeUIProxyConfigURL));
 +  builtins_to_provide.push_back(
@@ -112,7 +88,7 @@ for SimpleURLLoaders as well.
    builtins_to_provide.push_back(
 --- a/chrome/browser/browser_resources.grd
 +++ b/chrome/browser/browser_resources.grd
-@@ -162,6 +162,12 @@
+@@ -88,6 +88,12 @@
          <include name="IDR_VIDEO_PLAYER_JS" file="resources\video_tutorials\video_player.js" type="BINDATA" />
        </if>
  
@@ -189,7 +165,7 @@ for SimpleURLLoaders as well.
  };
 --- a/chrome/browser/prefs/browser_prefs.cc
 +++ b/chrome/browser/prefs/browser_prefs.cc
-@@ -155,6 +155,8 @@
+@@ -154,6 +154,8 @@
  #include "printing/buildflags/buildflags.h"
  #include "rlz/buildflags/buildflags.h"
  
@@ -198,7 +174,7 @@ for SimpleURLLoaders as well.
  #if BUILDFLAG(ENABLE_BACKGROUND_MODE)
  #include "chrome/browser/background/background_mode_manager.h"
  #endif
-@@ -744,6 +746,8 @@ void RegisterLocalState(PrefRegistrySimp
+@@ -742,6 +744,8 @@ void RegisterLocalState(PrefRegistrySimp
    PluginsResourceService::RegisterPrefs(registry);
  #endif
  
@@ -209,7 +185,7 @@ for SimpleURLLoaders as well.
  
 --- a/chrome/browser/prefs/chrome_command_line_pref_store.cc
 +++ b/chrome/browser/prefs/chrome_command_line_pref_store.cc
-@@ -153,7 +153,7 @@ void ChromeCommandLinePrefStore::ApplyPr
+@@ -156,7 +156,7 @@ void ChromeCommandLinePrefStore::ApplyPr
      SetValue(
          proxy_config::prefs::kProxy,
          std::make_unique<base::Value>(ProxyConfigDictionary::CreateFixedServers(
@@ -633,7 +609,7 @@ for SimpleURLLoaders as well.
 +})();
 --- a/chrome/browser/ui/BUILD.gn
 +++ b/chrome/browser/ui/BUILD.gn
-@@ -256,6 +256,8 @@ static_library("ui") {
+@@ -257,6 +257,8 @@ static_library("ui") {
      "webui/metrics_handler.h",
      "webui/net_export_ui.cc",
      "webui/net_export_ui.h",
@@ -644,7 +620,7 @@ for SimpleURLLoaders as well.
      "webui/ntp_tiles_internals_ui.cc",
 --- a/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
 +++ b/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
-@@ -53,6 +53,7 @@
+@@ -52,6 +52,7 @@
  #include "chrome/browser/ui/webui/omnibox/omnibox_ui.h"
  #include "chrome/browser/ui/webui/policy/policy_ui.h"
  #include "chrome/browser/ui/webui/predictors/predictors_ui.h"
@@ -652,7 +628,7 @@ for SimpleURLLoaders as well.
  #include "chrome/browser/ui/webui/quota_internals/quota_internals_ui.h"
  #include "chrome/browser/ui/webui/signin_internals_ui.h"
  #include "chrome/browser/ui/webui/sync_internals/sync_internals_ui.h"
-@@ -556,6 +557,8 @@ WebUIFactoryFunction GetWebUIFactoryFunc
+@@ -574,6 +575,8 @@ WebUIFactoryFunction GetWebUIFactoryFunc
      return &NewWebUI<MemoryInternalsUI>;
    if (url.host_piece() == chrome::kChromeUINetExportHost)
      return &NewWebUI<NetExportUI>;
@@ -1128,7 +1104,7 @@ for SimpleURLLoaders as well.
  const char kChromeUIChromeURLsHost[] = "chrome-urls";
  const char kChromeUIChromeURLsURL[] = "chrome://chrome-urls/";
  const char kChromeUIComponentsHost[] = "components";
-@@ -327,6 +329,7 @@ bool IsSystemWebUIHost(base::StringPiece
+@@ -335,6 +337,7 @@ bool IsSystemWebUIHost(base::StringPiece
        kChromeUIMobileSetupHost,
        kChromeUIMultiDeviceSetupHost,
        kChromeUINetworkHost,
@@ -1136,7 +1112,7 @@ for SimpleURLLoaders as well.
        kChromeUIOobeHost,
        kChromeUIOSCreditsHost,
        kChromeUIOSSettingsHost,
-@@ -539,6 +542,7 @@ const char* const kChromeHostURLs[] = {
+@@ -551,6 +554,7 @@ const char* const kChromeHostURLs[] = {
  #if !defined(OS_ANDROID)
  #if !BUILDFLAG(IS_CHROMEOS_ASH)
      kChromeUIAppLauncherPageHost,

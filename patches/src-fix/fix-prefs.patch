@@ -3,26 +3,14 @@ Date: Thu, 20 Feb 2020 22:24:35 -0500
 Subject: fix build error with prefs.h
 
 ---
- chrome/android/java/src/org/chromium/chrome/browser/signin/SigninFragmentBase.java                   |    3 +--
+ chrome/android/java/src/org/chromium/chrome/browser/signin/SyncConsentFragmentBase.java              |    3 +--
  chrome/browser/preferences/BUILD.gn                                                                  |    1 -
  chrome/browser/signin/ui/android/java/src/org/chromium/chrome/browser/signin/ui/SigninPromoUtil.java |    3 +--
  3 files changed, 2 insertions(+), 5 deletions(-)
  
---- a/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninFragmentBase.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/signin/SigninFragmentBase.java
-@@ -443,8 +443,7 @@ public abstract class SigninFragmentBase
-     private void runStateMachineAndSignin(boolean settingsClicked) {
-         mConfirmSyncDataStateMachine = new ConfirmSyncDataStateMachine(
-                 new ConfirmSyncDataStateMachineDelegate(getChildFragmentManager()),
--                UserPrefs.get(Profile.getLastUsedRegularProfile())
--                        .getString(Pref.GOOGLE_SERVICES_LAST_USERNAME),
-+                "",
-                 mSelectedAccountName, new ConfirmSyncDataStateMachine.Listener() {
-                     @Override
-                     public void onConfirm(boolean wipeData) {
 --- a/chrome/browser/preferences/BUILD.gn
 +++ b/chrome/browser/preferences/BUILD.gn
-@@ -37,7 +37,6 @@ java_cpp_strings("java_pref_names_srcjar
+@@ -36,7 +36,6 @@ java_cpp_strings("java_pref_names_srcjar
      "//components/offline_pages/core/prefetch/prefetch_prefs.cc",
      "//components/password_manager/core/common/password_manager_pref_names.cc",
      "//components/payments/core/payment_prefs.cc",
@@ -32,13 +20,25 @@ Subject: fix build error with prefs.h
  
 --- a/chrome/browser/signin/ui/android/java/src/org/chromium/chrome/browser/signin/ui/SigninPromoUtil.java
 +++ b/chrome/browser/signin/ui/android/java/src/org/chromium/chrome/browser/signin/ui/SigninPromoUtil.java
-@@ -53,8 +53,7 @@ public final class SigninPromoUtil {
-         SigninPreferencesManager preferencesManager = SigninPreferencesManager.getInstance();
-         int currentMajorVersion = ChromeVersionInfo.getProductMajorVersion();
-         boolean wasSignedIn =
--                TextUtils.isEmpty(UserPrefs.get(Profile.getLastUsedRegularProfile())
--                                          .getString(Pref.GOOGLE_SERVICES_LAST_USERNAME));
-+                true;
-         if (!shouldLaunchSigninPromo(preferencesManager, currentMajorVersion, wasSignedIn)) {
+@@ -71,8 +71,7 @@ public final class SigninPromoUtil {
              return false;
          }
+ 
+-        if (TextUtils.isEmpty(
+-                    UserPrefs.get(profile).getString(Pref.GOOGLE_SERVICES_LAST_USERNAME))) {
++        if (true) {
+             // Don't show if user has manually signed out.
+             return false;
+         }
+--- a/chrome/android/java/src/org/chromium/chrome/browser/signin/SyncConsentFragmentBase.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/signin/SyncConsentFragmentBase.java
+@@ -435,8 +435,7 @@ public abstract class SyncConsentFragmen
+     private void runStateMachineAndSignin(boolean settingsClicked) {
+         mConfirmSyncDataStateMachine = new ConfirmSyncDataStateMachine(
+                 new ConfirmSyncDataStateMachineDelegate(getChildFragmentManager()),
+-                UserPrefs.get(Profile.getLastUsedRegularProfile())
+-                        .getString(Pref.GOOGLE_SERVICES_LAST_USERNAME),
++                "",
+                 mSelectedAccountName, new ConfirmSyncDataStateMachine.Listener() {
+                     @Override
+                     public void onConfirm(boolean wipeData) {

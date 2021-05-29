@@ -12,7 +12,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
 
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -4622,6 +4622,9 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -4608,6 +4608,9 @@ const FeatureEntry kFeatureEntries[] = {
       FEATURE_WITH_PARAMS_VALUE_TYPE(features::kMBIMode,
                                      kMBIModeVariations,
                                      "MBIMode")},
@@ -20,11 +20,11 @@ author: Wengling Chen <feiyu2817@gmail.com>
 +     flag_descriptions::kEnableSaveDataHeaderDescription, kOsAndroid,
 +     FEATURE_VALUE_TYPE(network::features::kEnableSaveDataHeader)},
  
-     {"delay-competing-low-priority-requests",
-      flag_descriptions::kDelayCompetingLowPriorityRequestsName,
+     {"intensive-wake-up-throttling",
+      flag_descriptions::kIntensiveWakeUpThrottlingName,
 --- a/services/network/public/cpp/features.cc
 +++ b/services/network/public/cpp/features.cc
-@@ -145,6 +145,10 @@ const base::FeatureParam<std::string>
+@@ -152,6 +152,10 @@ const base::FeatureParam<std::string>
  const base::Feature kDisableKeepaliveFetch{"DisableKeepaliveFetch",
                                             base::FEATURE_DISABLED_BY_DEFAULT};
  
@@ -37,7 +37,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
  // calling mojo::ReportBadMessage (on desktop platforms, where NetworkService
 --- a/services/network/public/cpp/features.h
 +++ b/services/network/public/cpp/features.h
-@@ -56,6 +56,8 @@ extern const base::FeatureParam<std::str
+@@ -58,6 +58,8 @@ extern const base::FeatureParam<std::str
  COMPONENT_EXPORT(NETWORK_CPP)
  extern const base::Feature kDisableKeepaliveFetch;
  COMPONENT_EXPORT(NETWORK_CPP)
@@ -48,7 +48,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
  COMPONENT_EXPORT(NETWORK_CPP)
 --- a/chrome/browser/flag_descriptions.cc
 +++ b/chrome/browser/flag_descriptions.cc
-@@ -958,6 +958,10 @@ const char kDisableKeepaliveFetchDescrip
+@@ -989,6 +989,10 @@ const char kDisableKeepaliveFetchDescrip
      "Disable fetch with keepalive set "
      "(https://fetch.spec.whatwg.org/#request-keepalive-flag).";
  
@@ -61,7 +61,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
  const char kExperimentalAccessibilityLanguageDetectionDescription[] =
 --- a/chrome/browser/flag_descriptions.h
 +++ b/chrome/browser/flag_descriptions.h
-@@ -545,6 +545,9 @@ extern const char kDiagnosticsAppDescrip
+@@ -559,6 +559,9 @@ extern const char kDiagnosticsAppDescrip
  extern const char kDisableKeepaliveFetchName[];
  extern const char kDisableKeepaliveFetchDescription[];
  

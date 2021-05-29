@@ -2,13 +2,12 @@ description: Add option to enable desktop mode all the time
 author: Wengling Chen <feiyu2817@gmail.com>
 
 ---
- chrome/android/java/res/xml/accessibility_preferences.xml                                                                  |    5 ++++
- chrome/android/java/src/org/chromium/chrome/browser/accessibility/settings/AccessibilitySettings.java                      |   10 +++++++++
- chrome/android/java/src/org/chromium/chrome/browser/tabmodel/TabModelSelectorImpl.java                                     |   11 ++++++++++
- chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java              |    2 +
- chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/GrandfatheredChromePreferenceKeys.java |    1 
- chrome/browser/ui/android/strings/android_chrome_strings.grd                                                               |    6 +++++
- 6 files changed, 35 insertions(+)
+ chrome/android/java/res/xml/accessibility_preferences.xml                                                     |    5 ++++
+ chrome/android/java/src/org/chromium/chrome/browser/accessibility/settings/AccessibilitySettings.java         |   10 +++++++++
+ chrome/android/java/src/org/chromium/chrome/browser/tabmodel/TabModelSelectorImpl.java                        |   11 ++++++++++
+ chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java |    3 ++
+ chrome/browser/ui/android/strings/android_chrome_strings.grd                                                  |    6 +++++
+ 5 files changed, 35 insertions(+)
 --- a/chrome/android/java/res/xml/accessibility_preferences.xml
 +++ b/chrome/android/java/res/xml/accessibility_preferences.xml
 @@ -25,6 +25,11 @@
@@ -25,7 +24,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
          android:title="@string/accessibility_captions_title"/>
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -1189,6 +1189,12 @@ Your Google account may have other forms
+@@ -1186,6 +1186,12 @@ Your Google account may have other forms
        <message name="IDS_ACCESSIBILITY_CAPTIONS_TITLE" desc="Title of the preference that allows the user to update caption settings.">
          Captions
        </message>
@@ -40,7 +39,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
        <message name="IDS_LANGUAGE_SETTINGS" desc="Title for the Languages settings screen that allows users to manage their languages preferences. [CHAR-LIMIT=32]">
 --- a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
 +++ b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
-@@ -446,6 +446,8 @@ public final class ChromePreferenceKeys
+@@ -487,6 +487,8 @@ public final class ChromePreferenceKeys
      public static final String FONT_USER_FONT_SCALE_FACTOR = "user_font_scale_factor";
      public static final String FONT_USER_SET_FORCE_ENABLE_ZOOM = "user_set_force_enable_zoom";
  
@@ -49,6 +48,14 @@ author: Wengling Chen <feiyu2817@gmail.com>
      public static final String HISTORY_SHOW_HISTORY_INFO = "history_home_show_info";
  
      /** Keys used to save settings related to homepage. */
+@@ -1001,6 +1003,7 @@ public final class ChromePreferenceKeys
+                 FIRST_RUN_SKIPPED_BY_POLICY,
+                 FLAGS_CACHED.pattern(),
+                 FLAGS_FIELD_TRIAL_PARAM_CACHED.pattern(),
++                FLAGS_FORCE_DESKTOP_MODE_ENABLED,
+                 FLAGS_LAST_CACHED_MINIMAL_BROWSER_FLAGS_TIME_MILLIS,
+                 HOMEPAGE_LOCATION_POLICY,
+                 HOMEPAGE_USE_CHROME_NTP,
 --- a/chrome/android/java/src/org/chromium/chrome/browser/accessibility/settings/AccessibilitySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/accessibility/settings/AccessibilitySettings.java
 @@ -34,6 +34,7 @@ public class AccessibilitySettings
@@ -90,10 +97,10 @@ author: Wengling Chen <feiyu2817@gmail.com>
  import org.chromium.chrome.browser.compositor.layouts.content.TabContentManager;
 +import org.chromium.chrome.browser.preferences.ChromePreferenceKeys;
 +import org.chromium.chrome.browser.preferences.SharedPreferencesManager;
+ import org.chromium.chrome.browser.flags.ActivityType;
  import org.chromium.chrome.browser.profiles.Profile;
  import org.chromium.chrome.browser.tab.SadTab;
- import org.chromium.chrome.browser.tab.Tab;
-@@ -178,6 +180,15 @@ public class TabModelSelectorImpl extend
+@@ -162,6 +164,15 @@ public class TabModelSelectorImpl extend
  
              @Override
              public void onPageLoadFinished(Tab tab, GURL url) {
@@ -109,13 +116,3 @@ author: Wengling Chen <feiyu2817@gmail.com>
                  tab.getId();
              }
  
---- a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/GrandfatheredChromePreferenceKeys.java
-+++ b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/GrandfatheredChromePreferenceKeys.java
-@@ -99,6 +99,7 @@ public class GrandfatheredChromePreferen
-                 ChromePreferenceKeys.FLAGS_CACHED_START_SURFACE_ENABLED,
-                 ChromePreferenceKeys.FLAGS_CACHED_SWAP_PIXEL_FORMAT_TO_FIX_CONVERT_FROM_TRANSLUCENT,
-                 ChromePreferenceKeys.FLAGS_CACHED_TAB_GROUPS_ANDROID_ENABLED,
-+                ChromePreferenceKeys.FLAGS_FORCE_DESKTOP_MODE_ENABLED,
-                 ChromePreferenceKeys.FONT_USER_FONT_SCALE_FACTOR,
-                 ChromePreferenceKeys.FONT_USER_SET_FORCE_ENABLE_ZOOM,
-                 ChromePreferenceKeys.HISTORY_SHOW_HISTORY_INFO,

@@ -52,8 +52,8 @@ popd
 
 # Need different GN flags than a release build
 pushd src
-output_folder=out/Debug_apk
-#output_folder=out/Debug_apk_x86
+# output_folder=out/Debug_apk
+output_folder=out/Debug_apk_x86
 mkdir -p ${output_folder}
 cat ../android_flags.debug.gn ../android_flags.gn > ${output_folder}/args.gn
 printf '\ntarget_cpu="x86"\n' >> ${output_folder}/args.gn

@@ -178,7 +178,7 @@ Subject: Add new folder button to bookmark activity
          if (!mIsCreatingFolder) {
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -3078,6 +3078,9 @@ Data from your Incognito session will on
+@@ -3131,6 +3131,9 @@ Data from your Incognito session will on
        <message name="IDS_BOOKMARK_ACTION_BAR_EDIT_FOLDER" desc="Button text for editing current folder action on the bookmark action bar [CHAR-LIMIT=32]">
          Edit folder
        </message>

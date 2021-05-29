@@ -8,7 +8,7 @@ Subject: kill Translate
 
 --- a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivity.java
-@@ -27,7 +27,11 @@ import org.chromium.chrome.browser.datar
+@@ -33,7 +33,11 @@ import org.chromium.chrome.browser.fonts
  import org.chromium.chrome.browser.metrics.UmaUtils;
  import org.chromium.chrome.browser.net.spdyproxy.DataReductionProxySettings;
  import org.chromium.chrome.browser.search_engines.TemplateUrlServiceFactory;
@@ -20,7 +20,7 @@ Subject: kill Translate
  import org.chromium.ui.base.LocalizationUtils;
  
  import java.util.ArrayList;
-@@ -160,6 +164,8 @@ public class FirstRunActivity extends Fi
+@@ -184,6 +188,8 @@ public class FirstRunActivity extends Fi
          assert areNativeAndPoliciesInitialized();
          mFirstRunFlowSequencer.onNativeAndPoliciesInitialized(mFreProperties);
  
@@ -29,7 +29,7 @@ Subject: kill Translate
          boolean notifyAdapter = false;
          // An optional Data Saver page.
          if (mFreProperties.getBoolean(SHOW_DATA_REDUCTION_PAGE)) {
-@@ -605,4 +611,9 @@ public class FirstRunActivity extends Fi
+@@ -671,4 +677,9 @@ public class FirstRunActivity extends Fi
          assert sObserver == null;
          sObserver = observer;
      }

@@ -34,7 +34,6 @@ ungoogled-chromium-android/Disable-lite-mode-prompt.patch
 ungoogled-chromium-android/Disable-prefetch.patch
 ungoogled-chromium-android/Add-more-search-engines.patch
 ungoogled-chromium-android/Add-folder-button-bookmark.patch
-ungoogled-chromium-android/Mark-http-as-dangerous-mixed-content-warning.patch
 ungoogled-chromium-android/Enable-update-notification.patch
 ungoogled-chromium-android/Enable-ProactivelySwapBrowsingInstance.patch
 ungoogled-chromium-android/Disable-homepage-by-default.patch

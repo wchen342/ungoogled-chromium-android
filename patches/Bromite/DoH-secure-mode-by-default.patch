@@ -3,13 +3,13 @@ Date: Sat, 26 Sep 2020 14:23:19 +0100
 Subject: DoH secure mode by default
 
 ---
- .../browser/net/stub_resolver_config_reader.cc  | 17 +----------------
- 1 file changed, 1 insertion(+), 16 deletions(-)
+ chrome/android/java/src/org/chromium/chrome/browser/policy/EnterpriseInfo.java |    2 -
+ chrome/browser/net/stub_resolver_config_reader.cc                              |   17 ----------
+ 2 files changed, 2 insertions(+), 17 deletions(-)
 
-diff --git a/chrome/browser/net/stub_resolver_config_reader.cc b/chrome/browser/net/stub_resolver_config_reader.cc
 --- a/chrome/browser/net/stub_resolver_config_reader.cc
 +++ b/chrome/browser/net/stub_resolver_config_reader.cc
-@@ -154,7 +154,7 @@ StubResolverConfigReader::StubResolverConfigReader(PrefService* local_state,
+@@ -154,7 +154,7 @@ StubResolverConfigReader::StubResolverCo
        if (entries.count("dns-over-https@1")) {
          // The user has "Enabled" selected.
          local_state_->SetString(prefs::kDnsOverHttpsMode,
@@ -18,7 +18,7 @@ diff --git a/chrome/browser/net/stub_resolver_config_reader.cc b/chrome/browser/
        } else if (entries.count("dns-over-https@2")) {
          // The user has "Disabled" selected.
          local_state_->SetString(prefs::kDnsOverHttpsMode,
-@@ -328,22 +328,7 @@ SecureDnsConfig StubResolverConfigReader::GetAndUpdateConfiguration(
+@@ -328,22 +328,7 @@ SecureDnsConfig StubResolverConfigReader
      check_parental_controls = false;
    }
  
@@ -41,6 +41,14 @@ diff --git a/chrome/browser/net/stub_resolver_config_reader.cc b/chrome/browser/
      parental_controls_checked_ = true;
    }
  
--- 
-2.17.1
-
+--- a/chrome/android/java/src/org/chromium/chrome/browser/policy/EnterpriseInfo.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/policy/EnterpriseInfo.java
+@@ -43,7 +43,7 @@ public class EnterpriseInfo {
+     private OwnedState mOwnedState;
+     private Queue<Callback<OwnedState>> mCallbackList;
+ 
+-    private boolean mSkipAsyncCheckForTesting;
++    private boolean mSkipAsyncCheckForTesting = true;
+ 
+     /** A simple tuple to hold onto named fields about the state of ownership. */
+     public static class OwnedState {

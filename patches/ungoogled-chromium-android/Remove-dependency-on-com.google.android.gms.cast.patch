@@ -28,7 +28,7 @@ Subject: Remove dependency on com.google.android.gms.cast
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -279,8 +279,6 @@ android_library("chrome_java") {
+@@ -282,8 +282,6 @@ android_library("chrome_java") {
      ":usage_stats_proto_java",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
@@ -37,7 +37,7 @@ Subject: Remove dependency on com.google.android.gms.cast
      "$google_play_services_package:google_play_services_fido_java",
      "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
-@@ -805,8 +803,6 @@ junit_binary("chrome_junit_tests") {
+@@ -823,8 +821,6 @@ junit_binary("chrome_junit_tests") {
      ":partner_location_descriptor_proto_java",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
@@ -46,7 +46,7 @@ Subject: Remove dependency on com.google.android.gms.cast
      "$google_play_services_package:google_play_services_fido_java",
      "//base:base_java",
      "//base:base_java_test_support",
-@@ -1060,8 +1056,6 @@ android_library("chrome_test_java") {
+@@ -1105,8 +1101,6 @@ android_library("chrome_test_java") {
      ":partner_location_descriptor_proto_java",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
@@ -55,7 +55,7 @@ Subject: Remove dependency on com.google.android.gms.cast
      "$google_play_services_package:google_play_services_fido_java",
      "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
-@@ -2279,7 +2273,6 @@ android_library("base_module_java") {
+@@ -2347,7 +2341,6 @@ android_library("base_module_java") {
      # Deps to pull services into base module.
      # TODO(crbug.com/1126301): Consider moving these to the chrome module to
      # reduce base dex size.
@@ -73,9 +73,9 @@ Subject: Remove dependency on com.google.android.gms.cast
 -    "$google_play_services_package:google_play_services_cast_framework_java",
 -    "$google_play_services_package:google_play_services_cast_java",
      "//base:base_java",
-     "//base:jni_java",
      "//components/browser_ui/media/android:java",
-@@ -76,8 +73,6 @@ android_library("java") {
+     "//content/public/android:content_java",
+@@ -75,8 +72,6 @@ android_library("java") {
  android_library("cast_options_provider_java") {
    sources = [ "java/src/org/chromium/components/media_router/caf/CastOptionsProvider.java" ]
    deps = [
@@ -84,7 +84,7 @@ Subject: Remove dependency on com.google.android.gms.cast
    ]
  }
  
-@@ -143,9 +138,6 @@ java_library("junit") {
+@@ -142,9 +137,6 @@ java_library("junit") {
    deps = [
      ":java",
      ":test_support_java",
@@ -1400,7 +1400,7 @@ Subject: Remove dependency on com.google.android.gms.cast
      }
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
-@@ -710,16 +710,6 @@ by a child template that "extends" this
+@@ -717,16 +717,6 @@ by a child template that "extends" this
              </intent-filter>
          </activity>
  
@@ -1417,7 +1417,7 @@ Subject: Remove dependency on com.google.android.gms.cast
          <!-- This activity is used to restart the main Chrome process.  Should never be exported. -->
          <activity android:name="org.chromium.chrome.browser.BrowserRestartActivity"
              android:launchMode="singleInstance"
-@@ -1163,12 +1153,6 @@ by a child template that "extends" this
+@@ -1177,12 +1167,6 @@ by a child template that "extends" this
        <meta-data android:name="com.google.ar.core" android:value="optional" />
        {% endif %}
  
@@ -1442,42 +1442,42 @@ Subject: Remove dependency on com.google.android.gms.cast
      "//third_party/androidx:androidx_mediarouter_mediarouter_java",
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -416,38 +416,6 @@ android_aar_prebuilt("google_play_servic
- }
+@@ -1063,38 +1063,6 @@ if (build_with_chromium) {
+   }
  
- # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
--android_aar_prebuilt("google_play_services_cast_java") {
--  aar_path = "libs/com_google_android_gms_play_services_cast/play-services-cast-17.0.0.aar"
--  info_path = "libs/com_google_android_gms_play_services_cast/com_google_android_gms_play_services_cast.info"
--  deps = [
--    ":google_play_services_base_java",
--    ":google_play_services_basement_java",
--    ":google_play_services_flags_java",
--    ":google_play_services_tasks_java",
--    "//third_party/androidx:androidx_core_core_java",
--    "//third_party/androidx:androidx_mediarouter_mediarouter_java",
--  ]
--}
+   # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+-  android_aar_prebuilt("google_play_services_cast_java") {
+-    aar_path = "libs/com_google_android_gms_play_services_cast/play-services-cast-17.0.0.aar"
+-    info_path = "libs/com_google_android_gms_play_services_cast/com_google_android_gms_play_services_cast.info"
+-    deps = [
+-      ":google_play_services_base_java",
+-      ":google_play_services_basement_java",
+-      ":google_play_services_flags_java",
+-      ":google_play_services_tasks_java",
+-      "//third_party/androidx:androidx_core_core_java",
+-      "//third_party/androidx:androidx_mediarouter_mediarouter_java",
+-    ]
+-  }
 -
--# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
--android_aar_prebuilt("google_play_services_cast_framework_java") {
--  aar_path = "libs/com_google_android_gms_play_services_cast_framework/play-services-cast-framework-17.0.0.aar"
--  info_path = "libs/com_google_android_gms_play_services_cast_framework/com_google_android_gms_play_services_cast_framework.info"
--  deps = [
--    ":google_play_services_base_java",
--    ":google_play_services_basement_java",
--    ":google_play_services_cast_java",
--    "//third_party/androidx:androidx_appcompat_appcompat_java",
--    "//third_party/androidx:androidx_collection_collection_java",
--    "//third_party/androidx:androidx_core_core_java",
--    "//third_party/androidx:androidx_fragment_fragment_java",
--    "//third_party/androidx:androidx_media_media_java",
--    "//third_party/androidx:androidx_mediarouter_mediarouter_java",
--    "//third_party/androidx:androidx_recyclerview_recyclerview_java",
--  ]
--}
+-  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+-  android_aar_prebuilt("google_play_services_cast_framework_java") {
+-    aar_path = "libs/com_google_android_gms_play_services_cast_framework/play-services-cast-framework-17.0.0.aar"
+-    info_path = "libs/com_google_android_gms_play_services_cast_framework/com_google_android_gms_play_services_cast_framework.info"
+-    deps = [
+-      ":google_play_services_base_java",
+-      ":google_play_services_basement_java",
+-      ":google_play_services_cast_java",
+-      "//third_party/androidx:androidx_appcompat_appcompat_java",
+-      "//third_party/androidx:androidx_collection_collection_java",
+-      "//third_party/androidx:androidx_core_core_java",
+-      "//third_party/androidx:androidx_fragment_fragment_java",
+-      "//third_party/androidx:androidx_media_media_java",
+-      "//third_party/androidx:androidx_mediarouter_mediarouter_java",
+-      "//third_party/androidx:androidx_recyclerview_recyclerview_java",
+-    ]
+-  }
 -
--# This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
- android_aar_prebuilt("google_play_services_fido_java") {
-   aar_path = "libs/com_google_android_gms_play_services_fido/play-services-fido-19.0.0-beta.aar"
-   info_path = "libs/com_google_android_gms_play_services_fido/com_google_android_gms_play_services_fido.info"
+-  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+   android_aar_prebuilt("google_play_services_fido_java") {
+     aar_path = "libs/com_google_android_gms_play_services_fido/play-services-fido-19.0.0-beta.aar"
+     info_path = "libs/com_google_android_gms_play_services_fido/com_google_android_gms_play_services_fido.info"

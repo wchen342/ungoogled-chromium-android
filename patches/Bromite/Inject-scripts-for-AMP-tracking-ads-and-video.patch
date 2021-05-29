@@ -38,8 +38,8 @@ Send a random key press to circumvent idle status detection
 +#include "extensions/video_bg_play.h"
  #include "third_party/blink/renderer/core/page/scrolling/snap_coordinator.h"
  #include "third_party/blink/renderer/core/page/scrolling/text_fragment_anchor.h"
- #include "third_party/blink/renderer/core/page/scrolling/text_fragment_selector_generator.h"
-@@ -341,6 +342,8 @@
+ #include "third_party/blink/renderer/core/page/scrolling/text_fragment_handler.h"
+@@ -344,6 +345,8 @@
  #include "third_party/blink/renderer/platform/wtf/text/string_buffer.h"
  #include "third_party/blink/renderer/platform/wtf/text/text_encoding_registry.h"
  
@@ -48,7 +48,7 @@ Send a random key press to circumvent idle status detection
  #ifndef NDEBUG
  using WeakDocumentSet = blink::HeapHashSet<blink::WeakMember<blink::Document>>;
  static WeakDocumentSet& liveDocumentSet();
-@@ -6868,6 +6871,61 @@ void Document::setAllowDeclarativeShadow
+@@ -6879,6 +6882,61 @@ void Document::setAllowDeclarativeShadow
        val ? AllowState::kAllow : AllowState::kDeny;
  }
  
@@ -110,19 +110,19 @@ Send a random key press to circumvent idle status detection
  void Document::FinishedParsing() {
    DCHECK(!GetScriptableDocumentParser() || !parser_->IsParsing());
    DCHECK(!GetScriptableDocumentParser() || ready_state_ != kLoading);
-@@ -6920,6 +6978,9 @@ void Document::FinishedParsing() {
+@@ -6931,6 +6989,9 @@ void Document::FinishedParsing() {
  
      frame->Loader().FinishedParsing();
  
 +    if (!IsPrefetchOnly()) {
 +      injectScripts();
 +    }
-     TRACE_EVENT_INSTANT1("devtools.timeline", "MarkDOMContent",
-                          TRACE_EVENT_SCOPE_THREAD, "data",
-                          inspector_mark_load_event::Data(frame));
+     DEVTOOLS_TIMELINE_TRACE_EVENT_INSTANT(
+         "MarkDOMContent", inspector_mark_load_event::Data, frame);
+     probe::DomContentLoadedEventFired(frame);
 --- a/third_party/blink/renderer/core/dom/document.h
 +++ b/third_party/blink/renderer/core/dom/document.h
-@@ -1725,6 +1725,9 @@ class CORE_EXPORT Document : public Cont
+@@ -1730,6 +1730,9 @@ class CORE_EXPORT Document : public Cont
    void AddAXContext(AXContext*);
    void RemoveAXContext(AXContext*);
  
