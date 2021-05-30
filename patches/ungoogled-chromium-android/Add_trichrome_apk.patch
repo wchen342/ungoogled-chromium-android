@@ -1,0 +1,53 @@
+description: Fix trichrome apk build
+author: Wengling Chen <feiyu2817@gmail.com>
+
+---
+ chrome/android/BUILD.gn |   23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
+
+--- a/chrome/android/BUILD.gn
++++ b/chrome/android/BUILD.gn
+@@ -1968,6 +1968,10 @@ if (current_toolchain == default_toolcha
+     is_monochrome = true
+     is_bundle_module = true
+   }
++  resource_packaging("trichrome_chrome_apk_pak_assets") {
++    is_monochrome = false
++    is_trichrome = true
++  }
+   resource_packaging("trichrome_chrome_bundle_module_pak_assets") {
+     is_monochrome = false
+     is_trichrome = true
+@@ -2551,6 +2555,23 @@ android_resources("trichrome_dummy_resou
+   sources = [ "trichrome/res_dummy/values/strings.xml" ]
+ }
+ 
++monochrome_public_apk_or_module_tmpl("trichrome_chrome_apk") {
++  version_code = trichrome_version_code
++  version_name = chrome_version_name
++  apk_name = "TrichromeChrome"
++  target_type = "android_apk"
++  use_trichrome_library = true
++  static_library_provider = ":trichrome_library_apk"
++  if (trichrome_synchronized_proguard) {
++    resource_ids_provider_dep = "//android_webview:trichrome_webview_apk"
++  }
++
++  if (android_64bit_target_cpu) {
++    is_64_bit_browser = false
++    include_64_bit_webview = true
++  }
++}
++
+ chrome_public_test_apk_manifest =
+     "$root_gen_dir/chrome_public_test_apk_manifest/AndroidManifest.xml"
+ chrome_public_test_vr_apk_manifest =
+@@ -3096,6 +3117,8 @@ template("monochrome_or_trichrome_public
+         !defined(invoker.static_library_synchronized_proguard) ||
+         !invoker.static_library_synchronized_proguard) {
+       bundle_target = ":${invoker.target_name}"
++    } else {
++        resource_ids_provider_dep = "//android_webview:trichrome_webview_apk"
+     }
+   }
+ 

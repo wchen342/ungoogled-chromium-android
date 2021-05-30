@@ -43,7 +43,8 @@ ungoogled-chromium-android/Add-save-data-flag.patch
 ungoogled-chromium-android/Add-always-desktop-option.patch
 ungoogled-chromium-android/Add-force-tablet-ui-option.patch
 ungoogled-chromium-android/Disable-tflite.patch
-ungoogled-chromium-android/tricrhome-webview-64.patch
+ungoogled-chromium-android/Tricrhome-webview-64.patch
+ungoogled-chromium-android/Add_trichrome_apk.patch
 Bromite/Remove-account-permissions-from-manifest.patch
 Bromite/updater-disable-updater-pings.patch
 Bromite/Change-default-webRTC-policy-to-not-use-any-address.patch

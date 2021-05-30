@@ -76,17 +76,17 @@ if [[ "$ARCH" != "arm64" ]] && [[ "$ARCH" != "arm" ]] && [[ "$ARCH" != "x86" ]];
     exit 4
 fi
 
-if [[ "$TARGET" != "chrome_modern_target" ]] && [[ "$TARGET" != "trichrome_chrome_bundle_target" ]] && [[ "$TARGET" != "webview_target" ]] && [[ "$TARGET" != "trichrome_webview_target" ]] && [[ "$TARGET" != "all" ]]; then
+if [[ "$TARGET" != "chrome_modern_target" ]] && [[ "$TARGET" != "trichrome_chrome_apk_target" ]] && [[ "$TARGET" != "webview_target" ]] && [[ "$TARGET" != "trichrome_webview_target" ]] && [[ "$TARGET" != "all" ]]; then
     echo "Wrong target"
     exit 5
 fi
 
 # 64-bit TriChrome
 if [[ "$ARCH" == "arm64" ]]; then
-  if [[ "$TARGET" == "trichrome_chrome_bundle_target" ]]; then
-    TARGET_EXPANDED=${trichrome_chrome_64_bundle_target}
-  elif [[ "$TARGET" == "trichrome_webview_target" ]]; then
-    TARGET_EXPANDED=${trichrome_webview_64_target}
+  if [[ "$TARGET" == "trichrome_chrome_apk_target" ]]; then
+    TARGET_EXPANDED=${trichrome_chrome_apk_target}    # TODO: 64-bit trichrome
+#  elif [[ "$TARGET" == "trichrome_webview_target" ]]; then
+#    TARGET_EXPANDED=${trichrome_webview_64_target}
   else
     TARGET_EXPANDED=${!TARGET}
   fi
@@ -375,8 +375,8 @@ else
 
   # arm64+TriChrome needs to be run separately, otherwise it will fail
   if [[ "$ARCH" != "arm64" ]]; then
-    ninja -C "${output_folder}" "$trichrome_chrome_bundle_target"
-    ../bundle_generate_apk.sh -o "${output_folder}" -a "${ARCH}" -t "$trichrome_chrome_bundle_target"
+    ninja -C "${output_folder}" "$trichrome_chrome_apk_target"
+#    ../bundle_generate_apk.sh -o "${output_folder}" -a "${ARCH}" -t "$trichrome_chrome_bundle_target"
     find . -iname "*.apk" -exec cp -f {} ../"${apk_out_folder}" \;
   fi
 fi

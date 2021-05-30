@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 chrome_modern_target=chrome_modern_public_bundle
+trichrome_chrome_apk_target=trichrome_chrome_apk
 trichrome_chrome_bundle_target=trichrome_chrome_bundle
 trichrome_chrome_64_bundle_target=trichrome_chrome_64_bundle
-trichrome_chrome_apk_target=trichrome_library_apk
 webview_target=system_webview_apk
 trichrome_webview_target=trichrome_webview_apk
 trichrome_webview_64_target=trichrome_webview_64_apk
