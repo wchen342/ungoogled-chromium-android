@@ -1224,7 +1224,7 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
        DontClassifyForPhishing(NO_CLASSIFY_ALLOWLISTED_BY_POLICY);
      }
  
-@@ -449,15 +449,14 @@ void ClientSideDetectionHost::PhishingDe
+@@ -450,15 +450,14 @@ void ClientSideDetectionHost::PhishingDe
        VLOG(2) << "Phash Score: " << match.vision_matched_phash_score();
        VLOG(2) << "EMD Score: " << match.vision_matched_emd_score();
      }
@@ -1242,15 +1242,15 @@ Subject: Fix build error caused by the removal of safe_browsing_prefs.h
          base::FeatureList::IsEnabled(kClientSideDetectionReferrerChain)) {
        delegate_->AddReferrerChain(verdict.get(), current_url_);
      }
-@@ -546,7 +545,7 @@ bool ClientSideDetectionHost::CanGetAcce
+@@ -547,7 +546,7 @@ bool ClientSideDetectionHost::CanGetAcce
    // Return true if the finch feature is enabled for an ESB user, and if the
    // primary user account is signed in.
    return base::FeatureList::IsEnabled(kClientSideDetectionWithToken) &&
 -         IsEnhancedProtectionEnabled(*pref_service_) &&
 +         false &&
-          std::move(account_signed_in_callback_).Run();
+          !account_signed_in_callback_.is_null() &&
+          account_signed_in_callback_.Run();
  }
- 
 --- a/weblayer/browser/safe_browsing/safe_browsing_tab_observer.cc
 +++ b/weblayer/browser/safe_browsing/safe_browsing_tab_observer.cc
 @@ -45,16 +45,11 @@ SafeBrowsingTabObserver::SafeBrowsingTab
