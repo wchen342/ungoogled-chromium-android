@@ -2,8 +2,8 @@ description: Fix trichrome apk build
 author: Wengling Chen <feiyu2817@gmail.com>
 
 ---
- chrome/android/BUILD.gn |   23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+ chrome/android/BUILD.gn |   38 ++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 38 insertions(+)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
@@ -51,3 +51,25 @@ author: Wengling Chen <feiyu2817@gmail.com>
      }
    }
  
+@@ -3314,6 +3337,21 @@ if (android_64bit_target_cpu) {
+     use_trichrome_library = true
+     static_library_provider = ":trichrome_library_32_apk"
+   }
++
++  monochrome_public_apk_or_module_tmpl("trichrome_chrome_64_apk") {
++    version_code = trichrome_version_code
++    version_name = chrome_version_name
++    apk_name = "TrichromeChrome64"
++    target_type = "android_apk"
++    use_trichrome_library = true
++    static_library_provider = ":trichrome_library_64_apk"
++    if (trichrome_synchronized_proguard) {
++      resource_ids_provider_dep = "//android_webview:trichrome_webview_64_apk"
++    }
++
++    is_64_bit_browser = true
++    include_32_bit_webview = false
++  }
+ }
+ 
+ generate_jni("chrome_jni_headers") {

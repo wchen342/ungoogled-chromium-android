@@ -2,6 +2,7 @@
 
 chrome_modern_target=chrome_modern_public_bundle
 trichrome_chrome_apk_target=trichrome_chrome_apk
+trichrome_chrome_64_apk_target=trichrome_chrome_64_apk
 trichrome_chrome_bundle_target=trichrome_chrome_bundle
 trichrome_chrome_64_bundle_target=trichrome_chrome_64_bundle
 webview_target=system_webview_apk
@@ -10,6 +11,6 @@ trichrome_webview_64_target=trichrome_webview_64_apk
 all=all
 
 chromium_version=91.0.4472.114
-ungoogled_chromium_version=91.0.4472.101
+ungoogled_chromium_version=91.0.4472.114
 ungoogled_chromium_revision=1
 ungoogled_chromium_android_revision=1

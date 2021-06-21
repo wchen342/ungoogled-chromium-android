@@ -1,3 +1,9 @@
+# 91.0.4472.114-2
+* Add back 64-bit Trichrome
+
+# 91.0.4472.114-1
+* Upstream security fixes
+
 # 91.0.4472.77-1
 * Trichrome is temporarily rolled back to 32-bit. If it works fine 64-bit will be added back next version.
 * Trichrome `apk` support can end any time due to Google decided to remove the ability of not using split modules, as well as stripe the ability of building `apk`s directly for some time now. After that, you will have to manually install an `aab` file using `bundletool` and a specific `aapt2` file. I will try to keep fixing it as long as I can but it can stop working any time from now on.

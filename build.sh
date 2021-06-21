@@ -84,9 +84,9 @@ fi
 # 64-bit TriChrome
 if [[ "$ARCH" == "arm64" ]]; then
   if [[ "$TARGET" == "trichrome_chrome_apk_target" ]]; then
-    TARGET_EXPANDED=${trichrome_chrome_apk_target}    # TODO: 64-bit trichrome
-#  elif [[ "$TARGET" == "trichrome_webview_target" ]]; then
-#    TARGET_EXPANDED=${trichrome_webview_64_target}
+    TARGET_EXPANDED=${trichrome_chrome_64_apk_target}
+  elif [[ "$TARGET" == "trichrome_webview_target" ]]; then
+    TARGET_EXPANDED=${trichrome_webview_64_target}
   else
     TARGET_EXPANDED=${!TARGET}
   fi
