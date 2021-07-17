@@ -1,18 +1,19 @@
 ---
  chrome/android/chrome_java_sources.gni                                                              |    1 
  chrome/android/java/AndroidManifest.xml                                                             |    2 
- chrome/android/java/src/org/chromium/chrome/browser/omaha/UpdateConfigs.java                        |    9 
- chrome/android/java/src/org/chromium/chrome/browser/omaha/UpdateStatusProvider.java                 |   20 
+ chrome/android/java/src/org/chromium/chrome/browser/omaha/UpdateConfigs.java                        |   18 
+ chrome/android/java/src/org/chromium/chrome/browser/omaha/UpdateStatusProvider.java                 |   32 +
  chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateControllerFactory.java |    2 
- chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/UCInlineUpdateController.java      |  236 ++++++++++
+ chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/UCInlineUpdateController.java      |  244 ++++++++++
  chrome/browser/flag-metadata.json                                                                   |    2 
+ chrome/browser/flag_descriptions.cc                                                                 |    5 
  chrome/browser/ui/android/strings/android_chrome_strings.grd                                        |    2 
  chrome/browser/updates/update_notification_config.cc                                                |    2 
- 9 files changed, 266 insertions(+), 10 deletions(-)
+ 10 files changed, 297 insertions(+), 13 deletions(-)
 
 --- /dev/null
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/UCInlineUpdateController.java
-@@ -0,0 +1,236 @@
+@@ -0,0 +1,244 @@
 +// Copyright 2021 The Ungoogled Chromium Authors. All rights reserved.
 +//
 +// This file is part of Ungoogled Chromium Android.
@@ -48,6 +49,7 @@
 +import org.chromium.base.task.PostTask;
 +import org.chromium.chrome.browser.app.ChromeActivity;
 +import org.chromium.chrome.browser.omaha.OmahaBase;
++import org.chromium.chrome.browser.omaha.UpdateConfigs;
 +import org.chromium.chrome.browser.omaha.UpdateStatusProvider;
 +import org.chromium.chrome.browser.omaha.VersionNumber;
 +import org.chromium.chrome.browser.tab.TabLaunchType;
@@ -93,6 +95,7 @@
 +
 +    @Override
 +    public void setEnabled(boolean enabled) {
++        Log.i(TAG, "getStatus: mEnabled: %b, enabled: %b", mEnabled, enabled);
 +        if (mEnabled == enabled) return;
 +        mEnabled = enabled;
 +
@@ -105,11 +108,12 @@
 +
 +    @Override
 +    public @Nullable @UpdateStatusProvider.UpdateState Integer getStatus() {
++        Log.i(TAG, "getStatus: mEnabled: %b", mEnabled);
 +        if (mEnabled) {
 +            pullCurrentState();
 +        } else {
 +        }
-+        Log.d(TAG, "getStatus: mUpdateState: %d", mUpdateState);
++        Log.i(TAG, "getStatus: mUpdateState: %d", mUpdateState);
 +        return mUpdateState;
 +    }
 +
@@ -122,7 +126,7 @@
 +        TabCreator tabCreator = thisActivity.getTabCreator(false);
 +        tabCreator.createNewTab(new LoadUrlParams(downloadUrl, PageTransition.AUTO_BOOKMARK),
 +                TabLaunchType.FROM_LINK, thisActivity.getActivityTab());
-+        Log.d(TAG, "startUpdate: New tab opened");
++        Log.i(TAG, "startUpdate: New tab opened");
 +    }
 +
 +    @Override
@@ -131,22 +135,27 @@
 +    }
 +
 +    private void pullCurrentState() {
++        // The whole omaha updater seems messy, using a simple condition to guard update pulls for now
++        if (!UpdateConfigs.getInlineEnabled()) {
++            return;
++        }
++
 +        int currentApiVersion = Build.VERSION.SDK_INT;
 +        assert currentApiVersion > Build.VERSION_CODES.KITKAT;
 +        mCurrentProductVersion = VersionNumber.fromString(ChromeVersionInfo.getProductVersion());
-+        Log.d(TAG, "mCurrentProductVersion: %s", mCurrentProductVersion.toString());
++        Log.i(TAG, "mCurrentProductVersion: %s", mCurrentProductVersion.toString());
 +
 +        boolean shallUpdate = shallUpdate();
 +        switch (mUpdateState) {
 +            case UpdateStatusProvider.UpdateState.INLINE_UPDATE_AVAILABLE:
 +                if (!shallUpdate) {
-+                    Log.d(TAG, "pullCurrentState: INLINE_UPDATE_AVAILABLE: !shallUpdate");
++                    Log.i(TAG, "pullCurrentState: INLINE_UPDATE_AVAILABLE: !shallUpdate");
 +                    break;
 +                }
 +                //Intentional fall through.
 +            case UpdateStatusProvider.UpdateState.NONE:
 +                if (!shallUpdate) {
-+                    Log.d(TAG, "pullCurrentState: NONE: !shallUpdate");
++                    Log.i(TAG, "pullCurrentState: NONE: !shallUpdate");
 +                    break;
 +                }
 +                checkLatestVersion((result) -> {
@@ -196,10 +205,10 @@
 +                        content.append(inputLine);
 +                    bufferedReader.close();
 +
-+                    Log.d(TAG, "Obtained version: %s", content.toString());
++                    Log.i(TAG, "Obtained version: %s", content.toString());
 +                    return content.toString();
 +                } catch (IOException e) {
-+                    Log.d(TAG, "Obtain version info failed");
++                    Log.i(TAG, "Obtain version info failed");
 +                    return null;
 +                }
 +            }
@@ -217,9 +226,9 @@
 +        if (mCurrentProductVersion == null || latestVersionString == null)
 +            return false;
 +        VersionNumber latestVersion = VersionNumber.fromString(latestVersionString);
-+        Log.d(TAG, "isNewVersionAvailable: mCurrentProductVersion: %s",
++        Log.i(TAG, "isNewVersionAvailable: mCurrentProductVersion: %s",
 +                mCurrentProductVersion.toString());
-+        Log.d(TAG, "isNewVersionAvailable: latestVersion: %s",
++        Log.i(TAG, "isNewVersionAvailable: latestVersion: %s",
 +                latestVersion.toString());
 +
 +        return mCurrentProductVersion.isSmallerThan(latestVersion);
@@ -269,30 +278,58 @@
  import org.chromium.chrome.R;
  import org.chromium.chrome.browser.flags.ChromeFeatureList;
  import org.chromium.chrome.browser.flags.ChromeSwitches;
-@@ -65,7 +66,7 @@ public class UpdateConfigs {
+@@ -65,9 +66,11 @@ public class UpdateConfigs {
      private static final String UPDATE_NOTIFICATION_EXPERIMENTAL_PARAM_NAME =
              "update_notification_experimental_context";
  
 -    private static final long DEFAULT_UPDATE_NOTIFICATION_INTERVAL = 21 * DateUtils.DAY_IN_MILLIS;
-+    private static final long DEFAULT_UPDATE_NOTIFICATION_INTERVAL = 2 * DateUtils.DAY_IN_MILLIS;
++    private static final long DEFAULT_UPDATE_NOTIFICATION_INTERVAL = 7 * DateUtils.DAY_IN_MILLIS;
      private static final long DEFAULT_UPDATE_ATTRIBUTION_WINDOW_MS = 2 * DateUtils.DAY_IN_MILLIS;
  
++    private static final String TAG = "UpdateConfigs";
++
      /** Possible update flow configurations. */
-@@ -301,6 +302,8 @@ public class UpdateConfigs {
+     @IntDef({UpdateFlowConfiguration.NEVER_SHOW, UpdateFlowConfiguration.INTENT_ONLY,
+             UpdateFlowConfiguration.INLINE_ONLY, UpdateFlowConfiguration.BEST_EFFORT})
+@@ -234,6 +237,9 @@ public class UpdateConfigs {
+      * @return true if update notification is enabled, false if disabled.
+      */
+     public static boolean isUpdateNotificationEnabled() {
++        Log.i(TAG, "isUpdateNotificationEnabled: %b",
++                ChromeFeatureList.getFieldTrialParamByFeatureAsBoolean(
++                ChromeFeatureList.INLINE_UPDATE_FLOW, UPDATE_NOTIFICATION_STATE_PARAM_NAME, false));
+         return ChromeFeatureList.getFieldTrialParamByFeatureAsBoolean(
+                 ChromeFeatureList.INLINE_UPDATE_FLOW, UPDATE_NOTIFICATION_STATE_PARAM_NAME, false);
+     }
+@@ -301,11 +307,15 @@ public class UpdateConfigs {
       */
      @UpdateFlowConfiguration
      static int getConfiguration() {
-+        Log.d("UpdateConfigs", "INLINE_UPDATE_FLOW enabled: %b",
++        Log.i(TAG, "INLINE_UPDATE_FLOW enabled: %b",
 +                ChromeFeatureList.isEnabled(ChromeFeatureList.INLINE_UPDATE_FLOW));
          if (!ChromeFeatureList.isEnabled(ChromeFeatureList.INLINE_UPDATE_FLOW)) {
              // Always use the the old flow if the inline update flow feature is not enabled.
              return UpdateFlowConfiguration.INTENT_ONLY;
-@@ -326,6 +329,8 @@ public class UpdateConfigs {
+         }
+ 
++        Log.i(TAG, "getFieldTrialConfigurationLowerCase: %s",
++                getFieldTrialConfigurationLowerCase());
+         switch (getFieldTrialConfigurationLowerCase()) {
+             case "never_show":
+                 return UpdateFlowConfiguration.NEVER_SHOW;
+@@ -321,6 +331,10 @@ public class UpdateConfigs {
+         }
+     }
+ 
++    public static boolean getInlineEnabled() {
++        return UpdateConfigs.getConfiguration() == UpdateConfigs.UpdateFlowConfiguration.INLINE_ONLY;
++    }
++
+     @NonNull
+     private static String getFieldTrialConfigurationLowerCase() {
          String configuration = ChromeFeatureList.getFieldTrialParamByFeature(
-                 ChromeFeatureList.INLINE_UPDATE_FLOW, UPDATE_FLOW_PARAM_NAME);
+@@ -328,4 +342,4 @@ public class UpdateConfigs {
          if (configuration == null) return "";
-+        Log.d("UpdateConfigs", "configuration: %s",
-+                configuration.toLowerCase(Locale.US));
          return configuration.toLowerCase(Locale.US);
      }
 -}
@@ -318,60 +355,93 @@
  import org.chromium.base.ObserverList;
  import org.chromium.base.ThreadUtils;
  import org.chromium.base.metrics.RecordHistogram;
-@@ -295,13 +296,19 @@ public class UpdateStatusProvider implem
+@@ -142,6 +143,7 @@ public class UpdateStatusProvider implem
+     private final UpdateQuery mOmahaQuery;
+     private final UpdateSuccessMetrics mMetrics;
+     private @Nullable UpdateStatus mStatus;
++    private static String TAG = "UpdateStatusProvider";
+ 
+     /** Whether or not we've recorded the initial update status yet. */
+     private boolean mRecordedInitialStatus;
+@@ -281,6 +283,7 @@ public class UpdateStatusProvider implem
+     }
+ 
+     private UpdateStatusProvider() {
++        Log.i(TAG, "UpdateStatusProvider()");
+         mInlineController = InlineUpdateControllerFactory.create(this::resolveStatus);
+         mOmahaQuery = new UpdateQuery(this::resolveStatus);
+         mMetrics = new UpdateSuccessMetrics();
+@@ -294,14 +297,25 @@ public class UpdateStatusProvider implem
+     }
  
      private void resolveStatus() {
++        Log.i(TAG, "resolveStatus");
          if (mOmahaQuery.getStatus() != Status.FINISHED || mInlineController.getStatus() == null) {
-+            Log.d("UpdateStatusProvider",
-+                    "resolveStatus: mOmahaQuery.getStatus() != Status.FINISHED");
++            Log.i(TAG,
++                    "resolveStatus: mOmahaQuery.getStatus() != Status.FINISHED: %b",
++                    mOmahaQuery.getStatus() != Status.FINISHED);
++            Log.i(TAG,
++                    "resolveStatus: mInlineController.getStatus() == null: %b",
++                    mInlineController.getStatus() == null);
              return;
          }
  
          // We pull the Omaha result once as it will never change.
 -        if (mStatus == null) mStatus = new UpdateStatus(mOmahaQuery.getResult());
 +        if (mStatus == null) {
-+            Log.d("UpdateStatusProvider", "resolveStatus: mStatus == null");
++            Log.i(TAG, "resolveStatus: mStatus == null");
 +            mStatus = new UpdateStatus(mOmahaQuery.getResult());
 +        }
  
          if (mStatus.mIsSimulated) {
-+            Log.d("UpdateStatusProvider", "resolveStatus: mStatus.mIsSimulated");
++            Log.i(TAG, "resolveStatus: mStatus.mIsSimulated");
              if (mStatus.mIsInlineSimulated) {
                  @UpdateState
                  int inlineState = mInlineController.getStatus();
-@@ -317,8 +324,13 @@ public class UpdateStatusProvider implem
+@@ -317,8 +331,13 @@ public class UpdateStatusProvider implem
              int omahaState = mOmahaQuery.getResult().updateState;
              @UpdateState
              int inlineState = mInlineController.getStatus();
-+            Log.d("UpdateStatusProvider",
-+        "configuration: %d, omahaState: %d, inlineState: %d",
++            Log.i(TAG,
++                "configuration: %d, omahaState: %d, inlineState: %d",
 +                    UpdateConfigs.getConfiguration(), omahaState, inlineState);
              mStatus.updateState = resolveOmahaAndInlineStatus(
                      UpdateConfigs.getConfiguration(), omahaState, inlineState);
-+            Log.d("UpdateStatusProvider", "mStatus.updateState: %d",
++            Log.i(TAG, "mStatus.updateState: %d",
 +                    mStatus.updateState);
          }
  
          if (!mRecordedInitialStatus) {
-@@ -339,11 +351,11 @@ public class UpdateStatusProvider implem
+@@ -337,17 +356,22 @@ public class UpdateStatusProvider implem
+             @UpdateState int inlineState) {
+         switch (configuration) {
              case UpdateConfigs.UpdateFlowConfiguration.NEVER_SHOW:
++                Log.i(TAG, "configuation == NEVER_SHOW");
                  return UpdateState.NONE;
              case UpdateConfigs.UpdateFlowConfiguration.INLINE_ONLY:
 -                if (omahaState != UpdateState.UPDATE_AVAILABLE) return omahaState;
++                Log.i(TAG, "configuation == INLINE_ONLY");
 +//                if (omahaState != UpdateState.UPDATE_AVAILABLE) return omahaState;
                  if (inlineState == UpdateState.NONE) return UpdateState.NONE;
                  return inlineState;
              case UpdateConfigs.UpdateFlowConfiguration.BEST_EFFORT:
 -                if (omahaState != UpdateState.UPDATE_AVAILABLE) return omahaState;
++                Log.i(TAG, "configuation == BEST_EFFORT");
 +//                if (omahaState != UpdateState.UPDATE_AVAILABLE) return omahaState;
                  if (inlineState == UpdateState.NONE) return omahaState;
                  return inlineState;
              case UpdateConfigs.UpdateFlowConfiguration.INTENT_ONLY: // Intentional fall through.
-@@ -374,6 +386,8 @@ public class UpdateStatusProvider implem
++                Log.i(TAG, "configuation == INTENT_ONLY");
+             default:
++                Log.i(TAG, "configuation default");
+                 // Fall back to use Omaha only and use the old flow.
+                 return omahaState;
+         }
+@@ -374,6 +398,8 @@ public class UpdateStatusProvider implem
          @Override
          protected UpdateStatus doInBackground() {
              UpdateStatus testStatus = getTestStatus();
-+            Log.d("UpdateStatusProvider", "getTestStatus: null: %b",
++            Log.i(TAG, "getTestStatus == null: %b",
 +                    testStatus == null);
              if (testStatus != null) return testStatus;
              return getRealStatus(mContext);
@@ -420,3 +490,18 @@
    },
    {
      "name": "enable-instant-start",
+--- a/chrome/browser/flag_descriptions.cc
++++ b/chrome/browser/flag_descriptions.cc
+@@ -3475,10 +3475,9 @@ const char kVoiceButtonInTopToolbarDescr
+     "Enables showing the voice search button in the top toolbar. Enabling "
+     "Adaptive Button overrides this.";
+ 
+-const char kInlineUpdateFlowName[] = "Enable Google Play inline update flow";
++const char kInlineUpdateFlowName[] = "Enable inline update flow";
+ const char kInlineUpdateFlowDescription[] =
+-    "When this flag is set, instead of taking the user to the Google Play "
+-    "Store when an update is available, the user is presented with an inline "
++    "When this flag is set, the user is presented with an inline "
+     "flow where they do not have to leave Chrome until the update is ready "
+     "to install.";
+ 

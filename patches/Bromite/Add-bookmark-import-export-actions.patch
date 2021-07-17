@@ -1371,14 +1371,14 @@ Completely remove contacts picker permission from the file dialog
  
      /**
       * Whether Chrome is set as the default browser.
-@@ -976,6 +978,7 @@ public final class ChromePreferenceKeys
+@@ -979,6 +981,7 @@ public final class ChromePreferenceKeys
                  AUTOFILL_ASSISTANT_PROACTIVE_HELP,
                  APP_LAUNCH_LAST_KNOWN_ACTIVE_TAB_STATE,
                  APP_LAUNCH_SEARCH_ENGINE_HAD_LOGO,
 +                BOOKMARKS_LAST_EXPORT_URI,
                  APPLICATION_OVERRIDE_LANGUAGE,
+                 CHROME_SURVEY_DOWNLOAD_ATTEMPTS.pattern(),
                  CHROME_SURVEY_PROMPT_DISPLAYED_TIMESTAMP.pattern(),
-                 CLIPBOARD_SHARED_URI,
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
 @@ -242,6 +242,24 @@ CHAR-LIMIT guidelines:

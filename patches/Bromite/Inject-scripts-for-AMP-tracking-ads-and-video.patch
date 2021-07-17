@@ -48,7 +48,7 @@ Send a random key press to circumvent idle status detection
  #ifndef NDEBUG
  using WeakDocumentSet = blink::HeapHashSet<blink::WeakMember<blink::Document>>;
  static WeakDocumentSet& liveDocumentSet();
-@@ -6879,6 +6882,61 @@ void Document::setAllowDeclarativeShadow
+@@ -6877,6 +6880,61 @@ void Document::setAllowDeclarativeShadow
        val ? AllowState::kAllow : AllowState::kDeny;
  }
  
@@ -110,7 +110,7 @@ Send a random key press to circumvent idle status detection
  void Document::FinishedParsing() {
    DCHECK(!GetScriptableDocumentParser() || !parser_->IsParsing());
    DCHECK(!GetScriptableDocumentParser() || ready_state_ != kLoading);
-@@ -6931,6 +6989,9 @@ void Document::FinishedParsing() {
+@@ -6929,6 +6987,9 @@ void Document::FinishedParsing() {
  
      frame->Loader().FinishedParsing();
  

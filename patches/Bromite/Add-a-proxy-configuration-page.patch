@@ -54,7 +54,7 @@ for SimpleURLLoaders as well.
      <integer name="download_infobar_sweep_down_delay">800</integer>
 --- a/chrome/android/java/res/xml/privacy_preferences.xml
 +++ b/chrome/android/java/res/xml/privacy_preferences.xml
-@@ -38,6 +38,10 @@
+@@ -33,6 +33,10 @@
          android:key="secure_dns"
          android:title="@string/settings_secure_dns_title"
          android:fragment="org.chromium.chrome.browser.privacy.secure_dns.SecureDnsSettings"/>
@@ -67,8 +67,8 @@ for SimpleURLLoaders as well.
          android:key="do_not_track"
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-@@ -57,6 +57,7 @@ public class PrivacySettings
-     private static final String PREF_SAFE_BROWSING = "safe_browsing";
+@@ -56,6 +56,7 @@ public class PrivacySettings
+     private static final String PREF_DO_NOT_TRACK = "do_not_track";
      private static final String PREF_CLEAR_BROWSING_DATA = "clear_browsing_data";
      private static final String PREF_CLOSE_TABS_ON_EXIT = "close_tabs_on_exit";
 +    private static final String PREF_PROXY_OPTIONS = "proxy";

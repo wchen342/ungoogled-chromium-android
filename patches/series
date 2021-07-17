@@ -20,6 +20,8 @@ Unobtainium/kill-Vision.patch
 Unobtainium/kill-Translate.patch
 Unobtainium/kill-TOS-and-metrics-opt-out.patch
 ungoogled-chromium-android/Change-package-name-chromium.patch
+ungoogled-chromium-android/Tricrhome-webview-64.patch
+ungoogled-chromium-android/Add_trichrome_apk.patch
 ungoogled-chromium-android/Remove-dependency-on-com.google.android.gms.gcm.patch
 ungoogled-chromium-android/Remove-dependency-on-com.google.android.gms.auth.patch
 ungoogled-chromium-android/Remove-dependency-on-com.google.android.gms.cast.patch
@@ -43,8 +45,6 @@ ungoogled-chromium-android/Add-save-data-flag.patch
 ungoogled-chromium-android/Add-always-desktop-option.patch
 ungoogled-chromium-android/Add-force-tablet-ui-option.patch
 ungoogled-chromium-android/Disable-tflite.patch
-ungoogled-chromium-android/Tricrhome-webview-64.patch
-ungoogled-chromium-android/Add_trichrome_apk.patch
 Bromite/Remove-account-permissions-from-manifest.patch
 Bromite/updater-disable-updater-pings.patch
 Bromite/Change-default-webRTC-policy-to-not-use-any-address.patch
@@ -59,3 +59,7 @@ Bromite/DoH-secure-mode-by-default.patch
 Bromite/Revert-flags-remove-disable-pull-to-refresh-effect.patch
 Bromite/Disable-DRM-media-origin-IDs-preprovisioning.patch
 Bromite/AImageReader-CFI-crash-mitigations.patch
+Bromite/Add-an-always-incognito-mode.patch
+
+Other/debug-fix.patch
+

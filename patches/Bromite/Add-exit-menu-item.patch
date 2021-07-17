@@ -35,7 +35,7 @@ Corrected Exit functionality
      <!-- Items shown only in the tab switcher when start surface is enabled -->
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-@@ -198,6 +198,8 @@ import java.lang.annotation.RetentionPol
+@@ -197,6 +197,8 @@ import java.lang.annotation.RetentionPol
  import java.util.List;
  import java.util.Locale;
  
@@ -44,7 +44,7 @@ Corrected Exit functionality
  /**
   * This is the main activity for ChromeMobile when not running in document mode.  All the tabs
   * are accessible via a chrome specific tab switching UI.
-@@ -1907,6 +1909,8 @@ public class ChromeTabbedActivity extend
+@@ -1906,6 +1908,8 @@ public class ChromeTabbedActivity extend
          } else if (id == R.id.close_tab) {
              getCurrentTabModel().closeTab(currentTab, true, false, true);
              RecordUserAction.record("MobileTabClosed");

@@ -33,7 +33,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
      "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
      "//base:base_java",
-@@ -2129,7 +2127,6 @@ android_library("browser_java_test_suppo
+@@ -2133,7 +2131,6 @@ android_library("browser_java_test_suppo
    ]
    deps = [
      ":chrome_java",
@@ -41,7 +41,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
      "//base:base_java",
      "//base:base_java_test_support",
      "//chrome/browser/profiles/android:java",
-@@ -2317,8 +2314,6 @@ android_library("base_module_java") {
+@@ -2321,8 +2318,6 @@ android_library("base_module_java") {
    ]
    deps = [
      ":chrome_base_module_resources",
