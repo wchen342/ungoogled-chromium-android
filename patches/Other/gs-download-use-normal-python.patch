@@ -8,12 +8,13 @@ author: Wengling Chen <feiyu2817@gmail.com>
  
 --- a/depot_tools/download_from_google_storage.py
 +++ b/depot_tools/download_from_google_storage.py
-@@ -76,7 +76,7 @@
+@@ -76,8 +76,7 @@ class Gsutil(object):
    MAX_TRIES = 5
    RETRY_BASE_DELAY = 5.0
    RETRY_DELAY_MULTIPLE = 1.3
--  VPYTHON = 'vpython.bat' if GetNormalizedPlatform() == 'win32' else 'vpython'
-+  VPYTHON = 'python'
+-  VPYTHON3 = ('vpython3.bat'
+-              if GetNormalizedPlatform() == 'win32' else 'vpython3')
++  VPYTHON3 = 'python'
  
    def __init__(self, path, boto_path=None, version='4.28'):
      if not os.path.exists(path):

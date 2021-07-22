@@ -24,7 +24,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
          android:title="@string/accessibility_captions_title"/>
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -1186,6 +1186,12 @@ Your Google account may have other forms
+@@ -1204,6 +1204,12 @@ Your Google account may have other forms
        <message name="IDS_ACCESSIBILITY_CAPTIONS_TITLE" desc="Title of the preference that allows the user to update caption settings.">
          Captions
        </message>
@@ -36,10 +36,10 @@ author: Wengling Chen <feiyu2817@gmail.com>
 +      </message>
  
        <!-- Language Settings -->
-       <message name="IDS_LANGUAGE_SETTINGS" desc="Title for the Languages settings screen that allows users to manage their languages preferences. [CHAR-LIMIT=32]">
+       <message name="IDS_LANGUAGE_SETTINGS" desc="Title for the Languages settings screen that allows users to manage their languages preferences. [CHAR_LIMIT=32]">
 --- a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
 +++ b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
-@@ -490,6 +490,8 @@ public final class ChromePreferenceKeys
+@@ -503,6 +503,8 @@ public final class ChromePreferenceKeys
      public static final String FONT_USER_FONT_SCALE_FACTOR = "user_font_scale_factor";
      public static final String FONT_USER_SET_FORCE_ENABLE_ZOOM = "user_set_force_enable_zoom";
  
@@ -48,7 +48,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
      public static final String HISTORY_SHOW_HISTORY_INFO = "history_home_show_info";
  
      /** Keys used to save settings related to homepage. */
-@@ -1005,6 +1007,7 @@ public final class ChromePreferenceKeys
+@@ -1041,6 +1043,7 @@ public final class ChromePreferenceKeys
                  FIRST_RUN_SKIPPED_BY_POLICY,
                  FLAGS_CACHED.pattern(),
                  FLAGS_FIELD_TRIAL_PARAM_CACHED.pattern(),

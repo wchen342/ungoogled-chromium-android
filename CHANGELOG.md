@@ -1,6 +1,11 @@
+# 92.0.4515.107-1
+* Remove DeviceOrientation API related flags. See [bromite/bromite/issues/1204](https://github.com/bromite/bromite/issues/1204).
+* Remove FireBase dependencies and move to a separate patch
+
 # 91.0.4472.164-1
 * Upstream security fixes
 * Fix update notification flag
+* Add always incognito mode
 
 # 91.0.4472.114-2
 * Add back 64-bit Trichrome

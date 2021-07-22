@@ -28,7 +28,7 @@ Subject: Remove dependency on com.google.android.gms.cast
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -282,8 +282,6 @@ android_library("chrome_java") {
+@@ -287,8 +287,6 @@ android_library("chrome_java") {
      ":usage_stats_proto_java",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
@@ -37,7 +37,7 @@ Subject: Remove dependency on com.google.android.gms.cast
      "$google_play_services_package:google_play_services_fido_java",
      "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
-@@ -823,8 +821,6 @@ junit_binary("chrome_junit_tests") {
+@@ -857,8 +855,6 @@ junit_binary("chrome_junit_tests") {
      ":partner_location_descriptor_proto_java",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
@@ -46,7 +46,7 @@ Subject: Remove dependency on com.google.android.gms.cast
      "$google_play_services_package:google_play_services_fido_java",
      "//base:base_java",
      "//base:base_java_test_support",
-@@ -1105,8 +1101,6 @@ android_library("chrome_test_java") {
+@@ -1148,8 +1144,6 @@ android_library("chrome_test_java") {
      ":partner_location_descriptor_proto_java",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
@@ -55,7 +55,7 @@ Subject: Remove dependency on com.google.android.gms.cast
      "$google_play_services_package:google_play_services_fido_java",
      "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
-@@ -2351,7 +2345,6 @@ android_library("base_module_java") {
+@@ -2412,7 +2406,6 @@ android_library("base_module_java") {
      # Deps to pull services into base module.
      # TODO(crbug.com/1126301): Consider moving these to the chrome module to
      # reduce base dex size.
@@ -1400,7 +1400,7 @@ Subject: Remove dependency on com.google.android.gms.cast
      }
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
-@@ -717,16 +717,6 @@ by a child template that "extends" this
+@@ -756,16 +756,6 @@ by a child template that "extends" this
              </intent-filter>
          </activity>
  
@@ -1417,7 +1417,7 @@ Subject: Remove dependency on com.google.android.gms.cast
          <!-- This activity is used to restart the main Chrome process.  Should never be exported. -->
          <activity android:name="org.chromium.chrome.browser.BrowserRestartActivity"
              android:launchMode="singleInstance"
-@@ -1177,12 +1167,6 @@ by a child template that "extends" this
+@@ -1208,12 +1198,6 @@ by a child template that "extends" this
        <meta-data android:name="com.google.ar.core" android:value="optional" />
        {% endif %}
  
@@ -1442,7 +1442,7 @@ Subject: Remove dependency on com.google.android.gms.cast
      "//third_party/androidx:androidx_mediarouter_mediarouter_java",
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -1063,38 +1063,6 @@ if (build_with_chromium) {
+@@ -1063,38 +1063,6 @@ if (!limit_android_deps) {
    }
  
    # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.

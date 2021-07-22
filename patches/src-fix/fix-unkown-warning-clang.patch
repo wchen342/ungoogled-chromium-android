@@ -8,7 +8,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
 
 --- a/build/config/compiler/BUILD.gn
 +++ b/build/config/compiler/BUILD.gn
-@@ -1588,6 +1588,9 @@ config("default_warnings") {
+@@ -1598,6 +1598,9 @@ config("default_warnings") {
          # Flags NaCl (Clang 3.7) and Xcode 9.2 (Clang clang-900.0.39.2) do not
          # recognize.
          cflags += [
@@ -34,4 +34,4 @@ author: Wengling Chen <feiyu2817@gmail.com>
 -
    # $compile_api_level corresponds to the API level used for the sysroot path
    # calculation in //build/config/android/config.gni
-   if (current_cpu == "arm") {
+   if (android_64bit_target_cpu) {

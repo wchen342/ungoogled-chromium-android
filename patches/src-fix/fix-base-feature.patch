@@ -8,7 +8,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
 
 --- a/chrome/app/android/chrome_main_delegate_android.cc
 +++ b/chrome/app/android/chrome_main_delegate_android.cc
-@@ -6,6 +6,7 @@
+@@ -8,6 +8,7 @@
  
  #include "base/android/jni_android.h"
  #include "base/base_paths_android.h"

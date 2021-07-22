@@ -3,43 +3,40 @@ Date: Fri, 22 Jun 2018 17:06:15 +0200
 Subject: kill Auth
 
 ---
- components/signin/public/android/java/src/org/chromium/components/signin/AccountRenameChecker.java         |   15 --
- components/signin/public/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java |   54 ----------
- 2 files changed, 4 insertions(+), 65 deletions(-)
+ components/signin/public/android/java/src/org/chromium/components/signin/AccountRenameChecker.java         |   15 ---
+ components/signin/public/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java |   49 ----------
+ 2 files changed, 3 insertions(+), 61 deletions(-)
 
 --- a/components/signin/public/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java
 +++ b/components/signin/public/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java
-@@ -26,11 +26,6 @@ import android.os.SystemClock;
+@@ -26,9 +26,6 @@ import android.os.SystemClock;
  
  import androidx.annotation.Nullable;
  
 -import com.google.android.gms.auth.GoogleAuthException;
 -import com.google.android.gms.auth.GoogleAuthUtil;
--import com.google.android.gms.auth.GooglePlayServicesAvailabilityException;
--import com.google.android.gms.common.ConnectionResult;
--import com.google.android.gms.common.GoogleApiAvailability;
- 
+-
  import org.chromium.base.ApiCompatibilityUtils;
  import org.chromium.base.Callback;
-@@ -120,14 +115,7 @@ public class SystemAccountManagerDelegat
-         // so don't report any accounts if Google Play Services are out of date.
-         checkCanUseGooglePlayServices();
- 
--        if (!hasGetAccountsPermission()) {
--            return new Account[] {};
--        }
--        long now = SystemClock.elapsedRealtime();
--        Account[] accounts = mAccountManager.getAccountsByType(GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE);
--        long elapsed = SystemClock.elapsedRealtime() - now;
--        recordElapsedTimeHistogram("Signin.AndroidGetAccountsTime_AccountManager", elapsed);
--        return accounts;
-+        return new Account[] {};
-     }
+ import org.chromium.base.ContextUtils;
+@@ -83,14 +80,6 @@ public class SystemAccountManagerDelegat
  
      @Override
-@@ -135,30 +123,12 @@ public class SystemAccountManagerDelegat
+     public Account[] getAccounts() {
+-        if (hasGetAccountsPermission() && isGooglePlayServicesAvailable()) {
+-            long startTime = SystemClock.elapsedRealtime();
+-            Account[] accounts =
+-                    mAccountManager.getAccountsByType(GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE);
+-            recordElapsedTimeHistogram("Signin.AndroidGetAccountsTime_AccountManager",
+-                    SystemClock.elapsedRealtime() - startTime);
+-            return accounts;
+-        }
+         // Account seeding relies on GoogleAuthUtil.getAccountId to get GAIA ids,
+         // so don't report any accounts if Google Play Services are out of date.
+         return new Account[] {};
+@@ -101,28 +90,12 @@ public class SystemAccountManagerDelegat
              throws AuthException {
-         assert !ThreadUtils.runningOnUiThread();
+         ThreadUtils.assertOnBackgroundThread();
          assert AccountUtils.GOOGLE_ACCOUNT_TYPE.equals(account.type);
 -        try {
 -            return new AccessTokenData(GoogleAuthUtil.getTokenWithNotification(
@@ -53,15 +50,13 @@ Subject: kill Auth
 -            throw new AuthException(AuthException.TRANSIENT, ex);
 -        }
 +        throw new AuthException(AuthException.NONTRANSIENT,
-+                    "Error while getting token for scope '" + authTokenScope + "'");
++                "Error while getting token for scope '" + authTokenScope + "'");
      }
  
      @Override
      public void invalidateAuthToken(String authToken) throws AuthException {
 -        try {
 -            GoogleAuthUtil.clearToken(ContextUtils.getApplicationContext(), authToken);
--        } catch (GooglePlayServicesAvailabilityException ex) {
--            throw new AuthException(AuthException.NONTRANSIENT, ex);
 -        } catch (GoogleAuthException ex) {
 -            throw new AuthException(AuthException.NONTRANSIENT, ex);
 -        } catch (IOException ex) {
@@ -70,7 +65,7 @@ Subject: kill Auth
      }
  
      @Override
-@@ -199,17 +169,6 @@ public class SystemAccountManagerDelegat
+@@ -163,17 +136,6 @@ public class SystemAccountManagerDelegat
      @SuppressLint("MissingPermission")
      @Override
      public void createAddAccountIntent(Callback<Intent> callback) {
@@ -88,7 +83,7 @@ Subject: kill Auth
      }
  
      // No permission is needed on 23+ and Chrome always has MANAGE_ACCOUNTS permission on lower APIs
-@@ -249,12 +208,7 @@ public class SystemAccountManagerDelegat
+@@ -213,12 +175,7 @@ public class SystemAccountManagerDelegat
      @Nullable
      @Override
      public String getAccountGaiaId(String accountEmail) {
@@ -104,8 +99,8 @@ Subject: kill Auth
      @Override
 --- a/components/signin/public/android/java/src/org/chromium/components/signin/AccountRenameChecker.java
 +++ b/components/signin/public/android/java/src/org/chromium/components/signin/AccountRenameChecker.java
-@@ -10,10 +10,6 @@ import android.content.Context;
- import androidx.annotation.Nullable;
+@@ -11,10 +11,6 @@ import androidx.annotation.Nullable;
+ import androidx.annotation.VisibleForTesting;
  import androidx.annotation.WorkerThread;
  
 -import com.google.android.gms.auth.AccountChangeEvent;
@@ -114,10 +109,10 @@ Subject: kill Auth
 -
  import org.chromium.base.ContextUtils;
  import org.chromium.base.Log;
- 
-@@ -36,17 +32,6 @@ public final class AccountRenameChecker
-         @Nullable
-         String getNewNameOfRenamedAccount(String accountEmail) {
+ import org.chromium.base.Promise;
+@@ -52,17 +48,6 @@ public final class AccountRenameChecker
+         @Override
+         public @Nullable String getNewNameOfRenamedAccount(String accountEmail) {
              final Context context = ContextUtils.getApplicationContext();
 -            try {
 -                final List<AccountChangeEvent> accountChangeEvents =

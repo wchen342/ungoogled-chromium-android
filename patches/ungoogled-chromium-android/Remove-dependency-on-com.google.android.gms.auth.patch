@@ -3,25 +3,24 @@ Date: Sat, 2 Nov 2019 09:22:31 +0100
 Subject: Remove dependency on com.google.android.gms.auth
 
 ---
- chrome/android/BUILD.gn                                                                                    |    1 
- components/background_task_scheduler/BUILD.gn                                                              |    1 
- components/signin/public/android/BUILD.gn                                                                  |    1 
- components/signin/public/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java |   16 -
- content/public/android/BUILD.gn                                                                            |    1 
- content/public/android/java/src/org/chromium/content/browser/sms/SmsProviderGms.java                       |    6 
- content/public/android/java/src/org/chromium/content/browser/sms/SmsUserConsentReceiver.java               |   59 ------
- content/public/android/java/src/org/chromium/content/browser/sms/SmsVerificationReceiver.java              |   90 ----------
- content/public/android/java/src/org/chromium/content/browser/sms/Wrappers.java                             |   26 --
- content/test/BUILD.gn                                                                                      |    1 
- remoting/android/client_java_tmpl.gni                                                                      |    1 
- remoting/android/java/src/org/chromium/chromoting/OAuthTokenConsumer.java                                  |    9 -
- remoting/android/java/src/org/chromium/chromoting/base/OAuthTokenFetcher.java                              |   35 ---
- third_party/android_deps/BUILD.gn                                                                          |   38 ----
- 14 files changed, 9 insertions(+), 276 deletions(-)
+ chrome/android/BUILD.gn                                                                       |    1 
+ components/background_task_scheduler/BUILD.gn                                                 |    1 
+ components/signin/public/android/BUILD.gn                                                     |    1 
+ content/public/android/BUILD.gn                                                               |    1 
+ content/public/android/java/src/org/chromium/content/browser/sms/SmsProviderGms.java          |    6 
+ content/public/android/java/src/org/chromium/content/browser/sms/SmsUserConsentReceiver.java  |   59 ------
+ content/public/android/java/src/org/chromium/content/browser/sms/SmsVerificationReceiver.java |   93 ----------
+ content/public/android/java/src/org/chromium/content/browser/sms/Wrappers.java                |   26 --
+ content/test/BUILD.gn                                                                         |    1 
+ remoting/android/client_java_tmpl.gni                                                         |    1 
+ remoting/android/java/src/org/chromium/chromoting/OAuthTokenConsumer.java                     |    9 
+ remoting/android/java/src/org/chromium/chromoting/base/OAuthTokenFetcher.java                 |   35 ---
+ third_party/android_deps/BUILD.gn                                                             |   38 ----
+ 13 files changed, 6 insertions(+), 266 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -280,7 +280,6 @@ android_library("chrome_java") {
+@@ -285,7 +285,6 @@ android_library("chrome_java") {
      ":partner_location_descriptor_proto_java",
      ":update_proto_java",
      ":usage_stats_proto_java",
@@ -29,50 +28,9 @@ Subject: Remove dependency on com.google.android.gms.auth
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
      "$google_play_services_package:google_play_services_cast_framework_java",
---- a/components/signin/public/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java
-+++ b/components/signin/public/android/java/src/org/chromium/components/signin/SystemAccountManagerDelegate.java
-@@ -26,7 +26,6 @@ import android.os.SystemClock;
- 
- import androidx.annotation.Nullable;
- 
--
- import org.chromium.base.ApiCompatibilityUtils;
- import org.chromium.base.Callback;
- import org.chromium.base.ContextUtils;
-@@ -84,16 +83,10 @@ public class SystemAccountManagerDelegat
-     }
- 
-     protected void checkCanUseGooglePlayServices() throws AccountManagerDelegateException {
--        Context context = ContextUtils.getApplicationContext();
--        final int resultCode =
--                ChromiumPlayServicesAvailability.getGooglePlayServicesConnectionResult(context);
--        if (resultCode == ConnectionResult.SUCCESS) {
--            return;
--        }
-+        final int resultCode = 1;
- 
-         throw new GmsAvailabilityException(
--                String.format("Can't use Google Play Services: %s",
--                        GoogleApiAvailability.getInstance().getErrorString(resultCode)),
-+                "Can't use Google Play Services",
-                 resultCode);
-     }
- 
-@@ -214,10 +207,7 @@ public class SystemAccountManagerDelegat
-     @Override
-     public boolean isGooglePlayServicesAvailable() {
-         // TODO(http://crbug.com/577190): Remove StrictMode override.
--        try (StrictModeContext ignored = StrictModeContext.allowDiskWrites()) {
--            return ChromiumPlayServicesAvailability.isGooglePlayServicesAvailable(
--                    ContextUtils.getApplicationContext());
--        }
-+        return false;
-     }
- 
-     protected boolean hasGetAccountsPermission() {
 --- a/content/public/android/BUILD.gn
 +++ b/content/public/android/BUILD.gn
-@@ -135,7 +135,6 @@ android_library("content_main_dex_java")
+@@ -136,7 +136,6 @@ android_library("content_main_dex_java")
  android_library("content_full_java") {
    deps = [
      ":content_main_dex_java",
@@ -82,7 +40,7 @@ Subject: Remove dependency on com.google.android.gms.auth
      "$google_play_services_package:google_play_services_tasks_java",
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -1023,44 +1023,6 @@ if (build_with_chromium) {
+@@ -1023,44 +1023,6 @@ if (!limit_android_deps) {
    }
  
    # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
@@ -361,25 +319,25 @@ Subject: Remove dependency on com.google.android.gms.auth
      }
  
      public void onPermissionDone(WindowAndroid window, int resultCode, boolean isLocalRequest) {
-@@ -136,61 +97,12 @@ public class SmsVerificationReceiver ext
+@@ -135,63 +96,11 @@ public class SmsVerificationReceiver ext
+      */
      public void onRetrieverTaskFailure(WindowAndroid window, boolean isLocalRequest, Exception e) {
          if (DEBUG) Log.d(TAG, "Task failed. Attempting recovery.", e);
-         BackendAvailability availability = BackendAvailability.AVAILABLE;
 -        ApiException exception = (ApiException) e;
 -        if (exception.getStatusCode() == SmsRetrieverStatusCodes.API_NOT_CONNECTED) {
--            availability = BackendAvailability.API_NOT_CONNECTED;
+-            reportBackendAvailability(BackendAvailability.API_NOT_CONNECTED);
 -            mProvider.onMethodNotAvailable(isLocalRequest);
 -            Log.d(TAG, "update GMS services.");
 -        } else if (exception.getStatusCode() == SmsRetrieverStatusCodes.PLATFORM_NOT_SUPPORTED) {
--            availability = BackendAvailability.PLATFORM_NOT_SUPPORTED;
+-            reportBackendAvailability(BackendAvailability.PLATFORM_NOT_SUPPORTED);
 -            mProvider.onMethodNotAvailable(isLocalRequest);
 -            Log.d(TAG, "old android platform.");
 -        } else if (exception.getStatusCode() == SmsRetrieverStatusCodes.API_NOT_AVAILABLE) {
--            availability = BackendAvailability.API_NOT_AVAILABLE;
+-            reportBackendAvailability(BackendAvailability.API_NOT_AVAILABLE);
 -            mProvider.onMethodNotAvailable(isLocalRequest);
 -            Log.d(TAG, "not the default browser.");
 -        } else if (exception.getStatusCode() == SmsRetrieverStatusCodes.USER_PERMISSION_REQUIRED) {
--            mProvider.onCancel();
+-            cancelRequestAndReportBackendAvailability();
 -            Log.d(TAG, "user permission is required.");
 -        } else if (exception.getStatusCode() == CommonStatusCodes.RESOLUTION_REQUIRED) {
 -            if (exception instanceof ResolvableApiException) {
@@ -395,18 +353,19 @@ Subject: Remove dependency on com.google.android.gms.auth
 -                        @Override
 -                        public void onIntentCompleted(
 -                                WindowAndroid w, int resultCode, Intent data) {
+-                            // Backend availability will be recorded inside |onPermissionDone|.
 -                            onPermissionDone(w, resultCode, isLocalRequest);
 -                        }
 -                    }, null);
 -                } catch (Exception ex) {
+-                    cancelRequestAndReportBackendAvailability();
 -                    Log.e(TAG, "Cannot launch user permission", ex);
 -                }
 -            }
 -        } else {
 -            Log.w(TAG, "Unexpected exception", e);
 -        }
-+
-         reportBackendAvailability(availability);
++        Log.w(TAG, "Unexpected exception");
      }
  
      public void listen(WindowAndroid window, boolean isLocalRequest) {
@@ -421,12 +380,13 @@ Subject: Remove dependency on com.google.android.gms.auth
 -            this.onRetrieverTaskFailure(window, isLocalRequest, e);
 -            mProvider.destoryVerificationReceiver();
 -        });
- 
+-
          if (DEBUG) Log.d(TAG, "Installed task");
      }
+ 
 --- a/content/test/BUILD.gn
 +++ b/content/test/BUILD.gn
-@@ -2707,7 +2707,6 @@ if (is_android) {
+@@ -2768,7 +2768,6 @@ if (is_android) {
      testonly = true
      sources = content_java_sources_needing_jni
      deps = [
@@ -551,7 +511,7 @@ Subject: Remove dependency on com.google.android.gms.auth
 -    "$google_play_services_package:google_play_services_auth_base_java",
      "$google_play_services_package:google_play_services_base_java",
      "//base:base_java",
-     "//net/android:net_java",
+     "//components/externalauth/android:java",
 --- a/remoting/android/client_java_tmpl.gni
 +++ b/remoting/android/client_java_tmpl.gni
 @@ -104,7 +104,6 @@ template("remoting_android_client_java_t

@@ -41,7 +41,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  
 --- a/build/config/compiler/BUILD.gn
 +++ b/build/config/compiler/BUILD.gn
-@@ -243,7 +243,7 @@ config("compiler") {
+@@ -254,7 +254,7 @@ config("compiler") {
    cflags_cc = []
    cflags_objc = []
    cflags_objcc = []
@@ -50,7 +50,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
    defines = []
    configs = []
  
-@@ -1809,7 +1809,7 @@ config("no_rtti") {
+@@ -1824,7 +1824,7 @@ config("no_rtti") {
  # to heap-allocated memory are passed over shared library boundaries.
  config("export_dynamic") {
    # TODO(crbug.com/1052397): Revisit after target_os flip is completed.
@@ -59,7 +59,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
      ldflags = [ "-rdynamic" ]
    }
  }
-@@ -2026,8 +2026,6 @@ if (is_win) {
+@@ -2041,8 +2041,6 @@ if (is_win) {
      common_optimize_on_cflags += [
        # Put data and code in their own sections, so that unused symbols
        # can be removed at link time with --gc-sections.
@@ -68,7 +68,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
      ]
  
      common_optimize_on_ldflags += [
-@@ -2035,7 +2033,6 @@ if (is_win) {
+@@ -2050,7 +2048,6 @@ if (is_win) {
        # See http://lwn.net/Articles/192624/ .
        # -O2 enables string tail merge optimization in gold and lld.
        "-Wl,-O2",
@@ -76,7 +76,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
      ]
    }
  }
-@@ -2413,7 +2410,7 @@ config("symbols") {
+@@ -2421,7 +2418,7 @@ config("symbols") {
          # sections (llvm.org/PR34820).
          cflags += [ "-ggnu-pubnames" ]
        }
@@ -87,7 +87,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  }
 --- a/components/policy/core/browser/configuration_policy_handler.cc
 +++ b/components/policy/core/browser/configuration_policy_handler.cc
-@@ -359,7 +359,6 @@ SchemaValidatingPolicyHandler::SchemaVal
+@@ -360,7 +360,6 @@ SchemaValidatingPolicyHandler::SchemaVal
      Schema schema,
      SchemaOnErrorStrategy strategy)
      : NamedPolicyHandler(policy_name), schema_(schema), strategy_(strategy) {
@@ -97,7 +97,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  SchemaValidatingPolicyHandler::~SchemaValidatingPolicyHandler() {}
 --- a/components/signin/internal/identity_manager/profile_oauth2_token_service_builder.cc
 +++ b/components/signin/internal/identity_manager/profile_oauth2_token_service_builder.cc
-@@ -182,7 +182,6 @@ std::unique_ptr<ProfileOAuth2TokenServic
+@@ -218,7 +218,6 @@ std::unique_ptr<ProfileOAuth2TokenServic
    // device ID is needed on the network thread, but can only be generated on the
    // main thread.
    std::string device_id = signin::GetSigninScopedDeviceId(pref_service);
@@ -107,7 +107,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
    return std::make_unique<ProfileOAuth2TokenService>(
 --- a/components/omnibox/browser/autocomplete_match.cc
 +++ b/components/omnibox/browser/autocomplete_match.cc
-@@ -1477,16 +1477,6 @@ bool AutocompleteMatch::IsEmptyAutocompl
+@@ -1391,16 +1391,6 @@ bool AutocompleteMatch::IsEmptyAutocompl
           split_autocompletion.Empty();
  }
  
@@ -126,7 +126,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
      const std::u16string& text,
 --- a/components/omnibox/browser/autocomplete_result.cc
 +++ b/components/omnibox/browser/autocomplete_result.cc
-@@ -712,13 +712,6 @@ void AutocompleteResult::CopyFrom(const
+@@ -687,13 +687,6 @@ void AutocompleteResult::CopyFrom(const
  #endif
  }
  
@@ -154,7 +154,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
    for (ShortcutMap::const_iterator it(
 --- a/components/omnibox/browser/autocomplete_controller.cc
 +++ b/components/omnibox/browser/autocomplete_controller.cc
-@@ -732,9 +732,6 @@ void AutocompleteController::UpdateResul
+@@ -731,9 +731,6 @@ void AutocompleteController::UpdateResul
  
    // Need to validate before invoking CopyOldMatches as the old matches are not
    // valid against the current input.
@@ -180,7 +180,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
 +++ b/services/network/network_context.cc
 @@ -976,7 +976,6 @@ void NetworkContext::QueueReport(
      const net::NetworkIsolationKey& network_isolation_key,
-     const base::Optional<std::string>& user_agent,
+     const absl::optional<std::string>& user_agent,
      base::Value body) {
 -  NOTREACHED();
  }
@@ -188,7 +188,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  void NetworkContext::QueueSignedExchangeReport(
 --- a/url/gurl.cc
 +++ b/url/gurl.cc
-@@ -159,7 +159,7 @@ const std::string& GURL::spec() const {
+@@ -158,7 +158,7 @@ const std::string& GURL::spec() const {
    if (is_valid_ || spec_.empty())
      return spec_;
  
@@ -199,7 +199,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  
 --- a/base/logging.cc
 +++ b/base/logging.cc
-@@ -885,7 +885,7 @@ LogMessage::~LogMessage() {
+@@ -888,7 +888,7 @@ LogMessage::~LogMessage() {
  #if defined(OFFICIAL_BUILD) && defined(NDEBUG)
        IMMEDIATE_CRASH();
  #else

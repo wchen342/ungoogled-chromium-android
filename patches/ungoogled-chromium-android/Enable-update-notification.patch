@@ -260,7 +260,7 @@
 +}
 --- a/chrome/android/chrome_java_sources.gni
 +++ b/chrome/android/chrome_java_sources.gni
-@@ -905,6 +905,7 @@ chrome_java_sources = [
+@@ -893,6 +893,7 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateController.java",
    "java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateControllerFactory.java",
    "java/src/org/chromium/chrome/browser/omaha/inline/NoopInlineUpdateController.java",
@@ -459,7 +459,7 @@
  constexpr int kDefaultUpdateNotificationMaxInterval = 90;
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
-@@ -1061,7 +1061,7 @@ by a child template that "extends" this
+@@ -1092,7 +1092,7 @@ by a child template that "extends" this
          <service android:name="org.chromium.chrome.browser.tracing.TracingNotificationService"
              android:exported="false"/>
  
@@ -470,7 +470,7 @@
          <meta-data android:name="org.chromium.content.browser.SMART_CLIP_PROVIDER"
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -2063,7 +2063,7 @@ To change this setting, <ph name="BEGIN_
+@@ -2087,7 +2087,7 @@ To change this setting, <ph name="BEGIN_
          Update Chrome
        </message>
        <message name="IDS_UPDATE_NOTIFICATION_TEXT_BODY_DEFAULT" desc="Default text showing in the update notification body, kindly telling user to update to the latest version of Chrome.">
@@ -481,7 +481,7 @@
          Update Chrome
 --- a/chrome/browser/flag-metadata.json
 +++ b/chrome/browser/flag-metadata.json
-@@ -1955,7 +1955,7 @@
+@@ -1937,7 +1937,7 @@
    {
      "name": "enable-inline-update-flow",
      "owners": [ "nyquist", "dtrainor" ],
@@ -489,10 +489,10 @@
 +    "expiry_milestone": -1
    },
    {
-     "name": "enable-instant-start",
+     "name": "enable-input-in-diagnostics-app",
 --- a/chrome/browser/flag_descriptions.cc
 +++ b/chrome/browser/flag_descriptions.cc
-@@ -3475,10 +3475,9 @@ const char kVoiceButtonInTopToolbarDescr
+@@ -3493,10 +3493,9 @@ const char kVoiceButtonInTopToolbarDescr
      "Enables showing the voice search button in the top toolbar. Enabling "
      "Adaptive Button overrides this.";
  

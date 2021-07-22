@@ -409,7 +409,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
  }
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -1070,30 +1070,6 @@ if (build_with_chromium) {
+@@ -1070,30 +1070,6 @@ if (!limit_android_deps) {
    }
  
    # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
@@ -440,7 +440,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
    android_aar_prebuilt("com_google_android_material_material_java") {
      aar_path =
          "libs/com_google_android_material_material/material-1.2.0-alpha06.aar"
-@@ -1612,26 +1588,6 @@ if (build_with_chromium) {
+@@ -1624,26 +1600,6 @@ if (!limit_android_deps) {
    }
  
    # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
@@ -467,7 +467,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
    android_aar_prebuilt("google_play_services_flags_java") {
      aar_path = "libs/com_google_android_gms_play_services_flags/play-services-flags-17.0.0.aar"
      info_path = "libs/com_google_android_gms_play_services_flags/com_google_android_gms_play_services_flags.info"
-@@ -1648,25 +1604,6 @@ if (build_with_chromium) {
+@@ -1660,25 +1616,6 @@ if (!limit_android_deps) {
      ]
    }
  
@@ -586,7 +586,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
  }
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -283,8 +283,6 @@ android_library("chrome_java") {
+@@ -288,8 +288,6 @@ android_library("chrome_java") {
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
      "$google_play_services_package:google_play_services_tasks_java",
@@ -597,15 +597,15 @@ Subject: Remove dependency on com.google.android.gms.vision,
      "//chrome/android/features/keyboard_accessory:public_java",
 --- a/chrome/android/features/cablev2_authenticator/BUILD.gn
 +++ b/chrome/android/features/cablev2_authenticator/BUILD.gn
-@@ -19,8 +19,6 @@ android_library("java") {
+@@ -18,8 +18,6 @@ android_library("java") {
      ":java_resources",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_tasks_java",
 -    "$google_play_services_package:google_play_services_vision_common_java",
 -    "$google_play_services_package:google_play_services_vision_java",
      "//base:base_java",
-     "//content/public/android:content_java",
-     "//third_party/android_deps:android_support_v7_appcompat_java",
+     "//chrome/android:chrome_java",
+     "//components/browser_ui/notifications/android:java",
 --- a/chrome/android/features/cablev2_authenticator/java/src/org/chromium/chrome/browser/webauth/authenticator/QRScanDialog.java
 +++ b/chrome/android/features/cablev2_authenticator/java/src/org/chromium/chrome/browser/webauth/authenticator/QRScanDialog.java
 @@ -17,10 +17,6 @@ import android.widget.LinearLayout;

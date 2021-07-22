@@ -17,7 +17,7 @@ Subject: Remove unused UI elements. Also disables autofill assistant.
  chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunStatus.java                                                |    2 
  chrome/android/java/src/org/chromium/chrome/browser/password_manager/settings/PasswordSettings.java                             |    4 
  chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java                                       |   18 ---
- chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java                                                  |   55 ----------
+ chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java                                                  |   52 ----------
  chrome/android/java/src/org/chromium/chrome/browser/settings/SettingsActivity.java                                              |    5 
  chrome/android/java/src/org/chromium/chrome/browser/site_settings/ChromeSiteSettingsDelegate.java                               |    2 
  chrome/android/java/src/org/chromium/chrome/browser/sync/settings/GoogleServicesSettings.java                                   |    3 
@@ -25,7 +25,7 @@ Subject: Remove unused UI elements. Also disables autofill assistant.
  chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java                                  |    3 
  components/autofill_assistant/browser/features.cc                                                                               |   10 -
  components/feed/core/shared_prefs/pref_names.cc                                                                                 |    4 
- 22 files changed, 12 insertions(+), 161 deletions(-)
+ 22 files changed, 12 insertions(+), 158 deletions(-)
 
 --- a/components/feed/core/shared_prefs/pref_names.cc
 +++ b/components/feed/core/shared_prefs/pref_names.cc
@@ -42,7 +42,7 @@ Subject: Remove unused UI elements. Also disables autofill assistant.
  
 --- a/chrome/android/features/start_surface/public/java/src/org/chromium/chrome/features/start_surface/StartSurfaceConfiguration.java
 +++ b/chrome/android/features/start_surface/public/java/src/org/chromium/chrome/features/start_surface/StartSurfaceConfiguration.java
-@@ -149,7 +149,7 @@ public class StartSurfaceConfiguration {
+@@ -152,7 +152,7 @@ public class StartSurfaceConfiguration {
       */
      public static boolean getFeedArticlesVisibility() {
          return SharedPreferencesManager.getInstance().readBoolean(
@@ -50,10 +50,10 @@ Subject: Remove unused UI elements. Also disables autofill assistant.
 +                ChromePreferenceKeys.FEED_ARTICLES_LIST_VISIBLE, false);
      }
  
-     @VisibleForTesting
+     /**
 --- a/chrome/android/java/src/org/chromium/chrome/browser/settings/SettingsActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/SettingsActivity.java
-@@ -254,11 +254,6 @@ public class SettingsActivity extends Ch
+@@ -255,11 +255,6 @@ public class SettingsActivity extends Ch
      @Override
      public boolean onCreateOptionsMenu(Menu menu) {
          super.onCreateOptionsMenu(menu);
@@ -94,7 +94,7 @@ Subject: Remove unused UI elements. Also disables autofill assistant.
      @Override
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-@@ -51,8 +51,6 @@ public class PrivacySettings
+@@ -49,8 +49,6 @@ public class PrivacySettings
      private static final String PREF_SECURE_DNS = "secure_dns";
      private static final String PREF_USAGE_STATS = "usage_stats_reporting";
      private static final String PREF_DO_NOT_TRACK = "do_not_track";
@@ -103,7 +103,7 @@ Subject: Remove unused UI elements. Also disables autofill assistant.
      private static final String PREF_CLEAR_BROWSING_DATA = "clear_browsing_data";
      private static final String PREF_PRIVACY_SANDBOX = "privacy_sandbox";
  
-@@ -82,11 +80,6 @@ public class PrivacySettings
+@@ -80,11 +78,6 @@ public class PrivacySettings
              getPreferenceScreen().removePreference(findPreference(PREF_PRIVACY_SANDBOX));
          }
  
@@ -115,7 +115,7 @@ Subject: Remove unused UI elements. Also disables autofill assistant.
          setHasOptionsMenu(true);
  
          mManagedPreferenceDelegate = createManagedPreferenceDelegate();
-@@ -105,9 +98,6 @@ public class PrivacySettings
+@@ -103,9 +96,6 @@ public class PrivacySettings
          Preference secureDnsPref = findPreference(PREF_SECURE_DNS);
          secureDnsPref.setVisible(SecureDnsSettings.isUiEnabled());
  
@@ -125,7 +125,7 @@ Subject: Remove unused UI elements. Also disables autofill assistant.
          updateSummaries();
      }
  
-@@ -190,10 +180,6 @@ public class PrivacySettings
+@@ -177,10 +167,6 @@ public class PrivacySettings
              secureDnsPref.setSummary(SecureDnsSettings.getSummary(getContext()));
          }
  
@@ -136,7 +136,7 @@ Subject: Remove unused UI elements. Also disables autofill assistant.
          Preference usageStatsPref = findPreference(PREF_USAGE_STATS);
          if (usageStatsPref != null) {
              if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
-@@ -234,10 +220,6 @@ public class PrivacySettings
+@@ -221,10 +207,6 @@ public class PrivacySettings
      @Override
      public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
          menu.clear();
@@ -149,7 +149,7 @@ Subject: Remove unused UI elements. Also disables autofill assistant.
      @Override
 --- a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/GoogleServicesSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/GoogleServicesSettings.java
-@@ -144,9 +144,6 @@ public class GoogleServicesSettings
+@@ -150,9 +150,6 @@ public class GoogleServicesSettings
      @Override
      public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
          menu.clear();
@@ -161,7 +161,7 @@ Subject: Remove unused UI elements. Also disables autofill assistant.
      @Override
 --- a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/ManageSyncSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/ManageSyncSettings.java
-@@ -284,9 +284,6 @@ public class ManageSyncSettings extends
+@@ -281,9 +281,6 @@ public class ManageSyncSettings extends
      @Override
      public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
          menu.clear();
@@ -173,7 +173,7 @@ Subject: Remove unused UI elements. Also disables autofill assistant.
      @Override
 --- a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/SyncAndServicesSettings.java
-@@ -271,9 +271,6 @@ public class SyncAndServicesSettings ext
+@@ -274,9 +274,6 @@ public class SyncAndServicesSettings ext
      @Override
      public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
          menu.clear();
@@ -218,24 +218,24 @@ Subject: Remove unused UI elements. Also disables autofill assistant.
 -        android:order="13"
 -        android:title="@string/prefs_safety_check"/>
 -    <Preference
-         android:fragment="org.chromium.chrome.browser.notifications.settings.NotificationSettings"
          android:key="notifications"
          android:order="14"
-@@ -116,11 +101,6 @@
-         android:order="20"
+         android:title="@string/prefs_notifications"/>
+@@ -120,11 +105,6 @@
+         android:order="21"
          android:title="@string/language_settings"/>
      <org.chromium.components.browser_ui.settings.ChromeBasePreference
 -        android:fragment="org.chromium.chrome.browser.datareduction.settings.DataReductionPreferenceFragment"
 -        android:key="data_reduction"
--        android:order="21"
+-        android:order="22"
 -        android:title="@string/data_reduction_title_lite_mode"/>
 -    <org.chromium.components.browser_ui.settings.ChromeBasePreference
          android:fragment="org.chromium.chrome.browser.download.settings.DownloadSettings"
          android:key="downloads"
-         android:order="22"
+         android:order="23"
 --- a/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/MainSettings.java
-@@ -87,7 +87,6 @@ public class MainSettings extends Prefer
+@@ -89,7 +89,6 @@ public class MainSettings extends Prefer
      private final Map<String, Preference> mAllPreferences = new HashMap<>();
      private SyncPromoPreference mSyncPromoPreference;
      private SignInPreference mSignInPreference;
@@ -243,7 +243,7 @@ Subject: Remove unused UI elements. Also disables autofill assistant.
      private @Nullable PasswordCheck mPasswordCheck;
  
      public MainSettings() {
-@@ -168,7 +167,6 @@ public class MainSettings extends Prefer
+@@ -171,7 +170,6 @@ public class MainSettings extends Prefer
          updatePasswordsPreference();
  
          setManagedPreferenceDelegateForPreference(PREF_SEARCH_ENGINE);
@@ -251,13 +251,10 @@ Subject: Remove unused UI elements. Also disables autofill assistant.
  
          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
              // If we are on Android O+ the Notifications preference should lead to the Android
-@@ -197,17 +195,6 @@ public class MainSettings extends Prefer
-             TemplateUrlServiceFactory.get().registerLoadListener(this);
-             TemplateUrlServiceFactory.get().load();
-         }
--
--        // Replace the account section header, replace SyncAndServicesSettings with
--        // ManageSyncSettings and add GoogleServicesSettings row if this flag is enabled.
+@@ -199,14 +197,6 @@ public class MainSettings extends Prefer
+ 
+         // Replace the account section header, replace SyncAndServicesSettings with
+         // ManageSyncSettings and add GoogleServicesSettings row if this flag is enabled.
 -        if (ChromeFeatureList.isEnabled(ChromeFeatureList.MOBILE_IDENTITY_CONSISTENCY)) {
 -            getPreferenceScreen().removePreference(findPreference(PREF_ACCOUNT_SECTION));
 -            getPreferenceScreen().removePreference(findPreference(PREF_SYNC_AND_SERVICES));
@@ -266,10 +263,10 @@ Subject: Remove unused UI elements. Also disables autofill assistant.
 -            mManageSync.setVisible(true);
 -            findPreference(PREF_GOOGLE_SERVICES).setVisible(true);
 -        }
-     }
  
-     /**
-@@ -222,7 +209,6 @@ public class MainSettings extends Prefer
+         new AdaptiveToolbarStatePredictor().recomputeUiState(uiState -> {
+             // We don't show the toolbar shortcut settings page if disabled from finch.
+@@ -229,7 +219,6 @@ public class MainSettings extends Prefer
          }
          mSyncPromoPreference = (SyncPromoPreference) mAllPreferences.get(PREF_SYNC_PROMO);
          mSignInPreference = (SignInPreference) mAllPreferences.get(PREF_SIGN_IN);
@@ -277,7 +274,7 @@ Subject: Remove unused UI elements. Also disables autofill assistant.
      }
  
      private void setManagedPreferenceDelegateForPreference(String key) {
-@@ -231,13 +217,7 @@ public class MainSettings extends Prefer
+@@ -238,13 +227,7 @@ public class MainSettings extends Prefer
      }
  
      private void updatePreferences() {
@@ -292,7 +289,7 @@ Subject: Remove unused UI elements. Also disables autofill assistant.
  
          updateSyncPreference();
          updateSearchEnginePreference();
-@@ -256,10 +236,6 @@ public class MainSettings extends Prefer
+@@ -263,10 +246,6 @@ public class MainSettings extends Prefer
          } else {
              removePreferenceIfPresent(PREF_DEVELOPER);
          }
@@ -303,7 +300,7 @@ Subject: Remove unused UI elements. Also disables autofill assistant.
      }
  
      private Preference addPreferenceIfAbsent(String key) {
-@@ -282,9 +258,6 @@ public class MainSettings extends Prefer
+@@ -289,9 +268,6 @@ public class MainSettings extends Prefer
      }
  
      private void updateSyncAndServicesPreference() {
@@ -313,7 +310,7 @@ Subject: Remove unused UI elements. Also disables autofill assistant.
      }
  
      private void updateManageSyncPreference() {
-@@ -295,7 +268,6 @@ public class MainSettings extends Prefer
+@@ -302,7 +278,6 @@ public class MainSettings extends Prefer
          boolean showManageSync =
                  ChromeFeatureList.isEnabled(ChromeFeatureList.MOBILE_IDENTITY_CONSISTENCY)
                  && primaryAccountName != null;
@@ -321,7 +318,7 @@ Subject: Remove unused UI elements. Also disables autofill assistant.
          if (!showManageSync) {
              return;
          }
-@@ -305,21 +277,6 @@ public class MainSettings extends Prefer
+@@ -312,21 +287,6 @@ public class MainSettings extends Prefer
                          .getIdentityManager(Profile.getLastUsedRegularProfile())
                          .getPrimaryAccountInfo(ConsentLevel.SYNC)
                  != null;
@@ -335,7 +332,7 @@ Subject: Remove unused UI elements. Also disables autofill assistant.
 -                SettingsLauncher settingsLauncher = new SettingsLauncherImpl();
 -                settingsLauncher.launchSettingsActivity(context, ManageSyncSettings.class);
 -            } else {
--                SigninActivityLauncherImpl.get().launchActivityForPromoDefaultFlow(
+-                SyncConsentActivityLauncherImpl.get().launchActivityForPromoDefaultFlow(
 -                        context, SigninAccessPoint.SETTINGS, primaryAccountName);
 -            }
 -            return true;
@@ -343,7 +340,7 @@ Subject: Remove unused UI elements. Also disables autofill assistant.
      }
  
      private void updateSearchEnginePreference() {
-@@ -373,8 +330,6 @@ public class MainSettings extends Prefer
+@@ -380,8 +340,6 @@ public class MainSettings extends Prefer
          String prefName = ChromeFeatureList.isEnabled(ChromeFeatureList.MOBILE_IDENTITY_CONSISTENCY)
                  ? PREF_ACCOUNT_AND_GOOGLE_SERVICES_SECTION
                  : PREF_ACCOUNT_SECTION;
@@ -352,7 +349,7 @@ Subject: Remove unused UI elements. Also disables autofill assistant.
      }
  
      // TemplateUrlService.LoadListener implementation.
-@@ -398,9 +353,6 @@ public class MainSettings extends Prefer
+@@ -405,9 +363,6 @@ public class MainSettings extends Prefer
          return new ChromeManagedPreferenceDelegate() {
              @Override
              public boolean isPreferenceControlledByPolicy(Preference preference) {
@@ -362,7 +359,7 @@ Subject: Remove unused UI elements. Also disables autofill assistant.
                  if (PREF_SEARCH_ENGINE.equals(preference.getKey())) {
                      return TemplateUrlServiceFactory.get().isDefaultSearchManaged();
                  }
-@@ -409,11 +361,6 @@ public class MainSettings extends Prefer
+@@ -416,11 +371,6 @@ public class MainSettings extends Prefer
  
              @Override
              public boolean isPreferenceClickDisabledByPolicy(Preference preference) {
@@ -387,7 +384,7 @@ Subject: Remove unused UI elements. Also disables autofill assistant.
          return CommandLine.getInstance().hasSwitch(
 --- a/chrome/android/java/res/menu/main_menu.xml
 +++ b/chrome/android/java/res/menu/main_menu.xml
-@@ -110,9 +110,6 @@
+@@ -113,9 +113,6 @@
          <item android:id="@+id/preferences_id"
              android:title="@string/menu_settings"
              android:icon="@drawable/settings_cog" />
@@ -427,7 +424,7 @@ Subject: Remove unused UI elements. Also disables autofill assistant.
          }
 --- a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/BaseCustomTabActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/BaseCustomTabActivity.java
-@@ -499,7 +499,7 @@ public abstract class BaseCustomTabActiv
+@@ -500,7 +500,7 @@ public abstract class BaseCustomTabActiv
      @Override
      public boolean onMenuOrKeyboardAction(int id, boolean fromMenu) {
          // Disable creating new tabs, bookmark, history, print, help, focus_url, etc.
@@ -503,7 +500,7 @@ Subject: Remove unused UI elements. Also disables autofill assistant.
          android:contentDescription="@string/password_settings_export_action_description"
 --- a/chrome/android/java/src/org/chromium/chrome/browser/site_settings/ChromeSiteSettingsDelegate.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/site_settings/ChromeSiteSettingsDelegate.java
-@@ -202,7 +202,7 @@ public class ChromeSiteSettingsDelegate
+@@ -203,7 +203,7 @@ public class ChromeSiteSettingsDelegate
  
      @Override
      public boolean isHelpAndFeedbackEnabled() {
@@ -532,7 +529,7 @@ Subject: Remove unused UI elements. Also disables autofill assistant.
  
  // Controls whether to disable onboarding flow for Autofill Assistant
  const base::Feature kAutofillAssistantDisableOnboardingFlow{
-@@ -43,7 +43,7 @@ const base::Feature kAutofillAssistantIn
+@@ -52,7 +52,7 @@ const base::Feature kAutofillAssistantIn
  
  // Controls whether to show the "Send feedback" chip while in an error state.
  const base::Feature kAutofillAssistantFeedbackChip{
@@ -541,18 +538,18 @@ Subject: Remove unused UI elements. Also disables autofill assistant.
  
  // Whether autofill assistant should load the DFM for trigger scripts when
  // necessary. Without this feature, trigger scripts will exit if the DFM is not
-@@ -53,7 +53,7 @@ const base::Feature kAutofillAssistantLo
+@@ -62,7 +62,7 @@ const base::Feature kAutofillAssistantLo
      base::FEATURE_DISABLED_BY_DEFAULT};
  
  const base::Feature kAutofillAssistantProactiveHelp{
 -    "AutofillAssistantProactiveHelp", base::FEATURE_ENABLED_BY_DEFAULT};
 +    "AutofillAssistantProactiveHelp", base::FEATURE_DISABLED_BY_DEFAULT};
  
- // Use Chrome's TabHelper system to deal with the life cycle of WebContent's
- // depending Autofill Assistant objects.
+ // Used to configure the start heuristics for
+ // |kAutofillAssistantInCctTriggering| and/or
 --- a/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
-@@ -2241,16 +2241,6 @@ public abstract class ChromeActivity<C e
+@@ -2275,16 +2275,6 @@ public abstract class ChromeActivity<C e
  
          final Tab currentTab = getActivityTab();
  

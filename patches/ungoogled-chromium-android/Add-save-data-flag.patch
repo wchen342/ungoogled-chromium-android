@@ -12,7 +12,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
 
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -4608,6 +4608,9 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -4627,6 +4627,9 @@ const FeatureEntry kFeatureEntries[] = {
       FEATURE_WITH_PARAMS_VALUE_TYPE(features::kMBIMode,
                                      kMBIModeVariations,
                                      "MBIMode")},
@@ -48,7 +48,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
  COMPONENT_EXPORT(NETWORK_CPP)
 --- a/chrome/browser/flag_descriptions.cc
 +++ b/chrome/browser/flag_descriptions.cc
-@@ -989,6 +989,10 @@ const char kDisableKeepaliveFetchDescrip
+@@ -1012,6 +1012,10 @@ const char kDisableKeepaliveFetchDescrip
      "Disable fetch with keepalive set "
      "(https://fetch.spec.whatwg.org/#request-keepalive-flag).";
  
@@ -61,7 +61,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
  const char kExperimentalAccessibilityLanguageDetectionDescription[] =
 --- a/chrome/browser/flag_descriptions.h
 +++ b/chrome/browser/flag_descriptions.h
-@@ -559,6 +559,9 @@ extern const char kDiagnosticsAppDescrip
+@@ -570,6 +570,9 @@ extern const char kDiagnosticsAppDescrip
  extern const char kDisableKeepaliveFetchName[];
  extern const char kDisableKeepaliveFetchDescription[];
  

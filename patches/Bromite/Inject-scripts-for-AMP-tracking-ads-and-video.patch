@@ -8,13 +8,13 @@ Set proper injection script nonce
 Send a random key press to circumvent idle status detection
 ---
  third_party/blink/renderer/core/dom/build.gni                  |    2 
- third_party/blink/renderer/core/dom/document.cc                |   61 ++++++++++
+ third_party/blink/renderer/core/dom/document.cc                |   62 ++++++++++
  third_party/blink/renderer/core/dom/document.h                 |    3 
  third_party/blink/renderer/core/dom/extensions/anti_amp_cure.h |    6 
  third_party/blink/renderer/core/dom/extensions/video_bg_play.h |    6 
  third_party/blink/renderer/core/html/html_script_element.cc    |    5 
  third_party/blink/renderer/core/html/html_script_element.h     |    1 
- 7 files changed, 84 insertions(+)
+ 7 files changed, 85 insertions(+)
  create mode 100644 third_party/blink/renderer/core/dom/extensions/anti_amp_cure.h
  create mode 100644 third_party/blink/renderer/core/dom/extensions/video_bg_play.h
 
@@ -48,7 +48,7 @@ Send a random key press to circumvent idle status detection
  #ifndef NDEBUG
  using WeakDocumentSet = blink::HeapHashSet<blink::WeakMember<blink::Document>>;
  static WeakDocumentSet& liveDocumentSet();
-@@ -6877,6 +6880,61 @@ void Document::setAllowDeclarativeShadow
+@@ -6627,6 +6630,61 @@ void Document::setAllowDeclarativeShadow
        val ? AllowState::kAllow : AllowState::kDeny;
  }
  
@@ -110,19 +110,20 @@ Send a random key press to circumvent idle status detection
  void Document::FinishedParsing() {
    DCHECK(!GetScriptableDocumentParser() || !parser_->IsParsing());
    DCHECK(!GetScriptableDocumentParser() || ready_state_ != kLoading);
-@@ -6929,6 +6987,9 @@ void Document::FinishedParsing() {
+@@ -6679,6 +6737,10 @@ void Document::FinishedParsing() {
  
      frame->Loader().FinishedParsing();
  
 +    if (!IsPrefetchOnly()) {
-+      injectScripts();
++       injectScripts();
 +    }
++
      DEVTOOLS_TIMELINE_TRACE_EVENT_INSTANT(
          "MarkDOMContent", inspector_mark_load_event::Data, frame);
      probe::DomContentLoadedEventFired(frame);
 --- a/third_party/blink/renderer/core/dom/document.h
 +++ b/third_party/blink/renderer/core/dom/document.h
-@@ -1730,6 +1730,9 @@ class CORE_EXPORT Document : public Cont
+@@ -1741,6 +1741,9 @@ class CORE_EXPORT Document : public Cont
    void AddAXContext(AXContext*);
    void RemoveAXContext(AXContext*);
  
@@ -152,8 +153,8 @@ Send a random key press to circumvent idle status detection
 +#endif  // video_bg_play_h
 --- a/third_party/blink/renderer/core/html/html_script_element.cc
 +++ b/third_party/blink/renderer/core/html/html_script_element.cc
-@@ -168,6 +168,11 @@ void HTMLScriptElement::setTextContent(
-   }
+@@ -206,6 +206,11 @@ void HTMLScriptElement::setTextContent(c
+   script_text_internal_slot_ = ParkableString(string.Impl());
  }
  
 +void HTMLScriptElement::setTextDirect(
@@ -162,13 +163,13 @@ Send a random key press to circumvent idle status detection
 +}
 +
  void HTMLScriptElement::setAsync(bool async) {
+   // https://html.spec.whatwg.org/multipage/scripting.html#dom-script-async
    SetBooleanAttribute(html_names::kAsyncAttr, async);
-   loader_->HandleAsyncAttribute();
 --- a/third_party/blink/renderer/core/html/html_script_element.h
 +++ b/third_party/blink/renderer/core/html/html_script_element.h
-@@ -53,6 +53,7 @@ class CORE_EXPORT HTMLScriptElement fina
-   void setInnerText(const StringOrTrustedScript&, ExceptionState&) override;
-   void setTextContent(const StringOrTrustedScript&, ExceptionState&) override;
+@@ -66,6 +66,7 @@ class CORE_EXPORT HTMLScriptElement fina
+                                 ExceptionState&) override;
+ #endif  // defined(USE_BLINK_V8_BINDING_NEW_IDL_UNION)
    void setTextContent(const String&) override;
 +  void setTextDirect(const char*);
  

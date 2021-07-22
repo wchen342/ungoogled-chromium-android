@@ -178,14 +178,14 @@ Subject: Add new folder button to bookmark activity
          if (!mIsCreatingFolder) {
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -3131,6 +3131,9 @@ Data from your Incognito session will on
-       <message name="IDS_BOOKMARK_ACTION_BAR_EDIT_FOLDER" desc="Button text for editing current folder action on the bookmark action bar [CHAR-LIMIT=32]">
+@@ -3200,6 +3200,9 @@ To change this setting, <ph name="BEGIN_
+       <message name="IDS_BOOKMARK_ACTION_BAR_EDIT_FOLDER" desc="Button text for editing current folder action on the bookmark action bar [CHAR_LIMIT=32]">
          Edit folder
        </message>
 +      <message name="IDS_BOOKMARK_ACTION_BAR_ADD_FOLDER" desc="Button text for adding new folder action on the bookmark action bar [CHAR-LIMIT=32]">
 +        Add folder
 +      </message>
-       <message name="IDS_BOOKMARK_ACTION_BAR_MOVE" desc="Button text for bookmark move action on the bookmark action bar [CHAR-LIMIT=32]">
+       <message name="IDS_BOOKMARK_ACTION_BAR_MOVE" desc="Button text for bookmark move action on the bookmark action bar [CHAR_LIMIT=32]">
          Move bookmarks
        </message>
 --- a/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkBridge.java

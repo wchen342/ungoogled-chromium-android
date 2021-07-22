@@ -40,7 +40,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
  # The shared library used by standalone WebView.
 --- a/android_webview/nonembedded/BUILD.gn
 +++ b/android_webview/nonembedded/BUILD.gn
-@@ -249,4 +249,14 @@ if (android_64bit_target_cpu) {
+@@ -252,4 +252,14 @@ if (android_64bit_target_cpu) {
                    "library=libmonochrome.so",
                  ]
    }

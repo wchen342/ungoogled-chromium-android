@@ -529,7 +529,7 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
  }
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -2310,7 +2310,6 @@ android_library("base_module_java") {
+@@ -2371,7 +2371,6 @@ android_library("base_module_java") {
      "//third_party/androidx:androidx_annotation_annotation_java",
      "//third_party/androidx:androidx_collection_collection_java",
      "//third_party/androidx:androidx_fragment_fragment_java",
@@ -539,14 +539,14 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
      # Deps needed for child processes.
 --- a/chrome/browser/language/android/BUILD.gn
 +++ b/chrome/browser/language/android/BUILD.gn
-@@ -14,7 +14,6 @@ android_library("base_module_java") {
-   deps = [
+@@ -15,7 +15,6 @@ android_library("base_module_java") {
      "//base:base_java",
      "//chrome/browser/preferences:java",
+     "//components/language/android:language_bridge_java",
 -    "//third_party/google_android_play_core:com_google_android_play_core_java",
+     "//ui/android:ui_no_recycler_view_java",
    ]
  }
- 
 --- a/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/LanguageSplitInstaller.java
 +++ b/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/LanguageSplitInstaller.java
 @@ -4,18 +4,13 @@

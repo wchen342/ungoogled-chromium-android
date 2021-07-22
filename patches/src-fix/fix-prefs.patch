@@ -20,7 +20,7 @@ Subject: fix build error with prefs.h
  
 --- a/chrome/browser/signin/ui/android/java/src/org/chromium/chrome/browser/signin/ui/SigninPromoUtil.java
 +++ b/chrome/browser/signin/ui/android/java/src/org/chromium/chrome/browser/signin/ui/SigninPromoUtil.java
-@@ -71,8 +71,7 @@ public final class SigninPromoUtil {
+@@ -75,8 +75,7 @@ public final class SigninPromoUtil {
              return false;
          }
  
@@ -32,7 +32,7 @@ Subject: fix build error with prefs.h
          }
 --- a/chrome/android/java/src/org/chromium/chrome/browser/signin/SyncConsentFragmentBase.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/signin/SyncConsentFragmentBase.java
-@@ -435,8 +435,7 @@ public abstract class SyncConsentFragmen
+@@ -420,8 +420,7 @@ public abstract class SyncConsentFragmen
      private void runStateMachineAndSignin(boolean settingsClicked) {
          mConfirmSyncDataStateMachine = new ConfirmSyncDataStateMachine(
                  new ConfirmSyncDataStateMachineDelegate(getChildFragmentManager()),
