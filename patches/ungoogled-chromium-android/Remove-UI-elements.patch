@@ -264,7 +264,7 @@ Subject: Remove unused UI elements. Also disables autofill assistant.
 -            findPreference(PREF_GOOGLE_SERVICES).setVisible(true);
 -        }
  
-         new AdaptiveToolbarStatePredictor().recomputeUiState(uiState -> {
+         new AdaptiveToolbarStatePredictor(null).recomputeUiState(uiState -> {
              // We don't show the toolbar shortcut settings page if disabled from finch.
 @@ -229,7 +219,6 @@ public class MainSettings extends Prefer
          }

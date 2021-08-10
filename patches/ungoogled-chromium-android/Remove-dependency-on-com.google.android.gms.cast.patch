@@ -55,7 +55,7 @@ Subject: Remove dependency on com.google.android.gms.cast
      "$google_play_services_package:google_play_services_fido_java",
      "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
-@@ -2412,7 +2406,6 @@ android_library("base_module_java") {
+@@ -2411,7 +2405,6 @@ android_library("base_module_java") {
      # Deps to pull services into base module.
      # TODO(crbug.com/1126301): Consider moving these to the chrome module to
      # reduce base dex size.

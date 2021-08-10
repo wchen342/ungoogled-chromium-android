@@ -107,7 +107,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
    return std::make_unique<ProfileOAuth2TokenService>(
 --- a/components/omnibox/browser/autocomplete_match.cc
 +++ b/components/omnibox/browser/autocomplete_match.cc
-@@ -1391,16 +1391,6 @@ bool AutocompleteMatch::IsEmptyAutocompl
+@@ -1396,16 +1396,6 @@ bool AutocompleteMatch::IsEmptyAutocompl
           split_autocompletion.Empty();
  }
  
