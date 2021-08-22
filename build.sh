@@ -110,7 +110,7 @@ function prepare_repos {
       rm -rf "$dname"
     fi
   done
-  
+
   path_modified=false
   patch_applied=false
 
@@ -143,15 +143,6 @@ function prepare_repos {
   gclient.py sync --nohooks --no-history --shallow --revision=${chromium_version} || return $?
 
   ## Fix repos
-  webrtc_commit=$(grep 'webrtc_git.*/src\.git' src/DEPS | cut -d\' -f8)
-  mkdir src/third_party/webrtc
-  pushd src/third_party/webrtc
-  git init
-  git remote add origin https://webrtc.googlesource.com/src.git
-  git fetch --depth 1 --no-tags origin "${webrtc_commit}" || return $?
-  git reset --hard FETCH_HEAD
-  popd
-
   libsync_commit=$(grep 'libsync\.git' src/DEPS | cut -d\' -f10)
   mkdir src/third_party/libsync/src
   pushd src/third_party/libsync/src
@@ -167,15 +158,6 @@ function prepare_repos {
   git init
   git remote add origin https://chromium.googlesource.com/external/fontconfig.git
   git fetch --depth 1 --no-tags origin "${fontconfig_commit}" || return $?
-  git reset --hard FETCH_HEAD
-  popd
-
-  libdav1d_commit=$(grep 'dav1d\.git' src/DEPS | cut -d\' -f8)
-  mkdir src/third_party/dav1d/libdav1d
-  pushd src/third_party/dav1d/libdav1d
-  git init
-  git remote add origin https://chromium.googlesource.com/external/github.com/videolan/dav1d.git
-  git fetch --depth 1 --no-tags origin "${libdav1d_commit}" || return $?
   git reset --hard FETCH_HEAD
   popd
 
@@ -295,10 +277,6 @@ for i in $(seq 1 5); do ./build.sh && s=0 && break || s=$? && sleep 60; done; (e
 popd
 # Some of the support libraries can be grabbed from maven https://android.googlesource.com/platform/prebuilts/maven_repo/android/+/master/com/android/support/
 
-# chromium-web-store, extension version only
-# git clone https://github.com/NeverDecaf/chromium-web-store
-# cp -ar chromium-web-store/en_nolocale src/chrome/browser/resources/chromium_web_store
-
 # Additional Source Patches
 ## Extra fixes for Chromium source
 python3 ungoogled-chromium/utils/patches.py apply src patches
@@ -350,19 +328,19 @@ if [[ "$TARGET" != "all" ]]; then
   if [[ "$TARGET" == "trichrome_chrome_bundle_target" ]] || [[ "$TARGET" == "chrome_modern_target" ]] || [[ "$TARGET" == "trichrome_chrome_apk_target" ]] || [[ "$TARGET" == "trichrome_webview_target" ]]; then
     ../bundle_generate_apk.sh -o "${output_folder}" -a "${ARCH}" -t "${TARGET_EXPANDED}"
   fi
-  find . -iname "*.apk" -exec cp -f {} ../"${apk_out_folder}" \;
+  find ${output_folder}/apks/release -iname "*.apk" -exec cp -f {} ../"${apk_out_folder}" \;
 else
   ninja -C out/Default "$chrome_modern_target"
   ../bundle_generate_apk.sh -o "${output_folder}" -a "${ARCH}" -t "$chrome_modern_target"
   ninja -C out/Default "$webview_target"
   ninja -C out/Default "$trichrome_webview_target"
-  find . -iname "*.apk" -exec cp -f {} ../"${apk_out_folder}" \;
+  find ${output_folder}/apks/release -iname "*.apk" -exec cp -f {} ../"${apk_out_folder}" \;
 
   # arm64+TriChrome needs to be run separately, otherwise it will fail
   if [[ "$ARCH" != "arm64" ]]; then
     ninja -C "${output_folder}" "$trichrome_chrome_apk_target"
 #    ../bundle_generate_apk.sh -o "${output_folder}" -a "${ARCH}" -t "$trichrome_chrome_bundle_target"
-    find . -iname "*.apk" -exec cp -f {} ../"${apk_out_folder}" \;
+    find ${output_folder}/apks/release -iname "*.apk" -exec cp -f {} ../"${apk_out_folder}" \;
   fi
 fi
 popd
