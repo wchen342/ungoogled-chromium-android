@@ -328,7 +328,11 @@ if [[ "$TARGET" != "all" ]]; then
   if [[ "$TARGET" == "trichrome_chrome_bundle_target" ]] || [[ "$TARGET" == "chrome_modern_target" ]] || [[ "$TARGET" == "trichrome_chrome_apk_target" ]] || [[ "$TARGET" == "trichrome_webview_target" ]]; then
     ../bundle_generate_apk.sh -o "${output_folder}" -a "${ARCH}" -t "${TARGET_EXPANDED}"
   fi
-  find ${output_folder}/apks/release -iname "*.apk" -exec cp -f {} ../"${apk_out_folder}" \;
+  if [[ "$TARGET" != "webview_target" ]]; then
+    find ${output_folder}/apks/release -iname "*.apk" -exec cp -f {} ../"${apk_out_folder}" \;
+  else
+    find ${output_folder}/apks -iname "*.apk" -exec cp -f {} ../"${apk_out_folder}" \;
+  fi
 else
   ninja -C out/Default "$chrome_modern_target"
   ../bundle_generate_apk.sh -o "${output_folder}" -a "${ARCH}" -t "$chrome_modern_target"
