@@ -8,7 +8,7 @@ Subject: Disable contextual search by default
 
 --- a/chrome/browser/profiles/profile.cc
 +++ b/chrome/browser/profiles/profile.cc
-@@ -285,7 +285,7 @@ void Profile::RegisterProfilePrefs(user_
+@@ -286,7 +286,7 @@ void Profile::RegisterProfilePrefs(user_
  #if defined(OS_ANDROID)
    registry->RegisterStringPref(
        prefs::kContextualSearchEnabled,

@@ -20,8 +20,8 @@ Subject: Remove dependency on com.google.android.gms.auth
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -285,7 +285,6 @@ android_library("chrome_java") {
-     ":partner_location_descriptor_proto_java",
+@@ -298,7 +298,6 @@ android_library("chrome_java") {
+     ":chrome_public_apk_template_resources",
      ":update_proto_java",
      ":usage_stats_proto_java",
 -    "$google_play_services_package:google_play_services_auth_base_java",
@@ -40,7 +40,7 @@ Subject: Remove dependency on com.google.android.gms.auth
      "$google_play_services_package:google_play_services_tasks_java",
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -1023,44 +1023,6 @@ if (!limit_android_deps) {
+@@ -1028,44 +1028,6 @@ if (!limit_android_deps) {
    }
  
    # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
@@ -365,7 +365,7 @@ Subject: Remove dependency on com.google.android.gms.auth
 -        } else {
 -            Log.w(TAG, "Unexpected exception", e);
 -        }
-+        Log.w(TAG, "Unexpected exception");
++        Log.w(TAG, "Unexpected exception", e);
      }
  
      public void listen(WindowAndroid window, boolean isLocalRequest) {
@@ -374,11 +374,11 @@ Subject: Remove dependency on com.google.android.gms.auth
 -
 -        task.addOnSuccessListener(unused -> {
 -            this.reportBackendAvailability(BackendAvailability.AVAILABLE);
--            mProvider.destoryUserConsentReceiver();
+-            mProvider.verificationReceiverSucceeded(isLocalRequest);
 -        });
 -        task.addOnFailureListener((Exception e) -> {
 -            this.onRetrieverTaskFailure(window, isLocalRequest, e);
--            mProvider.destoryVerificationReceiver();
+-            mProvider.verificationReceiverFailed(isLocalRequest);
 -        });
 -
          if (DEBUG) Log.d(TAG, "Installed task");
@@ -386,7 +386,7 @@ Subject: Remove dependency on com.google.android.gms.auth
  
 --- a/content/test/BUILD.gn
 +++ b/content/test/BUILD.gn
-@@ -2768,7 +2768,6 @@ if (is_android) {
+@@ -2837,7 +2837,6 @@ if (is_android) {
      testonly = true
      sources = content_java_sources_needing_jni
      deps = [
@@ -484,7 +484,7 @@ Subject: Remove dependency on com.google.android.gms.auth
  }
 --- a/content/public/android/java/src/org/chromium/content/browser/sms/SmsProviderGms.java
 +++ b/content/public/android/java/src/org/chromium/content/browser/sms/SmsProviderGms.java
-@@ -141,9 +141,7 @@ public class SmsProviderGms {
+@@ -184,9 +184,7 @@ public class SmsProviderGms {
          if (mClient != null) {
              return mClient;
          }
@@ -495,7 +495,7 @@ Subject: Remove dependency on com.google.android.gms.auth
  
          return mClient;
      }
-@@ -166,4 +164,4 @@ public class SmsProviderGms {
+@@ -209,4 +207,4 @@ public class SmsProviderGms {
          void onCancel(long nativeSmsProviderGms);
          void onNotAvailable(long nativeSmsProviderGms);
      }

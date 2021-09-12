@@ -12,7 +12,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
 
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -4627,6 +4627,9 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -4693,6 +4693,9 @@ const FeatureEntry kFeatureEntries[] = {
       FEATURE_WITH_PARAMS_VALUE_TYPE(features::kMBIMode,
                                      kMBIModeVariations,
                                      "MBIMode")},
@@ -24,7 +24,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
       flag_descriptions::kIntensiveWakeUpThrottlingName,
 --- a/services/network/public/cpp/features.cc
 +++ b/services/network/public/cpp/features.cc
-@@ -152,6 +152,10 @@ const base::FeatureParam<std::string>
+@@ -157,6 +157,10 @@ const base::FeatureParam<std::string>
  const base::Feature kDisableKeepaliveFetch{"DisableKeepaliveFetch",
                                             base::FEATURE_DISABLED_BY_DEFAULT};
  
@@ -32,23 +32,23 @@ author: Wengling Chen <feiyu2817@gmail.com>
 +const base::Feature kEnableSaveDataHeader{"EnableSaveDataHeader",
 +                                           base::FEATURE_DISABLED_BY_DEFAULT};
 +
- // Controls whether a |request_initiator| that mismatches
- // |request_initiator_origin_lock| leads to 1) failing the HTTP request and 2)
- // calling mojo::ReportBadMessage (on desktop platforms, where NetworkService
+ // Enables preprocessing requests with the Trust Tokens API Fetch flags set,
+ // and handling their responses, according to the protocol.
+ // (See https://github.com/WICG/trust-token-api.)
 --- a/services/network/public/cpp/features.h
 +++ b/services/network/public/cpp/features.h
-@@ -58,6 +58,8 @@ extern const base::FeatureParam<std::str
+@@ -57,6 +57,8 @@ extern const base::FeatureParam<std::str
+     kDnsOverHttpsUpgradeDisabledProvidersParam;
  COMPONENT_EXPORT(NETWORK_CPP)
  extern const base::Feature kDisableKeepaliveFetch;
- COMPONENT_EXPORT(NETWORK_CPP)
-+extern const base::Feature kEnableSaveDataHeader;
 +COMPONENT_EXPORT(NETWORK_CPP)
- extern const base::Feature kRequestInitiatorSiteLockEnfocement;
++extern const base::Feature kEnableSaveDataHeader;
  
  COMPONENT_EXPORT(NETWORK_CPP)
+ extern const base::Feature kTrustTokens;
 --- a/chrome/browser/flag_descriptions.cc
 +++ b/chrome/browser/flag_descriptions.cc
-@@ -1012,6 +1012,10 @@ const char kDisableKeepaliveFetchDescrip
+@@ -1078,6 +1078,10 @@ const char kDisableKeepaliveFetchDescrip
      "Disable fetch with keepalive set "
      "(https://fetch.spec.whatwg.org/#request-keepalive-flag).";
  
@@ -61,7 +61,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
  const char kExperimentalAccessibilityLanguageDetectionDescription[] =
 --- a/chrome/browser/flag_descriptions.h
 +++ b/chrome/browser/flag_descriptions.h
-@@ -570,6 +570,9 @@ extern const char kDiagnosticsAppDescrip
+@@ -594,6 +594,9 @@ extern const char kDiagnosticsAppNavigat
  extern const char kDisableKeepaliveFetchName[];
  extern const char kDisableKeepaliveFetchDescription[];
  

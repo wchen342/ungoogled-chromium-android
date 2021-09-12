@@ -23,7 +23,7 @@ Subject: kill GCM
    "java/src/org/chromium/chrome/browser/ChromeBackupAgentImpl.java",
    "java/src/org/chromium/chrome/browser/ChromeBackupWatcher.java",
    "java/src/org/chromium/chrome/browser/ChromeBaseAppCompatActivity.java",
-@@ -1152,10 +1151,6 @@ chrome_java_sources = [
+@@ -1029,10 +1028,6 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/searchwidget/SearchBoxDataProvider.java",
    "java/src/org/chromium/chrome/browser/searchwidget/SearchWidgetProvider.java",
    "java/src/org/chromium/chrome/browser/send_tab_to_self/SendTabToSelfShareActivity.java",
@@ -58,7 +58,7 @@ Subject: kill GCM
      <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT"/>
  
      <uses-permission android:name="com.google.android.apps.now.CURRENT_ACCOUNT_ACCESS" />
-@@ -983,25 +978,6 @@ by a child template that "extends" this
+@@ -1005,25 +1000,6 @@ by a child template that "extends" this
              android:configChanges="orientation|keyboardHidden|keyboard|screenSize|mcc|mnc|screenLayout|smallestScreenSize"
              android:hardwareAccelerated="false" />
  
@@ -84,7 +84,7 @@ Subject: kill GCM
  
          <!-- Android Notification service listener -->
          <service android:name="org.chromium.chrome.browser.notifications.NotificationService"
-@@ -1026,28 +1002,10 @@ by a child template that "extends" this
+@@ -1048,28 +1024,10 @@ by a child template that "extends" this
              android:exported="false"
              android:permission="android.permission.BIND_JOB_SERVICE"/>
  
@@ -116,7 +116,7 @@ Subject: kill GCM
 --- a/chrome/android/java/src/org/chromium/chrome/browser/background_task_scheduler/ChromeBackgroundTaskFactory.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/background_task_scheduler/ChromeBackgroundTaskFactory.java
 @@ -17,7 +17,6 @@ import org.chromium.chrome.browser.offli
- import org.chromium.chrome.browser.offlinepages.OfflineBackgroundTask;
+ import org.chromium.chrome.browser.offlinepages.measurements.OfflineMeasurementsBackgroundTask;
  import org.chromium.chrome.browser.offlinepages.prefetch.PrefetchBackgroundTask;
  import org.chromium.chrome.browser.omaha.OmahaService;
 -import org.chromium.chrome.browser.services.gcm.GCMBackgroundTask;

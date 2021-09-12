@@ -35,7 +35,7 @@ Corrected Exit functionality
      <!-- Items shown only in the tab switcher when start surface is enabled -->
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-@@ -201,6 +201,8 @@ import java.lang.annotation.RetentionPol
+@@ -202,6 +202,8 @@ import java.lang.annotation.RetentionPol
  import java.util.List;
  import java.util.Locale;
  
@@ -44,7 +44,7 @@ Corrected Exit functionality
  /**
   * This is the main activity for ChromeMobile when not running in document mode.  All the tabs
   * are accessible via a chrome specific tab switching UI.
-@@ -1953,6 +1955,8 @@ public class ChromeTabbedActivity extend
+@@ -1959,6 +1961,8 @@ public class ChromeTabbedActivity extend
          } else if (id == R.id.close_tab) {
              getCurrentTabModel().closeTab(currentTab, true, false, true);
              RecordUserAction.record("MobileTabClosed");
@@ -55,7 +55,7 @@ Corrected Exit functionality
              getTabModelSelector().closeAllTabs();
 --- a/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
-@@ -59,6 +59,7 @@ import org.chromium.chrome.R;
+@@ -66,6 +66,7 @@ import org.chromium.chrome.R;
  import org.chromium.chrome.browser.ActivityTabProvider;
  import org.chromium.chrome.browser.ActivityUtils;
  import org.chromium.chrome.browser.AppHooks;
@@ -63,7 +63,7 @@ Corrected Exit functionality
  import org.chromium.chrome.browser.ChromeActivitySessionTracker;
  import org.chromium.chrome.browser.ChromeApplicationImpl;
  import org.chromium.chrome.browser.ChromeKeyboardVisibilityDelegate;
-@@ -2268,6 +2269,11 @@ public abstract class ChromeActivity<C e
+@@ -2382,6 +2383,11 @@ public abstract class ChromeActivity<C e
              return true;
          }
  
@@ -92,7 +92,7 @@ Corrected Exit functionality
      @Override
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -3139,6 +3139,9 @@ To change this setting, <ph name="BEGIN_
+@@ -3101,6 +3101,9 @@ To change this setting, <ph name="BEGIN_
        <message name="IDS_MENU_SETTINGS" desc="Menu item for opening browser settings. [CHAR_LIMIT=27]">
          Settings
        </message>

@@ -1,3 +1,10 @@
+# 93.0.4577.63-1
+* Build script can now run with python3
+* disable play service fonts
+
+# 92.0.4515.159-1
+* Upstream update
+
 # 92.0.4515.107-1
 * Remove DeviceOrientation API related flags. See [bromite/bromite/issues/1204](https://github.com/bromite/bromite/issues/1204).
 * Remove FireBase dependencies and move to a separate patch

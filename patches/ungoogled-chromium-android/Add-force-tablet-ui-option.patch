@@ -2,14 +2,14 @@ description: Add option to force tablet UI
 author: Wengling Chen <feiyu2817@gmail.com>
 
 ---
- chrome/android/java/res/xml/accessibility_preferences.xml                                                     |    5 +++++
- chrome/android/java/src/org/chromium/chrome/browser/accessibility/settings/AccessibilitySettings.java         |   10 ++++++++++
- chrome/android/java/src/org/chromium/chrome/browser/toolbar/top/ToolbarControlContainer.java                  |    2 +-
- chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java |    2 ++
- chrome/browser/ui/android/strings/android_chrome_strings.grd                                                  |    6 ++++++
- components/BUILD.gn                                                                                           |    4 ++--
- ui/android/BUILD.gn                                                                                           |    1 +
- ui/android/java/src/org/chromium/ui/base/DeviceFormFactor.java                                                |    5 +++++
+ chrome/android/java/res/xml/accessibility_preferences.xml                                                       |    5 +++++
+ chrome/android/java/src/org/chromium/chrome/browser/accessibility/settings/AccessibilitySettings.java           |   10 ++++++++++
+ chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java   |    2 ++
+ chrome/browser/ui/android/strings/android_chrome_strings.grd                                                    |    6 ++++++
+ chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/browser/toolbar/top/ToolbarControlContainer.java |    2 +-
+ components/BUILD.gn                                                                                             |    4 ++--
+ ui/android/BUILD.gn                                                                                             |    1 +
+ ui/android/java/src/org/chromium/ui/base/DeviceFormFactor.java                                                  |    5 +++++
  8 files changed, 32 insertions(+), 3 deletions(-)
 --- a/chrome/android/java/res/xml/accessibility_preferences.xml
 +++ b/chrome/android/java/res/xml/accessibility_preferences.xml
@@ -27,7 +27,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
          android:title="@string/accessibility_captions_title"/>
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -1210,6 +1210,12 @@ Your Google account may have other forms
+@@ -1203,6 +1203,12 @@ Your Google account may have other forms
        <message name="IDS_FORCE_DESKTOP_MODE_TITLE" desc="Title of the preference that allows the user to update force desktop mode settings.">
          Force Desktop Mode
        </message>
@@ -75,7 +75,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
      }
 --- a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
 +++ b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
-@@ -504,6 +504,7 @@ public final class ChromePreferenceKeys
+@@ -538,6 +538,7 @@ public final class ChromePreferenceKeys
      public static final String FONT_USER_SET_FORCE_ENABLE_ZOOM = "user_set_force_enable_zoom";
  
      public static final String FLAGS_FORCE_DESKTOP_MODE_ENABLED = "Chrome.UngoogledChromium.ForceDesktopMode";
@@ -83,8 +83,8 @@ author: Wengling Chen <feiyu2817@gmail.com>
  
      public static final String HISTORY_SHOW_HISTORY_INFO = "history_home_show_info";
  
-@@ -1044,6 +1045,7 @@ public final class ChromePreferenceKeys
-                 FLAGS_CACHED.pattern(),
+@@ -1065,6 +1066,7 @@ public final class ChromePreferenceKeys
+                 FLAGS_CRASH_STREAK_BEFORE_CACHE,
                  FLAGS_FIELD_TRIAL_PARAM_CACHED.pattern(),
                  FLAGS_FORCE_DESKTOP_MODE_ENABLED,
 +                FLAGS_FORCE_TABLET_UI_ENABLED,
@@ -114,7 +114,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
  
 --- a/ui/android/BUILD.gn
 +++ b/ui/android/BUILD.gn
-@@ -364,6 +364,7 @@ android_library("ui_no_recycler_view_jav
+@@ -369,6 +369,7 @@ android_library("ui_no_recycler_view_jav
      ":ui_java_resources",
      ":ui_utils_java",
      "//base:base_java",
@@ -124,27 +124,27 @@ author: Wengling Chen <feiyu2817@gmail.com>
      "//third_party/androidx:androidx_appcompat_appcompat_java",
 --- a/components/BUILD.gn
 +++ b/components/BUILD.gn
-@@ -525,7 +525,7 @@ test("components_unittests") {
+@@ -539,7 +539,7 @@ test("components_unittests") {
  
-   # On LaCrOS, tests use ash-chrome as a window manager, thus the dependency.
+   # On LaCrOS, tests use ash - chrome as a window manager, thus the dependency.
    # On other platforms, no components should depend on Chrome.
 -  if (!is_chromeos_lacros) {
 +  if (!is_chromeos_lacros && !is_android) {
      assert_no_deps = [ "//chrome/*" ]
    }
  
-@@ -772,7 +772,7 @@ if (!is_ios && !is_fuchsia) {
+@@ -786,7 +786,7 @@ if (!is_ios) {
  
-     # On LaCrOS, tests use ash-chrome as a window manager, thus the dependency.
+     # On LaCrOS, tests use ash - chrome as a window manager, thus the dependency.
      # On other platforms, no components should depend on Chrome.
 -    if (!is_chromeos_lacros) {
 +    if (!is_chromeos_lacros && !is_android) {
        assert_no_deps = [ "//chrome/*" ]
      }
    }
---- a/chrome/android/java/src/org/chromium/chrome/browser/toolbar/top/ToolbarControlContainer.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/toolbar/top/ToolbarControlContainer.java
-@@ -110,7 +110,7 @@ public class ToolbarControlContainer ext
+--- a/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/browser/toolbar/top/ToolbarControlContainer.java
++++ b/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/browser/toolbar/top/ToolbarControlContainer.java
+@@ -109,7 +109,7 @@ public class ToolbarControlContainer ext
              // On tablet, draw a fake tab strip and toolbar until the compositor is
              // ready to draw the real tab strip. (On phone, the toolbar is made entirely
              // of Android views, which are already initialized.)

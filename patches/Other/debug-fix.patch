@@ -20,7 +20,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
 
 --- a/components/signin/internal/identity_manager/primary_account_manager.cc
 +++ b/components/signin/internal/identity_manager/primary_account_manager.cc
-@@ -135,18 +135,6 @@ void PrimaryAccountManager::SetSyncPrima
+@@ -130,18 +130,6 @@ void PrimaryAccountManager::SetSyncPrima
    DCHECK(!account_info.account_id.empty());
    DCHECK(!HasPrimaryAccount(signin::ConsentLevel::kSync));
  
@@ -41,7 +41,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  
 --- a/build/config/compiler/BUILD.gn
 +++ b/build/config/compiler/BUILD.gn
-@@ -254,7 +254,7 @@ config("compiler") {
+@@ -261,7 +261,7 @@ config("compiler") {
    cflags_cc = []
    cflags_objc = []
    cflags_objcc = []
@@ -50,7 +50,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
    defines = []
    configs = []
  
-@@ -1824,7 +1824,7 @@ config("no_rtti") {
+@@ -1828,7 +1828,7 @@ config("no_rtti") {
  # to heap-allocated memory are passed over shared library boundaries.
  config("export_dynamic") {
    # TODO(crbug.com/1052397): Revisit after target_os flip is completed.
@@ -59,16 +59,16 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
      ldflags = [ "-rdynamic" ]
    }
  }
-@@ -2041,8 +2041,6 @@ if (is_win) {
+@@ -2047,8 +2047,6 @@ if (is_win) {
      common_optimize_on_cflags += [
        # Put data and code in their own sections, so that unused symbols
        # can be removed at link time with --gc-sections.
 -      "-fdata-sections",
 -      "-ffunction-sections",
      ]
- 
-     common_optimize_on_ldflags += [
-@@ -2050,7 +2048,6 @@ if (is_win) {
+     if (!is_nacl && is_clang) {
+       # We don't care about unique section names, this makes object files a bit
+@@ -2061,7 +2059,6 @@ if (is_win) {
        # See http://lwn.net/Articles/192624/ .
        # -O2 enables string tail merge optimization in gold and lld.
        "-Wl,-O2",
@@ -84,7 +84,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
 +      ldflags += []
      }
    }
- }
+ 
 --- a/components/policy/core/browser/configuration_policy_handler.cc
 +++ b/components/policy/core/browser/configuration_policy_handler.cc
 @@ -360,7 +360,6 @@ SchemaValidatingPolicyHandler::SchemaVal
@@ -97,7 +97,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  SchemaValidatingPolicyHandler::~SchemaValidatingPolicyHandler() {}
 --- a/components/signin/internal/identity_manager/profile_oauth2_token_service_builder.cc
 +++ b/components/signin/internal/identity_manager/profile_oauth2_token_service_builder.cc
-@@ -218,7 +218,6 @@ std::unique_ptr<ProfileOAuth2TokenServic
+@@ -197,7 +197,6 @@ std::unique_ptr<ProfileOAuth2TokenServic
    // device ID is needed on the network thread, but can only be generated on the
    // main thread.
    std::string device_id = signin::GetSigninScopedDeviceId(pref_service);
@@ -126,7 +126,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
      const std::u16string& text,
 --- a/components/omnibox/browser/autocomplete_result.cc
 +++ b/components/omnibox/browser/autocomplete_result.cc
-@@ -687,13 +687,6 @@ void AutocompleteResult::CopyFrom(const
+@@ -688,13 +688,6 @@ void AutocompleteResult::CopyFrom(const
  #endif
  }
  
@@ -151,10 +151,10 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
 -#endif  // DCHECK_IS_ON()
    const std::u16string text_lowercase(base::i18n::ToLower(text));
    const base::Time now(base::Time::Now());
-   for (ShortcutMap::const_iterator it(
+ 
 --- a/components/omnibox/browser/autocomplete_controller.cc
 +++ b/components/omnibox/browser/autocomplete_controller.cc
-@@ -731,9 +731,6 @@ void AutocompleteController::UpdateResul
+@@ -732,9 +732,6 @@ void AutocompleteController::UpdateResul
  
    // Need to validate before invoking CopyOldMatches as the old matches are not
    // valid against the current input.
@@ -178,7 +178,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  bool InputEventStreamValidator::ValidateImpl(
 --- a/services/network/network_context.cc
 +++ b/services/network/network_context.cc
-@@ -976,7 +976,6 @@ void NetworkContext::QueueReport(
+@@ -1032,7 +1032,6 @@ void NetworkContext::QueueReport(
      const net::NetworkIsolationKey& network_isolation_key,
      const absl::optional<std::string>& user_agent,
      base::Value body) {

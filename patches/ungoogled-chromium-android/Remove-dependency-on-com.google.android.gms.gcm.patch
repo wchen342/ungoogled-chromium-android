@@ -5,19 +5,18 @@ Subject: Remove dependency on com.google.android.gms.gcm
 It also disalbes Snippets, auto-update of offline pages and launching browser from background service.
 The snippets are already disabled in native codes, this will disable it on Java level.
 ---
- chrome/android/BUILD.gn                                                                                   |    5 
- chrome/android/java/src/com/google/ipc/invalidation/ticl/android2/channel/GcmRegistrationTaskService.java |   10 -
- chrome/android/java/src/org/chromium/chrome/browser/ChromeBackgroundServiceImpl.java                      |   44 -----
- chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatGcmListenerService.java               |   75 ----------
- chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatGcmTaskService.java                   |   40 -----
+ chrome/android/BUILD.gn                                                                                   |    3 
+ chrome/android/java/src/com/google/ipc/invalidation/ticl/android2/channel/GcmRegistrationTaskService.java |   10 --
+ chrome/android/java/src/org/chromium/chrome/browser/ChromeBackgroundServiceImpl.java                      |   44 ---------
+ chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatGcmTaskService.java                   |   40 --------
  components/background_task_scheduler/BUILD.gn                                                             |    1 
  components/background_task_scheduler/internal/BUILD.gn                                                    |    2 
- third_party/android_deps/BUILD.gn                                                                         |   73 ---------
- 8 files changed, 4 insertions(+), 246 deletions(-)
+ third_party/android_deps/BUILD.gn                                                                         |   46 ----------
+ 7 files changed, 3 insertions(+), 143 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -291,7 +291,6 @@ android_library("chrome_java") {
+@@ -304,7 +304,6 @@ android_library("chrome_java") {
      "$google_play_services_package:google_play_services_cast_framework_java",
      "$google_play_services_package:google_play_services_cast_java",
      "$google_play_services_package:google_play_services_fido_java",
@@ -25,7 +24,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
      "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
      "$google_play_services_package:google_play_services_vision_common_java",
-@@ -1153,7 +1152,6 @@ android_library("chrome_test_java") {
+@@ -1185,7 +1184,6 @@ android_library("chrome_test_java") {
      "$google_play_services_package:google_play_services_cast_framework_java",
      "$google_play_services_package:google_play_services_cast_java",
      "$google_play_services_package:google_play_services_fido_java",
@@ -33,14 +32,14 @@ The snippets are already disabled in native codes, this will disable it on Java 
      "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
      "//base:base_java",
-@@ -2193,7 +2191,6 @@ android_library("browser_java_test_suppo
+@@ -2220,7 +2218,6 @@ android_library("browser_java_test_suppo
    ]
    deps = [
      ":chrome_java",
 -    "$google_play_services_package:google_play_services_gcm_java",
      "//base:base_java",
      "//base:base_java_test_support",
-     "//chrome/browser/profiles/android:java",
+     "//base:jni_java",
 --- a/components/background_task_scheduler/BUILD.gn
 +++ b/components/background_task_scheduler/BUILD.gn
 @@ -124,7 +124,6 @@ if (is_android) {
@@ -53,7 +52,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
        "internal:proto_java",
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -1144,21 +1144,6 @@ if (!limit_android_deps) {
+@@ -1149,21 +1149,6 @@ if (!limit_android_deps) {
    }
  
    # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
@@ -75,7 +74,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
    android_aar_prebuilt("google_play_services_iid_java") {
      aar_path = "libs/com_google_android_gms_play_services_iid/play-services-iid-17.0.0.aar"
      info_path = "libs/com_google_android_gms_play_services_iid/com_google_android_gms_play_services_iid.info"
-@@ -1804,20 +1762,6 @@ if (!limit_android_deps) {
+@@ -1830,20 +1815,6 @@ if (!limit_android_deps) {
    }
  
    # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
@@ -96,7 +95,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
    android_aar_prebuilt("google_play_services_clearcut_java") {
      aar_path = "libs/com_google_android_gms_play_services_clearcut/play-services-clearcut-17.0.0.aar"
      info_path = "libs/com_google_android_gms_play_services_clearcut/com_google_android_gms_play_services_clearcut.info"
-@@ -1837,23 +1781,6 @@ if (!limit_android_deps) {
+@@ -1863,23 +1834,6 @@ if (!limit_android_deps) {
      ]
    }
  

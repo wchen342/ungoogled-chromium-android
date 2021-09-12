@@ -20,7 +20,7 @@ Subject: fix build error with prefs.h
  
 --- a/chrome/browser/signin/ui/android/java/src/org/chromium/chrome/browser/signin/ui/SigninPromoUtil.java
 +++ b/chrome/browser/signin/ui/android/java/src/org/chromium/chrome/browser/signin/ui/SigninPromoUtil.java
-@@ -75,8 +75,7 @@ public final class SigninPromoUtil {
+@@ -78,8 +78,7 @@ public final class SigninPromoUtil {
              return false;
          }
  
@@ -32,10 +32,10 @@ Subject: fix build error with prefs.h
          }
 --- a/chrome/android/java/src/org/chromium/chrome/browser/signin/SyncConsentFragmentBase.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/signin/SyncConsentFragmentBase.java
-@@ -420,8 +420,7 @@ public abstract class SyncConsentFragmen
-     private void runStateMachineAndSignin(boolean settingsClicked) {
+@@ -435,8 +435,7 @@ public abstract class SyncConsentFragmen
          mConfirmSyncDataStateMachine = new ConfirmSyncDataStateMachine(
-                 new ConfirmSyncDataStateMachineDelegate(getChildFragmentManager()),
+                 new ConfirmSyncDataStateMachineDelegate(
+                         requireContext(), getChildFragmentManager(), mModalDialogManager),
 -                UserPrefs.get(Profile.getLastUsedRegularProfile())
 -                        .getString(Pref.GOOGLE_SERVICES_LAST_USERNAME),
 +                "",

@@ -9,7 +9,7 @@ Subject: Enable experimental ProactivelySwapBrowsingInstance feature
 
 --- a/content/public/common/content_features.cc
 +++ b/content/public/common/content_features.cc
-@@ -549,7 +549,7 @@ const base::Feature kPrioritizeBootstrap
+@@ -578,7 +578,7 @@ const base::Feature kPrioritizeBootstrap
  // HTTP(S) navigations when the BrowsingInstance doesn't contain any other
  // windows.
  const base::Feature kProactivelySwapBrowsingInstance{
@@ -20,7 +20,7 @@ Subject: Enable experimental ProactivelySwapBrowsingInstance feature
  // https://w3c.github.io/push-api/#the-pushsubscriptionchange-event
 --- a/content/common/content_navigation_policy.cc
 +++ b/content/common/content_navigation_policy.cc
-@@ -102,7 +102,7 @@ const base::FeatureParam<ProactivelySwap
+@@ -112,7 +112,7 @@ const base::FeatureParam<ProactivelySwap
      proactively_swap_browsing_instance_level{
          &features::kProactivelySwapBrowsingInstance,
          kProactivelySwapBrowsingInstanceLevelParameterName,

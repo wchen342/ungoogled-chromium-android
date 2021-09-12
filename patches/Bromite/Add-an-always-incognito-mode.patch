@@ -9,10 +9,10 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
 ---
  chrome/android/chrome_java_sources.gni                                                                   |    1 
  chrome/android/java/src/org/chromium/chrome/browser/AlwaysIncognitoLinkInterceptor.java                  |   80 ++++++++++
- chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java                            |    6 
+ chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java                            |    7 
  chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java                              |    4 
  chrome/android/java/src/org/chromium/chrome/browser/app/appmenu/AppMenuPropertiesDelegateImpl.java       |    6 
- chrome/android/java/src/org/chromium/chrome/browser/contextmenu/ChromeContextMenuPopulator.java          |    9 +
+ chrome/android/java/src/org/chromium/chrome/browser/contextmenu/ChromeContextMenuPopulator.java          |    8 -
  chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabActivityLifecycleUmaTracker.java |   25 ---
  chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabIntentDataProvider.java          |    5 
  chrome/android/java/src/org/chromium/chrome/browser/init/StartupTabPreloader.java                        |   14 +
@@ -120,7 +120,7 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
 +}
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-@@ -58,6 +58,7 @@ import org.chromium.base.supplier.Unowne
+@@ -56,6 +56,7 @@ import org.chromium.base.supplier.Unowne
  import org.chromium.base.task.PostTask;
  import org.chromium.cc.input.BrowserControlsState;
  import org.chromium.chrome.R;
@@ -128,21 +128,22 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
  import org.chromium.chrome.browser.IntentHandler.IntentHandlerDelegate;
  import org.chromium.chrome.browser.IntentHandler.TabOpenType;
  import org.chromium.chrome.browser.accessibility_tab_switcher.OverviewListLayout;
-@@ -1743,8 +1744,9 @@ public class ChromeTabbedActivity extend
+@@ -1745,8 +1746,10 @@ public class ChromeTabbedActivity extend
          Bundle savedInstanceState = getSavedInstanceState();
  
          // We determine the model as soon as possible so every systems get initialized coherently.
 -        boolean startIncognito = savedInstanceState != null
--                && savedInstanceState.getBoolean("is_incognito_selected", false);
-+        boolean startIncognito = ContextUtils.getAppSharedPreferences().getBoolean(AlwaysIncognitoLinkInterceptor.PREF_ALWAYS_INCOGNITO, false)
+-                && savedInstanceState.getBoolean(IS_INCOGNITO_SELECTED, false);
++        boolean startIncognito = ContextUtils.getAppSharedPreferences().getBoolean(
++            AlwaysIncognitoLinkInterceptor.PREF_ALWAYS_INCOGNITO, false)
 +                || (savedInstanceState != null
-+                && savedInstanceState.getBoolean("is_incognito_selected", false));
++                && savedInstanceState.getBoolean(IS_INCOGNITO_SELECTED, false));
+ 
          int index = savedInstanceState != null ? savedInstanceState.getInt(WINDOW_INDEX, 0) : 0;
  
-         mNextTabPolicySupplier = new ChromeNextTabPolicySupplier(mOverviewModeBehaviorSupplier);
 --- a/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
-@@ -94,6 +94,7 @@ import org.chromium.chrome.browser.conte
+@@ -101,6 +101,7 @@ import org.chromium.chrome.browser.conte
  import org.chromium.chrome.browser.contextualsearch.ContextualSearchManager;
  import org.chromium.chrome.browser.contextualsearch.ContextualSearchManager.ContextualSearchTabPromotionDelegate;
  import org.chromium.chrome.browser.dependency_injection.ChromeActivityCommonsModule;
@@ -150,7 +151,7 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
  import org.chromium.chrome.browser.dependency_injection.ChromeActivityComponent;
  import org.chromium.chrome.browser.dependency_injection.ModuleFactoryOverrides;
  import org.chromium.chrome.browser.device.DeviceClassManager;
-@@ -1837,6 +1838,9 @@ public abstract class ChromeActivity<C e
+@@ -1951,6 +1952,9 @@ public abstract class ChromeActivity<C e
              throw new IllegalStateException(
                      "Attempting to access TabCreator before initialization");
          }
@@ -177,17 +178,15 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
          boolean isMenuGroupTabsVisible = TabUiFeatureUtilities.isTabGroupsAndroidEnabled(mContext)
 --- a/chrome/android/java/src/org/chromium/chrome/browser/contextmenu/ChromeContextMenuPopulator.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/contextmenu/ChromeContextMenuPopulator.java
-@@ -30,7 +30,9 @@ import org.chromium.base.Callback;
- import org.chromium.base.ContextUtils;
+@@ -31,6 +31,7 @@ import org.chromium.base.ContextUtils;
  import org.chromium.base.metrics.RecordHistogram;
  import org.chromium.base.supplier.Supplier;
-+import org.chromium.base.ContextUtils;
  import org.chromium.chrome.R;
 +import org.chromium.chrome.browser.AlwaysIncognitoLinkInterceptor;
- import org.chromium.chrome.browser.AppHooks;
  import org.chromium.chrome.browser.compositor.bottombar.ephemeraltab.EphemeralTabCoordinator;
  import org.chromium.chrome.browser.contextmenu.ChromeContextMenuItem.Item;
-@@ -408,6 +410,10 @@ public class ChromeContextMenuPopulator
+ import org.chromium.chrome.browser.contextmenu.ContextMenuCoordinator.ListItemType;
+@@ -409,6 +410,10 @@ public class ChromeContextMenuPopulator
          boolean hasSaveImage = false;
          mShowEphemeralTabNewLabel = null;
  
@@ -198,7 +197,7 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
          List<Pair<Integer, ModelList>> groupedItems = new ArrayList<>();
  
          if (mParams.isAnchor()) {
-@@ -426,6 +432,7 @@ public class ChromeContextMenuPopulator
+@@ -427,6 +432,7 @@ public class ChromeContextMenuPopulator
                              linkGroup.add(createListItem(Item.OPEN_IN_NEW_TAB_IN_GROUP));
                          }
                      }
@@ -206,7 +205,7 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
                      if (!mItemDelegate.isIncognito() && mItemDelegate.isIncognitoSupported()) {
                          linkGroup.add(createListItem(Item.OPEN_IN_INCOGNITO_TAB));
                      }
-@@ -450,7 +457,7 @@ public class ChromeContextMenuPopulator
+@@ -451,7 +457,7 @@ public class ChromeContextMenuPopulator
                  }
              }
              if (FirstRunStatus.getFirstRunFlowComplete()) {
@@ -251,7 +250,7 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
      private void recordUserAction() {
 --- a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabIntentDataProvider.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabIntentDataProvider.java
-@@ -48,6 +48,9 @@ import org.chromium.components.browser_u
+@@ -50,6 +50,9 @@ import org.chromium.components.browser_u
  import org.chromium.components.embedder_support.util.UrlConstants;
  import org.chromium.device.mojom.ScreenOrientationLockType;
  
@@ -261,7 +260,7 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
  import java.lang.annotation.Retention;
  import java.lang.annotation.RetentionPolicy;
  import java.util.ArrayList;
-@@ -772,7 +775,7 @@ public class CustomTabIntentDataProvider
+@@ -727,7 +730,7 @@ public class CustomTabIntentDataProvider
  
      @Override
      public boolean isIncognito() {
@@ -272,7 +271,7 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
      @Nullable
 --- a/chrome/android/java/src/org/chromium/chrome/browser/init/StartupTabPreloader.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/init/StartupTabPreloader.java
-@@ -38,6 +38,9 @@ import org.chromium.ui.base.PageTransiti
+@@ -34,6 +34,9 @@ import org.chromium.content_public.brows
  import org.chromium.ui.base.WindowAndroid;
  import org.chromium.url.GURL;
  
@@ -282,7 +281,7 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
  /**
   * This class attempts to preload the tab if the url is known from the intent when the profile
   * is created. This is done to improve startup latency.
-@@ -195,10 +198,15 @@ public class StartupTabPreloader impleme
+@@ -185,17 +188,22 @@ public class StartupTabPreloader impleme
          Intent intent = mIntentSupplier.get();
          GURL url = UrlFormatter.fixupUrl(getUrlFromIntent(intent));
  
@@ -298,9 +297,8 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
 +                    isIncognito ? profile.getPrimaryOTRProfile(true /* createIfNeeded */) : profile,
 +                    false);
  
-         mLoadUrlParams = new LoadUrlParams(url.getValidSpecOrEmpty());
-         String referrer = IntentHandler.getReferrerUrlIncludingExtraHeaders(intent);
-@@ -212,7 +220,7 @@ public class StartupTabPreloader impleme
+         mLoadUrlParams = mIntentHandler.createLoadUrlParamsForIntent(url.getSpec(), intent);
+ 
          // Create a detached tab, but don't add it to the tab model yet. We'll do that
          // later if the loadUrlParams etc... match.
          mTab = TabBuilder.createLiveTab(false)
@@ -321,7 +319,7 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
      private static final String PREF_SECURE_DNS = "secure_dns";
 --- a/chrome/android/java/src/org/chromium/chrome/browser/tabmodel/ChromeTabCreator.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/tabmodel/ChromeTabCreator.java
-@@ -47,6 +47,10 @@ import org.chromium.url.GURL;
+@@ -44,6 +44,10 @@ import org.chromium.url.GURL;
  
  import java.nio.ByteBuffer;
  
@@ -332,7 +330,7 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
  /**
   * This class creates various kinds of new tabs and adds them to the right {@link TabModel}.
   */
-@@ -77,6 +81,7 @@ public class ChromeTabCreator extends Ta
+@@ -74,6 +78,7 @@ public class ChromeTabCreator extends Ta
      private final Activity mActivity;
      private final StartupTabPreloader mStartupTabPreloader;
      private final boolean mIncognito;
@@ -340,7 +338,7 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
  
      private WindowAndroid mNativeWindow;
      private TabModel mTabModel;
-@@ -99,6 +104,10 @@ public class ChromeTabCreator extends Ta
+@@ -96,6 +101,10 @@ public class ChromeTabCreator extends Ta
          mNativeWindow = nativeWindow;
          mTabDelegateFactorySupplier = tabDelegateFactory;
          mIncognito = incognito;
@@ -351,7 +349,7 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
          mOverviewNTPCreator = overviewNTPCreator;
          mAsyncTabParamsManager = asyncTabParamsManager;
          mTabModelSelectorSupplier = tabModelSelectorSupplier;
-@@ -262,6 +271,8 @@ public class ChromeTabCreator extends Ta
+@@ -259,6 +268,8 @@ public class ChromeTabCreator extends Ta
              if (creationState == TabCreationState.LIVE_IN_FOREGROUND && !openInForeground) {
                  creationState = TabCreationState.LIVE_IN_BACKGROUND;
              }
@@ -360,7 +358,7 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
              mTabModel.addTab(tab, position, type, creationState);
              return tab;
          } finally {
-@@ -296,6 +307,8 @@ public class ChromeTabCreator extends Ta
+@@ -293,6 +304,8 @@ public class ChromeTabCreator extends Ta
          @TabCreationState
          int creationState = openInForeground ? TabCreationState.LIVE_IN_FOREGROUND
                                               : TabCreationState.LIVE_IN_BACKGROUND;
@@ -369,15 +367,15 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
          mTabModel.addTab(tab, position, type, creationState);
          return true;
      }
-@@ -339,7 +352,6 @@ public class ChromeTabCreator extends Ta
+@@ -333,7 +346,6 @@ public class ChromeTabCreator extends Ta
      // TODO(crbug.com/1081924): Clean up the launches from SearchActivity/Chrome.
-     public Tab launchUrlFromExternalApp(String url, String referer, String headers, String appId,
-             boolean forceNewTab, Intent intent, long intentTimestamp) {
+     public Tab launchUrlFromExternalApp(
+             LoadUrlParams loadUrlParams, String appId, boolean forceNewTab, Intent intent) {
 -        assert !mIncognito;
+         // Don't re-use tabs for intents from Chrome. Note that this can be spoofed so shouldn't be
+         // relied on for anything security sensitive.
          boolean isLaunchedFromChrome = TextUtils.equals(appId, mActivity.getPackageName());
- 
-         if (forceNewTab && !isLaunchedFromChrome) {
-@@ -453,6 +465,8 @@ public class ChromeTabCreator extends Ta
+@@ -428,6 +440,8 @@ public class ChromeTabCreator extends Ta
                            .setSerializedCriticalPersistedTabData(serializedCriticalPersistedTabData)
                            .build();
          }
@@ -421,7 +419,7 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
          if (model.isIncognito() != isIncognito) {
 --- a/chrome/android/java/src/org/chromium/chrome/browser/webapps/WebappIntentDataProvider.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/webapps/WebappIntentDataProvider.java
-@@ -27,6 +27,9 @@ import org.chromium.chrome.browser.brows
+@@ -28,6 +28,9 @@ import org.chromium.chrome.browser.brows
  import org.chromium.chrome.browser.flags.ActivityType;
  import org.chromium.components.browser_ui.widget.TintedDrawable;
  
@@ -432,15 +430,15 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
   * Stores info about a web app.
   */
 @@ -41,6 +44,8 @@ public class WebappIntentDataProvider ex
-     private final @ActivityType int mActivityType;
      private final Intent mIntent;
+     private final ColorProviderImpl mColorProvider;
  
 +    private boolean mIsIncognito = false;
 +
      /**
       * Returns the toolbar color to use if a custom color is not specified by the webapp.
       */
-@@ -63,6 +68,10 @@ public class WebappIntentDataProvider ex
+@@ -62,6 +67,10 @@ public class WebappIntentDataProvider ex
          mWebappExtras = webappExtras;
          mWebApkExtras = webApkExtras;
          mActivityType = (webApkExtras != null) ? ActivityType.WEB_APK : ActivityType.WEBAPP;
@@ -451,7 +449,7 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
      }
  
      @Override
-@@ -156,6 +165,11 @@ public class WebappIntentDataProvider ex
+@@ -151,6 +160,11 @@ public class WebappIntentDataProvider ex
      }
  
      @Override
@@ -465,7 +463,7 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
      }
 --- a/chrome/browser/flags/android/chrome_feature_list.cc
 +++ b/chrome/browser/flags/android/chrome_feature_list.cc
-@@ -421,7 +421,7 @@ const base::Feature kCCTIncognito{"CCTIn
+@@ -433,7 +433,7 @@ const base::Feature kCCTIncognito{"CCTIn
                                    base::FEATURE_ENABLED_BY_DEFAULT};
  
  const base::Feature kCCTIncognitoAvailableToThirdParty{
@@ -476,7 +474,7 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
                                         base::FEATURE_ENABLED_BY_DEFAULT};
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -941,6 +941,13 @@ Your Google account may have other forms
+@@ -931,6 +931,13 @@ Your Google account may have other forms
        <message name="IDS_CLEAR_BROWSING_HISTORY_SUMMARY_SYNCED_NO_LINK" desc="A text for the basic tab explaining browsing history for users with history sync. This version is shown when the link to MyActivity is displayed separately.">
          Clears history from all synced devices.
        </message>

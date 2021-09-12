@@ -52,5 +52,5 @@ Subject: Remove all sync and account permissions/features from manifest
 -        mMasterSyncEnabled = mSyncContentResolverDelegate.getMasterSyncAutomatically();
 +        mMasterSyncEnabled = false;
  
-         if (mAccount != null && ProfileSyncService.get() != null
+         if (mAccount != null && SyncService.get() != null
                  && ChromeFeatureList.isEnabled(

@@ -11,7 +11,7 @@ See also: https://github.com/bromite/bromite/issues/553
 
 --- a/third_party/blink/renderer/modules/peerconnection/peer_connection_dependency_factory.cc
 +++ b/third_party/blink/renderer/modules/peerconnection/peer_connection_dependency_factory.cc
-@@ -594,12 +594,13 @@ PeerConnectionDependencyFactory::CreateP
+@@ -663,12 +663,13 @@ PeerConnectionDependencyFactory::CreateP
            port_config.enable_nonproxied_udp = false;
            break;
          case DEFAULT:

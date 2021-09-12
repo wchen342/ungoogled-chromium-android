@@ -162,6 +162,7 @@ function prepare_repos {
   popd
 
   # update node
+  pushd src && patch -p1 --ignore-whitespace -i ../patches/Other/python3-dict-changed-size-during-iteration.patch --no-backup-if-mismatch && popd
   mkdir -p src/third_party/node/linux/node-linux-x64/bin
   ln -s /usr/bin/node src/third_party/node/linux/node-linux-x64/bin/
   ( src/third_party/node/update_npm_deps ) || return $?

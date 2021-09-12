@@ -12,7 +12,8 @@ Vanadium/0017-disable-fetching-variations.patch
 Vanadium/0021-disable-metrics-by-default.patch
 Vanadium/0023-disable-showing-popular-sites-by-default.patch
 Vanadium/0031-disable-media-router-media-remoting-by-default.patch
-Vanadium/0032-disable-media-router-by-default.patch
+Vanadium/0034-disable-media-router-by-default.patch
+Vanadium/0077-disable-using-Play-services-fonts.patch
 Unobtainium/kill-Auth.patch
 Unobtainium/kill-GCM.patch
 Unobtainium/kill-Location-fall-back-to-system.patch

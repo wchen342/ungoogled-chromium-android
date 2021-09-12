@@ -3,8 +3,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
 
 ---
  download_from_google_storage.py |    2 +-
- gsutil.py                       |    4 +---
- 2 files changed, 2 insertions(+), 4 deletions(-)
+ 1 files changed, 1 insertions(+), 1 deletions(-)
  
 --- a/depot_tools/download_from_google_storage.py
 +++ b/depot_tools/download_from_google_storage.py
@@ -18,16 +17,3 @@ author: Wengling Chen <feiyu2817@gmail.com>
  
    def __init__(self, path, boto_path=None, version='4.28'):
      if not os.path.exists(path):
---- a/depot_tools/gsutil.py
-+++ b/depot_tools/gsutil.py
-@@ -151,9 +151,7 @@
-   # expectations are made about Python having access to "google-compute-engine"
-   # and "boto" packages that are not met with non-system Python (e.g., bundles).
-   cmd = [
--      'vpython',
--      '-vpython-spec', os.path.join(THIS_DIR, 'gsutil.vpython'),
--      '--',
-+      'python',
-       gsutil_bin
-   ] + disable_update + args
-   return subprocess.call(cmd, shell=IS_WINDOWS)

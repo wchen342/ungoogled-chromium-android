@@ -1,0 +1,12 @@
+diff --git a/third_party/node/clean_json_attrs.py b/third_party/node/clean_json_attrs.py
+--- a/third_party/node/clean_json_attrs.py
++++ b/third_party/node/clean_json_attrs.py
+@@ -13,7 +13,7 @@ def Clean(start_dir, attr_pattern, file_pattern):
+ 
+     removed = False
+ 
+-    for key, val in json_dict.items():
++    for key, val in dict(json_dict).items():
+       if isinstance(val, dict):
+         if _remove_attrs(val, attr_pattern):
+           removed = True 

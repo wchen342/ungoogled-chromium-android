@@ -27,7 +27,7 @@ Subject: kill Auth
 -            long startTime = SystemClock.elapsedRealtime();
 -            Account[] accounts =
 -                    mAccountManager.getAccountsByType(GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE);
--            recordElapsedTimeHistogram("Signin.AndroidGetAccountsTime_AccountManager",
+-            RecordHistogram.recordTimesHistogram("Signin.AndroidGetAccountsTime_AccountManager",
 -                    SystemClock.elapsedRealtime() - startTime);
 -            return accounts;
 -        }
@@ -65,7 +65,7 @@ Subject: kill Auth
      }
  
      @Override
-@@ -163,17 +136,6 @@ public class SystemAccountManagerDelegat
+@@ -159,17 +132,6 @@ public class SystemAccountManagerDelegat
      @SuppressLint("MissingPermission")
      @Override
      public void createAddAccountIntent(Callback<Intent> callback) {
@@ -83,7 +83,7 @@ Subject: kill Auth
      }
  
      // No permission is needed on 23+ and Chrome always has MANAGE_ACCOUNTS permission on lower APIs
-@@ -213,12 +175,7 @@ public class SystemAccountManagerDelegat
+@@ -209,12 +171,7 @@ public class SystemAccountManagerDelegat
      @Nullable
      @Override
      public String getAccountGaiaId(String accountEmail) {
@@ -96,7 +96,7 @@ Subject: kill Auth
 +        return null;
      }
  
-     @Override
+     protected boolean isGooglePlayServicesAvailable() {
 --- a/components/signin/public/android/java/src/org/chromium/components/signin/AccountRenameChecker.java
 +++ b/components/signin/public/android/java/src/org/chromium/components/signin/AccountRenameChecker.java
 @@ -11,10 +11,6 @@ import androidx.annotation.Nullable;

@@ -25,7 +25,7 @@ Subject: Remove dependency on
  components/signin/public/android/BUILD.gn                                                                                        |    2 
  components/webauthn/android/BUILD.gn                                                                                             |    1 
  content/public/android/BUILD.gn                                                                                                  |    3 
- content/public/android/java/src/org/chromium/content/browser/sms/SmsProviderGms.java                                             |    6 
+ content/public/android/java/src/org/chromium/content/browser/sms/SmsProviderGms.java                                             |    7 
  content/test/BUILD.gn                                                                                                            |    3 
  device/BUILD.gn                                                                                                                  |    2 
  remoting/android/client_java_tmpl.gni                                                                                            |    2 
@@ -40,12 +40,12 @@ Subject: Remove dependency on
  weblayer/browser/java/BUILD.gn                                                                                                   |    1 
  weblayer/browser/java/org/chromium/weblayer_private/ChildProcessServiceImpl.java                                                 |    2 
  weblayer/shell/android/BUILD.gn                                                                                                  |    1 
- 35 files changed, 18 insertions(+), 311 deletions(-)
+ 35 files changed, 18 insertions(+), 312 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -285,9 +285,6 @@ android_library("chrome_java") {
-     ":partner_location_descriptor_proto_java",
+@@ -298,9 +298,6 @@ android_library("chrome_java") {
+     ":chrome_public_apk_template_resources",
      ":update_proto_java",
      ":usage_stats_proto_java",
 -    "$google_play_services_package:google_play_services_base_java",
@@ -54,19 +54,19 @@ Subject: Remove dependency on
      "//base:base_java",
      "//cc:cc_java",
      "//chrome/android/features/keyboard_accessory:public_java",
-@@ -849,8 +846,6 @@ junit_binary("chrome_junit_tests") {
+@@ -867,8 +864,6 @@ junit_binary("chrome_junit_tests") {
      ":chrome_java",
      ":chrome_public_android_manifest",
-     ":partner_location_descriptor_proto_java",
+     ":delegate_public_impl_java",
 -    "$google_play_services_package:google_play_services_base_java",
 -    "$google_play_services_package:google_play_services_basement_java",
      "//base:base_java",
      "//base:base_java_test_support",
      "//base:base_junit_test_support",
-@@ -1137,9 +1132,6 @@ android_library("chrome_test_java") {
+@@ -1169,9 +1164,6 @@ android_library("chrome_test_java") {
      ":chrome_test_util_java",
      ":chrome_test_util_jni",
-     ":partner_location_descriptor_proto_java",
+     ":delegate_public_impl_java",
 -    "$google_play_services_package:google_play_services_base_java",
 -    "$google_play_services_package:google_play_services_basement_java",
 -    "$google_play_services_package:google_play_services_tasks_java",
@@ -85,7 +85,7 @@ Subject: Remove dependency on
      "//content/public/android:content_java",
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
-@@ -819,15 +819,6 @@ by a child template that "extends" this
+@@ -812,15 +812,6 @@ by a child template that "extends" this
              </intent-filter>
          </activity>
  
@@ -113,7 +113,7 @@ Subject: Remove dependency on
  import org.chromium.base.ContextUtils;
  import org.chromium.base.annotations.CalledByNative;
  import org.chromium.chrome.browser.customtabs.CustomTabsConnection;
-@@ -289,16 +286,7 @@ public abstract class AppHooks {
+@@ -273,16 +270,7 @@ public abstract class AppHooks {
       * same as {@link GoogleApiAvailability#isGooglePlayServicesAvailable()}.
       */
      public int isGoogleApiAvailableWithMinApkVersion(int minApkVersion) {
@@ -450,7 +450,7 @@ Subject: Remove dependency on
      "//components/download/public/common:public_java",
 --- a/content/test/BUILD.gn
 +++ b/content/test/BUILD.gn
-@@ -2768,9 +2768,6 @@ if (is_android) {
+@@ -2837,9 +2837,6 @@ if (is_android) {
      testonly = true
      sources = content_java_sources_needing_jni
      deps = [
@@ -462,7 +462,7 @@ Subject: Remove dependency on
        "//ui/android:ui_full_java",
 --- a/device/BUILD.gn
 +++ b/device/BUILD.gn
-@@ -432,8 +432,6 @@ if (is_android) {
+@@ -433,8 +433,6 @@ if (is_android) {
        "gamepad/android/junit/src/org/chromium/device/gamepad/GamepadMappingsTest.java",
      ]
      deps = [
@@ -555,8 +555,8 @@ Subject: Remove dependency on
 -    "$google_play_services_package:google_play_services_base_java",
 -    "$google_play_services_package:google_play_services_tasks_java",
      "//base:base_java",
-     "//chrome/android:chrome_java",
-     "//components/browser_ui/notifications/android:java",
+     "//content/public/android:content_java",
+     "//third_party/android_deps:android_support_v7_appcompat_java",
 --- a/chrome/android/features/cablev2_authenticator/java/src/org/chromium/chrome/browser/webauth/authenticator/CableAuthenticator.java
 +++ b/chrome/android/features/cablev2_authenticator/java/src/org/chromium/chrome/browser/webauth/authenticator/CableAuthenticator.java
 @@ -15,8 +15,6 @@ import android.net.Uri;
@@ -578,7 +578,7 @@ Subject: Remove dependency on
    }
  
    android_library("chromium_play_services_availability_shadows_java") {
-@@ -1023,53 +1022,6 @@ if (!limit_android_deps) {
+@@ -1028,53 +1027,6 @@ if (!limit_android_deps) {
    }
  
    # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
@@ -631,7 +631,7 @@ Subject: Remove dependency on
 -  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
    android_aar_prebuilt("com_google_android_material_material_java") {
      aar_path =
-         "libs/com_google_android_material_material/material-1.2.0-alpha06.aar"
+         "libs/com_google_android_material_material/material-1.4.0-rc01.aar"
 --- a/chrome/android/java/src/org/chromium/chrome/browser/PlayServicesVersionInfo.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/PlayServicesVersionInfo.java
 @@ -7,8 +7,6 @@ package org.chromium.chrome.browser;
@@ -840,7 +840,7 @@ Subject: Remove dependency on
      "//base:base_java",
      "//components/externalauth/android:java",
      "//net/android:net_java",
-@@ -133,7 +132,6 @@ java_library("junit") {
+@@ -136,7 +135,6 @@ java_library("junit") {
    deps = [
      ":java",
      ":signin_java_test_support",
@@ -850,7 +850,7 @@ Subject: Remove dependency on
      "//base:base_junit_test_support",
 --- a/weblayer/browser/java/BUILD.gn
 +++ b/weblayer/browser/java/BUILD.gn
-@@ -102,7 +102,6 @@ android_library("base_module_java") {
+@@ -103,7 +103,6 @@ android_library("base_module_java") {
    ]
    deps = [
      ":base_module_interfaces_java",
@@ -860,7 +860,7 @@ Subject: Remove dependency on
      "//content/public/android:content_java",
 --- a/weblayer/shell/android/BUILD.gn
 +++ b/weblayer/shell/android/BUILD.gn
-@@ -40,7 +40,6 @@ android_library("weblayer_shell_java") {
+@@ -42,7 +42,6 @@ android_library("weblayer_shell_java") {
    # google_play_services_version definition in the manifest.
    deps = [
      ":weblayer_shell_resources",
@@ -870,26 +870,27 @@ Subject: Remove dependency on
      "//third_party/android_deps:android_support_v4_java",
 --- a/content/public/android/java/src/org/chromium/content/browser/sms/SmsProviderGms.java
 +++ b/content/public/android/java/src/org/chromium/content/browser/sms/SmsProviderGms.java
-@@ -4,8 +4,6 @@
+@@ -6,8 +6,6 @@ package org.chromium.content.browser.sms
  
- package org.chromium.content.browser.sms;
+ import androidx.annotation.VisibleForTesting;
  
 -import com.google.android.gms.common.ConnectionResult;
 -import com.google.android.gms.common.GoogleApiAvailability;
  
  import org.chromium.base.ContextUtils;
  import org.chromium.base.Log;
-@@ -48,9 +46,7 @@ public class SmsProviderGms {
-         mContext = new Wrappers.WebOTPServiceContext(ContextUtils.getApplicationContext(), this);
- 
+@@ -88,10 +86,7 @@ public class SmsProviderGms {
+     private static SmsProviderGms create(long smsProviderGmsAndroid, @GmsBackend int backend) {
+         Log.d(TAG, "Creating SmsProviderGms");
          boolean isVerificationBackendAvailable =
 -                GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(
--                        mContext, MIN_GMS_VERSION_NUMBER_WITH_CODE_BROWSER_BACKEND)
+-                        ContextUtils.getApplicationContext(),
+-                        MIN_GMS_VERSION_NUMBER_WITH_CODE_BROWSER_BACKEND)
 -                == ConnectionResult.SUCCESS;
 +                false;
-         if (isVerificationBackendAvailable
-                 && (mBackend == GmsBackend.AUTO || mBackend == GmsBackend.VERIFICATION)) {
-             mVerificationReceiver = new SmsVerificationReceiver(this, mContext);
+         return new SmsProviderGms(smsProviderGmsAndroid, backend, isVerificationBackendAvailable);
+     }
+ 
 --- a/weblayer/browser/java/org/chromium/weblayer_private/ChildProcessServiceImpl.java
 +++ b/weblayer/browser/java/org/chromium/weblayer_private/ChildProcessServiceImpl.java
 @@ -11,7 +11,6 @@ import android.os.Build;
@@ -910,7 +911,7 @@ Subject: Remove dependency on
      }
 --- a/components/webauthn/android/BUILD.gn
 +++ b/components/webauthn/android/BUILD.gn
-@@ -22,7 +22,6 @@ android_library("java") {
+@@ -26,7 +26,6 @@ android_library("java") {
    ]
    annotation_processor_deps = [ "//base/android/jni_generator:jni_processor" ]
    deps = [

@@ -7,7 +7,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -2052,6 +2052,10 @@ if (current_toolchain == default_toolcha
+@@ -2082,6 +2082,10 @@ if (current_toolchain == default_toolcha
      is_monochrome = true
      is_bundle_module = true
    }
@@ -18,7 +18,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
    resource_packaging("trichrome_chrome_bundle_module_pak_assets") {
      is_monochrome = false
      is_trichrome = true
-@@ -2643,6 +2647,23 @@ android_resources("trichrome_dummy_resou
+@@ -2669,6 +2673,23 @@ android_resources("trichrome_dummy_resou
    sources = [ "trichrome/res_dummy/values/strings.xml" ]
  }
  
@@ -42,7 +42,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
  chrome_public_test_apk_manifest =
      "$root_gen_dir/chrome_public_test_apk_manifest/AndroidManifest.xml"
  chrome_public_test_vr_apk_manifest =
-@@ -3188,6 +3209,8 @@ template("monochrome_or_trichrome_public
+@@ -3216,6 +3237,8 @@ template("monochrome_or_trichrome_public
          !defined(invoker.static_library_synchronized_proguard) ||
          !invoker.static_library_synchronized_proguard) {
        bundle_target = ":${invoker.target_name}"
@@ -51,7 +51,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
      }
    }
  
-@@ -3407,6 +3430,21 @@ if (android_64bit_target_cpu) {
+@@ -3430,6 +3453,21 @@ if (android_64bit_target_cpu) {
      use_trichrome_library = true
      static_library_provider = ":trichrome_library_32_apk"
    }

@@ -19,8 +19,8 @@ for SimpleURLLoaders as well.
  chrome/browser/prefs/browser_prefs.cc                                                     |    4 
  chrome/browser/prefs/chrome_command_line_pref_store.cc                                    |    2 
  chrome/browser/resources/proxy_config.css                                                 |   61 +
- chrome/browser/resources/proxy_config.html                                                |   80 +
- chrome/browser/resources/proxy_config.js                                                  |  263 ++++++
+ chrome/browser/resources/proxy_config.html                                                |   79 +
+ chrome/browser/resources/proxy_config.js                                                  |  266 ++++++
  chrome/browser/ui/BUILD.gn                                                                |    2 
  chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc                               |    3 
  chrome/browser/ui/webui/proxy_config_ui.cc                                                |  417 ++++++++++
@@ -33,7 +33,7 @@ for SimpleURLLoaders as well.
  components/proxy_config/proxy_config_dictionary.h                                         |    7 
  net/proxy_resolution/proxy_config.cc                                                      |   52 +
  net/proxy_resolution/proxy_config.h                                                       |    3 
- 24 files changed, 994 insertions(+), 14 deletions(-)
+ 24 files changed, 996 insertions(+), 14 deletions(-)
  create mode 100644 chrome/browser/resources/proxy_config.css
  create mode 100644 chrome/browser/resources/proxy_config.html
  create mode 100644 chrome/browser/resources/proxy_config.js
@@ -42,9 +42,9 @@ for SimpleURLLoaders as well.
 
 --- a/chrome/android/java/res/values/values.xml
 +++ b/chrome/android/java/res/values/values.xml
-@@ -29,6 +29,9 @@
-     <integer name="reload_button_level_reload">0</integer>
-     <integer name="reload_button_level_stop">1</integer>
+@@ -25,6 +25,9 @@
+     <!-- Compositor Tab Title Text -->
+     <bool name="compositor_tab_title_fake_bold_text">true</bool>
  
 +    <string name="proxy_title">Proxy configuration</string>
 +    <string name="proxy_url">chrome://proxy</string>
@@ -77,7 +77,7 @@ for SimpleURLLoaders as well.
      private ManagedPreferenceDelegate mManagedPreferenceDelegate;
 --- a/chrome/browser/autocomplete/chrome_autocomplete_provider_client.cc
 +++ b/chrome/browser/autocomplete/chrome_autocomplete_provider_client.cc
-@@ -363,6 +363,8 @@ ChromeAutocompleteProviderClient::GetBui
+@@ -362,6 +362,8 @@ ChromeAutocompleteProviderClient::GetBui
        base::ASCIIToUTF16(chrome::kChromeUISettingsURL));
  #endif
    builtins_to_provide.push_back(
@@ -88,7 +88,7 @@ for SimpleURLLoaders as well.
  }
 --- a/chrome/browser/browser_resources.grd
 +++ b/chrome/browser/browser_resources.grd
-@@ -101,6 +101,12 @@
+@@ -92,6 +92,12 @@
          <include name="IDR_HANGOUT_SERVICES_MANIFEST" file="resources\hangout_services\manifest.json" type="BINDATA" />
        </if>
  
@@ -165,7 +165,7 @@ for SimpleURLLoaders as well.
  };
 --- a/chrome/browser/prefs/browser_prefs.cc
 +++ b/chrome/browser/prefs/browser_prefs.cc
-@@ -157,6 +157,8 @@
+@@ -159,6 +159,8 @@
  #include "printing/buildflags/buildflags.h"
  #include "rlz/buildflags/buildflags.h"
  
@@ -174,7 +174,7 @@ for SimpleURLLoaders as well.
  #if BUILDFLAG(ENABLE_BACKGROUND_MODE)
  #include "chrome/browser/background/background_mode_manager.h"
  #endif
-@@ -784,6 +786,8 @@ void RegisterLocalState(PrefRegistrySimp
+@@ -899,6 +901,8 @@ void RegisterLocalState(PrefRegistrySimp
    PluginsResourceService::RegisterPrefs(registry);
  #endif
  
@@ -185,7 +185,7 @@ for SimpleURLLoaders as well.
  
 --- a/chrome/browser/prefs/chrome_command_line_pref_store.cc
 +++ b/chrome/browser/prefs/chrome_command_line_pref_store.cc
-@@ -156,7 +156,7 @@ void ChromeCommandLinePrefStore::ApplyPr
+@@ -154,7 +154,7 @@ void ChromeCommandLinePrefStore::ApplyPr
      SetValue(
          proxy_config::prefs::kProxy,
          std::make_unique<base::Value>(ProxyConfigDictionary::CreateFixedServers(
@@ -611,7 +611,7 @@ for SimpleURLLoaders as well.
 +})();
 --- a/chrome/browser/ui/BUILD.gn
 +++ b/chrome/browser/ui/BUILD.gn
-@@ -258,6 +258,8 @@ static_library("ui") {
+@@ -265,6 +265,8 @@ static_library("ui") {
      "webui/metrics_handler.h",
      "webui/net_export_ui.cc",
      "webui/net_export_ui.h",
@@ -630,7 +630,7 @@ for SimpleURLLoaders as well.
  #include "chrome/browser/ui/webui/quota_internals/quota_internals_ui.h"
  #include "chrome/browser/ui/webui/signin_internals_ui.h"
  #include "chrome/browser/ui/webui/sync_internals/sync_internals_ui.h"
-@@ -601,6 +602,8 @@ WebUIFactoryFunction GetWebUIFactoryFunc
+@@ -617,6 +618,8 @@ WebUIFactoryFunction GetWebUIFactoryFunc
      return &NewWebUI<MemoryInternalsUI>;
    if (url.host_piece() == chrome::kChromeUINetExportHost)
      return &NewWebUI<NetExportUI>;
@@ -1106,25 +1106,25 @@ for SimpleURLLoaders as well.
  const char kChromeUIChromeURLsHost[] = "chrome-urls";
  const char kChromeUIChromeURLsURL[] = "chrome://chrome-urls/";
  const char kChromeUIComponentsHost[] = "components";
-@@ -336,6 +338,7 @@ bool IsSystemWebUIHost(base::StringPiece
-       kChromeUIMobileSetupHost,
-       kChromeUIMultiDeviceSetupHost,
-       kChromeUINetworkHost,
-+      kChromeUIProxyConfigHost,
-       kChromeUIOobeHost,
-       kChromeUIOSCreditsHost,
-       kChromeUIOSSettingsHost,
-@@ -553,6 +556,7 @@ const char* const kChromeHostURLs[] = {
- #if !defined(OS_ANDROID)
+@@ -344,6 +346,7 @@ bool IsSystemWebUIHost(base::StringPiece
+     kChromeUIMobileSetupHost,
+     kChromeUIMultiDeviceSetupHost,
+     kChromeUINetworkHost,
++    kChromeUIProxyConfigHost,
+     kChromeUIOobeHost,
+     kChromeUIOSCreditsHost,
+     kChromeUIOSSettingsHost,
+@@ -568,6 +571,7 @@ const char* const kChromeHostURLs[] = {
  #if !BUILDFLAG(IS_CHROMEOS_ASH)
      kChromeUIAppLauncherPageHost,
-+    kChromeUIProxyConfigHost,
  #endif
++    kChromeUIProxyConfigHost,
      kChromeUIBookmarksHost,
      kChromeUIDownloadsHost,
+     kChromeUIHelpHost,
 --- a/chrome/common/webui_url_constants.h
 +++ b/chrome/common/webui_url_constants.h
-@@ -120,6 +120,8 @@ extern const char kChromeUIMemoryInterna
+@@ -122,6 +122,8 @@ extern const char kChromeUIMemoryInterna
  extern const char kChromeUINTPTilesInternalsHost[];
  extern const char kChromeUINaClHost[];
  extern const char kChromeUINetExportHost[];
@@ -1135,7 +1135,7 @@ for SimpleURLLoaders as well.
  extern const char kChromeUINewTabHost[];
 --- a/components/policy/core/browser/proxy_policy_handler.cc
 +++ b/components/policy/core/browser/proxy_policy_handler.cc
-@@ -197,7 +197,7 @@ void ProxyPolicyHandler::ApplyPolicySett
+@@ -210,7 +210,7 @@ void ProxyPolicyHandler::ApplyPolicySett
            bypass_list->GetAsString(&bypass_list_string);
          prefs->SetValue(proxy_config::prefs::kProxy,
                          ProxyConfigDictionary::CreateFixedServers(

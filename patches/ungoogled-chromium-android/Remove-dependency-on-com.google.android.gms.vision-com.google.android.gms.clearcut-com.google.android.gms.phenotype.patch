@@ -409,7 +409,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
  }
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -1070,30 +1070,6 @@ if (!limit_android_deps) {
+@@ -1075,30 +1075,6 @@ if (!limit_android_deps) {
    }
  
    # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
@@ -439,8 +439,8 @@ Subject: Remove dependency on com.google.android.gms.vision,
 -  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
    android_aar_prebuilt("com_google_android_material_material_java") {
      aar_path =
-         "libs/com_google_android_material_material/material-1.2.0-alpha06.aar"
-@@ -1624,26 +1600,6 @@ if (!limit_android_deps) {
+         "libs/com_google_android_material_material/material-1.4.0-rc01.aar"
+@@ -1650,26 +1626,6 @@ if (!limit_android_deps) {
    }
  
    # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
@@ -467,7 +467,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
    android_aar_prebuilt("google_play_services_flags_java") {
      aar_path = "libs/com_google_android_gms_play_services_flags/play-services-flags-17.0.0.aar"
      info_path = "libs/com_google_android_gms_play_services_flags/com_google_android_gms_play_services_flags.info"
-@@ -1660,25 +1616,6 @@ if (!limit_android_deps) {
+@@ -1686,25 +1642,6 @@ if (!limit_android_deps) {
      ]
    }
  
@@ -503,9 +503,9 @@ Subject: Remove dependency on com.google.android.gms.vision,
 -import com.google.android.gms.vision.barcode.Barcode;
 -import com.google.android.gms.vision.barcode.BarcodeDetector;
 -
+ import org.chromium.base.IntentUtils;
  import org.chromium.base.metrics.RecordUserAction;
  import org.chromium.base.task.AsyncTask;
- import org.chromium.chrome.R;
 @@ -48,7 +44,6 @@ public class QrCodeScanMediator implemen
      private final NavigationObserver mNavigationObserver;
      private final AndroidPermissionDelegate mPermissionDelegate;
@@ -586,7 +586,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
  }
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -288,8 +288,6 @@ android_library("chrome_java") {
+@@ -301,8 +301,6 @@ android_library("chrome_java") {
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
      "$google_play_services_package:google_play_services_tasks_java",
@@ -604,8 +604,8 @@ Subject: Remove dependency on com.google.android.gms.vision,
 -    "$google_play_services_package:google_play_services_vision_common_java",
 -    "$google_play_services_package:google_play_services_vision_java",
      "//base:base_java",
-     "//chrome/android:chrome_java",
-     "//components/browser_ui/notifications/android:java",
+     "//content/public/android:content_java",
+     "//third_party/android_deps:android_support_v7_appcompat_java",
 --- a/chrome/android/features/cablev2_authenticator/java/src/org/chromium/chrome/browser/webauth/authenticator/QRScanDialog.java
 +++ b/chrome/android/features/cablev2_authenticator/java/src/org/chromium/chrome/browser/webauth/authenticator/QRScanDialog.java
 @@ -17,10 +17,6 @@ import android.widget.LinearLayout;

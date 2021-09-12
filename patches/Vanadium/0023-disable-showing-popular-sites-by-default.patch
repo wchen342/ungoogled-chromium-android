@@ -9,7 +9,7 @@ Subject: [PATCH 23/73] disable showing popular sites by default
 
 --- a/components/ntp_tiles/features.cc
 +++ b/components/ntp_tiles/features.cc
-@@ -13,13 +13,13 @@ namespace ntp_tiles {
+@@ -13,12 +13,12 @@ namespace ntp_tiles {
  const char kPopularSitesFieldTrialName[] = "NTPPopularSites";
  
  const base::Feature kPopularSitesBakedInContentFeature{
@@ -23,5 +23,4 @@ Subject: [PATCH 23/73] disable showing popular sites by default
 -    "UsePopularSitesSuggestions", base::FEATURE_ENABLED_BY_DEFAULT};
 +    "UsePopularSitesSuggestions", base::FEATURE_DISABLED_BY_DEFAULT};
  
- const base::Feature kDisplaySuggestionsServiceTiles{
-     "DisplaySuggestionsServiceTiles", base::FEATURE_DISABLED_BY_DEFAULT};
+ }  // namespace ntp_tiles
