@@ -52,9 +52,9 @@ Bromite/updater-disable-updater-pings.patch
 Bromite/Change-default-webRTC-policy-to-not-use-any-address.patch
 Bromite/Inject-scripts-for-AMP-tracking-ads-and-video.patch
 Bromite/Add-exit-menu-item.patch
-Bromite/Add-bookmark-import-export-actions.patch
+#Bromite/Add-bookmark-import-export-actions.patch
 Bromite/Add-option-to-not-persist-tabs-across-sessions.patch
-Bromite/Add-a-proxy-configuration-page.patch
+#Bromite/Add-a-proxy-configuration-page.patch
 Bromite/Add-flag-to-disable-WebGL.patch
 Bromite/DoH-secure-mode-by-default.patch
 Bromite/Revert-flags-remove-disable-pull-to-refresh-effect.patch

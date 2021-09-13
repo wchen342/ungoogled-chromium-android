@@ -14,7 +14,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
  components/gcm_driver/instance_id/android/BUILD.gn                                                                                              |    2 
  components/gcm_driver/instance_id/android/java/src/org/chromium/components/gcm_driver/instance_id/InstanceIDWithSubtype.java                    |   26 
  components/webauthn/android/BUILD.gn                                                                                                            |    1 
- components/webauthn/android/java/src/org/chromium/components/webauthn/Fido2CredentialRequest.java                                               |  102 ---
+ components/webauthn/android/java/src/org/chromium/components/webauthn/Fido2CredentialRequest.java                                               |  108 ---
  components/webauthn/android/java/src/org/chromium/components/webauthn/Fido2Helper.java                                                          |  310 ----------
  device/BUILD.gn                                                                                                                                 |    1 
  services/BUILD.gn                                                                                                                               |    1 
@@ -23,7 +23,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
  third_party/android_deps/BUILD.gn                                                                                                               |   48 -
  third_party/libaddressinput/src/android/src/main/java/com/android/i18n/addressinput/autocomplete/gmscore/AddressAutocompleteApiImpl.java        |   65 --
  third_party/libaddressinput/src/android/src/main/java/com/android/i18n/addressinput/autocomplete/gmscore/AddressAutocompletePredictionImpl.java |   12 
- 18 files changed, 27 insertions(+), 956 deletions(-)
+ 18 files changed, 27 insertions(+), 962 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
@@ -1065,7 +1065,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
                  break;
              case Activity.RESULT_OK:
                  processIntentResult(data);
-@@ -317,58 +260,21 @@ public class Fido2CredentialRequest impl
+@@ -317,58 +260,15 @@ public class Fido2CredentialRequest impl
      }
  
      private void processPublicKeyCredential(Intent data) {
@@ -1089,12 +1089,12 @@ Subject: Remove dependency on com.google.android.gms.fido,
 -            mClientDataJson = null;
 -            mGetAssertionCallback = null;
 -        }
-     }
- 
-     private void processErrorResponse(AuthenticatorErrorResponse errorResponse) {
-         Log.e(TAG,
-                 "Google Play Services FIDO2 API returned an error: "
-                         + errorResponse.getErrorMessage());
+-    }
+-
+-    private void processErrorResponse(AuthenticatorErrorResponse errorResponse) {
+-        Log.e(TAG,
+-                "Google Play Services FIDO2 API returned an error: "
+-                        + errorResponse.getErrorMessage());
 -        int authenticatorStatus = Fido2Helper.convertError(
 -                errorResponse.getErrorCode(), errorResponse.getErrorMessage());
 -        returnErrorAndResetCallback(authenticatorStatus);
@@ -1124,7 +1124,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
                  break;
          }
          mMakeCredentialCallback = null;
-@@ -381,17 +287,11 @@ public class Fido2CredentialRequest impl
+@@ -381,17 +281,11 @@ public class Fido2CredentialRequest impl
          // [Attestation/Assertion/Error] Response.
          if (data.hasExtra(FIDO2_KEY_CREDENTIAL_EXTRA)) {
              processPublicKeyCredential(data);
