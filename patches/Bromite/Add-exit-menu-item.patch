@@ -63,7 +63,7 @@ Corrected Exit functionality
  import org.chromium.chrome.browser.ChromeActivitySessionTracker;
  import org.chromium.chrome.browser.ChromeApplicationImpl;
  import org.chromium.chrome.browser.ChromeKeyboardVisibilityDelegate;
-@@ -2382,6 +2383,11 @@ public abstract class ChromeActivity<C e
+@@ -2392,6 +2393,11 @@ public abstract class ChromeActivity<C e
              return true;
          }
  

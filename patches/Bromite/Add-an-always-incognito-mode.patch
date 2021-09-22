@@ -151,7 +151,7 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
  import org.chromium.chrome.browser.dependency_injection.ChromeActivityComponent;
  import org.chromium.chrome.browser.dependency_injection.ModuleFactoryOverrides;
  import org.chromium.chrome.browser.device.DeviceClassManager;
-@@ -1951,6 +1952,9 @@ public abstract class ChromeActivity<C e
+@@ -1961,6 +1962,9 @@ public abstract class ChromeActivity<C e
              throw new IllegalStateException(
                      "Attempting to access TabCreator before initialization");
          }
@@ -463,7 +463,7 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
      }
 --- a/chrome/browser/flags/android/chrome_feature_list.cc
 +++ b/chrome/browser/flags/android/chrome_feature_list.cc
-@@ -433,7 +433,7 @@ const base::Feature kCCTIncognito{"CCTIn
+@@ -432,7 +432,7 @@ const base::Feature kCCTIncognito{"CCTIn
                                    base::FEATURE_ENABLED_BY_DEFAULT};
  
  const base::Feature kCCTIncognitoAvailableToThirdParty{
@@ -474,7 +474,7 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
                                         base::FEATURE_ENABLED_BY_DEFAULT};
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -931,6 +931,13 @@ Your Google account may have other forms
+@@ -913,6 +913,13 @@ Your Google account may have other forms
        <message name="IDS_CLEAR_BROWSING_HISTORY_SUMMARY_SYNCED_NO_LINK" desc="A text for the basic tab explaining browsing history for users with history sync. This version is shown when the link to MyActivity is displayed separately.">
          Clears history from all synced devices.
        </message>

@@ -12,7 +12,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
 
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -4693,6 +4693,9 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -4712,6 +4712,9 @@ const FeatureEntry kFeatureEntries[] = {
       FEATURE_WITH_PARAMS_VALUE_TYPE(features::kMBIMode,
                                      kMBIModeVariations,
                                      "MBIMode")},

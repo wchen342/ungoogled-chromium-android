@@ -10,7 +10,7 @@ Subject: Add flag to disable WebGL
 
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -2745,6 +2745,9 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -2764,6 +2764,9 @@ const FeatureEntry kFeatureEntries[] = {
       flag_descriptions::kAccelerated2dCanvasName,
       flag_descriptions::kAccelerated2dCanvasDescription, kOsAll,
       SINGLE_DISABLE_VALUE_TYPE(switches::kDisableAccelerated2dCanvas)},

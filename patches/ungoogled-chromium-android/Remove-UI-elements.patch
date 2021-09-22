@@ -41,7 +41,7 @@ Subject: Remove unused UI elements. Also disables autofill assistant.
  
 --- a/chrome/android/features/start_surface/public/java/src/org/chromium/chrome/features/start_surface/StartSurfaceConfiguration.java
 +++ b/chrome/android/features/start_surface/public/java/src/org/chromium/chrome/features/start_surface/StartSurfaceConfiguration.java
-@@ -146,7 +146,7 @@ public class StartSurfaceConfiguration {
+@@ -152,7 +152,7 @@ public class StartSurfaceConfiguration {
       */
      public static boolean getFeedArticlesVisibility() {
          return SharedPreferencesManager.getInstance().readBoolean(
@@ -563,7 +563,7 @@ Subject: Remove unused UI elements. Also disables autofill assistant.
  // |kAutofillAssistantInCctTriggering| and/or
 --- a/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
-@@ -2389,16 +2389,6 @@ public abstract class ChromeActivity<C e
+@@ -2399,16 +2399,6 @@ public abstract class ChromeActivity<C e
  
          final Tab currentTab = getActivityTab();
  

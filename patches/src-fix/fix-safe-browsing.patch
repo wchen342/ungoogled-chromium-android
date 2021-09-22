@@ -24,6 +24,7 @@ Subject: Fix build error caused by the removal of safe_browsing
  components/safe_browsing/content/browser/client_side_detection_host.cc                                                                       |   17 
  components/safe_browsing/content/browser/client_side_detection_host.h                                                                        |    3 
  components/safe_browsing/content/browser/client_side_detection_service.cc                                                                    |   31 -
+ components/safe_browsing/content/browser/triggers/trigger_throttler.cc                                                                       |    1 
  weblayer/browser/browser_context_impl.cc                                                                                                     |    2 
  weblayer/browser/browser_process.cc                                                                                                          |   11 
  weblayer/browser/browser_process.h                                                                                                           |    4 
@@ -37,7 +38,7 @@ Subject: Fix build error caused by the removal of safe_browsing
  weblayer/browser/safe_browsing/safe_browsing_service.cc                                                                                      |  200 ----------
  weblayer/browser/safe_browsing/safe_browsing_tab_observer.cc                                                                                 |   11 
  weblayer/browser/tab_impl.cc                                                                                                                 |    2 
- 34 files changed, 57 insertions(+), 611 deletions(-)
+ 35 files changed, 57 insertions(+), 612 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
@@ -1381,3 +1382,13 @@ Subject: Fix build error caused by the removal of safe_browsing
  }
  
  content::BrowserContext*
+--- a/components/safe_browsing/content/browser/triggers/trigger_throttler.cc
++++ b/components/safe_browsing/content/browser/triggers/trigger_throttler.cc
+@@ -12,7 +12,6 @@
+ #include "base/time/time.h"
+ #include "components/prefs/pref_service.h"
+ #include "components/safe_browsing/core/common/features.h"
+-#include "components/safe_browsing/core/common/safe_browsing_prefs.h"
+ 
+ namespace safe_browsing {
+ const size_t kAdSamplerTriggerDefaultQuota = 10;

@@ -91,7 +91,7 @@ Subject: Add option to not persist tabs across sessions
      private ChromeManagedPreferenceDelegate createManagedPreferenceDelegate() {
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -3962,6 +3962,12 @@ To change this setting, <ph name="BEGIN_
+@@ -3944,6 +3944,12 @@ To change this setting, <ph name="BEGIN_
        <message name="IDS_CONTEXTMENU_IMAGE_TITLE" desc="The title of a context menu tab when the item pressed contains more than one type. This indicates that all the actions are related to the image.">
          IMAGE
        </message>

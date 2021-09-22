@@ -1,3 +1,6 @@
+# 93.0.4577.82-1
+* Proxy settings and bookmark import-export are temporarily disabled
+
 # 93.0.4577.63-1
 * Build script can now run with python3
 * disable play service fonts
