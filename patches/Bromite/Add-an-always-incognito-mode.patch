@@ -128,7 +128,7 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
  import org.chromium.chrome.browser.IntentHandler.IntentHandlerDelegate;
  import org.chromium.chrome.browser.IntentHandler.TabOpenType;
  import org.chromium.chrome.browser.accessibility_tab_switcher.OverviewListLayout;
-@@ -1745,8 +1746,10 @@ public class ChromeTabbedActivity extend
+@@ -1763,8 +1764,10 @@ public class ChromeTabbedActivity extend
          Bundle savedInstanceState = getSavedInstanceState();
  
          // We determine the model as soon as possible so every systems get initialized coherently.
@@ -139,7 +139,7 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
 +                || (savedInstanceState != null
 +                && savedInstanceState.getBoolean(IS_INCOGNITO_SELECTED, false));
  
-         int index = savedInstanceState != null ? savedInstanceState.getInt(WINDOW_INDEX, 0) : 0;
+         mNextTabPolicySupplier = new ChromeNextTabPolicySupplier(mOverviewModeBehaviorSupplier);
  
 --- a/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
@@ -151,7 +151,7 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
  import org.chromium.chrome.browser.dependency_injection.ChromeActivityComponent;
  import org.chromium.chrome.browser.dependency_injection.ModuleFactoryOverrides;
  import org.chromium.chrome.browser.device.DeviceClassManager;
-@@ -1961,6 +1962,9 @@ public abstract class ChromeActivity<C e
+@@ -1947,6 +1948,9 @@ public abstract class ChromeActivity<C e
              throw new IllegalStateException(
                      "Attempting to access TabCreator before initialization");
          }
@@ -163,7 +163,7 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
  
 --- a/chrome/android/java/src/org/chromium/chrome/browser/app/appmenu/AppMenuPropertiesDelegateImpl.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/app/appmenu/AppMenuPropertiesDelegateImpl.java
-@@ -363,6 +363,12 @@ public class AppMenuPropertiesDelegateIm
+@@ -378,6 +378,12 @@ public class AppMenuPropertiesDelegateIm
      }
  
      private void prepareCommonMenuItems(Menu menu, @MenuGroup int menuGroup, boolean isIncognito) {
@@ -309,14 +309,14 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
                         .setWebContents(webContents)
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-@@ -47,6 +47,7 @@ import org.chromium.ui.text.SpanApplier;
+@@ -48,6 +48,7 @@ import org.chromium.ui.text.SpanApplier;
   */
  public class PrivacySettings
          extends PreferenceFragmentCompat implements Preference.OnPreferenceChangeListener {
 +    private static final String PREF_ALWAYS_INCOGNITO = "always_incognito";
      private static final String PREF_CAN_MAKE_PAYMENT = "can_make_payment";
      private static final String PREF_NETWORK_PREDICTIONS = "preload_pages";
-     private static final String PREF_SECURE_DNS = "secure_dns";
+     private static final String PREF_HTTPS_FIRST_MODE = "https_first_mode";
 --- a/chrome/android/java/src/org/chromium/chrome/browser/tabmodel/ChromeTabCreator.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/tabmodel/ChromeTabCreator.java
 @@ -44,6 +44,10 @@ import org.chromium.url.GURL;
@@ -463,7 +463,7 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
      }
 --- a/chrome/browser/flags/android/chrome_feature_list.cc
 +++ b/chrome/browser/flags/android/chrome_feature_list.cc
-@@ -432,7 +432,7 @@ const base::Feature kCCTIncognito{"CCTIn
+@@ -446,7 +446,7 @@ const base::Feature kCCTIncognito{"CCTIn
                                    base::FEATURE_ENABLED_BY_DEFAULT};
  
  const base::Feature kCCTIncognitoAvailableToThirdParty{

@@ -44,7 +44,7 @@ Subject: Remove dependency on
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -298,9 +298,6 @@ android_library("chrome_java") {
+@@ -303,9 +303,6 @@ android_library("chrome_java") {
      ":chrome_public_apk_template_resources",
      ":update_proto_java",
      ":usage_stats_proto_java",
@@ -54,7 +54,7 @@ Subject: Remove dependency on
      "//base:base_java",
      "//cc:cc_java",
      "//chrome/android/features/keyboard_accessory:public_java",
-@@ -867,8 +864,6 @@ junit_binary("chrome_junit_tests") {
+@@ -876,8 +873,6 @@ junit_binary("chrome_junit_tests") {
      ":chrome_java",
      ":chrome_public_android_manifest",
      ":delegate_public_impl_java",
@@ -63,7 +63,7 @@ Subject: Remove dependency on
      "//base:base_java",
      "//base:base_java_test_support",
      "//base:base_junit_test_support",
-@@ -1169,9 +1164,6 @@ android_library("chrome_test_java") {
+@@ -1184,9 +1179,6 @@ android_library("chrome_test_java") {
      ":chrome_test_util_java",
      ":chrome_test_util_jni",
      ":delegate_public_impl_java",
@@ -85,7 +85,7 @@ Subject: Remove dependency on
      "//content/public/android:content_java",
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
-@@ -812,15 +812,6 @@ by a child template that "extends" this
+@@ -819,15 +819,6 @@ by a child template that "extends" this
              </intent-filter>
          </activity>
  
@@ -366,7 +366,7 @@ Subject: Remove dependency on
          private long getSize(StatFs statFs) {
 --- a/chrome/test/android/BUILD.gn
 +++ b/chrome/test/android/BUILD.gn
-@@ -259,8 +259,6 @@ android_library("chrome_java_test_suppor
+@@ -260,8 +260,6 @@ android_library("chrome_java_test_suppor
    ]
  
    deps = [
@@ -450,7 +450,7 @@ Subject: Remove dependency on
      "//components/download/public/common:public_java",
 --- a/content/test/BUILD.gn
 +++ b/content/test/BUILD.gn
-@@ -2837,9 +2837,6 @@ if (is_android) {
+@@ -2849,9 +2849,6 @@ if (is_android) {
      testonly = true
      sources = content_java_sources_needing_jni
      deps = [
@@ -462,7 +462,7 @@ Subject: Remove dependency on
        "//ui/android:ui_full_java",
 --- a/device/BUILD.gn
 +++ b/device/BUILD.gn
-@@ -433,8 +433,6 @@ if (is_android) {
+@@ -437,8 +437,6 @@ if (is_android) {
        "gamepad/android/junit/src/org/chromium/device/gamepad/GamepadMappingsTest.java",
      ]
      deps = [
@@ -548,7 +548,7 @@ Subject: Remove dependency on
        "//components/background_task_scheduler:background_task_scheduler_task_ids_java",
 --- a/chrome/android/features/cablev2_authenticator/BUILD.gn
 +++ b/chrome/android/features/cablev2_authenticator/BUILD.gn
-@@ -16,8 +16,6 @@ android_library("java") {
+@@ -17,8 +17,6 @@ android_library("java") {
  
    deps = [
      ":java_resources",
@@ -559,15 +559,15 @@ Subject: Remove dependency on
      "//third_party/android_deps:android_support_v7_appcompat_java",
 --- a/chrome/android/features/cablev2_authenticator/java/src/org/chromium/chrome/browser/webauth/authenticator/CableAuthenticator.java
 +++ b/chrome/android/features/cablev2_authenticator/java/src/org/chromium/chrome/browser/webauth/authenticator/CableAuthenticator.java
-@@ -15,8 +15,6 @@ import android.net.Uri;
- import android.os.Build;
+@@ -16,8 +16,6 @@ import android.os.Build;
  import android.os.Bundle;
+ import android.provider.Settings;
  
 -import com.google.android.gms.tasks.Task;
 -
+ import org.chromium.base.BuildInfo;
  import org.chromium.base.Log;
  import org.chromium.base.annotations.CalledByNative;
- import org.chromium.base.annotations.NativeMethods;
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
 @@ -92,7 +92,6 @@ if (!limit_android_deps) {
@@ -820,9 +820,9 @@ Subject: Remove dependency on
 -    "$google_play_services_package:google_play_services_base_java",
 -    "$google_play_services_package:google_play_services_basement_java",
      "//base:base_java",
-     "//components/embedder_support/android:browser_context_java",
      "//components/embedder_support/android:util_java",
-@@ -50,7 +48,6 @@ android_library("junit") {
+     "//content/public/android:content_java",
+@@ -49,7 +47,6 @@ android_library("junit") {
  
    deps = [
      ":java",
@@ -840,7 +840,7 @@ Subject: Remove dependency on
      "//base:base_java",
      "//components/externalauth/android:java",
      "//net/android:net_java",
-@@ -136,7 +135,6 @@ java_library("junit") {
+@@ -135,7 +134,6 @@ java_library("junit") {
    deps = [
      ":java",
      ":signin_java_test_support",

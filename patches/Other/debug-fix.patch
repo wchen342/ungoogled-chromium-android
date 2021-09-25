@@ -50,7 +50,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
    defines = []
    configs = []
  
-@@ -1828,7 +1828,7 @@ config("no_rtti") {
+@@ -1836,7 +1836,7 @@ config("no_rtti") {
  # to heap-allocated memory are passed over shared library boundaries.
  config("export_dynamic") {
    # TODO(crbug.com/1052397): Revisit after target_os flip is completed.
@@ -59,7 +59,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
      ldflags = [ "-rdynamic" ]
    }
  }
-@@ -2047,8 +2047,6 @@ if (is_win) {
+@@ -2011,8 +2011,6 @@ if (is_win) {
      common_optimize_on_cflags += [
        # Put data and code in their own sections, so that unused symbols
        # can be removed at link time with --gc-sections.
@@ -68,7 +68,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
      ]
      if (!is_nacl && is_clang) {
        # We don't care about unique section names, this makes object files a bit
-@@ -2061,7 +2059,6 @@ if (is_win) {
+@@ -2025,7 +2023,6 @@ if (is_win) {
        # See http://lwn.net/Articles/192624/ .
        # -O2 enables string tail merge optimization in gold and lld.
        "-Wl,-O2",
@@ -76,7 +76,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
      ]
    }
  }
-@@ -2421,7 +2418,7 @@ config("symbols") {
+@@ -2385,7 +2382,7 @@ config("symbols") {
          # sections (llvm.org/PR34820).
          cflags += [ "-ggnu-pubnames" ]
        }
@@ -87,7 +87,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  
 --- a/components/policy/core/browser/configuration_policy_handler.cc
 +++ b/components/policy/core/browser/configuration_policy_handler.cc
-@@ -360,7 +360,6 @@ SchemaValidatingPolicyHandler::SchemaVal
+@@ -359,7 +359,6 @@ SchemaValidatingPolicyHandler::SchemaVal
      Schema schema,
      SchemaOnErrorStrategy strategy)
      : NamedPolicyHandler(policy_name), schema_(schema), strategy_(strategy) {
@@ -107,7 +107,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
    return std::make_unique<ProfileOAuth2TokenService>(
 --- a/components/omnibox/browser/autocomplete_match.cc
 +++ b/components/omnibox/browser/autocomplete_match.cc
-@@ -1396,16 +1396,6 @@ bool AutocompleteMatch::IsEmptyAutocompl
+@@ -1413,16 +1413,6 @@ bool AutocompleteMatch::IsEmptyAutocompl
           split_autocompletion.Empty();
  }
  

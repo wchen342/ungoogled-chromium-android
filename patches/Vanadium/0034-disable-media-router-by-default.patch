@@ -10,7 +10,7 @@ Subject: [PATCH 34/77] disable media router by default
 
 --- a/chrome/browser/media/router/media_router_feature.cc
 +++ b/chrome/browser/media/router/media_router_feature.cc
-@@ -88,7 +88,7 @@ bool MediaRouterEnabled(content::Browser
+@@ -79,7 +79,7 @@ bool MediaRouterEnabled(content::Browser
      pref_values.insert(std::make_pair(context, allowed));
      return allowed;
    }
@@ -21,7 +21,7 @@ Subject: [PATCH 34/77] disable media router by default
  #if !defined(OS_ANDROID)
 --- a/chrome/browser/profiles/profile_impl.cc
 +++ b/chrome/browser/profiles/profile_impl.cc
-@@ -421,7 +421,7 @@ void ProfileImpl::RegisterProfilePrefs(
+@@ -433,7 +433,7 @@ void ProfileImpl::RegisterProfilePrefs(
  #endif
  
    registry->RegisterBooleanPref(prefs::kForceEphemeralProfiles, false);

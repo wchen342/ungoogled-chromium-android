@@ -14,6 +14,7 @@ enable_gvr_services=false
 enable_swiftshader=false
 exclude_unwind_tables=false
 ffmpeg_branding="Chrome"
+limit_android_deps = false
 is_chromecast=false
 is_clang=true
 proprietary_codecs=true

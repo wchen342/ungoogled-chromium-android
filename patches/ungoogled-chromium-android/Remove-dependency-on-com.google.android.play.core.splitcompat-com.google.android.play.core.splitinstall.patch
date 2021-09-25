@@ -17,7 +17,7 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
  components/module_installer/android/java/src/org/chromium/components/module_installer/logger/SplitInstallStatusLogger.java  |   27 -----
  components/module_installer/android/java/src/org/chromium/components/module_installer/util/CrashKeyRecorder.java            |    6 -
  components/module_installer/android/java/src/org/chromium/components/module_installer/util/SplitCompatInitializer.java      |    5 -
- 14 files changed, 19 insertions(+), 251 deletions(-)
+ 14 files changed, 18 insertions(+), 252 deletions(-)
 
 --- a/components/module_installer/android/java/src/org/chromium/components/module_installer/engine/FakeEngine.java
 +++ b/components/module_installer/android/java/src/org/chromium/components/module_installer/engine/FakeEngine.java
@@ -342,7 +342,7 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
      }
  
      /**
-@@ -167,7 +142,7 @@ public class SplitAvailabilityLogger {
+@@ -172,7 +147,7 @@ public class SplitAvailabilityLogger {
  
          public InstallTimes(boolean isCached) {
              mIsCached = isCached;
@@ -511,47 +511,47 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
      public static boolean isInitialized() {
 --- a/components/module_installer/android/BUILD.gn
 +++ b/components/module_installer/android/BUILD.gn
-@@ -36,7 +36,6 @@ android_library("module_installer_java")
+@@ -34,7 +34,6 @@ android_library("module_installer_java")
+   deps = [
      "//base:base_java",
      "//components/crash/android:java",
+-    "//third_party/android_deps:com_google_android_play_core_java",
      "//third_party/androidx:androidx_annotation_annotation_java",
--    "//third_party/google_android_play_core:com_google_android_play_core_java",
    ]
  
-   annotation_processor_deps = [ "//base/android/jni_generator:jni_processor" ]
-@@ -59,7 +58,6 @@ junit_binary("module_installer_junit_tes
+@@ -58,7 +57,6 @@ junit_binary("module_installer_junit_tes
      "//base:base_java",
      "//base:base_java_test_support",
      "//base:base_junit_test_support",
--    "//third_party/google_android_play_core:com_google_android_play_core_java",
+-    "//third_party/android_deps:com_google_android_play_core_java",
      "//third_party/hamcrest:hamcrest_java",
    ]
  }
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -2401,7 +2401,6 @@ android_library("base_module_java") {
+@@ -2421,7 +2421,6 @@ android_library("base_module_java") {
+     "//components/media_router/browser/android:cast_options_provider_java",
+     "//components/minidump_uploader:minidump_uploader_java",
+     "//components/module_installer/android:module_installer_java",
+-    "//third_party/android_deps:com_google_android_play_core_java",
      "//third_party/androidx:androidx_annotation_annotation_java",
      "//third_party/androidx:androidx_collection_collection_java",
      "//third_party/androidx:androidx_fragment_fragment_java",
--    "//third_party/google_android_play_core:com_google_android_play_core_java",
-     "//ui/android:ui_no_recycler_view_java",
- 
-     # Deps needed for child processes.
 --- a/chrome/browser/language/android/BUILD.gn
 +++ b/chrome/browser/language/android/BUILD.gn
-@@ -16,7 +16,6 @@ android_library("base_module_java") {
+@@ -15,7 +15,6 @@ android_library("base_module_java") {
+     "//base:base_java",
      "//chrome/browser/preferences:java",
      "//components/language/android:language_bridge_java",
+-    "//third_party/android_deps:com_google_android_play_core_java",
      "//third_party/androidx:androidx_annotation_annotation_java",
--    "//third_party/google_android_play_core:com_google_android_play_core_java",
      "//ui/android:ui_no_recycler_view_java",
    ]
- }
 --- a/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/LanguageSplitInstaller.java
 +++ b/chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/LanguageSplitInstaller.java
-@@ -4,18 +4,13 @@
+@@ -6,12 +6,6 @@ package org.chromium.chrome.browser.lang
  
- package org.chromium.chrome.browser.language;
+ import androidx.annotation.IntDef;
  
 -import com.google.android.play.core.splitinstall.SplitInstallManager;
 -import com.google.android.play.core.splitinstall.SplitInstallManagerFactory;
@@ -561,15 +561,8 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
 -
  import org.chromium.base.ContextUtils;
  import org.chromium.base.Log;
- 
- import java.util.Arrays;
- import java.util.Locale;
- import java.util.Set;
-+import java.util.HashSet;
- 
- /**
-  * Singleton class to manage installing language splits. This is temporary to start testing Play
-@@ -37,14 +32,10 @@ public class LanguageSplitInstaller {
+ import org.chromium.base.metrics.RecordHistogram;
+@@ -58,15 +52,11 @@ public class LanguageSplitInstaller {
          void onComplete(boolean success);
      }
  
@@ -577,6 +570,7 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
      private InstallListener mInstallListener;
 -    private SplitInstallManager mSplitInstallManager;
      private int mInstallSessionId;
+     private boolean mIsLanguageSplitInstalled;
  
      private LanguageSplitInstaller() {
 -        mSplitInstallManager =
@@ -584,7 +578,7 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
      }
  
      /**
-@@ -52,7 +43,7 @@ public class LanguageSplitInstaller {
+@@ -74,7 +64,7 @@ public class LanguageSplitInstaller {
       * @return Set<String> of installed languages code strings.
       */
      public Set<String> getInstalledLanguages() {
@@ -593,7 +587,7 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
      }
  
      /**
-@@ -70,42 +61,11 @@ public class LanguageSplitInstaller {
+@@ -100,24 +90,13 @@ public class LanguageSplitInstaller {
          }
  
          mInstallListener = listener;
@@ -603,36 +597,58 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
 -        SplitInstallRequest installRequest =
 -                SplitInstallRequest.newBuilder().addLanguage(installLocale).build();
 -
+         mIsLanguageSplitInstalled = isLanguageSplitInstalled(languageName);
 -        mSplitInstallManager.startInstall(installRequest)
 -                .addOnSuccessListener(sessionId -> { mInstallSessionId = sessionId; })
 -                .addOnFailureListener(exception -> {
 -                    Log.i(TAG, "Language Split Failure:", exception);
 -                    listener.onComplete(false);
 -                });
--
+ 
          // Schedule a deferred install if the live install fails the play store will install the
          // language split in the background at the next hygiene run. If the install succeeds the
          // deferred install is ignored at the next hygiene run.
 -        mSplitInstallManager.deferredLanguageInstall(Arrays.asList(installLocale));
+     }
+ 
+     /**
+@@ -126,7 +105,6 @@ public class LanguageSplitInstaller {
+      */
+     private void installFinished(boolean success) {
+         mInstallListener.onComplete(success);
+-        mSplitInstallManager.unregisterListener(mStateUpdateListener);
+         mInstallListener = null;
+         mInstallSessionId = 0;
+         mIsLanguageSplitInstalled = false;
+@@ -137,31 +115,11 @@ public class LanguageSplitInstaller {
+      * @return True if status is a final state for the split install. |SplitInstallSessionStatus|
+      * has values for intermediate states such as Pending and Installing which are not final states.
+      */
+-    private boolean isStatusFinalState(@SplitInstallSessionStatus int status) {
+-        if (status == SplitInstallSessionStatus.INSTALLED
+-                || status == SplitInstallSessionStatus.FAILED
+-                || status == SplitInstallSessionStatus.CANCELED
+-                || status == SplitInstallSessionStatus.DOWNLOADED) {
+-            return true;
+-        }
+-        return false;
 -    }
--
--    /**
--     * Make a SplitInstallStateUpdateListener that responds once the download has been installed or
--     * fails.
--     */
+ 
+     /**
+      * Make a SplitInstallStateUpdateListener that responds once the download has been installed or
+      * fails.
+      */
 -    private SplitInstallStateUpdatedListener getStatusUpdateListener() {
 -        return state -> { // Lambda for SplitInstallStatusUpdateListener.onStateUpdate.
 -            if (state.sessionId() != mInstallSessionId) return;
 -
 -            int status = state.status();
--            if (status == SplitInstallSessionStatus.INSTALLED
--                    || status == SplitInstallSessionStatus.FAILED) {
--                mInstallListener.onComplete(status == SplitInstallSessionStatus.INSTALLED);
--                mSplitInstallManager.unregisterListener(mStateUpdateListener);
--                mInstallListener = null;
--                mInstallSessionId = 0;
+-            if (isStatusFinalState(status)) {
+-                recordLanguageSplitInstallStatus(status);
+-                installFinished(status == SplitInstallSessionStatus.INSTALLED);
 -            }
 -        };
-     }
+-    }
  
-     /**
+     private @LanguageSplitInstallStatus int getEnumCodeFromStatus(
+             @SplitInstallSessionStatus int status) {

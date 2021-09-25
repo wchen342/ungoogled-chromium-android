@@ -48,7 +48,7 @@ Send a random key press to circumvent idle status detection
  #ifndef NDEBUG
  using WeakDocumentSet = blink::HeapHashSet<blink::WeakMember<blink::Document>>;
  static WeakDocumentSet& liveDocumentSet();
-@@ -6622,6 +6625,61 @@ void Document::setAllowDeclarativeShadow
+@@ -6554,6 +6557,61 @@ void Document::setAllowDeclarativeShadow
        val ? AllowState::kAllow : AllowState::kDeny;
  }
  
@@ -110,7 +110,7 @@ Send a random key press to circumvent idle status detection
  void Document::FinishedParsing() {
    DCHECK(!GetScriptableDocumentParser() || !parser_->IsParsing());
    DCHECK(!GetScriptableDocumentParser() || ready_state_ != kLoading);
-@@ -6679,6 +6737,10 @@ void Document::FinishedParsing() {
+@@ -6609,6 +6667,10 @@ void Document::FinishedParsing() {
      if (frame->GetFrameScheduler())
        frame->GetFrameScheduler()->OnDomContentLoaded();
  
@@ -123,7 +123,7 @@ Send a random key press to circumvent idle status detection
      probe::DomContentLoadedEventFired(frame);
 --- a/third_party/blink/renderer/core/dom/document.h
 +++ b/third_party/blink/renderer/core/dom/document.h
-@@ -1752,6 +1752,9 @@ class CORE_EXPORT Document : public Cont
+@@ -1750,6 +1750,9 @@ class CORE_EXPORT Document : public Cont
    void AddAXContext(AXContext*);
    void RemoveAXContext(AXContext*);
  

@@ -1,6 +1,6 @@
 src-fix/android-rlz-fix-missing-variable.patch
 src-fix/fix-null-mInstanceID.patch
-src-fix/fix-unkown-warning-clang.patch
+src-fix/fix-clang-options.patch
 src-fix/fix-safe-browsing.patch
 src-fix/fix-prefs.patch
 src-fix/fix-base-feature.patch
@@ -21,7 +21,6 @@ Unobtainium/kill-Vision.patch
 Unobtainium/kill-Translate.patch
 Unobtainium/kill-TOS-and-metrics-opt-out.patch
 ungoogled-chromium-android/Change-package-name-chromium.patch
-ungoogled-chromium-android/Tricrhome-webview-64.patch
 ungoogled-chromium-android/Add_trichrome_apk.patch
 ungoogled-chromium-android/Remove-dependency-on-com.google.android.gms.gcm.patch
 ungoogled-chromium-android/Remove-dependency-on-firebase.patch
@@ -46,7 +45,6 @@ ungoogled-chromium-android/Remove-ntp-sites.patch
 ungoogled-chromium-android/Add-save-data-flag.patch
 ungoogled-chromium-android/Add-always-desktop-option.patch
 ungoogled-chromium-android/Add-force-tablet-ui-option.patch
-ungoogled-chromium-android/Disable-tflite.patch
 Bromite/Remove-account-permissions-from-manifest.patch
 Bromite/updater-disable-updater-pings.patch
 Bromite/Change-default-webRTC-policy-to-not-use-any-address.patch

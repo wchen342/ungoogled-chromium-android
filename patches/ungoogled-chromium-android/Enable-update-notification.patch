@@ -260,7 +260,7 @@
 +}
 --- a/chrome/android/chrome_java_sources.gni
 +++ b/chrome/android/chrome_java_sources.gni
-@@ -883,6 +883,7 @@ chrome_java_sources = [
+@@ -890,6 +890,7 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateController.java",
    "java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateControllerFactory.java",
    "java/src/org/chromium/chrome/browser/omaha/inline/NoopInlineUpdateController.java",
@@ -459,7 +459,7 @@
  constexpr int kDefaultUpdateNotificationMaxInterval = 90;
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
-@@ -1114,7 +1114,7 @@ by a child template that "extends" this
+@@ -1136,7 +1136,7 @@ by a child template that "extends" this
          <service android:name="org.chromium.chrome.browser.tracing.TracingNotificationService"
              android:exported="false"/>
  
@@ -470,7 +470,7 @@
          <meta-data android:name="org.chromium.content.browser.SMART_CLIP_PROVIDER"
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -2024,7 +2024,7 @@ To change this setting, <ph name="BEGIN_
+@@ -2086,7 +2086,7 @@ To change this setting, <ph name="BEGIN_
          Update Chrome
        </message>
        <message name="IDS_UPDATE_NOTIFICATION_TEXT_BODY_DEFAULT" desc="Default text showing in the update notification body, kindly telling user to update to the latest version of Chrome.">
@@ -481,7 +481,7 @@
          Update Chrome
 --- a/chrome/browser/flag-metadata.json
 +++ b/chrome/browser/flag-metadata.json
-@@ -2054,7 +2054,7 @@
+@@ -2032,7 +2032,7 @@
    {
      "name": "enable-inline-update-flow",
      "owners": [ "nyquist", "dtrainor" ],
@@ -492,7 +492,7 @@
      "name": "enable-input-event-logging",
 --- a/chrome/browser/flag_descriptions.cc
 +++ b/chrome/browser/flag_descriptions.cc
-@@ -3643,10 +3643,9 @@ const char kVoiceButtonInTopToolbarDescr
+@@ -3520,10 +3520,9 @@ const char kVoiceButtonInTopToolbarDescr
      "Enables showing the voice search button in the top toolbar. Enabling "
      "Adaptive Button overrides this.";
  

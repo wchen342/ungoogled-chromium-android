@@ -16,7 +16,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -304,7 +304,6 @@ android_library("chrome_java") {
+@@ -309,7 +309,6 @@ android_library("chrome_java") {
      "$google_play_services_package:google_play_services_cast_framework_java",
      "$google_play_services_package:google_play_services_cast_java",
      "$google_play_services_package:google_play_services_fido_java",
@@ -24,7 +24,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
      "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
      "$google_play_services_package:google_play_services_vision_common_java",
-@@ -1185,7 +1184,6 @@ android_library("chrome_test_java") {
+@@ -1200,7 +1199,6 @@ android_library("chrome_test_java") {
      "$google_play_services_package:google_play_services_cast_framework_java",
      "$google_play_services_package:google_play_services_cast_java",
      "$google_play_services_package:google_play_services_fido_java",
@@ -32,7 +32,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
      "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
      "//base:base_java",
-@@ -2220,7 +2218,6 @@ android_library("browser_java_test_suppo
+@@ -2243,7 +2241,6 @@ android_library("browser_java_test_suppo
    ]
    deps = [
      ":chrome_java",

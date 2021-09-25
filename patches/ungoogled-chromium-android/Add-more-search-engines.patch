@@ -28,7 +28,7 @@ Subject: Add Startpage.com and Qwant.com search engines
      "searx": {
        "name": "Searx",
        "keyword": "searx.me",
-@@ -162,6 +173,7 @@
+@@ -163,6 +174,7 @@
        "favicon_url": "https://www.qwant.com/favicon.ico",
        "search_url": "https://www.qwant.com/?q={searchTerms}&client=opensearch",
        "suggest_url": "https://api.qwant.com/api/suggest/?q={searchTerms}&client=opensearch",

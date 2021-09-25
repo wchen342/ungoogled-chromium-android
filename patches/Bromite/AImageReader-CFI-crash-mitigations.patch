@@ -79,7 +79,7 @@ See discussions at:
    AndroidImageReader();
 --- a/chrome/browser/flag-metadata.json
 +++ b/chrome/browser/flag-metadata.json
-@@ -2039,7 +2039,7 @@
+@@ -2017,7 +2017,7 @@
    {
      "name": "enable-image-reader",
      "owners": [ "vikassoni", "liberato" ],
@@ -173,7 +173,7 @@ See discussions at:
  disable_accelerated_vp8_decode
 --- a/gpu/ipc/service/gpu_init.cc
 +++ b/gpu/ipc/service/gpu_init.cc
-@@ -503,6 +503,11 @@ bool GpuInit::InitializeAndStartSandbox(
+@@ -517,6 +517,11 @@ bool GpuInit::InitializeAndStartSandbox(
      }
    }
  
@@ -214,7 +214,7 @@ See discussions at:
  }
 --- a/media/base/media_switches.cc
 +++ b/media/base/media_switches.cc
-@@ -640,6 +640,10 @@ const base::Feature kMediaDrmPreprovisio
+@@ -673,6 +673,10 @@ const base::Feature kMediaDrmPreprovisio
  const base::Feature kMediaDrmPreprovisioningAtStartup{
      "MediaDrmPreprovisioningAtStartup", base::FEATURE_ENABLED_BY_DEFAULT};
  
@@ -227,7 +227,7 @@ See discussions at:
                                           base::FEATURE_DISABLED_BY_DEFAULT};
 --- a/media/base/media_switches.h
 +++ b/media/base/media_switches.h
-@@ -210,6 +210,7 @@ MEDIA_EXPORT extern const base::Feature
+@@ -221,6 +221,7 @@ MEDIA_EXPORT extern const base::Feature
  MEDIA_EXPORT extern const base::Feature kMediaDrmPersistentLicense;
  MEDIA_EXPORT extern const base::Feature kMediaDrmPreprovisioning;
  MEDIA_EXPORT extern const base::Feature kMediaDrmPreprovisioningAtStartup;

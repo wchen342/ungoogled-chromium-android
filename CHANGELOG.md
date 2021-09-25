@@ -1,3 +1,6 @@
+# 94.0.4606.54-1
+* Upstream update
+
 # 93.0.4577.82-1
 * Proxy settings and bookmark import-export are temporarily disabled
 
