@@ -214,24 +214,24 @@ See discussions at:
  }
 --- a/media/base/media_switches.cc
 +++ b/media/base/media_switches.cc
-@@ -673,6 +673,10 @@ const base::Feature kMediaDrmPreprovisio
+@@ -672,6 +672,10 @@ const base::Feature kMediaDrmPreprovisio
+ // Note: Has no effect if kMediaDrmPreprovisioning feature is disabled.
  const base::Feature kMediaDrmPreprovisioningAtStartup{
      "MediaDrmPreprovisioningAtStartup", base::FEATURE_ENABLED_BY_DEFAULT};
- 
 +// Enables the Android Image Reader path for Video decoding(for AVDA and MCVD)
 +const base::Feature kAImageReaderVideoOutput{"AImageReaderVideoOutput",
 +                                             base::FEATURE_ENABLED_BY_DEFAULT};
 +
+ 
  // Enable picture in picture web api for android.
  const base::Feature kPictureInPictureAPI{"PictureInPictureAPI",
-                                          base::FEATURE_DISABLED_BY_DEFAULT};
 --- a/media/base/media_switches.h
 +++ b/media/base/media_switches.h
-@@ -221,6 +221,7 @@ MEDIA_EXPORT extern const base::Feature
+@@ -219,6 +219,7 @@ MEDIA_EXPORT extern const base::Feature
+ MEDIA_EXPORT extern const base::Feature kAllowNonSecureOverlays;
+ MEDIA_EXPORT extern const base::Feature kMediaControlsExpandGesture;
  MEDIA_EXPORT extern const base::Feature kMediaDrmPersistentLicense;
++MEDIA_EXPORT extern const base::Feature kAImageReaderVideoOutput;
  MEDIA_EXPORT extern const base::Feature kMediaDrmPreprovisioning;
  MEDIA_EXPORT extern const base::Feature kMediaDrmPreprovisioningAtStartup;
-+MEDIA_EXPORT extern const base::Feature kAImageReaderVideoOutput;
  MEDIA_EXPORT extern const base::Feature kCanPlayHls;
- MEDIA_EXPORT extern const base::Feature kPictureInPictureAPI;
- MEDIA_EXPORT extern const base::Feature kHlsPlayer;

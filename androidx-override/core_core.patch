@@ -1,0 +1,50 @@
+diff --git a/frameworks/support/core/core/src/main/res/attrs.xml b/frameworks/support/core/core/src/main/res/attrs.xml
+--- a/frameworks/support/core/core/src/main/res/attrs.xml
++++ b/frameworks/support/core/core/src/main/res/attrs.xml
+@@ -110,9 +110,6 @@
+         <!-- Alpha multiplier applied to the base color. -->
+         <attr name="alpha" format="float" />
+         <attr name="android:alpha"/>
+-        <!-- Perceptual luminance applied to the base color. From 0 to 100. -->
+-        <attr name="lStar" format="float" />
+-        <attr name="android:lStar" />
+     </declare-styleable>
+ 
+     <!-- Used to describe the gradient for fill or stroke in a path of VectorDrawable. -->
+diff --git a/frameworks/support/core/core/src/main/java/androidx/core/content/res/ColorStateListInflaterCompat.java b/frameworks/support/core/core/src/main/java/androidx/core/content/res/ColorStateListInflaterCompat.java
+--- a/frameworks/support/core/core/src/main/java/androidx/core/content/res/ColorStateListInflaterCompat.java
++++ b/frameworks/support/core/core/src/main/java/androidx/core/content/res/ColorStateListInflaterCompat.java
+@@ -167,14 +167,6 @@ public final class ColorStateListInflaterCompat {
+                 alphaMod = a.getFloat(R.styleable.ColorStateListItem_alpha, alphaMod);
+             }
+ 
+-            final float lStar;
+-            if (BuildCompat.isAtLeastS()
+-                    && a.hasValue(R.styleable.ColorStateListItem_android_lStar)) {
+-                lStar = a.getFloat(R.styleable.ColorStateListItem_android_lStar, -1.0f);
+-            } else {
+-                lStar = a.getFloat(R.styleable.ColorStateListItem_lStar, -1.0f);
+-            }
+-
+             a.recycle();
+ 
+             // Parse all unrecognized attributes as state specifiers.
+@@ -185,8 +177,7 @@ public final class ColorStateListInflaterCompat {
+                 final int stateResId = attrs.getAttributeNameResource(i);
+                 if (stateResId != android.R.attr.color
+                         && stateResId != android.R.attr.alpha
+-                        && stateResId != R.attr.alpha
+-                        && stateResId != R.attr.lStar) {
++                        && stateResId != R.attr.alpha) {
+                     // Unrecognized attribute, add to state set
+                     stateSpec[j++] = attrs.getAttributeBooleanValue(i, false)
+                             ? stateResId : -stateResId;
+@@ -197,7 +188,7 @@ public final class ColorStateListInflaterCompat {
+             // Apply alpha and luminance modulation. If we couldn't resolve the color or
+             // alpha yet, the default values leave us enough information to
+             // modulate again during applyTheme().
+-            final int color = modulateColorAlpha(baseColor, alphaMod, lStar);
++            final int color = modulateColorAlpha(baseColor, alphaMod, -1.0f);
+ 
+             colorList = GrowingArrayUtils.append(colorList, listSize, color);
+             stateSpecList = GrowingArrayUtils.append(stateSpecList, listSize, stateSpec);

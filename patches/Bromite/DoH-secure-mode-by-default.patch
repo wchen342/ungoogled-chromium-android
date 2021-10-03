@@ -1,15 +1,15 @@
 From: csagan5 <32685696+csagan5@users.noreply.github.com>
 Date: Sat, 26 Sep 2020 14:23:19 +0100
-Subject: DoH secure mode by default
+Subject: DoH secure mode by default. Policy fix thanks to @uazo.
 
 ---
- chrome/browser/enterprise/util/android/java/src/org/chromium/chrome/browser/enterprise/util/EnterpriseInfo.java |    2 -
- chrome/browser/net/stub_resolver_config_reader.cc                                                               |   17 ----------
- 2 files changed, 2 insertions(+), 17 deletions(-)
+ .../browser/net/stub_resolver_config_reader.cc  | 17 +----------------
+ 1 file changed, 1 insertion(+), 16 deletions(-)
 
+diff --git a/chrome/browser/net/stub_resolver_config_reader.cc b/chrome/browser/net/stub_resolver_config_reader.cc
 --- a/chrome/browser/net/stub_resolver_config_reader.cc
 +++ b/chrome/browser/net/stub_resolver_config_reader.cc
-@@ -154,7 +154,7 @@ StubResolverConfigReader::StubResolverCo
+@@ -154,7 +154,7 @@ StubResolverConfigReader::StubResolverConfigReader(PrefService* local_state,
        if (entries.count("dns-over-https@1")) {
          // The user has "Enabled" selected.
          local_state_->SetString(prefs::kDnsOverHttpsMode,
@@ -18,7 +18,7 @@ Subject: DoH secure mode by default
        } else if (entries.count("dns-over-https@2")) {
          // The user has "Disabled" selected.
          local_state_->SetString(prefs::kDnsOverHttpsMode,
-@@ -334,22 +334,7 @@ SecureDnsConfig StubResolverConfigReader
+@@ -334,22 +334,7 @@ SecureDnsConfig StubResolverConfigReader::GetAndUpdateConfiguration(
      check_parental_controls = false;
    }
  
@@ -52,3 +52,6 @@ Subject: DoH secure mode by default
  
      /** A simple tuple to hold onto named fields about the state of ownership. */
      public static class OwnedState {
+-- 
+2.17.1
+

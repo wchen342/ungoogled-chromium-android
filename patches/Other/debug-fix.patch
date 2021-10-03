@@ -4,19 +4,19 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
 
 ---
  base/logging.cc                                                                     |    2 -
- base/supports_user_data.cc                                                          |    7 ++++-
- build/config/compiler/BUILD.gn                                                      |    9 ++-----
+ base/supports_user_data.cc                                                          |    7 +++--
+ build/config/compiler/BUILD.gn                                                      |    9 ++----
  components/omnibox/browser/autocomplete_controller.cc                               |    3 --
- components/omnibox/browser/autocomplete_match.cc                                    |   10 --------
+ components/omnibox/browser/autocomplete_match.cc                                    |   10 -------
  components/omnibox/browser/autocomplete_result.cc                                   |    7 -----
  components/omnibox/browser/shortcuts_backend.cc                                     |    3 --
  components/policy/core/browser/configuration_policy_handler.cc                      |    1 
- components/signin/internal/identity_manager/primary_account_manager.cc              |   12 ----------
+ components/signin/internal/identity_manager/primary_account_manager.cc              |   14 ----------
  components/signin/internal/identity_manager/profile_oauth2_token_service_builder.cc |    1 
  content/common/input/input_event_stream_validator.cc                                |    3 --
  services/network/network_context.cc                                                 |    1 
  url/gurl.cc                                                                         |    2 -
- 13 files changed, 10 insertions(+), 51 deletions(-)
+ 13 files changed, 10 insertions(+), 53 deletions(-)
 
 --- a/components/signin/internal/identity_manager/primary_account_manager.cc
 +++ b/components/signin/internal/identity_manager/primary_account_manager.cc
@@ -39,6 +39,14 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  
    SetPrimaryAccountInternal(account_info, /*consented_to_sync=*/true);
  
+@@ -372,7 +360,5 @@ void PrimaryAccountManager::OnRefreshTok
+     account_tracker_service_->SetMigrationDone();
+     client_->GetPrefs()->CommitPendingWrite();
+   }
+-  DCHECK_EQ(AccountTrackerService::MIGRATION_DONE,
+-            account_tracker_service_->GetMigrationState());
+ #endif  // !BUILDFLAG(IS_CHROMEOS_ASH)
+ }
 --- a/build/config/compiler/BUILD.gn
 +++ b/build/config/compiler/BUILD.gn
 @@ -261,7 +261,7 @@ config("compiler") {

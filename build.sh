@@ -137,6 +137,11 @@ function prepare_repos {
   pushd src/third_party
   ln -s ../../depot_tools
   popd
+  # Replace ninja with system one
+  pushd src/third_party/depot_tools
+  rm ninja
+  ln -s /usr/bin/ninja
+  popd
 
   ## Sync files
   # third_party/android_deps and some other overrides doesn't work
@@ -180,9 +185,13 @@ function prepare_repos {
   ln -s /usr/lib/jvm/jre-1.8.0 jre
   popd
 
-  # Link to system clang tools
+  # Link to system llvm tools
   pushd src/buildtools/linux64
   ln -s /usr/bin/clang-format
+  popd
+  mkdir -p src/third_party/llvm-build/Release+Asserts/bin
+  pushd src/third_party/llvm-build/Release+Asserts/bin
+  ln -s /usr/bin/llvm-symbolizer
   popd
 
   ## Hooks
@@ -190,10 +199,10 @@ function prepare_repos {
   python src/tools/download_optimization_profile.py --newest_state=src/chrome/android/profiles/newest.txt --local_state=src/chrome/android/profiles/local.txt --output_name=src/chrome/android/profiles/afdo.prof --gs_url_base=chromeos-prebuilt/afdo-job/llvm || return $?
   python src/build/util/lastchange.py -m GPU_LISTS_VERSION --revision-id-only --header src/gpu/config/gpu_lists_version.h
   python src/build/util/lastchange.py -m SKIA_COMMIT_HASH -s src/third_party/skia --header src/skia/ext/skia_commit_hash.h
-  # Needed for an ad-block list ised in webview
-  patch -p1 --ignore-whitespace -i patches/Other/gs-download-use-normal-python.patch --no-backup-if-mismatch
   patch_applied=true
-  python src/third_party/depot_tools/download_from_google_storage.py --no_resume --no_auth --bucket chromium-ads-detection -s src/third_party/subresource-filter-ruleset/data/UnindexedRules.sha1 || return $?
+  # Needed for an ad-block list ised in webview
+  # gsutils still needs python2. Avoid it.
+  cp misc/UnindexedRules src/third_party/subresource-filter-ruleset/data
 }
 
 
@@ -227,19 +236,33 @@ python3 ungoogled-chromium/utils/patches.py apply src ungoogled-chromium/patches
 python3 ungoogled-chromium/utils/domain_substitution.py apply -r ungoogled-chromium/domain_regex.list -f ungoogled-chromium/domain_substitution.list -c ${cache_file} src
 
 
+## Compile third-party binaries
+# eu-strip is re-compiled with -Wno-error
+patch -p1 --ignore-whitespace -i patches/Other/eu-strip-build-script.patch --no-backup-if-mismatch
+pushd src/buildtools/third_party/eu-strip
+for i in $(seq 1 5); do ./build.sh && s=0 && break || s=$? && sleep 60; done; (exit $s)
+popd
+# Some of the support libraries can be grabbed from maven https://android.googlesource.com/platform/prebuilts/maven_repo/android/+/master/com/android/support/
+
 ## Prepare Android SDK/NDK
-SDK_DIR="android-sdk_eng.11.0.0_r27_linux-x86"
+# TODO: Failed to build on s-beta-5. Something is missing in the beta sdk.
+# Need to test again when Android 12 releases. For now remove any code references to Android 12.
+# SDK_DIR="android-sdk_eng.11.0.0_r27_linux-x86"
+# SDK_VERSION_CODE="11"
+SDK_DIR="android-sdk_eng.s-beta-5_linux-x86"
+SDK_VERSION_CODE="Tiramisu"
 
 # Create symbol links to sdk folders
 # The rebuild sdk has a different folder structure from the checked out version, so it is easier to create symbol links
+# TODO: update sdk-tools to 29.0.0
 DIRECTORY="src/third_party/android_sdk/public"
 if [[ -d "$DIRECTORY" ]]; then
   find $DIRECTORY -mindepth 1 -maxdepth 1 -not -name cmdline-tools -exec rm -rf '{}' \;
 fi
 pushd ${DIRECTORY}
-mkdir build-tools && ln -s ../../../../../android-sdk/${SDK_DIR}/build-tools/android-11 build-tools/30.0.1
+mkdir build-tools && ln -s ../../../../../android-sdk/${SDK_DIR}/build-tools/android-${SDK_VERSION_CODE} build-tools/31.0.0
 mkdir platforms
-ln -s ../../../../../android-sdk/${SDK_DIR}/platforms/android-11 platforms/android-30
+ln -s ../../../../../android-sdk/${SDK_DIR}/platforms/android-${SDK_VERSION_CODE} platforms/android-31
 ln -s ../../../../android-sdk/${SDK_DIR}/platform-tools platform-tools
 ln -s ../../../../android-sdk/${SDK_DIR}/tools tools
 popd
@@ -249,34 +272,28 @@ DIRECTORY="src/third_party/android_ndk"
 gn_file="BUILD.gn"
 mkdir "ndk_temp"
 cp -a "${DIRECTORY}/${gn_file}" ndk_temp
-cp -ar "${DIRECTORY}/toolchains/llvm/prebuilt/linux-x86_64" ndk_temp    # Need libgcc.a otherwise compilation will fail
+cp -ar "${DIRECTORY}/toolchains/llvm/prebuilt/linux-x86_64" ndk_temp    # Need libgcc.a, readelf, libatomic, etc. that's not in NDK prebuilt
 pushd "${DIRECTORY}"
 cd ..
 rm -rf android_ndk
-ln -s ../../android-ndk/android-ndk-r20b android_ndk
+ln -s ../../android-ndk/android-ndk-r23 android_ndk
 popd
 
 mkdir android-sdk
 mkdir android-ndk
 pushd android-rebuilds
-unzip -qqo android-sdk_eng.11.0.0_r27_linux-x86.zip -d ../android-sdk && rm -f android-sdk_eng.11.0.0_r27_linux-x86.zip && s=0 || s=$? && (exit $s)
-unzip -qqo sdk-repo-linux-tools-26.1.1.zip -d ../android-sdk/android-sdk_eng.10.0.0_r14_linux-x86 && rm -f sdk-repo-linux-tools-26.1.1.zip && s=0 || s=$? && (exit $s)
-tar xjf android-ndk-r20b-linux-x86_64.tar.bz2 -C ../android-ndk && rm -f android-ndk-r20b-linux-x86_64.tar.bz2 && s=0 || s=$? && (exit $s)
+unzip -qqo android-sdk_eng.s-beta-5_linux-x86.zip -d ../android-sdk && mv ../android-sdk/android-sdk_eng.build_linux-x86 ../android-sdk/android-sdk_eng.s-beta-5_linux-x86  && rm -f android-sdk_eng.s-beta-5_linux-x86.zip && s=0 || s=$? && (exit $s)
+unzip -qqo sdk-repo-linux-tools-26.1.1.zip -d ../android-sdk/android-sdk_eng.s-beta-5_linux-x86 && rm -f sdk-repo-linux-tools-26.1.1.zip && s=0 || s=$? && (exit $s)
+unzip -qqo android-ndk-r23-linux-x86_64.zip -d ../android-ndk && rm -f android-ndk-r23-linux-x86_64.zip && s=0 || s=$? && (exit $s)
 popd
 
 # Move ndk files into place
-cp -a "ndk_temp/${gn_file}" android-ndk/android-ndk-r20b
-cp -ar "ndk_temp/linux-x86_64" android-ndk/android-ndk-r20b/toolchains/llvm/prebuilt
+cp -a "ndk_temp/${gn_file}" android-ndk/android-ndk-r23
+cp -ar "ndk_temp/linux-x86_64" android-ndk/android-ndk-r23/toolchains/llvm/prebuilt
 rm -rf "ndk_temp"
 
-
-## Compile third-party binaries
-# eu-strip is re-compiled with -Wno-error
-patch -p1 --ignore-whitespace -i patches/Other/eu-strip-build-script.patch --no-backup-if-mismatch
-pushd src/buildtools/third_party/eu-strip
-for i in $(seq 1 5); do ./build.sh && s=0 && break || s=$? && sleep 60; done; (exit $s)
-popd
-# Some of the support libraries can be grabbed from maven https://android.googlesource.com/platform/prebuilts/maven_repo/android/+/master/com/android/support/
+# SDK needs the old aidl because an import failure
+cp misc/aidl src/third_party/android_sdk/public/build-tools/31.0.0
 
 # Additional Source Patches
 ## Extra fixes for Chromium source
@@ -294,6 +311,14 @@ fi
 python3 ungoogled-chromium/utils/domain_substitution.py apply -r ungoogled-chromium/domain_regex.list -f ${substitution_list_2} -c ${cache_file} src
 
 
+# Override androidx libraries
+# This is to remove Android S APIs because they don't exist in the public version of SDK yet. See androidx-override/core_core.patch for changes.
+lib_path=$(find .cipd -name core-1.7.0-SNAPSHOT.aar | cut -d/ -f-6)
+chmod +w "${lib_path}"/core-1.7.0-SNAPSHOT.aar
+ls -l "${lib_path}"
+cp androidx-override/core-release.aar "${lib_path}"/core-1.7.0-SNAPSHOT.aar
+ls -l .cipd/pkgs # DEBUG
+
 ## Configure output folder
 export PATH=$OLD_PATH  # remove depot_tools from PATH
 pushd src
@@ -308,6 +333,11 @@ fi
 printf '\ntarget_cpu="'"$ARCH"'"\n' >> "${output_folder}"/args.gn
 # Trichrome doesn't forward version_name to base in bundle
 printf '\nandroid_override_version_name="'"${chromium_version}"'"\n' >> "${output_folder}"/args.gn
+
+# Update aar.info for override
+chmod 644 ../"${lib_path}"/androidx_core_core.info
+printf '\nupdate_android_aar_prebuilts=true' >> "${output_folder}"/args.gn
+
 gn gen "${output_folder}" --fail-on-unused-args
 popd
 

@@ -52,13 +52,15 @@ Bromite/Inject-scripts-for-AMP-tracking-ads-and-video.patch
 Bromite/Add-exit-menu-item.patch
 #Bromite/Add-bookmark-import-export-actions.patch
 Bromite/Add-option-to-not-persist-tabs-across-sessions.patch
-#Bromite/Add-a-proxy-configuration-page.patch
+Bromite/Add-a-proxy-configuration-page.patch
 Bromite/Add-flag-to-disable-WebGL.patch
 Bromite/DoH-secure-mode-by-default.patch
 Bromite/Revert-flags-remove-disable-pull-to-refresh-effect.patch
 Bromite/Disable-DRM-media-origin-IDs-preprovisioning.patch
 Bromite/AImageReader-CFI-crash-mitigations.patch
 Bromite/Add-an-always-incognito-mode.patch
+
+ungoogled-chromium-android/Remove-reference-to-android-s.patch
 
 Other/debug-fix.patch
 

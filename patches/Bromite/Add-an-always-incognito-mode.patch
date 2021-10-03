@@ -9,7 +9,7 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
 ---
  chrome/android/chrome_java_sources.gni                                                                   |    1 
  chrome/android/java/src/org/chromium/chrome/browser/AlwaysIncognitoLinkInterceptor.java                  |   80 ++++++++++
- chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java                            |    7 
+ chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java                            |    6 
  chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java                              |    4 
  chrome/android/java/src/org/chromium/chrome/browser/app/appmenu/AppMenuPropertiesDelegateImpl.java       |    6 
  chrome/android/java/src/org/chromium/chrome/browser/contextmenu/ChromeContextMenuPopulator.java          |    8 -
@@ -22,7 +22,7 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
  chrome/android/java/src/org/chromium/chrome/browser/webapps/WebappIntentDataProvider.java                |   14 +
  chrome/browser/flags/android/chrome_feature_list.cc                                                      |    2 
  chrome/browser/ui/android/strings/android_chrome_strings.grd                                             |    7 
- 15 files changed, 166 insertions(+), 34 deletions(-)
+ 15 files changed, 165 insertions(+), 34 deletions(-)
  create mode 100644 chrome/android/java/src/org/chromium/chrome/browser/AlwaysIncognitoLinkInterceptor.java
 
 --- a/chrome/android/chrome_java_sources.gni
@@ -128,14 +128,13 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
  import org.chromium.chrome.browser.IntentHandler.IntentHandlerDelegate;
  import org.chromium.chrome.browser.IntentHandler.TabOpenType;
  import org.chromium.chrome.browser.accessibility_tab_switcher.OverviewListLayout;
-@@ -1763,8 +1764,10 @@ public class ChromeTabbedActivity extend
+@@ -1763,8 +1764,9 @@ public class ChromeTabbedActivity extend
          Bundle savedInstanceState = getSavedInstanceState();
  
          // We determine the model as soon as possible so every systems get initialized coherently.
 -        boolean startIncognito = savedInstanceState != null
 -                && savedInstanceState.getBoolean(IS_INCOGNITO_SELECTED, false);
-+        boolean startIncognito = ContextUtils.getAppSharedPreferences().getBoolean(
-+            AlwaysIncognitoLinkInterceptor.PREF_ALWAYS_INCOGNITO, false)
++        boolean startIncognito = ContextUtils.getAppSharedPreferences().getBoolean(AlwaysIncognitoLinkInterceptor.PREF_ALWAYS_INCOGNITO, false)
 +                || (savedInstanceState != null
 +                && savedInstanceState.getBoolean(IS_INCOGNITO_SELECTED, false));
  

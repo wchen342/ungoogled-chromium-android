@@ -1,3 +1,11 @@
+# 94.0.4606.71-1
+* Bookmark import-export is disabled (again)
+* Now built with Android SDK rebuilt from s-beta-5 (Android 12 beta) and NDK r23. If you want to know how they are built, see [here](https://github.com/wchen342/android-rebuilds).
+* For some reason the aforementioned public version of Android 12 SDK doesn't have new APIs in them, so they are removed (for now). Will re-investigate when formal version of SDK 12 release.
+
+# 94.0.4606.61-1
+* Re-enable proxy settings and bookmark import-export
+
 # 94.0.4606.54-1
 * Upstream update
 

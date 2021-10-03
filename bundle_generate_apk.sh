@@ -8,7 +8,7 @@ source "${SCRIPT_PATH}/.build_config"
 
 KEYSTORE=$PWD/../../uc_keystore/uc-release-key.keystore
 KEYSTORE_PASS=$PWD/../../uc_keystore/keystore_pass
-APKSIGNER=$PWD/third_party/android_sdk/public/build-tools/30.0.1/apksigner
+APKSIGNER=$PWD/third_party/android_sdk/public/build-tools/31.0.0/apksigner
 BUNDLETOOL=$PWD/build/android/gyp/bundletool.py
 AAPT2=$PWD/third_party/android_build_tools/aapt2/aapt2
 
