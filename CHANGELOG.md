@@ -1,3 +1,6 @@
+# 94.0.4606.81-1
+* Now using Android SDK 12 r02
+
 # 94.0.4606.71-1
 * Bookmark import-export is disabled (again)
 * Now built with Android SDK rebuilt from s-beta-5 (Android 12 beta) and NDK r23. If you want to know how they are built, see [here](https://github.com/wchen342/android-rebuilds).

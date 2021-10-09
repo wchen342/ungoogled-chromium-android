@@ -60,7 +60,5 @@ Bromite/Disable-DRM-media-origin-IDs-preprovisioning.patch
 Bromite/AImageReader-CFI-crash-mitigations.patch
 Bromite/Add-an-always-incognito-mode.patch
 
-ungoogled-chromium-android/Remove-reference-to-android-s.patch
-
 Other/debug-fix.patch
 

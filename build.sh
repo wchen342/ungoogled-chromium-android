@@ -3,8 +3,6 @@ set -eu -o pipefail
 
 # Required packages: passwd protobuf java-1.8.0-openjdk-headless java-1.8.0-openjdk-devel gperf wget rsync tar unzip gnupg2 curl maven yasm npm ninja-build nodejs git clang lld llvm flex bison libdrm-devel nss-devel dbus-devel libstdc++-static libatomic-static krb5-devel glib2 glib2-devel glibc.i686 glibc-devel.i686 fakeroot-libs.i686 libgcc.i686 libtool-ltdl.i686 libtool-ltdl-devel.i686
 # gn from OpenSUSE Tumbleweed.
-# Assuming python2.
-# TODO: it seems python3 will finally land with cr93
 
 source .build_config
 
@@ -245,12 +243,8 @@ popd
 # Some of the support libraries can be grabbed from maven https://android.googlesource.com/platform/prebuilts/maven_repo/android/+/master/com/android/support/
 
 ## Prepare Android SDK/NDK
-# TODO: Failed to build on s-beta-5. Something is missing in the beta sdk.
-# Need to test again when Android 12 releases. For now remove any code references to Android 12.
-# SDK_DIR="android-sdk_eng.11.0.0_r27_linux-x86"
-# SDK_VERSION_CODE="11"
-SDK_DIR="android-sdk_eng.s-beta-5_linux-x86"
-SDK_VERSION_CODE="Tiramisu"
+SDK_NAME="android-sdk_eng.12.0.0_r2_linux-x86"
+SDK_VERSION_CODE="12"
 
 # Create symbol links to sdk folders
 # The rebuild sdk has a different folder structure from the checked out version, so it is easier to create symbol links
@@ -260,11 +254,11 @@ if [[ -d "$DIRECTORY" ]]; then
   find $DIRECTORY -mindepth 1 -maxdepth 1 -not -name cmdline-tools -exec rm -rf '{}' \;
 fi
 pushd ${DIRECTORY}
-mkdir build-tools && ln -s ../../../../../android-sdk/${SDK_DIR}/build-tools/android-${SDK_VERSION_CODE} build-tools/31.0.0
+mkdir build-tools && ln -s ../../../../../android-sdk/${SDK_NAME}/build-tools/android-${SDK_VERSION_CODE} build-tools/31.0.0
 mkdir platforms
-ln -s ../../../../../android-sdk/${SDK_DIR}/platforms/android-${SDK_VERSION_CODE} platforms/android-31
-ln -s ../../../../android-sdk/${SDK_DIR}/platform-tools platform-tools
-ln -s ../../../../android-sdk/${SDK_DIR}/tools tools
+ln -s ../../../../../android-sdk/${SDK_NAME}/platforms/android-${SDK_VERSION_CODE} platforms/android-31
+ln -s ../../../../android-sdk/${SDK_NAME}/platform-tools platform-tools
+ln -s ../../../../android-sdk/${SDK_NAME}/tools tools
 popd
 
 # remove ndk folders
@@ -282,8 +276,8 @@ popd
 mkdir android-sdk
 mkdir android-ndk
 pushd android-rebuilds
-unzip -qqo android-sdk_eng.s-beta-5_linux-x86.zip -d ../android-sdk && mv ../android-sdk/android-sdk_eng.build_linux-x86 ../android-sdk/android-sdk_eng.s-beta-5_linux-x86  && rm -f android-sdk_eng.s-beta-5_linux-x86.zip && s=0 || s=$? && (exit $s)
-unzip -qqo sdk-repo-linux-tools-26.1.1.zip -d ../android-sdk/android-sdk_eng.s-beta-5_linux-x86 && rm -f sdk-repo-linux-tools-26.1.1.zip && s=0 || s=$? && (exit $s)
+unzip -qqo ${SDK_NAME}.zip -d ../android-sdk && mv ../android-sdk/android-sdk_eng.build_linux-x86 ../android-sdk/${SDK_NAME}  && rm -f ${SDK_NAME}.zip && s=0 || s=$? && (exit $s)
+unzip -qqo sdk-repo-linux-tools-26.1.1.zip -d ../android-sdk/${SDK_NAME} && rm -f sdk-repo-linux-tools-26.1.1.zip && s=0 || s=$? && (exit $s)
 unzip -qqo android-ndk-r23-linux-x86_64.zip -d ../android-ndk && rm -f android-ndk-r23-linux-x86_64.zip && s=0 || s=$? && (exit $s)
 popd
 
@@ -291,9 +285,6 @@ popd
 cp -a "ndk_temp/${gn_file}" android-ndk/android-ndk-r23
 cp -ar "ndk_temp/linux-x86_64" android-ndk/android-ndk-r23/toolchains/llvm/prebuilt
 rm -rf "ndk_temp"
-
-# SDK needs the old aidl because an import failure
-cp misc/aidl src/third_party/android_sdk/public/build-tools/31.0.0
 
 # Additional Source Patches
 ## Extra fixes for Chromium source
@@ -311,14 +302,6 @@ fi
 python3 ungoogled-chromium/utils/domain_substitution.py apply -r ungoogled-chromium/domain_regex.list -f ${substitution_list_2} -c ${cache_file} src
 
 
-# Override androidx libraries
-# This is to remove Android S APIs because they don't exist in the public version of SDK yet. See androidx-override/core_core.patch for changes.
-lib_path=$(find .cipd -name core-1.7.0-SNAPSHOT.aar | cut -d/ -f-6)
-chmod +w "${lib_path}"/core-1.7.0-SNAPSHOT.aar
-ls -l "${lib_path}"
-cp androidx-override/core-release.aar "${lib_path}"/core-1.7.0-SNAPSHOT.aar
-ls -l .cipd/pkgs # DEBUG
-
 ## Configure output folder
 export PATH=$OLD_PATH  # remove depot_tools from PATH
 pushd src
@@ -333,10 +316,6 @@ fi
 printf '\ntarget_cpu="'"$ARCH"'"\n' >> "${output_folder}"/args.gn
 # Trichrome doesn't forward version_name to base in bundle
 printf '\nandroid_override_version_name="'"${chromium_version}"'"\n' >> "${output_folder}"/args.gn
-
-# Update aar.info for override
-chmod 644 ../"${lib_path}"/androidx_core_core.info
-printf '\nupdate_android_aar_prebuilts=true' >> "${output_folder}"/args.gn
 
 gn gen "${output_folder}" --fail-on-unused-args
 popd
