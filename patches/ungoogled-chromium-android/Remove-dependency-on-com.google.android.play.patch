@@ -8,12 +8,11 @@ Subject: Remove dependency on com.google.android.play
  chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateControllerFactory.java |   16 
  chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/PlayInlineUpdateController.java    |  226 ----------
  third_party/android_deps/BUILD.gn                                                                   |    5 
- third_party/google_android_play_core/BUILD.gn                                                       |    5 
- 6 files changed, 3 insertions(+), 310 deletions(-)
+ 5 files changed, 3 insertions(+), 305 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -549,7 +549,6 @@ android_library("chrome_java") {
+@@ -554,7 +554,6 @@ android_library("chrome_java") {
      "//third_party/android_data_chart:android_data_chart_java",
      "//third_party/android_deps:android_support_v7_appcompat_java",
      "//third_party/android_deps:chromium_play_services_availability_java",
@@ -464,17 +463,6 @@ Subject: Remove dependency on com.google.android.play
      private static void recordCallFailure(@CallFailure int failure) {
          RecordHistogram.recordEnumeratedHistogram(
                  "GoogleUpdate.Inline.CallFailure", failure, CallFailure.NUM_ENTRIES);
---- a/third_party/google_android_play_core/BUILD.gn
-+++ b/third_party/google_android_play_core/BUILD.gn
-@@ -3,8 +3,3 @@
- # found in the LICENSE file.
- 
- import("//build/config/android/rules.gni")
--
--android_aar_prebuilt("com_google_android_play_core_java") {
--  aar_path = "core-1.6.4.aar"
--  info_path = "com_google_android_play_core.info"
--}
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
 @@ -1060,11 +1060,6 @@ if (!limit_android_deps) {

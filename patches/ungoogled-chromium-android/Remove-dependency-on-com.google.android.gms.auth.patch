@@ -8,19 +8,19 @@ Subject: Remove dependency on com.google.android.gms.auth
  components/signin/public/android/BUILD.gn                                                     |    1 
  content/public/android/BUILD.gn                                                               |    1 
  content/public/android/java/src/org/chromium/content/browser/sms/SmsProviderGms.java          |    6 
- content/public/android/java/src/org/chromium/content/browser/sms/SmsUserConsentReceiver.java  |   59 ------
- content/public/android/java/src/org/chromium/content/browser/sms/SmsVerificationReceiver.java |   93 ----------
+ content/public/android/java/src/org/chromium/content/browser/sms/SmsUserConsentReceiver.java  |   57 ------
+ content/public/android/java/src/org/chromium/content/browser/sms/SmsVerificationReceiver.java |   94 ----------
  content/public/android/java/src/org/chromium/content/browser/sms/Wrappers.java                |   26 --
  content/test/BUILD.gn                                                                         |    1 
  remoting/android/client_java_tmpl.gni                                                         |    1 
  remoting/android/java/src/org/chromium/chromoting/OAuthTokenConsumer.java                     |    9 
  remoting/android/java/src/org/chromium/chromoting/base/OAuthTokenFetcher.java                 |   35 ---
  third_party/android_deps/BUILD.gn                                                             |   38 ----
- 13 files changed, 6 insertions(+), 266 deletions(-)
+ 13 files changed, 5 insertions(+), 266 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -303,7 +303,6 @@ android_library("chrome_java") {
+@@ -304,7 +304,6 @@ android_library("chrome_java") {
      ":chrome_public_apk_template_resources",
      ":update_proto_java",
      ":usage_stats_proto_java",
@@ -214,7 +214,7 @@ Subject: Remove dependency on com.google.android.gms.auth
 -                        intent.getExtras().getParcelable(SmsRetriever.EXTRA_CONSENT_INTENT);
 -                try {
 -                    mProvider.getWindow().showIntent(consentIntent,
--                            (window, resultCode, data) -> onConsentResult(resultCode, data), null);
+-                            (resultCode, data) -> onConsentResult(resultCode, data), null);
 -                } catch (android.content.ActivityNotFoundException e) {
 -                    if (DEBUG) Log.d(TAG, "Error starting activity for result.");
 -                }
@@ -231,10 +231,9 @@ Subject: Remove dependency on com.google.android.gms.auth
 -            String message = data.getStringExtra(SmsRetriever.EXTRA_SMS_MESSAGE);
 -            mProvider.onReceive(message, GmsBackend.USER_CONSENT);
 -        } else if (resultCode == Activity.RESULT_CANCELED) {
--            if (DEBUG) Log.d(TAG, "Activity result cancelled.");
+             if (DEBUG) Log.d(TAG, "Activity result cancelled.");
 -            mProvider.onCancel();
 -        }
-+        if (DEBUG) Log.d(TAG, "Activity result cancelled.");
      }
  
      public void listen(WindowAndroid windowAndroid) {
@@ -251,6 +250,12 @@ Subject: Remove dependency on com.google.android.gms.auth
  }
 --- a/content/public/android/java/src/org/chromium/content/browser/sms/SmsVerificationReceiver.java
 +++ b/content/public/android/java/src/org/chromium/content/browser/sms/SmsVerificationReceiver.java
+@@ -1,4 +1,4 @@
+-// Copyright 2019 The Chromium Authors. All rights reserved.
++// // Copyright 2019 The Chromium Authors. All rights reserved.
+ // Use of this source code is governed by a BSD-style license that can be
+ // found in the LICENSE file.
+ 
 @@ -11,16 +11,6 @@ import android.content.Context;
  import android.content.Intent;
  import android.content.IntentFilter;
@@ -267,8 +272,8 @@ Subject: Remove dependency on com.google.android.gms.auth
 -
  import org.chromium.base.Log;
  import org.chromium.base.metrics.RecordHistogram;
- import org.chromium.ui.base.WindowAndroid;
-@@ -63,15 +53,10 @@ public class SmsVerificationReceiver ext
+ import org.chromium.content.browser.sms.Wrappers.WebOTPServiceContext;
+@@ -64,15 +54,10 @@ public class SmsVerificationReceiver ext
          // message is received.
          if (DEBUG) Log.i(TAG, "Registering intent filters.");
          IntentFilter filter = new IntentFilter();
@@ -284,7 +289,7 @@ Subject: Remove dependency on com.google.android.gms.auth
      public void destroy() {
          if (mDestroyed) return;
          if (DEBUG) Log.d(TAG, "Destroying SmsVerificationReceiver.");
-@@ -87,34 +72,10 @@ public class SmsVerificationReceiver ext
+@@ -88,34 +73,10 @@ public class SmsVerificationReceiver ext
              return;
          }
  
@@ -318,10 +323,10 @@ Subject: Remove dependency on com.google.android.gms.auth
 -        }
      }
  
-     public void onPermissionDone(WindowAndroid window, int resultCode, boolean isLocalRequest) {
-@@ -135,63 +96,11 @@ public class SmsVerificationReceiver ext
+     public void onPermissionDone(int resultCode, boolean isLocalRequest) {
+@@ -136,64 +97,11 @@ public class SmsVerificationReceiver ext
       */
-     public void onRetrieverTaskFailure(WindowAndroid window, boolean isLocalRequest, Exception e) {
+     public void onRetrieverTaskFailure(boolean isLocalRequest, Exception e) {
          if (DEBUG) Log.d(TAG, "Task failed. Attempting recovery.", e);
 -        ApiException exception = (ApiException) e;
 -        if (exception.getStatusCode() == SmsRetrieverStatusCodes.API_NOT_CONNECTED) {
@@ -349,26 +354,26 @@ Subject: Remove dependency on com.google.android.gms.auth
 -                ResolvableApiException rex = (ResolvableApiException) exception;
 -                try {
 -                    PendingIntent resolutionIntent = rex.getResolution();
--                    window.showIntent(resolutionIntent, new WindowAndroid.IntentCallback() {
--                        @Override
--                        public void onIntentCompleted(
--                                WindowAndroid w, int resultCode, Intent data) {
--                            // Backend availability will be recorded inside |onPermissionDone|.
--                            onPermissionDone(w, resultCode, isLocalRequest);
--                        }
--                    }, null);
+-                    mProvider.getWindow().showIntent(
+-                            resolutionIntent, new WindowAndroid.IntentCallback() {
+-                                @Override
+-                                public void onIntentCompleted(int resultCode, Intent data) {
+-                                    // Backend availability will be recorded inside
+-                                    // |onPermissionDone|.
+-                                    onPermissionDone(resultCode, isLocalRequest);
+-                                }
+-                            }, null);
 -                } catch (Exception ex) {
 -                    cancelRequestAndReportBackendAvailability();
 -                    Log.e(TAG, "Cannot launch user permission", ex);
 -                }
 -            }
 -        } else {
--            Log.w(TAG, "Unexpected exception", e);
+             Log.w(TAG, "Unexpected exception", e);
 -        }
-+        Log.w(TAG, "Unexpected exception", e);
      }
  
-     public void listen(WindowAndroid window, boolean isLocalRequest) {
+     public void listen(boolean isLocalRequest) {
          Wrappers.SmsRetrieverClientWrapper client = mProvider.getClient();
 -        Task<Void> task = client.startSmsCodeBrowserRetriever();
 -
@@ -377,7 +382,7 @@ Subject: Remove dependency on com.google.android.gms.auth
 -            mProvider.verificationReceiverSucceeded(isLocalRequest);
 -        });
 -        task.addOnFailureListener((Exception e) -> {
--            this.onRetrieverTaskFailure(window, isLocalRequest, e);
+-            this.onRetrieverTaskFailure(isLocalRequest, e);
 -            mProvider.verificationReceiverFailed(isLocalRequest);
 -        });
 -
@@ -386,7 +391,7 @@ Subject: Remove dependency on com.google.android.gms.auth
  
 --- a/content/test/BUILD.gn
 +++ b/content/test/BUILD.gn
-@@ -2849,7 +2849,6 @@ if (is_android) {
+@@ -2865,7 +2865,6 @@ if (is_android) {
      testonly = true
      sources = content_java_sources_needing_jni
      deps = [

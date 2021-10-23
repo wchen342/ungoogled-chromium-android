@@ -1,3 +1,6 @@
+# 95.0.4638.54-1
+* Remove FloC setting
+
 # 94.0.4606.81-1
 * Now using Android SDK 12 r02
 

@@ -32,7 +32,7 @@ Subject: fix build error with prefs.h
          }
 --- a/chrome/android/java/src/org/chromium/chrome/browser/signin/SyncConsentFragmentBase.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/signin/SyncConsentFragmentBase.java
-@@ -457,8 +457,7 @@ public abstract class SyncConsentFragmen
+@@ -467,8 +467,7 @@ public abstract class SyncConsentFragmen
          mConfirmSyncDataStateMachine = new ConfirmSyncDataStateMachine(
                  new ConfirmSyncDataStateMachineDelegate(
                          requireContext(), getChildFragmentManager(), mModalDialogManager),

@@ -25,10 +25,10 @@ Subject: Add Startpage.com and Qwant.com search engines
 +      "id": 33
 +    },
 +
-     "searx": {
-       "name": "Searx",
-       "keyword": "searx.me",
-@@ -163,6 +174,7 @@
+     "ask": {
+       "name": "Ask",
+       "keyword": "ask.com",
+@@ -153,6 +164,7 @@
        "favicon_url": "https://www.qwant.com/favicon.ico",
        "search_url": "https://www.qwant.com/?q={searchTerms}&client=opensearch",
        "suggest_url": "https://api.qwant.com/api/suggest/?q={searchTerms}&client=opensearch",
@@ -1010,10 +1010,10 @@ Subject: Add Startpage.com and Qwant.com search engines
      &duckduckgo,
 --- a/components/search_engines/search_engine_type.h
 +++ b/components/search_engines/search_engine_type.h
-@@ -75,6 +75,7 @@ enum SearchEngineType {
+@@ -74,6 +74,7 @@ enum SearchEngineType {
+   SEARCH_ENGINE_OCEANHERO = 57,
    SEARCH_ENGINE_PRIVACYWALL = 58,
    SEARCH_ENGINE_ECOSIA = 59,
-   SEARCH_ENGINE_SEARX = 60,
 +  SEARCH_ENGINE_STARTPAGE = 61,
  
    SEARCH_ENGINE_MAX  // Bounding value needed for UMA histogram macro.

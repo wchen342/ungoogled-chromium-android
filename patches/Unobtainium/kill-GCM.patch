@@ -23,8 +23,8 @@ Subject: kill GCM
    "java/src/org/chromium/chrome/browser/ChromeBackupAgentImpl.java",
    "java/src/org/chromium/chrome/browser/ChromeBackupWatcher.java",
    "java/src/org/chromium/chrome/browser/ChromeBaseAppCompatActivity.java",
-@@ -1036,10 +1035,6 @@ chrome_java_sources = [
-   "java/src/org/chromium/chrome/browser/searchwidget/SearchBoxDataProvider.java",
+@@ -1035,10 +1034,6 @@ chrome_java_sources = [
+   "java/src/org/chromium/chrome/browser/searchwidget/SearchType.java",
    "java/src/org/chromium/chrome/browser/searchwidget/SearchWidgetProvider.java",
    "java/src/org/chromium/chrome/browser/send_tab_to_self/SendTabToSelfShareActivity.java",
 -  "java/src/org/chromium/chrome/browser/services/gcm/ChromeGcmListenerServiceImpl.java",
@@ -58,7 +58,7 @@ Subject: kill GCM
      <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT"/>
  
      <uses-permission android:name="com.google.android.apps.now.CURRENT_ACCOUNT_ACCESS" />
-@@ -1027,25 +1022,6 @@ by a child template that "extends" this
+@@ -1011,25 +1006,6 @@ by a child template that "extends" this
              android:configChanges="orientation|keyboardHidden|keyboard|screenSize|mcc|mnc|screenLayout|smallestScreenSize"
              android:hardwareAccelerated="false" />
  
@@ -84,7 +84,7 @@ Subject: kill GCM
  
          <!-- Android Notification service listener -->
          <service android:name="org.chromium.chrome.browser.notifications.NotificationService"
-@@ -1070,28 +1046,10 @@ by a child template that "extends" this
+@@ -1054,28 +1030,10 @@ by a child template that "extends" this
              android:exported="false"
              android:permission="android.permission.BIND_JOB_SERVICE"/>
  

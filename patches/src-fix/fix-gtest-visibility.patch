@@ -1,0 +1,19 @@
+description: change visibility of third_party/googletest
+author: Wengling Chen <feiyu2817@gmail.com>
+
+---
+---
+ third_party/googletest/BUILD.gn |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/third_party/googletest/BUILD.gn
++++ b/third_party/googletest/BUILD.gn
+@@ -5,7 +5,7 @@
+ import("//build_overrides/build.gni")
+ 
+ config("gtest_config") {
+-  visibility = [ ":*" ]  # gmock also shares this config.
++  visibility = [ "*" ]  # gmock also shares this config.
+ 
+   defines = [
+     # Chromium always links googletest statically, so no API qualifier is

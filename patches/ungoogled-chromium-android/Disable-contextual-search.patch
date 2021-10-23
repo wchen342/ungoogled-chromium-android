@@ -15,5 +15,5 @@ Subject: Disable contextual search by default
 -      std::string(),
 +      prefs::kContextualSearchDisabledValue,
        user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
- #endif  // defined(OS_ANDROID)
-   registry->RegisterStringPref(prefs::kSessionExitType, std::string());
+   registry->RegisterBooleanPref(
+       prefs::kContextualSearchWasFullyPrivacyEnabled, false,

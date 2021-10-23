@@ -44,7 +44,7 @@ Subject: Remove dependency on
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -303,9 +303,6 @@ android_library("chrome_java") {
+@@ -304,9 +304,6 @@ android_library("chrome_java") {
      ":chrome_public_apk_template_resources",
      ":update_proto_java",
      ":usage_stats_proto_java",
@@ -54,7 +54,7 @@ Subject: Remove dependency on
      "//base:base_java",
      "//cc:cc_java",
      "//chrome/android/features/keyboard_accessory:public_java",
-@@ -876,8 +873,6 @@ junit_binary("chrome_junit_tests") {
+@@ -883,8 +880,6 @@ junit_binary("chrome_junit_tests") {
      ":chrome_java",
      ":chrome_public_android_manifest",
      ":delegate_public_impl_java",
@@ -63,7 +63,7 @@ Subject: Remove dependency on
      "//base:base_java",
      "//base:base_java_test_support",
      "//base:base_junit_test_support",
-@@ -1184,9 +1179,6 @@ android_library("chrome_test_java") {
+@@ -1242,9 +1237,6 @@ android_library("chrome_test_java") {
      ":chrome_test_util_java",
      ":chrome_test_util_jni",
      ":delegate_public_impl_java",
@@ -113,7 +113,7 @@ Subject: Remove dependency on
  import org.chromium.base.ContextUtils;
  import org.chromium.base.annotations.CalledByNative;
  import org.chromium.chrome.browser.customtabs.CustomTabsConnection;
-@@ -273,16 +270,7 @@ public abstract class AppHooks {
+@@ -276,16 +273,7 @@ public abstract class AppHooks {
       * same as {@link GoogleApiAvailability#isGooglePlayServicesAvailable()}.
       */
      public int isGoogleApiAvailableWithMinApkVersion(int minApkVersion) {
@@ -366,7 +366,7 @@ Subject: Remove dependency on
          private long getSize(StatFs statFs) {
 --- a/chrome/test/android/BUILD.gn
 +++ b/chrome/test/android/BUILD.gn
-@@ -260,8 +260,6 @@ android_library("chrome_java_test_suppor
+@@ -267,8 +267,6 @@ android_library("chrome_java_test_suppor
    ]
  
    deps = [
@@ -450,7 +450,7 @@ Subject: Remove dependency on
      "//components/download/public/common:public_java",
 --- a/content/test/BUILD.gn
 +++ b/content/test/BUILD.gn
-@@ -2849,9 +2849,6 @@ if (is_android) {
+@@ -2865,9 +2865,6 @@ if (is_android) {
      testonly = true
      sources = content_java_sources_needing_jni
      deps = [
@@ -462,7 +462,7 @@ Subject: Remove dependency on
        "//ui/android:ui_full_java",
 --- a/device/BUILD.gn
 +++ b/device/BUILD.gn
-@@ -437,8 +437,6 @@ if (is_android) {
+@@ -446,8 +446,6 @@ if (is_android) {
        "gamepad/android/junit/src/org/chromium/device/gamepad/GamepadMappingsTest.java",
      ]
      deps = [
@@ -504,7 +504,7 @@ Subject: Remove dependency on
        "//mojo/public/java:base_java",
 --- a/services/device/geolocation/BUILD.gn
 +++ b/services/device/geolocation/BUILD.gn
-@@ -154,8 +154,6 @@ if (is_android) {
+@@ -163,8 +163,6 @@ if (is_android) {
  
      deps = [
        ":geolocation_jni_headers",
@@ -555,19 +555,19 @@ Subject: Remove dependency on
 -    "$google_play_services_package:google_play_services_base_java",
 -    "$google_play_services_package:google_play_services_tasks_java",
      "//base:base_java",
+     "//chrome/browser/webauthn/android:java_resources",
      "//content/public/android:content_java",
-     "//third_party/android_deps:android_support_v7_appcompat_java",
 --- a/chrome/android/features/cablev2_authenticator/java/src/org/chromium/chrome/browser/webauth/authenticator/CableAuthenticator.java
 +++ b/chrome/android/features/cablev2_authenticator/java/src/org/chromium/chrome/browser/webauth/authenticator/CableAuthenticator.java
-@@ -16,8 +16,6 @@ import android.os.Build;
+@@ -15,8 +15,6 @@ import android.os.Build;
  import android.os.Bundle;
  import android.provider.Settings;
  
 -import com.google.android.gms.tasks.Task;
 -
- import org.chromium.base.BuildInfo;
  import org.chromium.base.Log;
  import org.chromium.base.annotations.CalledByNative;
+ import org.chromium.base.annotations.NativeMethods;
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
 @@ -92,7 +92,6 @@ if (!limit_android_deps) {
@@ -631,7 +631,7 @@ Subject: Remove dependency on
 -  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
    android_aar_prebuilt("com_google_android_material_material_java") {
      aar_path =
-         "libs/com_google_android_material_material/material-1.4.0-rc01.aar"
+         "libs/com_google_android_material_material/material-1.5.0-alpha02.aar"
 --- a/chrome/android/java/src/org/chromium/chrome/browser/PlayServicesVersionInfo.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/PlayServicesVersionInfo.java
 @@ -7,8 +7,6 @@ package org.chromium.chrome.browser;
@@ -850,7 +850,7 @@ Subject: Remove dependency on
      "//base:base_junit_test_support",
 --- a/weblayer/browser/java/BUILD.gn
 +++ b/weblayer/browser/java/BUILD.gn
-@@ -103,7 +103,6 @@ android_library("base_module_java") {
+@@ -104,7 +104,6 @@ android_library("base_module_java") {
    ]
    deps = [
      ":base_module_interfaces_java",

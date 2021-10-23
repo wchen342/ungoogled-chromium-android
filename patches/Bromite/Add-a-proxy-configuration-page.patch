@@ -27,10 +27,10 @@ for SimpleURLLoaders as well.
  chrome/browser/ui/webui/proxy_config_ui.h                                                 |   33 
  chrome/common/webui_url_constants.cc                                                      |    4 
  chrome/common/webui_url_constants.h                                                       |    2 
- components/policy/core/browser/proxy_policy_handler.cc                                    |    2 
  components/proxy_config/pref_proxy_config_tracker_impl.cc                                 |    1 
  components/proxy_config/proxy_config_dictionary.cc                                        |   30 
  components/proxy_config/proxy_config_dictionary.h                                         |    7 
+ components/proxy_config/proxy_policy_handler.cc                                           |    2 
  net/proxy_resolution/proxy_config.cc                                                      |   52 +
  net/proxy_resolution/proxy_config.h                                                       |    3 
  24 files changed, 995 insertions(+), 14 deletions(-)
@@ -67,17 +67,17 @@ for SimpleURLLoaders as well.
          android:title="@string/clear_browsing_data_title"
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-@@ -56,6 +56,7 @@ public class PrivacySettings
+@@ -55,6 +55,7 @@ public class PrivacySettings
      private static final String PREF_DO_NOT_TRACK = "do_not_track";
      private static final String PREF_CLEAR_BROWSING_DATA = "clear_browsing_data";
      private static final String PREF_CLOSE_TABS_ON_EXIT = "close_tabs_on_exit";
 +    private static final String PREF_PROXY_OPTIONS = "proxy";
      private static final String PREF_PRIVACY_SANDBOX = "privacy_sandbox";
+     private static final String PREF_PRIVACY_REVIEW = "privacy_review";
  
-     private ManagedPreferenceDelegate mManagedPreferenceDelegate;
 --- a/chrome/browser/autocomplete/chrome_autocomplete_provider_client.cc
 +++ b/chrome/browser/autocomplete/chrome_autocomplete_provider_client.cc
-@@ -364,6 +364,8 @@ ChromeAutocompleteProviderClient::GetBui
+@@ -366,6 +366,8 @@ ChromeAutocompleteProviderClient::GetBui
        base::ASCIIToUTF16(chrome::kChromeUISettingsURL));
  #endif
    builtins_to_provide.push_back(
@@ -88,7 +88,7 @@ for SimpleURLLoaders as well.
  }
 --- a/chrome/browser/browser_resources.grd
 +++ b/chrome/browser/browser_resources.grd
-@@ -88,6 +88,12 @@
+@@ -89,6 +89,12 @@
          <include name="IDR_HANGOUT_SERVICES_MANIFEST" file="resources\hangout_services\manifest.json" type="BINDATA" />
        </if>
  
@@ -174,7 +174,7 @@ for SimpleURLLoaders as well.
  #if BUILDFLAG(ENABLE_BACKGROUND_MODE)
  #include "chrome/browser/background/background_mode_manager.h"
  #endif
-@@ -912,6 +914,8 @@ void RegisterLocalState(PrefRegistrySimp
+@@ -939,6 +941,8 @@ void RegisterLocalState(PrefRegistrySimp
    PluginsResourceService::RegisterPrefs(registry);
  #endif
  
@@ -630,7 +630,7 @@ for SimpleURLLoaders as well.
  #include "chrome/browser/ui/webui/quota_internals/quota_internals_ui.h"
  #include "chrome/browser/ui/webui/signin_internals_ui.h"
  #include "chrome/browser/ui/webui/sync_internals/sync_internals_ui.h"
-@@ -622,6 +623,8 @@ WebUIFactoryFunction GetWebUIFactoryFunc
+@@ -641,6 +642,8 @@ WebUIFactoryFunction GetWebUIFactoryFunc
      return &NewWebUI<MemoryInternalsUI>;
    if (url.host_piece() == chrome::kChromeUINetExportHost)
      return &NewWebUI<NetExportUI>;
@@ -874,15 +874,15 @@ for SimpleURLLoaders as well.
 +void ProxyConfigMessageHandler::RegisterMessages() {
 +  DCHECK_CURRENTLY_ON(BrowserThread::UI);
 +
-+  web_ui()->RegisterMessageCallback(
++  web_ui()->RegisterDeprecatedMessageCallback(
 +      "enableNotifyUIWithState",
 +      base::BindRepeating(&ProxyConfigMessageHandler::OnEnableNotifyUIWithState,
 +                          base::Unretained(this)));
-+  web_ui()->RegisterMessageCallback(
++  web_ui()->RegisterDeprecatedMessageCallback(
 +      "apply",
 +      base::BindRepeating(&ProxyConfigMessageHandler::OnApply,
 +                          base::Unretained(this)));
-+  web_ui()->RegisterMessageCallback(
++  web_ui()->RegisterDeprecatedMessageCallback(
 +      "clear",
 +      base::BindRepeating(&ProxyConfigMessageHandler::OnClear,
 +                          base::Unretained(this)));
@@ -1096,7 +1096,7 @@ for SimpleURLLoaders as well.
 +#endif  // CHROME_BROWSER_UI_WEBUI_PROXY_CONFIG_UI_H_
 --- a/chrome/common/webui_url_constants.cc
 +++ b/chrome/common/webui_url_constants.cc
-@@ -34,6 +34,8 @@ const char kChromeUICertificateViewerHos
+@@ -35,6 +35,8 @@ const char kChromeUICertificateViewerHos
  const char kChromeUICertificateViewerURL[] = "chrome://view-cert/";
  const char kChromeUIChromeSigninHost[] = "chrome-signin";
  const char kChromeUIChromeSigninURL[] = "chrome://chrome-signin/";
@@ -1123,7 +1123,7 @@ for SimpleURLLoaders as well.
      kChromeUIDownloadsHost,
 --- a/chrome/common/webui_url_constants.h
 +++ b/chrome/common/webui_url_constants.h
-@@ -125,6 +125,8 @@ extern const char kChromeUIMemoryInterna
+@@ -126,6 +126,8 @@ extern const char kChromeUIMemoryInterna
  extern const char kChromeUINTPTilesInternalsHost[];
  extern const char kChromeUINaClHost[];
  extern const char kChromeUINetExportHost[];
@@ -1132,9 +1132,9 @@ for SimpleURLLoaders as well.
  extern const char kChromeUINetInternalsHost[];
  extern const char kChromeUINetInternalsURL[];
  extern const char kChromeUINewTabHost[];
---- a/components/policy/core/browser/proxy_policy_handler.cc
-+++ b/components/policy/core/browser/proxy_policy_handler.cc
-@@ -207,7 +207,7 @@ void ProxyPolicyHandler::ApplyPolicySett
+--- a/components/proxy_config/proxy_policy_handler.cc
++++ b/components/proxy_config/proxy_policy_handler.cc
+@@ -259,7 +259,7 @@ void ProxyPolicyHandler::ApplyPolicySett
              ProxyConfigDictionary::CreateFixedServers(
                  server->GetString(), bypass_list && bypass_list->is_string()
                                           ? bypass_list->GetString()

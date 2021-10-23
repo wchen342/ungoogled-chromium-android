@@ -439,7 +439,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
 -  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
    android_aar_prebuilt("com_google_android_material_material_java") {
      aar_path =
-         "libs/com_google_android_material_material/material-1.4.0-rc01.aar"
+         "libs/com_google_android_material_material/material-1.5.0-alpha02.aar"
 @@ -1650,26 +1626,6 @@ if (!limit_android_deps) {
    }
  
@@ -586,7 +586,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
  }
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -306,8 +306,6 @@ android_library("chrome_java") {
+@@ -307,8 +307,6 @@ android_library("chrome_java") {
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
      "$google_play_services_package:google_play_services_tasks_java",
@@ -604,8 +604,8 @@ Subject: Remove dependency on com.google.android.gms.vision,
 -    "$google_play_services_package:google_play_services_vision_common_java",
 -    "$google_play_services_package:google_play_services_vision_java",
      "//base:base_java",
+     "//chrome/browser/webauthn/android:java_resources",
      "//content/public/android:content_java",
-     "//third_party/android_deps:android_support_v7_appcompat_java",
 --- a/chrome/android/features/cablev2_authenticator/java/src/org/chromium/chrome/browser/webauth/authenticator/QRScanDialog.java
 +++ b/chrome/android/features/cablev2_authenticator/java/src/org/chromium/chrome/browser/webauth/authenticator/QRScanDialog.java
 @@ -17,10 +17,6 @@ import android.widget.LinearLayout;

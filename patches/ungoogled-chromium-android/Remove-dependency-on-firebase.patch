@@ -326,7 +326,7 @@ Subject: Remove dependency on com.google.android.gms.cast
  }
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -2432,9 +2432,6 @@ android_library("base_module_java") {
+@@ -2493,9 +2493,6 @@ android_library("base_module_java") {
    ]
    deps = [
      ":chrome_base_module_resources",

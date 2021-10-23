@@ -14,7 +14,7 @@ Subject: Add new folder button to bookmark activity
 +++ b/chrome/android/java/res/menu/bookmark_action_bar_menu.xml
 @@ -15,6 +15,13 @@
              app:showAsAction="ifRoom"
-             app:iconTint="@color/default_icon_color_tint_list" />
+             app:iconTint="@color/default_icon_color_secondary_tint_list" />
          <item
 +            android:id="@+id/add_folder_menu_id"
 +            android:icon="@drawable/ic_add_outline_white_24dp"
@@ -28,7 +28,7 @@ Subject: Add new folder button to bookmark activity
              android:title="@string/search"
 --- a/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkActionBar.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkActionBar.java
-@@ -80,6 +80,9 @@ public class BookmarkActionBar extends S
+@@ -81,6 +81,9 @@ public class BookmarkActionBar extends S
          } else if (menuItem.getItemId() == R.id.close_menu_id) {
              BookmarkUtils.finishActivityOnPhone(getContext());
              return true;
@@ -38,7 +38,7 @@ Subject: Add new folder button to bookmark activity
          } else if (menuItem.getItemId() == R.id.search_menu_id) {
              mDelegate.openSearchUI();
              return true;
-@@ -136,6 +139,7 @@ public class BookmarkActionBar extends S
+@@ -137,6 +140,7 @@ public class BookmarkActionBar extends S
          setNavigationButton(NAVIGATION_BUTTON_NONE);
          getMenu().findItem(R.id.search_menu_id).setVisible(false);
          getMenu().findItem(R.id.edit_menu_id).setVisible(false);
@@ -46,7 +46,7 @@ Subject: Add new folder button to bookmark activity
      }
  
      @Override
-@@ -145,6 +149,7 @@ public class BookmarkActionBar extends S
+@@ -146,6 +150,7 @@ public class BookmarkActionBar extends S
          if (mDelegate == null) {
              getMenu().findItem(R.id.search_menu_id).setVisible(false);
              getMenu().findItem(R.id.edit_menu_id).setVisible(false);
@@ -54,7 +54,7 @@ Subject: Add new folder button to bookmark activity
          }
      }
  
-@@ -174,6 +179,7 @@ public class BookmarkActionBar extends S
+@@ -175,6 +180,7 @@ public class BookmarkActionBar extends S
          mCurrentFolder = mDelegate.getModel().getBookmarkById(folder);
  
          getMenu().findItem(R.id.search_menu_id).setVisible(true);
@@ -178,7 +178,7 @@ Subject: Add new folder button to bookmark activity
          if (!mIsCreatingFolder) {
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -3250,6 +3250,9 @@ To change this setting, <ph name="BEGIN_
+@@ -3299,6 +3299,9 @@ To change this setting, <ph name="BEGIN_
        <message name="IDS_BOOKMARK_ACTION_BAR_EDIT_FOLDER" desc="Button text for editing current folder action on the bookmark action bar [CHAR_LIMIT=32]">
          Edit folder
        </message>

@@ -1,0 +1,19 @@
+description: Mappings is moved to collections.abc in python 3.10. Only needed on Fedora 35.
+author: Wengling Chen <feiyu2817@gmail.com>
+
+---
+---
+ third_party/jinja2/tests.py |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/third_party/jinja2/tests.py
++++ b/third_party/jinja2/tests.py
+@@ -10,7 +10,7 @@
+ """
+ import operator
+ import re
+-from collections import Mapping
++from collections.abc import Mapping
+ from jinja2.runtime import Undefined
+ from jinja2._compat import text_type, string_types, integer_types
+ import decimal
