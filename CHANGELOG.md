@@ -1,3 +1,6 @@
+# 95.0.4638.74-1
+* Upstream update
+
 # 95.0.4638.54-1
 * Remove FloC setting
 
