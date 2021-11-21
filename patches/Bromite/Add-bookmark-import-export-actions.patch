@@ -14,17 +14,17 @@ Completely remove contacts picker permission from the file dialog
  chrome/android/java/src/org/chromium/chrome/browser/TabbedModeTabDelegateFactory.java                                        |    5 
  chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkActionBar.java                                         |   12 
  chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkActivity.java                                          |   30 +
- chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkBridge.java                                            |  277 +++++++++
+ chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkBridge.java                                            |  279 +++++++++
  chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkDelegate.java                                          |   10 
  chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkManager.java                                           |   22 
  chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkPage.java                                              |    8 
  chrome/android/java/src/org/chromium/chrome/browser/native_page/NativePageFactory.java                                       |   11 
- chrome/browser/BUILD.gn                                                                                                      |   11 
+ chrome/browser/BUILD.gn                                                                                                      |    9 
  chrome/browser/about_flags.cc                                                                                                |    6 
  chrome/browser/android/bookmarks/bookmark_bridge.cc                                                                          |  284 ++++++++++
- chrome/browser/android/bookmarks/bookmark_bridge.h                                                                           |   28 
+ chrome/browser/android/bookmarks/bookmark_bridge.h                                                                           |   29 -
  chrome/browser/bookmarks/bookmark_html_writer.cc                                                                             |    8 
- chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/dialogs/DownloadLocationCustomView.java        |    8 
+ chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/dialogs/DownloadLocationCustomView.java        |   12 
  chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/dialogs/DownloadLocationDialogCoordinator.java |    8 
  chrome/browser/flag_descriptions.cc                                                                                          |    5 
  chrome/browser/flag_descriptions.h                                                                                           |    3 
@@ -44,7 +44,7 @@ Completely remove contacts picker permission from the file dialog
  ui/shell_dialogs/select_file_dialog.h                                                                                        |    2 
  ui/shell_dialogs/select_file_dialog_android.cc                                                                               |    6 
  ui/shell_dialogs/select_file_dialog_android.h                                                                                |    2 
- 38 files changed, 890 insertions(+), 29 deletions(-)
+ 38 files changed, 895 insertions(+), 29 deletions(-)
 
 --- a/base/android/content_uri_utils.cc
 +++ b/base/android/content_uri_utils.cc
@@ -67,7 +67,7 @@ Completely remove contacts picker permission from the file dialog
    ScopedJavaLocalRef<jstring> j_uri =
 --- a/base/android/content_uri_utils.h
 +++ b/base/android/content_uri_utils.h
-@@ -17,6 +17,10 @@ namespace base {
+@@ -18,6 +18,10 @@ namespace base {
  // Returns -1 if the URI is invalid.
  BASE_EXPORT File OpenContentUriForRead(const FilePath& content_uri);
  
@@ -140,7 +140,7 @@ Completely remove contacts picker permission from the file dialog
 +++ b/chrome/android/java/res/menu/bookmark_action_bar_menu.xml
 @@ -29,6 +29,20 @@
              app:showAsAction="ifRoom"
-             app:iconTint="@color/default_icon_color_tint_list" />
+             app:iconTint="@color/default_icon_color_secondary_tint_list" />
          <item
 +            android:id="@+id/import_menu_id"
 +            android:icon="@drawable/ic_folder_blue_24dp"
@@ -189,7 +189,7 @@ Completely remove contacts picker permission from the file dialog
              Supplier<EphemeralTabCoordinator> ephemeralTabCoordinatorSupplier,
 --- a/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkActionBar.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkActionBar.java
-@@ -86,6 +86,12 @@ public class BookmarkActionBar extends S
+@@ -88,6 +88,12 @@ public class BookmarkActionBar extends S
          } else if (menuItem.getItemId() == R.id.search_menu_id) {
              mDelegate.openSearchUI();
              return true;
@@ -202,7 +202,7 @@ Completely remove contacts picker permission from the file dialog
          }
  
          SelectionDelegate<BookmarkId> selectionDelegate = mDelegate.getSelectionDelegate();
-@@ -137,6 +143,8 @@ public class BookmarkActionBar extends S
+@@ -139,6 +145,8 @@ public class BookmarkActionBar extends S
      void showLoadingUi() {
          setTitle(null);
          setNavigationButton(NAVIGATION_BUTTON_NONE);
@@ -211,7 +211,7 @@ Completely remove contacts picker permission from the file dialog
          getMenu().findItem(R.id.search_menu_id).setVisible(false);
          getMenu().findItem(R.id.edit_menu_id).setVisible(false);
          getMenu().findItem(R.id.add_folder_menu_id).setVisible(false);
-@@ -147,6 +155,8 @@ public class BookmarkActionBar extends S
+@@ -149,6 +157,8 @@ public class BookmarkActionBar extends S
          super.showNormalView();
  
          if (mDelegate == null) {
@@ -220,7 +220,7 @@ Completely remove contacts picker permission from the file dialog
              getMenu().findItem(R.id.search_menu_id).setVisible(false);
              getMenu().findItem(R.id.edit_menu_id).setVisible(false);
              getMenu().findItem(R.id.add_folder_menu_id).setVisible(false);
-@@ -178,6 +188,8 @@ public class BookmarkActionBar extends S
+@@ -180,6 +190,8 @@ public class BookmarkActionBar extends S
      public void onFolderStateSet(BookmarkId folder) {
          mCurrentFolder = mDelegate.getModel().getBookmarkById(folder);
  
@@ -280,7 +280,7 @@ Completely remove contacts picker permission from the file dialog
      @Override
      protected void onActivityResult(int requestCode, int resultCode, Intent data) {
          super.onActivityResult(requestCode, resultCode, data);
-+        mWindowAndroid.getIntentRequestTracker().onActivityResult(requestCode, resultCode, data, mWindowAndroid);
++        mWindowAndroid.getIntentRequestTracker().onActivityResult(requestCode, resultCode, data);
          if (requestCode == EDIT_BOOKMARK_REQUEST_CODE && resultCode == RESULT_OK) {
              BookmarkId bookmarkId = BookmarkId.getBookmarkIdFromString(data.getStringExtra(
                      INTENT_VISIT_BOOKMARK_ID));
@@ -301,10 +301,11 @@ Completely remove contacts picker permission from the file dialog
       */
 --- a/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkBridge.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkBridge.java
-@@ -4,7 +4,19 @@
+@@ -4,7 +4,20 @@
  
  package org.chromium.chrome.browser.bookmarks;
  
++import android.app.Activity;
 +import android.content.Intent;
 +import android.content.Context;
 +import android.content.pm.PackageManager;
@@ -321,7 +322,7 @@ Completely remove contacts picker permission from the file dialog
  import android.text.TextUtils;
  import android.util.Pair;
  
-@@ -27,8 +39,33 @@ import org.chromium.components.url_forma
+@@ -30,8 +43,33 @@ import org.chromium.components.url_forma
  import org.chromium.content_public.browser.WebContents;
  import org.chromium.url.GURL;
  
@@ -355,7 +356,7 @@ Completely remove contacts picker permission from the file dialog
  
  /**
   * Provides the communication channel for Android to fetch and manipulate the
-@@ -587,6 +624,210 @@ public class BookmarkBridge {
+@@ -590,6 +628,211 @@ public class BookmarkBridge {
      }
  
      /**
@@ -408,7 +409,7 @@ Completely remove contacts picker permission from the file dialog
 +                    window.showIntent(fileSelector,
 +                        new WindowAndroid.IntentCallback() {
 +                            @Override
-+                            public void onIntentCompleted(WindowAndroid window, int resultCode, Intent data) {
++                            public void onIntentCompleted(int resultCode, Intent data) {
 +                                if (data == null) return;
 +                                Uri filePath = data.getData();
 +                                doExportBookmarksImpl(window, filePath);
@@ -506,22 +507,23 @@ Completely remove contacts picker permission from the file dialog
 +                if (mDialogModel != null) return;
 +
 +                // Actually show the dialog.
-+                mCustomView = (DownloadLocationCustomView) LayoutInflater.from(mContext).inflate(
++                mCustomView = (DownloadLocationCustomView) LayoutInflater.from(context).inflate(
 +                        R.layout.download_location_dialog, null);
-+                mCustomView.initialize(
-+                        DownloadLocationDialogType.DEFAULT, new File(standardBoorkmarkName),
-+                        /*totalBytes*/ 0, context.getString(R.string.export_bookmarks_alert_title));
++                mCustomView.initialize(DownloadLocationDialogType.DEFAULT, /*totalBytes*/ 0);
++                mCustomView.setTitle(context.getString(R.string.export_bookmarks_alert_title));
++                mCustomView.setFileName(standardBoorkmarkName);
 +                mCustomView.mDontShowAgain.setVisibility(View.GONE);
 +
-+                Resources resources = mContext.getResources();
++                Resources resources = context.getResources();
 +                mDialogModel = new PropertyModel.Builder(ModalDialogProperties.ALL_KEYS)
 +                                    .with(ModalDialogProperties.CONTROLLER, this)
 +                                    .with(ModalDialogProperties.CUSTOM_VIEW, mCustomView)
 +                                    .with(ModalDialogProperties.POSITIVE_BUTTON_TEXT, resources,
 +                                            R.string.export_bookmarks)
-+                                    .with(ModalDialogProperties.PRIMARY_BUTTON_FILLED, true)
++                                    .with(ModalDialogProperties.POSITIVE_BUTTON_DISABLED, false)
 +                                    .with(ModalDialogProperties.NEGATIVE_BUTTON_TEXT, resources,
 +                                            R.string.cancel)
++                                    .with(ModalDialogProperties.NEGATIVE_BUTTON_DISABLED, false)
 +                                    .build();
 +
 +                mModalDialogManager.showDialog(mDialogModel, ModalDialogManager.ModalDialogType.APP);
@@ -558,15 +560,15 @@ Completely remove contacts picker permission from the file dialog
 +            }
 +        };
 +        dialog.initialize(controller);
-+        dialog.showDialog(context, modalDialogManager, /*totalBytes*/ 0,
-+            DownloadLocationDialogType.DEFAULT, /*suggestedPath*/ "");
++        dialog.showDialog(context, modalDialogManager, /*totalBytes*/ 0l,
++            DownloadLocationDialogType.DEFAULT, /*suggestedPath*/ "", true);
 +    }
 +
 +    /**
       * Synchronously gets a list of bookmarks that match the specified search query.
       * @param query Keyword used for searching bookmarks.
       * @param maxNumberOfResult Maximum number of result to fetch.
-@@ -1022,6 +1263,39 @@ public class BookmarkBridge {
+@@ -1101,6 +1344,39 @@ public class BookmarkBridge {
          depthList.add(depth);
      }
  
@@ -606,7 +608,7 @@ Completely remove contacts picker permission from the file dialog
      private static List<Pair<Integer, Integer>> createPairsList(int[] left, int[] right) {
          List<Pair<Integer, Integer>> pairList = new ArrayList<Pair<Integer, Integer>>();
          for (int i = 0; i < left.length; i++) {
-@@ -1089,6 +1363,9 @@ public class BookmarkBridge {
+@@ -1168,6 +1444,9 @@ public class BookmarkBridge {
          int getChildCount(long nativeBookmarkBridge, BookmarkBridge caller, long id, int type);
          void getChildIDs(long nativeBookmarkBridge, BookmarkBridge caller, long id, int type,
                  List<BookmarkId> bookmarksList);
@@ -655,7 +657,7 @@ Completely remove contacts picker permission from the file dialog
      private BookmarkUndoController mUndoController;
      private final ObserverList<BookmarkUIObserver> mUIObservers = new ObserverList<>();
      private BasicNativePage mNativePage;
-@@ -332,6 +336,14 @@ public class BookmarkManager
+@@ -342,6 +346,14 @@ public class BookmarkManager
      }
  
      /**
@@ -670,7 +672,7 @@ Completely remove contacts picker permission from the file dialog
       * @return Current URL representing the UI state of bookmark manager. If no state has been shown
       *         yet in this session, on phone return last used state stored in preference; on tablet
       *         return the url previously set by {@link #updateForUrl(String)}.
-@@ -510,6 +522,16 @@ public class BookmarkManager
+@@ -522,6 +534,16 @@ public class BookmarkManager
      }
  
      @Override
@@ -735,7 +737,7 @@ Completely remove contacts picker permission from the file dialog
      private final BottomSheetController mBottomSheetController;
      private final BrowserControlsManager mBrowserControlsManager;
      private final Supplier<Tab> mCurrentTabSupplier;
-@@ -72,7 +73,7 @@ public class NativePageFactory {
+@@ -71,7 +72,7 @@ public class NativePageFactory {
  
      private NativePageBuilder mNativePageBuilder;
  
@@ -744,7 +746,7 @@ Completely remove contacts picker permission from the file dialog
              @NonNull BottomSheetController sheetController,
              @NonNull BrowserControlsManager browserControlsManager,
              @NonNull Supplier<Tab> currentTabSupplier,
-@@ -123,7 +124,7 @@ public class NativePageFactory {
+@@ -119,7 +120,7 @@ public class NativePageFactory {
  
      @VisibleForTesting
      static class NativePageBuilder {
@@ -753,7 +755,7 @@ Completely remove contacts picker permission from the file dialog
          private final BottomSheetController mBottomSheetController;
          private final Supplier<NewTabPageUma> mUma;
          private final BrowserControlsManager mBrowserControlsManager;
-@@ -137,7 +138,7 @@ public class NativePageFactory {
+@@ -132,7 +133,7 @@ public class NativePageFactory {
          private final JankTracker mJankTracker;
          private final Supplier<Toolbar> mToolbarSupplier;
  
@@ -762,7 +764,7 @@ Completely remove contacts picker permission from the file dialog
                  BottomSheetController sheetController,
                  BrowserControlsManager browserControlsManager, Supplier<Tab> currentTabSupplier,
                  Supplier<SnackbarManager> snackbarManagerSupplier,
-@@ -176,7 +177,7 @@ public class NativePageFactory {
+@@ -169,7 +170,7 @@ public class NativePageFactory {
          protected NativePage buildBookmarksPage(Tab tab) {
              return new BookmarkPage(mActivity.getComponentName(), mSnackbarManagerSupplier.get(),
                      mTabModelSelector.isIncognitoSelected(),
@@ -773,7 +775,7 @@ Completely remove contacts picker permission from the file dialog
          protected NativePage buildDownloadsPage(Tab tab) {
 --- a/chrome/browser/BUILD.gn
 +++ b/chrome/browser/BUILD.gn
-@@ -1834,6 +1834,13 @@ static_library("browser") {
+@@ -1860,6 +1860,13 @@ static_library("browser") {
      "window_placement/window_placement_permission_context.h",
    ]
  
@@ -787,7 +789,7 @@ Completely remove contacts picker permission from the file dialog
    configs += [
      "//build/config/compiler:wexit_time_destructors",
      "//build/config:precompiled_headers",
-@@ -2960,6 +2967,8 @@ static_library("browser") {
+@@ -2995,6 +3002,8 @@ static_library("browser") {
        "autofill/manual_filling_view_interface.h",
        "banners/android/chrome_app_banner_manager_android.cc",
        "banners/android/chrome_app_banner_manager_android.h",
@@ -796,20 +798,11 @@ Completely remove contacts picker permission from the file dialog
        "browser_process_platform_part_android.cc",
        "browser_process_platform_part_android.h",
        "chrome_browser_field_trials_mobile.cc",
-@@ -3515,8 +3524,6 @@ static_library("browser") {
-       "badging/badge_manager_factory.h",
-       "banners/app_banner_manager_desktop.cc",
-       "banners/app_banner_manager_desktop.h",
--      "bookmarks/bookmark_html_writer.cc",
--      "bookmarks/bookmark_html_writer.h",
-       "browsing_data/chrome_browsing_data_lifetime_manager.cc",
-       "browsing_data/chrome_browsing_data_lifetime_manager.h",
-       "browsing_data/chrome_browsing_data_lifetime_manager_factory.cc",
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -7545,6 +7545,12 @@ const FeatureEntry kFeatureEntries[] = {
-      FEATURE_VALUE_TYPE(
-          password_manager::features::kPasswordsAccountStorageRevisedOptInFlow)},
+@@ -7706,6 +7706,12 @@ const FeatureEntry kFeatureEntries[] = {
+      FEATURE_VALUE_TYPE(ui::kLibinputHandleTouchpad)},
+ #endif  // BUILDFLAG(IS_CHROMEOS_ASH)
  
 +    {"export-bookmarks-use-saf",
 +     flag_descriptions::kBookmarksExportUseSafName,
@@ -822,7 +815,7 @@ Completely remove contacts picker permission from the file dialog
      // Histograms" in tools/metrics/histograms/README.md (run the
 --- a/chrome/browser/android/bookmarks/bookmark_bridge.cc
 +++ b/chrome/browser/android/bookmarks/bookmark_bridge.cc
-@@ -39,6 +39,7 @@
+@@ -43,6 +43,7 @@
  #include "components/bookmarks/common/android/bookmark_type.h"
  #include "components/bookmarks/common/bookmark_pref_names.h"
  #include "components/bookmarks/managed/managed_bookmark_service.h"
@@ -830,7 +823,7 @@ Completely remove contacts picker permission from the file dialog
  #include "components/dom_distiller/core/url_utils.h"
  #include "components/prefs/pref_service.h"
  #include "components/query_parser/query_parser.h"
-@@ -48,6 +49,24 @@
+@@ -52,6 +53,24 @@
  #include "content/public/browser/browser_thread.h"
  #include "content/public/browser/web_contents.h"
  
@@ -855,7 +848,7 @@ Completely remove contacts picker permission from the file dialog
  using base::android::AttachCurrentThread;
  using base::android::ConvertUTF8ToJavaString;
  using base::android::ConvertUTF16ToJavaString;
-@@ -64,8 +83,93 @@ using bookmarks::BookmarkNode;
+@@ -68,8 +87,93 @@ using bookmarks::BookmarkNode;
  using bookmarks::BookmarkType;
  using content::BrowserThread;
  
@@ -949,7 +942,7 @@ Completely remove contacts picker permission from the file dialog
  const int kInvalidId = -1;
  
  class BookmarkTitleComparer {
-@@ -152,6 +256,10 @@ BookmarkBridge::~BookmarkBridge() {
+@@ -156,6 +260,10 @@ BookmarkBridge::~BookmarkBridge() {
    if (partner_bookmarks_shim_)
      partner_bookmarks_shim_->RemoveObserver(this);
    reading_list_manager_->RemoveObserver(this);
@@ -960,7 +953,7 @@ Completely remove contacts picker permission from the file dialog
  }
  
  void BookmarkBridge::Destroy(JNIEnv*, const JavaParamRef<jobject>&) {
-@@ -543,6 +651,182 @@ jint BookmarkBridge::GetTotalBookmarkCou
+@@ -547,6 +655,182 @@ jint BookmarkBridge::GetTotalBookmarkCou
    return count;
  }
  
@@ -1173,7 +1166,7 @@ Completely remove contacts picker permission from the file dialog
   public:
    BookmarkBridge(JNIEnv* env,
                   const base::android::JavaRef<jobject>& obj,
-@@ -55,6 +60,12 @@ class BookmarkBridge : public bookmarks:
+@@ -59,6 +64,12 @@ class BookmarkBridge : public bookmarks:
    bool IsDoingExtensiveChanges(JNIEnv* env,
                                 const base::android::JavaParamRef<jobject>& obj);
  
@@ -1186,7 +1179,7 @@ Completely remove contacts picker permission from the file dialog
    jboolean IsEditBookmarksEnabled(JNIEnv* env);
  
    void LoadEmptyPartnerBookmarkShimForTesting(
-@@ -142,6 +153,15 @@ class BookmarkBridge : public bookmarks:
+@@ -146,6 +157,15 @@ class BookmarkBridge : public bookmarks:
                               jlong id,
                               jint type);
  
@@ -1202,7 +1195,7 @@ Completely remove contacts picker permission from the file dialog
    void SetBookmarkTitle(JNIEnv* env,
                          const base::android::JavaParamRef<jobject>& obj,
                          jlong id,
-@@ -315,12 +335,15 @@ class BookmarkBridge : public bookmarks:
+@@ -347,12 +367,15 @@ class BookmarkBridge : public bookmarks:
    void DestroyJavaObject();
  
    Profile* profile_;
@@ -1218,16 +1211,17 @@ Completely remove contacts picker permission from the file dialog
  
    // Information about the Partner bookmarks (must check for IsLoaded()).
    // This is owned by profile.
-@@ -332,6 +355,9 @@ class BookmarkBridge : public bookmarks:
+@@ -363,6 +386,10 @@ class BookmarkBridge : public bookmarks:
+ 
    // Observes the profile destruction and creation.
    base::ScopedObservation<Profile, ProfileObserver> profile_observation_{this};
- 
++
 +  const std::string FileSelectedImpl(const base::FilePath& path);
 +  void FileSelectedImplOnUIThread(const base::FilePath& path,
 +                                  const std::string& contents);
-   DISALLOW_COPY_AND_ASSIGN(BookmarkBridge);
  };
  
+ #endif  // CHROME_BROWSER_ANDROID_BOOKMARKS_BOOKMARK_BRIDGE_H_
 --- a/chrome/browser/bookmarks/bookmark_html_writer.cc
 +++ b/chrome/browser/bookmarks/bookmark_html_writer.cc
 @@ -27,6 +27,7 @@
@@ -1238,7 +1232,7 @@ Completely remove contacts picker permission from the file dialog
  #include "chrome/browser/bookmarks/bookmark_model_factory.h"
  #include "chrome/browser/favicon/favicon_service_factory.h"
  #include "chrome/browser/profiles/profile.h"
-@@ -230,7 +231,12 @@ class Writer : public base::RefCountedTh
+@@ -235,7 +236,12 @@ class Writer : public base::RefCountedTh
    // Opens the file, returning true on success.
    bool OpenFile() {
      int flags = base::File::FLAG_CREATE_ALWAYS | base::File::FLAG_WRITE;
@@ -1254,7 +1248,7 @@ Completely remove contacts picker permission from the file dialog
        return false;
 --- a/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/dialogs/DownloadLocationCustomView.java
 +++ b/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/dialogs/DownloadLocationCustomView.java
-@@ -46,7 +46,7 @@ public class DownloadLocationCustomView
+@@ -49,7 +49,7 @@ public class DownloadLocationCustomView
      private TextView mFileSize;
      private Spinner mFileLocation;
      private TextView mLocationAvailableSpace;
@@ -1263,7 +1257,7 @@ Completely remove contacts picker permission from the file dialog
      private @DownloadLocationDialogType int mDialogType;
      private long mTotalBytes;
  
-@@ -68,7 +68,7 @@ public class DownloadLocationCustomView
+@@ -72,14 +72,14 @@ public class DownloadLocationCustomView
          mDontShowAgain = findViewById(R.id.show_again_checkbox);
      }
  
@@ -1272,7 +1266,24 @@ Completely remove contacts picker permission from the file dialog
          // TODO(xingliu): Remove this function, currently used by smart suggestion.
          mDialogType = dialogType;
          mTotalBytes = totalBytes;
-@@ -117,7 +117,7 @@ public class DownloadLocationCustomView
+         mDirectoryAdapter.update();
+     }
+ 
+-    void setTitle(CharSequence title) {
++    public void setTitle(CharSequence title) {
+         mTitle.setText(title);
+     }
+ 
+@@ -87,7 +87,7 @@ public class DownloadLocationCustomView
+         mSubtitleView.setText(subtitle);
+     }
+ 
+-    void setFileName(CharSequence fileName) {
++    public void setFileName(CharSequence fileName) {
+         mFileName.setText(fileName);
+     }
+ 
+@@ -125,7 +125,7 @@ public class DownloadLocationCustomView
       * @return  The text that the user inputted as the name of the file.
       */
      @Nullable
@@ -1281,7 +1292,7 @@ Completely remove contacts picker permission from the file dialog
          if (mFileName == null || mFileName.getText() == null) return null;
          return mFileName.getText().toString();
      }
-@@ -126,7 +126,7 @@ public class DownloadLocationCustomView
+@@ -134,7 +134,7 @@ public class DownloadLocationCustomView
       * @return  The file path based on what the user selected as the location of the file.
       */
      @Nullable
@@ -1292,7 +1303,7 @@ Completely remove contacts picker permission from the file dialog
          return selected;
 --- a/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/dialogs/DownloadLocationDialogCoordinator.java
 +++ b/chrome/browser/download/android/java/src/org/chromium/chrome/browser/download/dialogs/DownloadLocationDialogCoordinator.java
-@@ -36,12 +36,12 @@ import java.util.ArrayList;
+@@ -37,12 +37,12 @@ import java.util.ArrayList;
  public class DownloadLocationDialogCoordinator implements ModalDialogProperties.Controller {
      @NonNull
      private DownloadLocationDialogController mController;
@@ -1308,7 +1319,7 @@ Completely remove contacts picker permission from the file dialog
      private long mTotalBytes;
      private @DownloadLocationDialogType int mDialogType;
      private String mSuggestedPath;
-@@ -127,7 +127,7 @@ public class DownloadLocationDialogCoord
+@@ -131,7 +131,7 @@ public class DownloadLocationDialogCoord
       * Called after retrieved the download directory options.
       * @param dirs An list of available download directories.
       */
@@ -1316,10 +1327,10 @@ Completely remove contacts picker permission from the file dialog
 +    protected void onDirectoryOptionsRetrieved(ArrayList<DirectoryOption> dirs) {
          // If there is only one directory available, don't show the default dialog, and set the
          // download directory to default. Dialog will still show for other types of dialogs, like
-         // name conflict or disk error.
+         // name conflict or disk error or if Incognito download warning is needed.
 --- a/chrome/browser/flag_descriptions.cc
 +++ b/chrome/browser/flag_descriptions.cc
-@@ -5300,6 +5300,11 @@ const char kWebKioskEnableLacrosDescript
+@@ -5472,6 +5472,11 @@ const char kWebKioskEnableLacrosDescript
      "Chrome OS. When disabled, the Ash-chrome will be used";
  #endif  // BUILDFLAG(IS_CHROMEOS_ASH)
  
@@ -1333,7 +1344,7 @@ Completely remove contacts picker permission from the file dialog
  // alphabetical order just like the header file.
 --- a/chrome/browser/flag_descriptions.h
 +++ b/chrome/browser/flag_descriptions.h
-@@ -3088,6 +3088,9 @@ extern const char kWebKioskEnableLacrosN
+@@ -3185,6 +3185,9 @@ extern const char kWebKioskEnableLacrosN
  extern const char kWebKioskEnableLacrosDescription[];
  #endif  // BUILDFLAG(IS_CHROMEOS_ASH)
  
@@ -1345,7 +1356,7 @@ Completely remove contacts picker permission from the file dialog
  // alphabetical order. See top instructions for more.
 --- a/chrome/browser/flags/android/chrome_feature_list.cc
 +++ b/chrome/browser/flags/android/chrome_feature_list.cc
-@@ -164,6 +164,7 @@ const base::Feature* const kFeaturesExpo
+@@ -174,6 +174,7 @@ const base::Feature* const kFeaturesExpo
      &kBackgroundThreadPool,
      &kBentoOffline,
      &kBookmarkBottomSheet,
@@ -1353,7 +1364,7 @@ Completely remove contacts picker permission from the file dialog
      &kCastDeviceFilter,
      &kCloseTabSuggestions,
      &kCriticalPersistedTabData,
-@@ -810,6 +811,10 @@ const base::Feature kWebApkInstallComple
+@@ -824,6 +825,10 @@ const base::Feature kWebApkInstallComple
  const base::Feature kWebApkTrampolineOnInitialIntent{
      "WebApkTrampolineOnInitialIntent", base::FEATURE_ENABLED_BY_DEFAULT};
  
@@ -1366,7 +1377,7 @@ Completely remove contacts picker permission from the file dialog
      const JavaParamRef<jstring>& jfeature_name) {
 --- a/chrome/browser/flags/android/chrome_feature_list.h
 +++ b/chrome/browser/flags/android/chrome_feature_list.h
-@@ -146,6 +146,7 @@ extern const base::Feature kToolbarMicIp
+@@ -149,6 +149,7 @@ extern const base::Feature kToolbarMicIp
  extern const base::Feature kToolbarUseHardwareBitmapDraw;
  extern const base::Feature kTrustedWebActivityLocationDelegation;
  extern const base::Feature kTrustedWebActivityNewDisclosure;
@@ -1376,7 +1387,7 @@ Completely remove contacts picker permission from the file dialog
  extern const base::Feature kTrustedWebActivityQualityEnforcementForced;
 --- a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
 +++ b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
-@@ -541,6 +541,7 @@ public abstract class ChromeFeatureList
+@@ -533,6 +533,7 @@ public abstract class ChromeFeatureList
              "WebApkTrampolineOnInitialIntent";
      public static final String XSURFACE_METRICS_REPORTING = "XsurfaceMetricsReporting";
      public static final String WEB_OTP_CROSS_DEVICE_SIMPLE_STRING = "WebOtpCrossDeviceSimpleString";
@@ -1428,7 +1439,7 @@ Completely remove contacts picker permission from the file dialog
  #include "components/favicon_base/favicon_usage_data.h"
  #include "components/history/core/browser/history_types.h"
  #include "components/search_engines/template_url_service.h"
-@@ -68,6 +69,11 @@ class ProfileWriter : public base::RefCo
+@@ -71,6 +72,11 @@ class ProfileWriter : public base::RefCo
    virtual void AddBookmarks(const std::vector<ImportedBookmarkEntry>& bookmarks,
                              const std::u16string& top_level_folder_name);
  
@@ -1442,7 +1453,7 @@ Completely remove contacts picker permission from the file dialog
    // Adds the TemplateURLs in |template_urls| to the local store.
 --- a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
 +++ b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
-@@ -124,6 +124,8 @@ public final class ChromePreferenceKeys
+@@ -121,6 +121,8 @@ public final class ChromePreferenceKeys
      public static final String BOOKMARKS_LAST_USED_URL = "enhanced_bookmark_last_used_url";
      public static final String BOOKMARKS_LAST_USED_PARENT =
              "enhanced_bookmark_last_used_parent_folder";
@@ -1488,7 +1499,7 @@ Completely remove contacts picker permission from the file dialog
        </message>
 --- a/chrome/common/BUILD.gn
 +++ b/chrome/common/BUILD.gn
-@@ -417,6 +417,9 @@ static_library("common") {
+@@ -415,6 +415,9 @@ static_library("common") {
      sources += [
        "media/chrome_media_drm_bridge_client.cc",
        "media/chrome_media_drm_bridge_client.h",
@@ -1509,7 +1520,7 @@ Completely remove contacts picker permission from the file dialog
        "importer/bookmarks_file_importer.cc",
        "importer/bookmarks_file_importer.h",
        "importer/external_process_importer_bridge.cc",
-@@ -184,6 +182,11 @@ static_library("utility") {
+@@ -185,6 +183,11 @@ static_library("utility") {
      }
    }
  
@@ -1684,7 +1695,7 @@ Completely remove contacts picker permission from the file dialog
          return mimeTypes;
      }
  
-@@ -812,6 +820,10 @@ public class SelectFileDialog implements
+@@ -811,6 +819,10 @@ public class SelectFileDialog implements
          return countAcceptTypesFor(superType) == mFileTypes.size();
      }
  
@@ -1709,7 +1720,7 @@ Completely remove contacts picker permission from the file dialog
        <message name="IDS_COPY_TO_CLIPBOARD_FAILURE_MESSAGE" desc="Notification for when copying to the clipboard fails. [CHAR_LIMIT=64]">
 --- a/ui/shell_dialogs/select_file_dialog.h
 +++ b/ui/shell_dialogs/select_file_dialog.h
-@@ -202,6 +202,8 @@ class SHELL_DIALOGS_EXPORT SelectFileDia
+@@ -205,6 +205,8 @@ class SHELL_DIALOGS_EXPORT SelectFileDia
                    void* params);
    bool HasMultipleFileTypeChoices();
  
@@ -1735,7 +1746,7 @@ Completely remove contacts picker permission from the file dialog
  
 --- a/ui/shell_dialogs/select_file_dialog_android.h
 +++ b/ui/shell_dialogs/select_file_dialog_android.h
-@@ -55,6 +55,8 @@ class SelectFileDialogImpl : public Sele
+@@ -58,6 +58,8 @@ class SelectFileDialogImpl : public Sele
                        gfx::NativeWindow owning_window,
                        void* params) override;
  

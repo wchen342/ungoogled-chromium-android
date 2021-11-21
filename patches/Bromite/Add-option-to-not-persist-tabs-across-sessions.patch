@@ -4,14 +4,14 @@ Subject: Add option to not persist tabs across sessions
 
 ---
  chrome/android/java/res/xml/privacy_preferences.xml                                       |    5 +++
- chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java             |    4 ++
- chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java |   15 +++++++++-
- chrome/browser/ui/android/strings/android_chrome_strings.grd                              |    6 ++++
- 4 files changed, 28 insertions(+), 2 deletions(-)
+ chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java             |    4 +-
+ chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java |   16 +++++++++-
+ chrome/browser/ui/android/strings/android_chrome_strings.grd                              |    6 +++
+ 4 files changed, 29 insertions(+), 2 deletions(-)
 
 --- a/chrome/android/java/res/xml/privacy_preferences.xml
 +++ b/chrome/android/java/res/xml/privacy_preferences.xml
-@@ -36,6 +36,11 @@
+@@ -41,6 +41,11 @@
          android:key="secure_dns"
          android:title="@string/settings_secure_dns_title"
          android:fragment="org.chromium.chrome.browser.privacy.secure_dns.SecureDnsSettings"/>
@@ -25,7 +25,7 @@ Subject: Add option to not persist tabs across sessions
          android:key="do_not_track"
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-@@ -1189,8 +1189,10 @@ public class ChromeTabbedActivity extend
+@@ -1191,8 +1191,10 @@ public class ChromeTabbedActivity extend
              boolean hadCipherData =
                      CipherFactory.getInstance().restoreFromBundle(getSavedInstanceState());
  
@@ -56,15 +56,16 @@ Subject: Add option to not persist tabs across sessions
  import org.chromium.chrome.R;
  import org.chromium.chrome.browser.feedback.HelpAndFeedbackLauncherImpl;
  import org.chromium.chrome.browser.flags.ChromeFeatureList;
-@@ -51,6 +54,7 @@ public class PrivacySettings
-     private static final String PREF_USAGE_STATS = "usage_stats_reporting";
-     private static final String PREF_DO_NOT_TRACK = "do_not_track";
-     private static final String PREF_CLEAR_BROWSING_DATA = "clear_browsing_data";
-+    private static final String PREF_CLOSE_TABS_ON_EXIT = "close_tabs_on_exit";
-     private static final String PREF_PRIVACY_SANDBOX = "privacy_sandbox";
+@@ -58,6 +61,8 @@ public class PrivacySettings
      private static final String PREF_PRIVACY_REVIEW = "privacy_review";
+     private static final String PREF_INCOGNITO_LOCK = "incognito_lock";
  
-@@ -124,7 +128,11 @@ public class PrivacySettings
++    private static final String PREF_CLOSE_TABS_ON_EXIT = "close_tabs_on_exit";
++
+     private ManagedPreferenceDelegate mManagedPreferenceDelegate;
+ 
+     @Override
+@@ -166,7 +171,11 @@ public class PrivacySettings
      @Override
      public boolean onPreferenceChange(Preference preference, Object newValue) {
          String key = preference.getKey();
@@ -77,21 +78,21 @@ Subject: Add option to not persist tabs across sessions
              UserPrefs.get(Profile.getLastUsedRegularProfile())
                      .setBoolean(Pref.CAN_MAKE_PAYMENT_ENABLED, (boolean) newValue);
          } else if (PREF_NETWORK_PREDICTIONS.equals(key)) {
-@@ -193,6 +201,11 @@ public class PrivacySettings
-             privacySandboxPreference.setSummary(
+@@ -239,6 +248,11 @@ public class PrivacySettings
                      PrivacySandboxSettingsFragment.getStatusString(getContext()));
          }
-+
+ 
 +        ChromeSwitchPreference closeTabsOnExitPref =
 +                (ChromeSwitchPreference) findPreference(PREF_CLOSE_TABS_ON_EXIT);
 +        closeTabsOnExitPref.setOnPreferenceChangeListener(this);
 +        closeTabsOnExitPref.setManagedPreferenceDelegate(mManagedPreferenceDelegate);
++
+         updateIncognitoReauthPreference();
      }
  
-     private ChromeManagedPreferenceDelegate createManagedPreferenceDelegate() {
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -4092,6 +4092,12 @@ To change this setting, <ph name="BEGIN_
+@@ -4155,6 +4155,12 @@ To change this setting, <ph name="BEGIN_
        <message name="IDS_CONTEXTMENU_IMAGE_TITLE" desc="The title of a context menu tab when the item pressed contains more than one type. This indicates that all the actions are related to the image.">
          IMAGE
        </message>

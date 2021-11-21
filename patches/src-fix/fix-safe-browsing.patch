@@ -32,31 +32,31 @@ Subject: Fix build error caused by the removal of safe_browsing
  weblayer/browser/browser_process.cc                                                                                                          |   11 
  weblayer/browser/browser_process.h                                                                                                           |    4 
  weblayer/browser/browsing_data_remover_delegate.cc                                                                                           |    2 
- weblayer/browser/content_browser_client_impl.cc                                                                                              |   39 -
+ weblayer/browser/content_browser_client_impl.cc                                                                                              |   41 -
  weblayer/browser/profile_impl.cc                                                                                                             |   11 
  weblayer/browser/safe_browsing/client_side_detection_service_factory.cc                                                                      |    4 
  weblayer/browser/safe_browsing/safe_browsing_navigation_observer_manager_factory.cc                                                          |    3 
- weblayer/browser/safe_browsing/safe_browsing_service.cc                                                                                      |  213 ----------
+ weblayer/browser/safe_browsing/safe_browsing_service.cc                                                                                      |  226 ----------
  weblayer/browser/safe_browsing/weblayer_client_side_detection_host_delegate.cc                                                               |    4 
  weblayer/browser/safe_browsing/weblayer_client_side_detection_service_delegate.cc                                                            |    4 
  weblayer/browser/safe_browsing/weblayer_safe_browsing_blocking_page_factory.cc                                                               |    6 
  weblayer/browser/safe_browsing/weblayer_safe_browsing_tab_observer_delegate.cc                                                               |   12 
  weblayer/browser/tab_impl.cc                                                                                                                 |   16 
- 39 files changed, 60 insertions(+), 643 deletions(-)
+ 39 files changed, 60 insertions(+), 658 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -381,7 +381,6 @@ android_library("chrome_java") {
-     "//chrome/browser/privacy:java",
+@@ -384,7 +384,6 @@ android_library("chrome_java") {
+     "//chrome/browser/privacy_review/android:java",
      "//chrome/browser/privacy_sandbox/android:java",
      "//chrome/browser/profiles/android:java",
 -    "//chrome/browser/safe_browsing/android:java",
      "//chrome/browser/safety_check/android:java",
      "//chrome/browser/search_engines/android:java",
-     "//chrome/browser/settings:java",
+     "//chrome/browser/segmentation_platform:factory_java",
 --- a/android_webview/browser/aw_browser_context.cc
 +++ b/android_webview/browser/aw_browser_context.cc
-@@ -241,7 +241,7 @@ base::FilePath AwBrowserContext::GetCont
+@@ -242,7 +242,7 @@ base::FilePath AwBrowserContext::GetCont
  
  // static
  void AwBrowserContext::RegisterPrefs(PrefRegistrySimple* registry) {
@@ -108,7 +108,7 @@ Subject: Fix build error caused by the removal of safe_browsing
  #include "components/security_interstitials/content/stateful_ssl_host_state_delegate.h"
  #include "components/site_isolation/pref_names.h"
  #include "components/site_isolation/site_isolation_policy.h"
-@@ -288,7 +287,6 @@ void BrowserContextImpl::RegisterPrefs(
+@@ -287,7 +286,6 @@ void BrowserContextImpl::RegisterPrefs(
  
    StatefulSSLHostStateDelegate::RegisterProfilePrefs(pref_registry);
    HostContentSettingsMap::RegisterProfilePrefs(pref_registry);
@@ -118,7 +118,7 @@ Subject: Fix build error caused by the removal of safe_browsing
    blocked_content::SafeBrowsingTriggeredPopupBlocker::RegisterProfilePrefs(
 --- a/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/GoogleServicesSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/settings/GoogleServicesSettings.java
-@@ -181,7 +181,6 @@ public class GoogleServicesSettings
+@@ -169,7 +169,6 @@ public class GoogleServicesSettings
              boolean shouldSignUserOut =
                      identityManager.hasPrimaryAccount(ConsentLevel.SIGNIN) && !((boolean) newValue);
              if (!shouldSignUserOut) {
@@ -126,7 +126,7 @@ Subject: Fix build error caused by the removal of safe_browsing
                  return true;
              }
  
-@@ -192,7 +191,6 @@ public class GoogleServicesSettings
+@@ -180,7 +179,6 @@ public class GoogleServicesSettings
                  IdentityServicesProvider.get()
                          .getSigninManager(Profile.getLastUsedRegularProfile())
                          .signOut(SignoutReason.USER_CLICKED_SIGNOUT_SETTINGS, null, false);
@@ -134,25 +134,25 @@ Subject: Fix build error caused by the removal of safe_browsing
                  return true;
              }
  
-@@ -224,7 +222,7 @@ public class GoogleServicesSettings
+@@ -210,7 +208,7 @@ public class GoogleServicesSettings
      }
  
      private void updatePreferences() {
 -        mAllowSignin.setChecked(mPrefService.getBoolean(Pref.SIGNIN_ALLOWED));
 +        mAllowSignin.setChecked(false);
          mSearchSuggestions.setChecked(mPrefService.getBoolean(Pref.SEARCH_SUGGEST_ENABLED));
-         if (mNavigationError != null) {
-             mNavigationError.setChecked(
-@@ -252,7 +250,7 @@ public class GoogleServicesSettings
+ 
+         mUsageAndCrashReporting.setChecked(
+@@ -234,7 +232,7 @@ public class GoogleServicesSettings
          return preference -> {
              String key = preference.getKey();
              if (PREF_ALLOW_SIGNIN.equals(key)) {
 -                return mPrefService.isManagedPreference(Pref.SIGNIN_ALLOWED);
 +                return false;
              }
-             if (PREF_NAVIGATION_ERROR.equals(key)) {
-                 return mPrefService.isManagedPreference(Pref.ALTERNATE_ERROR_PAGES_ENABLED);
-@@ -318,7 +316,6 @@ public class GoogleServicesSettings
+             if (PREF_SEARCH_SUGGESTIONS.equals(key)) {
+                 return mPrefService.isManagedPreference(Pref.SEARCH_SUGGEST_ENABLED);
+@@ -297,7 +295,6 @@ public class GoogleServicesSettings
                              }
                          },
                          forceWipeUserData);
@@ -162,7 +162,7 @@ Subject: Fix build error caused by the removal of safe_browsing
  }
 --- a/chrome/browser/safe_browsing/BUILD.gn
 +++ b/chrome/browser/safe_browsing/BUILD.gn
-@@ -363,7 +363,6 @@ static_library("safe_browsing") {
+@@ -364,7 +364,6 @@ static_library("safe_browsing") {
          ]
        }
        deps += [
@@ -196,7 +196,23 @@ Subject: Fix build error caused by the removal of safe_browsing
  void TabWebContentsDelegateAndroid::RunFileChooser(
 --- a/weblayer/browser/content_browser_client_impl.cc
 +++ b/weblayer/browser/content_browser_client_impl.cc
-@@ -518,33 +518,6 @@ ContentBrowserClientImpl::CreateURLLoade
+@@ -131,7 +131,6 @@
+ #include "components/permissions/bluetooth_delegate_impl.h"
+ #include "components/safe_browsing/core/browser/realtime/policy_engine.h"  // nogncheck
+ #include "components/safe_browsing/core/browser/realtime/url_lookup_service.h"  // nogncheck
+-#include "components/safe_browsing/core/common/safe_browsing_prefs.h"
+ #include "components/spellcheck/browser/spell_check_host_impl.h"  // nogncheck
+ #include "content/public/browser/browser_task_traits.h"
+ #include "content/public/browser/browser_thread.h"
+@@ -277,7 +276,6 @@ void RegisterPrefs(PrefRegistrySimple* p
+   pref_registry->RegisterIntegerPref(kDownloadNextIDPref, 0);
+ #if defined(OS_ANDROID)
+   metrics::AndroidMetricsServiceClient::RegisterPrefs(pref_registry);
+-  safe_browsing::RegisterLocalStatePrefs(pref_registry);
+ #else
+   // Call MetricsService::RegisterPrefs() as VariationsService::RegisterPrefs()
+   // CHECKs that kVariationsCrashStreak has already been registered.
+@@ -521,33 +519,6 @@ ContentBrowserClientImpl::CreateURLLoade
      int frame_tree_node_id) {
    std::vector<std::unique_ptr<blink::URLLoaderThrottle>> result;
  
@@ -230,7 +246,7 @@ Subject: Fix build error caused by the removal of safe_browsing
    auto signin_throttle =
        SigninURLLoaderThrottle::Create(browser_context, wc_getter);
    if (signin_throttle)
-@@ -849,13 +822,6 @@ ContentBrowserClientImpl::CreateThrottle
+@@ -853,13 +824,6 @@ ContentBrowserClientImpl::CreateThrottle
  
  #if defined(OS_ANDROID)
    if (handle->IsInMainFrame()) {
@@ -244,7 +260,7 @@ Subject: Fix build error caused by the removal of safe_browsing
      std::unique_ptr<content::NavigationThrottle> intercept_navigation_throttle =
          navigation_interception::InterceptNavigationDelegate::
              MaybeCreateThrottleFor(
-@@ -948,11 +914,6 @@ void ContentBrowserClientImpl::ExposeInt
+@@ -952,11 +916,6 @@ void ContentBrowserClientImpl::ExposeInt
        };
    registry->AddInterface(base::BindRepeating(create_spellcheck_host),
                           content::GetUIThreadTaskRunner({}));
@@ -258,7 +274,7 @@ Subject: Fix build error caused by the removal of safe_browsing
  
 --- a/weblayer/browser/safe_browsing/weblayer_safe_browsing_blocking_page_factory.cc
 +++ b/weblayer/browser/safe_browsing/weblayer_safe_browsing_blocking_page_factory.cc
-@@ -36,11 +36,9 @@ WebLayerSafeBrowsingBlockingPageFactory:
+@@ -31,11 +31,9 @@ WebLayerSafeBrowsingBlockingPageFactory:
            safe_browsing::BaseBlockingPage::CreateDefaultDisplayOptions(
                unsafe_resources);
    display_options.is_extended_reporting_opt_in_allowed =
@@ -283,15 +299,15 @@ Subject: Fix build error caused by the removal of safe_browsing
  #include <memory>
  
  #include "base/bind.h"
-@@ -17,7 +15,6 @@
- #include "components/safe_browsing/content/browser/safe_browsing_network_context.h"
+@@ -18,7 +16,6 @@
+ #include "components/safe_browsing/content/browser/triggers/trigger_manager.h"
  #include "components/safe_browsing/core/browser/ping_manager.h"
  #include "components/safe_browsing/core/browser/realtime/url_lookup_service.h"
 -#include "components/safe_browsing/core/common/safe_browsing_prefs.h"
  #include "content/public/browser/browser_context.h"
  #include "content/public/browser/browser_task_traits.h"
  #include "content/public/browser/browser_thread.h"
-@@ -68,10 +65,7 @@ void MaybeCreateSafeBrowsing(
+@@ -70,10 +67,7 @@ void MaybeCreateSafeBrowsing(
    if (!render_process_host)
      return;
  
@@ -303,7 +319,7 @@ Subject: Fix build error caused by the removal of safe_browsing
  
    if (!is_safe_browsing_enabled)
      return;
-@@ -85,209 +79,4 @@ void MaybeCreateSafeBrowsing(
+@@ -87,222 +81,4 @@ void MaybeCreateSafeBrowsing(
  
  }  // namespace
  
@@ -333,10 +349,13 @@ Subject: Fix build error caused by the removal of safe_browsing
 -  // safebrowsing network context needs to be created on the UI thread.
 -  network_context_ =
 -      std::make_unique<safe_browsing::SafeBrowsingNetworkContext>(
--          user_data_dir,
+-          user_data_dir, /*trigger_migration=*/false,
 -          base::BindRepeating(CreateDefaultNetworkContextParams, user_agent_));
 -
 -  CreateSafeBrowsingUIManager();
+-
+-  // Needs to happen after |ui_manager_| is created.
+-  CreateTriggerManager();
 -}
 -
 -std::unique_ptr<blink::URLLoaderThrottle>
@@ -398,12 +417,22 @@ Subject: Fix build error caused by the removal of safe_browsing
 -  return ui_manager_;
 -}
 -
+-safe_browsing::TriggerManager* SafeBrowsingService::GetTriggerManager() {
+-  return trigger_manager_.get();
+-}
+-
 -void SafeBrowsingService::CreateSafeBrowsingUIManager() {
 -  DCHECK(!ui_manager_);
 -  ui_manager_ = new safe_browsing::SafeBrowsingUIManager(
 -      std::make_unique<WebLayerSafeBrowsingUIManagerDelegate>(),
 -      std::make_unique<WebLayerSafeBrowsingBlockingPageFactory>(),
 -      GURL(url::kAboutBlankURL));
+-}
+-
+-void SafeBrowsingService::CreateTriggerManager() {
+-  DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
+-  trigger_manager_ = std::make_unique<safe_browsing::TriggerManager>(
+-      ui_manager_.get(), BrowserProcess::GetInstance()->GetLocalState());
 -}
 -
 -void SafeBrowsingService::CreateAndStartSafeBrowsingDBManager() {
@@ -586,7 +615,7 @@ Subject: Fix build error caused by the removal of safe_browsing
  
 --- a/weblayer/browser/browser_process.h
 +++ b/weblayer/browser/browser_process.h
-@@ -78,10 +78,6 @@ class BrowserProcess {
+@@ -82,10 +82,6 @@ class BrowserProcess {
    std::unique_ptr<subresource_filter::RulesetService>
        subresource_filter_ruleset_service_;
  
@@ -595,11 +624,11 @@ Subject: Fix build error caused by the removal of safe_browsing
 -#endif
 -
    SEQUENCE_CHECKER(sequence_checker_);
+ };
  
-   DISALLOW_COPY_AND_ASSIGN(BrowserProcess);
 --- a/chrome/browser/safe_browsing/android/BUILD.gn
 +++ b/chrome/browser/safe_browsing/android/BUILD.gn
-@@ -115,7 +115,6 @@ android_resources("java_resources") {
+@@ -116,7 +116,6 @@ android_resources("java_resources") {
  
  java_cpp_enum("safe_browsing_enums") {
    sources = [
@@ -849,7 +878,7 @@ Subject: Fix build error caused by the removal of safe_browsing
      private void onPromoSeen() {
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-@@ -23,8 +23,6 @@ import org.chromium.chrome.browser.priva
+@@ -26,8 +26,6 @@ import org.chromium.chrome.browser.priva
  import org.chromium.chrome.browser.privacy_sandbox.PrivacySandboxReferrer;
  import org.chromium.chrome.browser.privacy_sandbox.PrivacySandboxSettingsFragment;
  import org.chromium.chrome.browser.profiles.Profile;
@@ -858,8 +887,8 @@ Subject: Fix build error caused by the removal of safe_browsing
  import org.chromium.chrome.browser.settings.ChromeManagedPreferenceDelegate;
  import org.chromium.chrome.browser.settings.SettingsLauncherImpl;
  import org.chromium.chrome.browser.signin.services.IdentityServicesProvider;
-@@ -84,11 +82,7 @@ public class PrivacySettings
-         }
+@@ -97,11 +95,7 @@ public class PrivacySettings
+         setUpIncognitoReauthPreference();
  
          Preference safeBrowsingPreference = findPreference(PREF_SAFE_BROWSING);
 -        safeBrowsingPreference.setSummary(
@@ -870,7 +899,7 @@ Subject: Fix build error caused by the removal of safe_browsing
              return false;
          });
  
-@@ -198,8 +192,6 @@ public class PrivacySettings
+@@ -243,8 +237,6 @@ public class PrivacySettings
  
          Preference safeBrowsingPreference = findPreference(PREF_SAFE_BROWSING);
          if (safeBrowsingPreference != null && safeBrowsingPreference.isVisible()) {
@@ -1147,7 +1176,7 @@ Subject: Fix build error caused by the removal of safe_browsing
  }
 --- a/chrome/browser/password_manager/chrome_password_manager_client.cc
 +++ b/chrome/browser/password_manager/chrome_password_manager_client.cc
-@@ -463,7 +463,9 @@ void ChromePasswordManagerClient::ShowTo
+@@ -465,7 +465,9 @@ void ChromePasswordManagerClient::ShowTo
  #if defined(OS_ANDROID)
  void ChromePasswordManagerClient::OnPasswordSelected(
      const std::u16string& text) {
@@ -1203,7 +1232,7 @@ Subject: Fix build error caused by the removal of safe_browsing
    if (enabled == enabled_ && extended_reporting_ == extended_reporting)
      return;
  
-@@ -209,10 +197,7 @@ void ClientSideDetectionService::StartCl
+@@ -208,10 +196,7 @@ void ClientSideDetectionService::StartCl
      return;
    }
  
@@ -1215,7 +1244,7 @@ Subject: Fix build error caused by the removal of safe_browsing
    // Fill in metadata about which model we used.
    *request->mutable_population() = delegate_->GetUserPopulation();
  
-@@ -409,7 +394,6 @@ void ClientSideDetectionService::AddPhis
+@@ -403,7 +388,6 @@ void ClientSideDetectionService::AddPhis
    base::ListValue time_list;
    for (const base::Time& report_time : phishing_report_times_)
      time_list.Append(base::Value(report_time.ToDoubleT()));
@@ -1223,7 +1252,7 @@ Subject: Fix build error caused by the removal of safe_browsing
  }
  
  void ClientSideDetectionService::LoadPhishingReportTimesFromPrefs() {
-@@ -417,13 +401,6 @@ void ClientSideDetectionService::LoadPhi
+@@ -411,13 +395,6 @@ void ClientSideDetectionService::LoadPhi
      return;
  
    phishing_report_times_.clear();
@@ -1239,7 +1268,7 @@ Subject: Fix build error caused by the removal of safe_browsing
  // static
 --- a/components/safe_browsing/content/browser/client_side_detection_host.h
 +++ b/components/safe_browsing/content/browser/client_side_detection_host.h
-@@ -20,12 +20,13 @@
+@@ -19,12 +19,13 @@
  #include "components/safe_browsing/content/common/safe_browsing.mojom.h"
  #include "components/safe_browsing/core/browser/db/database_manager.h"
  #include "components/safe_browsing/core/browser/safe_browsing_token_fetcher.h"
@@ -1256,7 +1285,7 @@ Subject: Fix build error caused by the removal of safe_browsing
  }
 --- a/components/safe_browsing/content/browser/client_side_detection_host.cc
 +++ b/components/safe_browsing/content/browser/client_side_detection_host.cc
-@@ -142,7 +142,7 @@ class ClientSideDetectionHost::ShouldCla
+@@ -154,7 +154,7 @@ class ClientSideDetectionHost::ShouldCla
  
      // Don't start classification if |url_| is allowlisted by enterprise policy.
      if (host_->delegate_->GetPrefs() &&
@@ -1265,7 +1294,7 @@ Subject: Fix build error caused by the removal of safe_browsing
        DontClassifyForPhishing(NO_CLASSIFY_ALLOWLISTED_BY_POLICY);
      }
  
-@@ -532,19 +532,6 @@ void ClientSideDetectionHost::PhishingDe
+@@ -544,19 +544,6 @@ void ClientSideDetectionHost::PhishingDe
                                                  GetDebugFeatureDirectory()));
      }
  
@@ -1285,7 +1314,7 @@ Subject: Fix build error caused by the removal of safe_browsing
      base::UmaHistogramBoolean("SBClientPhishing.LocalModelDetectsPhishing",
                                verdict->is_phishing());
  
-@@ -646,7 +633,7 @@ bool ClientSideDetectionHost::CanGetAcce
+@@ -656,7 +643,7 @@ bool ClientSideDetectionHost::CanGetAcce
    // Return true if the finch feature is enabled for an ESB user, and if the
    // primary user account is signed in.
    return base::FeatureList::IsEnabled(kClientSideDetectionWithToken) &&
@@ -1398,7 +1427,7 @@ Subject: Fix build error caused by the removal of safe_browsing
  const size_t kAdSamplerTriggerDefaultQuota = 10;
 --- a/chrome/browser/safe_browsing/download_protection/ppapi_download_request.cc
 +++ b/chrome/browser/safe_browsing/download_protection/ppapi_download_request.cc
-@@ -179,12 +179,6 @@ void PPAPIDownloadRequest::SendRequest()
+@@ -178,12 +178,6 @@ void PPAPIDownloadRequest::SendRequest()
    DCHECK_CURRENTLY_ON(BrowserThread::UI);
  
    ClientDownloadRequest request;

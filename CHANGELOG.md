@@ -1,3 +1,11 @@
+# 96.0.4664.45-1
+* Re-enable bookmark import-export
+* Disable offline indicator
+* Add extra Vanadium enhancements:
+  * Enable user-agent freeze
+  * Enable split cache, partitioning connections, strict site isolation
+  * Other compiling time enhancements
+
 # 95.0.4638.74-1
 * Upstream update
 

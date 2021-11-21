@@ -39,7 +39,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  
    SetPrimaryAccountInternal(account_info, /*consented_to_sync=*/true);
  
-@@ -372,7 +360,5 @@ void PrimaryAccountManager::OnRefreshTok
+@@ -367,7 +355,5 @@ void PrimaryAccountManager::OnRefreshTok
      account_tracker_service_->SetMigrationDone();
      client_->GetPrefs()->CommitPendingWrite();
    }
@@ -49,7 +49,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  }
 --- a/build/config/compiler/BUILD.gn
 +++ b/build/config/compiler/BUILD.gn
-@@ -262,7 +262,7 @@ config("compiler") {
+@@ -263,7 +263,7 @@ config("compiler") {
    cflags_cc = []
    cflags_objc = []
    cflags_objcc = []
@@ -58,7 +58,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
    defines = []
    configs = []
  
-@@ -1876,7 +1876,7 @@ config("no_rtti") {
+@@ -1739,7 +1739,7 @@ config("no_rtti") {
  # to heap-allocated memory are passed over shared library boundaries.
  config("export_dynamic") {
    # TODO(crbug.com/1052397): Revisit after target_os flip is completed.
@@ -67,7 +67,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
      ldflags = [ "-rdynamic" ]
    }
  }
-@@ -2051,8 +2051,6 @@ if (is_win) {
+@@ -1914,8 +1914,6 @@ if (is_win) {
      common_optimize_on_cflags += [
        # Put data and code in their own sections, so that unused symbols
        # can be removed at link time with --gc-sections.
@@ -76,7 +76,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
      ]
      if (!is_nacl && is_clang) {
        # We don't care about unique section names, this makes object files a bit
-@@ -2065,7 +2063,6 @@ if (is_win) {
+@@ -1928,7 +1926,6 @@ if (is_win) {
        # See http://lwn.net/Articles/192624/ .
        # -O2 enables string tail merge optimization in gold and lld.
        "-Wl,-O2",
@@ -84,7 +84,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
      ]
    }
  }
-@@ -2443,7 +2440,7 @@ config("symbols") {
+@@ -2306,7 +2303,7 @@ config("symbols") {
          # sections (llvm.org/PR34820).
          cflags += [ "-ggnu-pubnames" ]
        }
@@ -115,8 +115,8 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
    return std::make_unique<ProfileOAuth2TokenService>(
 --- a/components/omnibox/browser/autocomplete_match.cc
 +++ b/components/omnibox/browser/autocomplete_match.cc
-@@ -1415,16 +1415,6 @@ bool AutocompleteMatch::IsEmptyAutocompl
-          split_autocompletion.Empty();
+@@ -1424,16 +1424,6 @@ void AutocompleteMatch::WriteIntoTrace(p
+   dict.Add("keyword", keyword);
  }
  
 -#if DCHECK_IS_ON()
@@ -134,7 +134,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
      const std::u16string& text,
 --- a/components/omnibox/browser/autocomplete_result.cc
 +++ b/components/omnibox/browser/autocomplete_result.cc
-@@ -688,13 +688,6 @@ void AutocompleteResult::CopyFrom(const
+@@ -699,13 +699,6 @@ void AutocompleteResult::CopyFrom(const
  #endif
  }
  
@@ -162,7 +162,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  
 --- a/components/omnibox/browser/autocomplete_controller.cc
 +++ b/components/omnibox/browser/autocomplete_controller.cc
-@@ -732,9 +732,6 @@ void AutocompleteController::UpdateResul
+@@ -731,9 +731,6 @@ void AutocompleteController::UpdateResul
  
    // Need to validate before invoking CopyOldMatches as the old matches are not
    // valid against the current input.
@@ -186,7 +186,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  bool InputEventStreamValidator::ValidateImpl(
 --- a/services/network/network_context.cc
 +++ b/services/network/network_context.cc
-@@ -1129,7 +1129,6 @@ void NetworkContext::QueueReport(
+@@ -1132,7 +1132,6 @@ void NetworkContext::QueueReport(
      const net::NetworkIsolationKey& network_isolation_key,
      const absl::optional<std::string>& user_agent,
      base::Value body) {
@@ -207,7 +207,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  
 --- a/base/logging.cc
 +++ b/base/logging.cc
-@@ -892,7 +892,7 @@ LogMessage::~LogMessage() {
+@@ -878,7 +878,7 @@ LogMessage::~LogMessage() {
  #if defined(OFFICIAL_BUILD) && defined(NDEBUG)
        IMMEDIATE_CRASH();
  #else

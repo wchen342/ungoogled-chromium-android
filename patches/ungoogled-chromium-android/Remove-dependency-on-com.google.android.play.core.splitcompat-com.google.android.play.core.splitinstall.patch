@@ -529,7 +529,7 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
  }
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -2482,7 +2482,6 @@ android_library("base_module_java") {
+@@ -2498,7 +2498,6 @@ android_library("base_module_java") {
      "//components/media_router/browser/android:cast_options_provider_java",
      "//components/minidump_uploader:minidump_uploader_java",
      "//components/module_installer/android:module_installer_java",
@@ -610,7 +610,7 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
 -                .addOnSuccessListener(sessionId -> { mInstallSessionId = sessionId; })
 -                .addOnFailureListener(exception -> {
 -                    Log.i(TAG, "Language Split Failure:", exception);
--                    listener.onComplete(false);
+-                    installFinished(false);
 -                });
  
          // Schedule a deferred install if the live install fails the play store will install the

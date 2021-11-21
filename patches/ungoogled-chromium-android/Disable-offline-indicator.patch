@@ -1,0 +1,17 @@
+description: Disable OfflineIndicator
+author: Wengling Chen <feiyu2817@gmail.com>
+
+---
+ chrome/browser/flags/android/chrome_feature_list.cc |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+--- a/chrome/browser/flags/android/chrome_feature_list.cc
++++ b/chrome/browser/flags/android/chrome_feature_list.cc
+@@ -653,7 +653,7 @@ const base::Feature kInstanceSwitcher{"I
+                                       base::FEATURE_ENABLED_BY_DEFAULT};
+ 
+ const base::Feature kOfflineIndicatorV2{"OfflineIndicatorV2",
+-                                        base::FEATURE_ENABLED_BY_DEFAULT};
++                                        base::FEATURE_DISABLED_BY_DEFAULT};
+ 
+ const base::Feature kOfflineMeasurementsBackgroundTask{
+     "OfflineMeasurementsBackgroundTask", base::FEATURE_DISABLED_BY_DEFAULT};

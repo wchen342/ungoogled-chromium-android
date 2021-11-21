@@ -10,7 +10,7 @@ trichrome_webview_target=trichrome_webview_apk
 trichrome_webview_64_target=trichrome_webview_64_apk
 all=all
 
-chromium_version=95.0.4638.74
-ungoogled_chromium_version=95.0.4638.69
+chromium_version=96.0.4664.45
+ungoogled_chromium_version=96.0.4664.45
 ungoogled_chromium_revision=1
 ungoogled_chromium_android_revision=1

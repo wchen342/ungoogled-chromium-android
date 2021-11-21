@@ -13,7 +13,7 @@ Corrected Exit functionality
 
 --- a/chrome/android/java/res/menu/main_menu.xml
 +++ b/chrome/android/java/res/menu/main_menu.xml
-@@ -121,6 +121,9 @@
+@@ -147,6 +147,9 @@
              android:icon="@drawable/gm_filled_cardboard_24" />
          <item android:id="@+id/managed_by_menu_id"
              android:title="@string/managed" />
@@ -23,7 +23,7 @@ Corrected Exit functionality
      </group>
  
      <!-- Items shown only in the tab switcher -->
-@@ -147,6 +150,9 @@
+@@ -173,6 +176,9 @@
          <item android:id="@id/preferences_id"
              android:title="@string/menu_settings"
              android:icon="@drawable/settings_cog" />
@@ -32,10 +32,10 @@ Corrected Exit functionality
 +            android:icon="@drawable/ic_exit_to_app_white_24dp" />
      </group>
  
-     <!-- Items shown only in the tab switcher when start surface is enabled -->
+     <!-- Items shown only when the tablet has no visible tabs -->
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-@@ -210,6 +210,8 @@ import java.util.HashSet;
+@@ -212,6 +212,8 @@ import java.util.HashSet;
  import java.util.List;
  import java.util.Locale;
  
@@ -44,7 +44,7 @@ Corrected Exit functionality
  /**
   * This is the main activity for ChromeMobile when not running in document mode.  All the tabs
   * are accessible via a chrome specific tab switching UI.
-@@ -2034,6 +2036,8 @@ public class ChromeTabbedActivity extend
+@@ -2048,6 +2050,8 @@ public class ChromeTabbedActivity extend
          } else if (id == R.id.close_tab) {
              getCurrentTabModel().closeTab(currentTab, true, false, true);
              RecordUserAction.record("MobileTabClosed");
@@ -55,7 +55,7 @@ Corrected Exit functionality
              getTabModelSelector().closeAllTabs();
 --- a/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
-@@ -66,6 +66,7 @@ import org.chromium.chrome.R;
+@@ -65,6 +65,7 @@ import org.chromium.chrome.R;
  import org.chromium.chrome.browser.ActivityTabProvider;
  import org.chromium.chrome.browser.ActivityUtils;
  import org.chromium.chrome.browser.AppHooks;
@@ -63,7 +63,7 @@ Corrected Exit functionality
  import org.chromium.chrome.browser.ChromeActivitySessionTracker;
  import org.chromium.chrome.browser.ChromeApplicationImpl;
  import org.chromium.chrome.browser.ChromeKeyboardVisibilityDelegate;
-@@ -2384,6 +2385,11 @@ public abstract class ChromeActivity<C e
+@@ -2391,6 +2392,11 @@ public abstract class ChromeActivity<C e
              return true;
          }
  
@@ -92,9 +92,9 @@ Corrected Exit functionality
      @Override
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -3232,6 +3232,9 @@ To change this setting, <ph name="BEGIN_
-       <message name="IDS_MENU_REQUEST_DESKTOP_SITE_OFF" desc="Accessibility description for when Request Desktop Site is disabled.">
-         Turn on Request desktop site
+@@ -3262,6 +3262,9 @@ To change this setting, <ph name="BEGIN_
+       <message name="IDS_MENU_AUTO_DARK_WEB_CONTENTS" desc="Menu item in Chrome's overflow/options menu. When Chrome's browser UI is set to dark theme and this option is checked, sites will have a dark theme automatically applied as well. [CHAR_LIMIT=24]">
+         Dark theme
        </message>
 +      <message name="IDS_MENU_EXIT" desc="Menu item for exit browser. [CHAR-LIMIT=27]">
 +        Exit

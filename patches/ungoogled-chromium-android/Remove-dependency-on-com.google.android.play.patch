@@ -12,7 +12,7 @@ Subject: Remove dependency on com.google.android.play
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -554,7 +554,6 @@ android_library("chrome_java") {
+@@ -561,7 +561,6 @@ android_library("chrome_java") {
      "//third_party/android_data_chart:android_data_chart_java",
      "//third_party/android_deps:android_support_v7_appcompat_java",
      "//third_party/android_deps:chromium_play_services_availability_java",
@@ -465,7 +465,7 @@ Subject: Remove dependency on com.google.android.play
                  "GoogleUpdate.Inline.CallFailure", failure, CallFailure.NUM_ENTRIES);
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -1060,11 +1060,6 @@ if (!limit_android_deps) {
+@@ -1063,11 +1063,6 @@ if (!limit_android_deps) {
    }
  
    # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.

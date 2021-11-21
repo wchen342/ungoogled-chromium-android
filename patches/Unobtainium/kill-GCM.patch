@@ -23,7 +23,7 @@ Subject: kill GCM
    "java/src/org/chromium/chrome/browser/ChromeBackupAgentImpl.java",
    "java/src/org/chromium/chrome/browser/ChromeBackupWatcher.java",
    "java/src/org/chromium/chrome/browser/ChromeBaseAppCompatActivity.java",
-@@ -1035,10 +1034,6 @@ chrome_java_sources = [
+@@ -1031,10 +1030,6 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/searchwidget/SearchType.java",
    "java/src/org/chromium/chrome/browser/searchwidget/SearchWidgetProvider.java",
    "java/src/org/chromium/chrome/browser/send_tab_to_self/SendTabToSelfShareActivity.java",
@@ -185,7 +185,7 @@ Subject: kill GCM
              @Override
              protected String doBackgroundWork() {
 -                try {
--                    // TODO(knollr): Migrate stored LazySubscriptionsManager data to
+-                    // TODO(crbug.com/1247170): Migrate stored LazySubscriptionsManager data to
 -                    // SubscriptionFlagManager.
 -                    LazySubscriptionsManager.storeLazinessInformation(
 -                            LazySubscriptionsManager.buildSubscriptionUniqueId(

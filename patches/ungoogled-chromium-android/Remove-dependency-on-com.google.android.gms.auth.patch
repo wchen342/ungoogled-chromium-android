@@ -40,7 +40,7 @@ Subject: Remove dependency on com.google.android.gms.auth
      "$google_play_services_package:google_play_services_tasks_java",
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -1028,44 +1028,6 @@ if (!limit_android_deps) {
+@@ -1031,44 +1031,6 @@ if (!limit_android_deps) {
    }
  
    # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
@@ -391,7 +391,7 @@ Subject: Remove dependency on com.google.android.gms.auth
  
 --- a/content/test/BUILD.gn
 +++ b/content/test/BUILD.gn
-@@ -2865,7 +2865,6 @@ if (is_android) {
+@@ -2869,7 +2869,6 @@ if (is_android) {
      testonly = true
      sources = content_java_sources_needing_jni
      deps = [

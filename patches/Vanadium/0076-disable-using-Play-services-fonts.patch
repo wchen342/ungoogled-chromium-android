@@ -1,7 +1,7 @@
-From f6fb37fb0e40445a19cdd0a0da8f2d4a8ed808a6 Mon Sep 17 00:00:00 2001
+From b4e2fa23198307f8f24299fa82ac1d94cf8b1a7a Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Wed, 1 Sep 2021 02:09:14 -0400
-Subject: [PATCH 77/77] disable using Play services fonts
+Subject: [PATCH 76/78] disable using Play services fonts
 
 ---
  .../chromium/content/browser/font/AndroidFontLookupImpl.java    | 2 +-
@@ -21,6 +21,5 @@ index 405dca87b9a6e..7b7751512eccd 100644
                  // Avoid re-requesting this font in future.
                  mExpectedFonts.remove(fontUniqueName);
 -- 
-2.33.0
+2.33.1
 
- 

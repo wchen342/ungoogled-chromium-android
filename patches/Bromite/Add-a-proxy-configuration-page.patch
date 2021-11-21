@@ -23,7 +23,7 @@ for SimpleURLLoaders as well.
  chrome/browser/resources/proxy_config.js                                                  |  266 ++++++
  chrome/browser/ui/BUILD.gn                                                                |    2 
  chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc                               |    3 
- chrome/browser/ui/webui/proxy_config_ui.cc                                                |  416 ++++++++++
+ chrome/browser/ui/webui/proxy_config_ui.cc                                                |  419 ++++++++++
  chrome/browser/ui/webui/proxy_config_ui.h                                                 |   33 
  chrome/common/webui_url_constants.cc                                                      |    4 
  chrome/common/webui_url_constants.h                                                       |    2 
@@ -33,7 +33,7 @@ for SimpleURLLoaders as well.
  components/proxy_config/proxy_policy_handler.cc                                           |    2 
  net/proxy_resolution/proxy_config.cc                                                      |   52 +
  net/proxy_resolution/proxy_config.h                                                       |    3 
- 24 files changed, 995 insertions(+), 14 deletions(-)
+ 24 files changed, 998 insertions(+), 14 deletions(-)
  create mode 100644 chrome/browser/resources/proxy_config.css
  create mode 100644 chrome/browser/resources/proxy_config.html
  create mode 100644 chrome/browser/resources/proxy_config.js
@@ -67,17 +67,17 @@ for SimpleURLLoaders as well.
          android:title="@string/clear_browsing_data_title"
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-@@ -55,6 +55,7 @@ public class PrivacySettings
-     private static final String PREF_DO_NOT_TRACK = "do_not_track";
-     private static final String PREF_CLEAR_BROWSING_DATA = "clear_browsing_data";
-     private static final String PREF_CLOSE_TABS_ON_EXIT = "close_tabs_on_exit";
-+    private static final String PREF_PROXY_OPTIONS = "proxy";
+@@ -60,6 +60,7 @@ public class PrivacySettings
      private static final String PREF_PRIVACY_SANDBOX = "privacy_sandbox";
      private static final String PREF_PRIVACY_REVIEW = "privacy_review";
+     private static final String PREF_INCOGNITO_LOCK = "incognito_lock";
++    private static final String PREF_PROXY_OPTIONS = "proxy";
+ 
+     private static final String PREF_CLOSE_TABS_ON_EXIT = "close_tabs_on_exit";
  
 --- a/chrome/browser/autocomplete/chrome_autocomplete_provider_client.cc
 +++ b/chrome/browser/autocomplete/chrome_autocomplete_provider_client.cc
-@@ -366,6 +366,8 @@ ChromeAutocompleteProviderClient::GetBui
+@@ -373,6 +373,8 @@ ChromeAutocompleteProviderClient::GetBui
        base::ASCIIToUTF16(chrome::kChromeUISettingsURL));
  #endif
    builtins_to_provide.push_back(
@@ -113,7 +113,7 @@ for SimpleURLLoaders as well.
  
  #if BUILDFLAG(IS_CHROMEOS_ASH)
  #include "chromeos/network/proxy/proxy_config_service_impl.h"
-@@ -59,7 +62,20 @@ ProxyServiceFactory::CreatePrefProxyConf
+@@ -73,7 +76,20 @@ ProxyServiceFactory::CreatePrefProxyConf
    return std::make_unique<chromeos::ProxyConfigServiceImpl>(
        profile_prefs, local_state_prefs, nullptr);
  #else
@@ -135,7 +135,7 @@ for SimpleURLLoaders as well.
  #endif  // BUILDFLAG(IS_CHROMEOS_ASH)
  }
  
-@@ -75,3 +91,8 @@ ProxyServiceFactory::CreatePrefProxyConf
+@@ -89,3 +105,8 @@ ProxyServiceFactory::CreatePrefProxyConf
                                                        nullptr);
  #endif  // BUILDFLAG(IS_CHROMEOS_ASH)
  }
@@ -154,18 +154,18 @@ for SimpleURLLoaders as well.
  
  class PrefProxyConfigTracker;
  class PrefService;
-@@ -37,6 +38,8 @@ class ProxyServiceFactory {
+@@ -42,6 +43,8 @@ class ProxyServiceFactory {
+   // (ChromeOS only).
    static std::unique_ptr<PrefProxyConfigTracker>
    CreatePrefProxyConfigTrackerOfLocalState(PrefService* local_state_prefs);
- 
-+  static void RegisterPrefs(PrefRegistrySimple* registry);
 +
-  private:
-   DISALLOW_IMPLICIT_CONSTRUCTORS(ProxyServiceFactory);
++  static void RegisterPrefs(PrefRegistrySimple* registry);
  };
+ 
+ #endif  // CHROME_BROWSER_NET_PROXY_SERVICE_FACTORY_H_
 --- a/chrome/browser/prefs/browser_prefs.cc
 +++ b/chrome/browser/prefs/browser_prefs.cc
-@@ -159,6 +159,8 @@
+@@ -163,6 +163,8 @@
  #include "printing/buildflags/buildflags.h"
  #include "rlz/buildflags/buildflags.h"
  
@@ -174,7 +174,7 @@ for SimpleURLLoaders as well.
  #if BUILDFLAG(ENABLE_BACKGROUND_MODE)
  #include "chrome/browser/background/background_mode_manager.h"
  #endif
-@@ -939,6 +941,8 @@ void RegisterLocalState(PrefRegistrySimp
+@@ -957,6 +959,8 @@ void RegisterLocalState(PrefRegistrySimp
    PluginsResourceService::RegisterPrefs(registry);
  #endif
  
@@ -185,7 +185,7 @@ for SimpleURLLoaders as well.
  
 --- a/chrome/browser/prefs/chrome_command_line_pref_store.cc
 +++ b/chrome/browser/prefs/chrome_command_line_pref_store.cc
-@@ -154,7 +154,7 @@ void ChromeCommandLinePrefStore::ApplyPr
+@@ -158,7 +158,7 @@ void ChromeCommandLinePrefStore::ApplyPr
      SetValue(
          proxy_config::prefs::kProxy,
          std::make_unique<base::Value>(ProxyConfigDictionary::CreateFixedServers(
@@ -611,7 +611,7 @@ for SimpleURLLoaders as well.
 +})();
 --- a/chrome/browser/ui/BUILD.gn
 +++ b/chrome/browser/ui/BUILD.gn
-@@ -267,6 +267,8 @@ static_library("ui") {
+@@ -280,6 +280,8 @@ static_library("ui") {
      "webui/metrics_handler.h",
      "webui/net_export_ui.cc",
      "webui/net_export_ui.h",
@@ -629,8 +629,8 @@ for SimpleURLLoaders as well.
 +#include "chrome/browser/ui/webui/proxy_config_ui.h"
  #include "chrome/browser/ui/webui/quota_internals/quota_internals_ui.h"
  #include "chrome/browser/ui/webui/signin_internals_ui.h"
- #include "chrome/browser/ui/webui/sync_internals/sync_internals_ui.h"
-@@ -641,6 +642,8 @@ WebUIFactoryFunction GetWebUIFactoryFunc
+ #include "chrome/browser/ui/webui/support_tool_ui.h"
+@@ -647,6 +648,8 @@ WebUIFactoryFunction GetWebUIFactoryFunc
      return &NewWebUI<MemoryInternalsUI>;
    if (url.host_piece() == chrome::kChromeUINetExportHost)
      return &NewWebUI<NetExportUI>;
@@ -641,7 +641,7 @@ for SimpleURLLoaders as well.
    if (url.host_piece() == chrome::kChromeUINTPTilesInternalsHost)
 --- /dev/null
 +++ b/chrome/browser/ui/webui/proxy_config_ui.cc
-@@ -0,0 +1,416 @@
+@@ -0,0 +1,419 @@
 +/*
 +    This file is part of Bromite.
 +
@@ -728,9 +728,9 @@ for SimpleURLLoaders as well.
 +  void RegisterMessages() override;
 +
 +  // Messages
-+  void OnEnableNotifyUIWithState(const base::ListValue* list);
-+  void OnApply(const base::ListValue* config);
-+  void OnClear(const base::ListValue* config);
++  void OnEnableNotifyUIWithState(base::Value::ConstListView list);
++  void OnApply(base::Value::ConstListView config);
++  void OnClear(base::Value::ConstListView config);
 +
 +  // net::ProxyConfigService::Observer implementation:
 +  // Calls ProxyConfigView.onProxyConfigChanged JavaScript function in the
@@ -782,7 +782,7 @@ for SimpleURLLoaders as well.
 +  }
 +
 +  proxy_config_service_ = ProxyServiceFactory::CreateProxyConfigService(
-+      pref_proxy_config_tracker_.get());
++      pref_proxy_config_tracker_.get(), profile);
 +}
 +
 +void ProxyConfigMessageHandler::OnProxyConfigChanged(
@@ -874,15 +874,15 @@ for SimpleURLLoaders as well.
 +void ProxyConfigMessageHandler::RegisterMessages() {
 +  DCHECK_CURRENTLY_ON(BrowserThread::UI);
 +
-+  web_ui()->RegisterDeprecatedMessageCallback(
++  web_ui()->RegisterMessageCallback(
 +      "enableNotifyUIWithState",
 +      base::BindRepeating(&ProxyConfigMessageHandler::OnEnableNotifyUIWithState,
 +                          base::Unretained(this)));
-+  web_ui()->RegisterDeprecatedMessageCallback(
++  web_ui()->RegisterMessageCallback(
 +      "apply",
 +      base::BindRepeating(&ProxyConfigMessageHandler::OnApply,
 +                          base::Unretained(this)));
-+  web_ui()->RegisterDeprecatedMessageCallback(
++  web_ui()->RegisterMessageCallback(
 +      "clear",
 +      base::BindRepeating(&ProxyConfigMessageHandler::OnClear,
 +                          base::Unretained(this)));
@@ -891,7 +891,7 @@ for SimpleURLLoaders as well.
 +// The proxy configuration UI is not notified of state changes until this function runs.
 +// After this function, OnProxyConfigChanged() will be called on all proxy state changes.
 +void ProxyConfigMessageHandler::OnEnableNotifyUIWithState(
-+    const base::ListValue* list) {
++    base::Value::ConstListView list) {
 +  DCHECK_CURRENTLY_ON(BrowserThread::UI);
 +
 +  if (!is_observing_) {
@@ -913,24 +913,24 @@ for SimpleURLLoaders as well.
 +  OnProxyConfigChanged(config, availability);
 +}
 +
-+void ProxyConfigMessageHandler::OnClear(const base::ListValue* list) {
++void ProxyConfigMessageHandler::OnClear(base::Value::ConstListView list) {
 +  DCHECK_CURRENTLY_ON(BrowserThread::UI);
 +
 +  const base::Value cfg = ProxyConfigDictionary::CreateSystem();
 +  pref_service_->Set(proxy_config::prefs::kProxy, cfg);
 +  pref_service_->CommitPendingWrite();
-+  OnEnableNotifyUIWithState(nullptr);
++  OnEnableNotifyUIWithState(list);
 +}
 +
-+void ProxyConfigMessageHandler::OnApply(const base::ListValue* list) {
++void ProxyConfigMessageHandler::OnApply(base::Value::ConstListView list) {
 +  DCHECK_CURRENTLY_ON(BrowserThread::UI);
 +
-+  if ((list->GetList().size() != 1) || !list->GetList()[0].is_dict()) {
++  if ((list.size() != 1) || !list[0].is_dict()) {
 +    return;
 +  }
 +
 +  const base::DictionaryValue* config = nullptr;
-+  if (!list->GetDictionary(0, &config))
++  if (!list[0].GetAsDictionary(&config))
 +    return;
 +
 +  const base::Value *autoDetect = config->FindKeyOfType("auto_detect", base::Value::Type::BOOLEAN);
@@ -1000,7 +1000,8 @@ for SimpleURLLoaders as well.
 +  } else if (t == "direct") {
 +      proxyConfig.proxy_rules().type = net::ProxyConfig::ProxyRules::Type::EMPTY;
 +  } else if (t == "none") {
-+      OnClear(nullptr);
++      base::Value::ConstListView empty;
++      OnClear(empty);
 +      return;
 +  } else {
 +     // invalid type
@@ -1045,7 +1046,9 @@ for SimpleURLLoaders as well.
 +    pref_service_->Set(proxy_config::prefs::kProxy, cfg);
 +  }
 +  pref_service_->CommitPendingWrite();
-+  OnEnableNotifyUIWithState(nullptr);
++
++  base::Value::ConstListView empty;
++  OnEnableNotifyUIWithState(empty);
 +}
 +
 +}  // namespace
@@ -1096,7 +1099,7 @@ for SimpleURLLoaders as well.
 +#endif  // CHROME_BROWSER_UI_WEBUI_PROXY_CONFIG_UI_H_
 --- a/chrome/common/webui_url_constants.cc
 +++ b/chrome/common/webui_url_constants.cc
-@@ -35,6 +35,8 @@ const char kChromeUICertificateViewerHos
+@@ -37,6 +37,8 @@ const char kChromeUICertificateViewerHos
  const char kChromeUICertificateViewerURL[] = "chrome://view-cert/";
  const char kChromeUIChromeSigninHost[] = "chrome-signin";
  const char kChromeUIChromeSigninURL[] = "chrome://chrome-signin/";
@@ -1105,7 +1108,7 @@ for SimpleURLLoaders as well.
  const char kChromeUIChromeURLsHost[] = "chrome-urls";
  const char kChromeUIChromeURLsURL[] = "chrome://chrome-urls/";
  const char kChromeUIComponentsHost[] = "components";
-@@ -346,6 +348,7 @@ bool IsSystemWebUIHost(base::StringPiece
+@@ -354,6 +356,7 @@ bool IsSystemWebUIHost(base::StringPiece
      kChromeUIMobileSetupHost,
      kChromeUIMultiDeviceSetupHost,
      kChromeUINetworkHost,
@@ -1113,7 +1116,7 @@ for SimpleURLLoaders as well.
      kChromeUIOobeHost,
      kChromeUIOSCreditsHost,
      kChromeUIOSSettingsHost,
-@@ -568,6 +571,7 @@ const char* const kChromeHostURLs[] = {
+@@ -584,6 +587,7 @@ const char* const kChromeHostURLs[] = {
  #if !defined(OS_ANDROID)
  #if !BUILDFLAG(IS_CHROMEOS_ASH)
      kChromeUIAppLauncherPageHost,
@@ -1123,7 +1126,7 @@ for SimpleURLLoaders as well.
      kChromeUIDownloadsHost,
 --- a/chrome/common/webui_url_constants.h
 +++ b/chrome/common/webui_url_constants.h
-@@ -126,6 +126,8 @@ extern const char kChromeUIMemoryInterna
+@@ -127,6 +127,8 @@ extern const char kChromeUIMemoryInterna
  extern const char kChromeUINTPTilesInternalsHost[];
  extern const char kChromeUINaClHost[];
  extern const char kChromeUINetExportHost[];
@@ -1132,17 +1135,6 @@ for SimpleURLLoaders as well.
  extern const char kChromeUINetInternalsHost[];
  extern const char kChromeUINetInternalsURL[];
  extern const char kChromeUINewTabHost[];
---- a/components/proxy_config/proxy_policy_handler.cc
-+++ b/components/proxy_config/proxy_policy_handler.cc
-@@ -259,7 +259,7 @@ void ProxyPolicyHandler::ApplyPolicySett
-             ProxyConfigDictionary::CreateFixedServers(
-                 server->GetString(), bypass_list && bypass_list->is_string()
-                                          ? bypass_list->GetString()
--                                         : std::string()));
-+                                         : std::string(), false));
-       }
-       break;
-     }
 --- a/components/proxy_config/pref_proxy_config_tracker_impl.cc
 +++ b/components/proxy_config/pref_proxy_config_tracker_impl.cc
 @@ -380,6 +380,7 @@ bool PrefProxyConfigTrackerImpl::PrefCon
@@ -1155,7 +1147,7 @@ for SimpleURLLoaders as well.
        return true;
 --- a/components/proxy_config/proxy_config_dictionary.cc
 +++ b/components/proxy_config/proxy_config_dictionary.cc
-@@ -28,6 +28,8 @@ const char kProxyPacMandatory[] = "pac_m
+@@ -30,6 +30,8 @@ const char kProxyPacMandatory[] = "pac_m
  // String containing proxy bypass rules. For a specification of the
  // expected syntax see net::ProxyBypassRules::ParseFromString().
  const char kProxyBypassList[] = "bypass_list";
@@ -1164,7 +1156,7 @@ for SimpleURLLoaders as well.
  
  }  // namespace
  
-@@ -72,6 +74,14 @@ bool ProxyConfigDictionary::HasBypassLis
+@@ -78,6 +80,14 @@ bool ProxyConfigDictionary::HasBypassLis
    return dict_.FindKey(kProxyBypassList);
  }
  
@@ -1179,7 +1171,7 @@ for SimpleURLLoaders as well.
  const base::Value& ProxyConfigDictionary::GetDictionary() const {
    return dict_;
  }
-@@ -79,29 +89,30 @@ const base::Value& ProxyConfigDictionary
+@@ -85,29 +95,30 @@ const base::Value& ProxyConfigDictionary
  // static
  base::Value ProxyConfigDictionary::CreateDirect() {
    return CreateDictionary(ProxyPrefs::MODE_DIRECT, std::string(), false,
@@ -1215,7 +1207,7 @@ for SimpleURLLoaders as well.
    } else {
      return CreateDirect();
    }
-@@ -110,7 +121,7 @@ base::Value ProxyConfigDictionary::Creat
+@@ -116,7 +127,7 @@ base::Value ProxyConfigDictionary::Creat
  // static
  base::Value ProxyConfigDictionary::CreateSystem() {
    return CreateDictionary(ProxyPrefs::MODE_SYSTEM, std::string(), false,
@@ -1224,7 +1216,7 @@ for SimpleURLLoaders as well.
  }
  
  // static
-@@ -119,7 +130,8 @@ base::Value ProxyConfigDictionary::Creat
+@@ -125,7 +136,8 @@ base::Value ProxyConfigDictionary::Creat
      const std::string& pac_url,
      bool pac_mandatory,
      const std::string& proxy_server,
@@ -1234,7 +1226,7 @@ for SimpleURLLoaders as well.
    base::Value dict(base::Value::Type::DICTIONARY);
    dict.SetKey(kProxyMode, base::Value(ProxyModeToString(mode)));
    if (!pac_url.empty()) {
-@@ -128,8 +140,10 @@ base::Value ProxyConfigDictionary::Creat
+@@ -134,8 +146,10 @@ base::Value ProxyConfigDictionary::Creat
    }
    if (!proxy_server.empty())
      dict.SetKey(kProxyServer, base::Value(proxy_server));
@@ -1248,7 +1240,7 @@ for SimpleURLLoaders as well.
  
 --- a/components/proxy_config/proxy_config_dictionary.h
 +++ b/components/proxy_config/proxy_config_dictionary.h
-@@ -38,6 +38,7 @@ class PROXY_CONFIG_EXPORT ProxyConfigDic
+@@ -43,6 +43,7 @@ class PROXY_CONFIG_EXPORT ProxyConfigDic
    bool GetProxyServer(std::string* out) const;
    bool GetBypassList(std::string* out) const;
    bool HasBypassList() const;
@@ -1256,7 +1248,7 @@ for SimpleURLLoaders as well.
  
    const base::Value& GetDictionary() const;
  
-@@ -46,7 +47,8 @@ class PROXY_CONFIG_EXPORT ProxyConfigDic
+@@ -51,7 +52,8 @@ class PROXY_CONFIG_EXPORT ProxyConfigDic
    static base::Value CreatePacScript(const std::string& pac_url,
                                       bool pac_mandatory);
    static base::Value CreateFixedServers(const std::string& proxy_server,
@@ -1266,7 +1258,7 @@ for SimpleURLLoaders as well.
    static base::Value CreateSystem();
  
    // Encodes the proxy server as "<url-scheme>=<proxy-scheme>://<proxy>".
-@@ -62,7 +64,8 @@ class PROXY_CONFIG_EXPORT ProxyConfigDic
+@@ -67,7 +69,8 @@ class PROXY_CONFIG_EXPORT ProxyConfigDic
                                        const std::string& pac_url,
                                        bool pac_mandatory,
                                        const std::string& proxy_server,
@@ -1275,10 +1267,21 @@ for SimpleURLLoaders as well.
 +                                      bool reverse_bypass);
  
    base::Value dict_;
- 
+ };
+--- a/components/proxy_config/proxy_policy_handler.cc
++++ b/components/proxy_config/proxy_policy_handler.cc
+@@ -259,7 +259,7 @@ void ProxyPolicyHandler::ApplyPolicySett
+             ProxyConfigDictionary::CreateFixedServers(
+                 server->GetString(), bypass_list && bypass_list->is_string()
+                                          ? bypass_list->GetString()
+-                                         : std::string()));
++                                         : std::string(), false));
+       }
+       break;
+     }
 --- a/net/proxy_resolution/proxy_config.cc
 +++ b/net/proxy_resolution/proxy_config.cc
-@@ -110,7 +110,7 @@ void ProxyConfig::ProxyRules::ParseFromS
+@@ -112,7 +112,7 @@ void ProxyConfig::ProxyRules::ParseFromS
                                     &single_proxies,
                                     ProxyServer::SCHEME_HTTP);
          type = Type::PROXY_LIST;
@@ -1287,7 +1290,7 @@ for SimpleURLLoaders as well.
        }
  
        // Trim whitespace off the url scheme.
-@@ -141,6 +141,56 @@ void ProxyConfig::ProxyRules::ParseFromS
+@@ -143,6 +143,56 @@ void ProxyConfig::ProxyRules::ParseFromS
    }
  }
  
@@ -1301,7 +1304,7 @@ for SimpleURLLoaders as well.
 +    std::string proxy_list;
 +    for (const ProxyServer& proxy_server :
 +         single_proxies.GetAll()) {
-+      proxy_list += proxy_server.ToURI() + ";";
++      proxy_list += proxy_server.host_port_pair().ToString() + ";";
 +    }
 +    // remove last semicolon
 +    if (proxy_list.length() != 0 ) {
@@ -1320,19 +1323,19 @@ for SimpleURLLoaders as well.
 +  std::string list;
 +  for (const ProxyServer& proxy_server :
 +       proxies_for_http.GetAll()) {
-+    list += "http=" + proxy_server.ToURI() + ";";
++    list += "http=" + proxy_server.host_port_pair().ToString() + ";";
 +  }
 +  for (const ProxyServer& proxy_server :
 +       proxies_for_https.GetAll()) {
-+    list += "https=" + proxy_server.ToURI() + ";";
++    list += "https=" + proxy_server.host_port_pair().ToString() + ";";
 +  }
 +  for (const ProxyServer& proxy_server :
 +       proxies_for_ftp.GetAll()) {
-+    list += "ftp=" + proxy_server.ToURI() + ";";
++    list += "ftp=" + proxy_server.host_port_pair().ToString() + ";";
 +  }
 +  for (const ProxyServer& proxy_server :
 +       fallback_proxies.GetAll()) {
-+    list += "socks=" + proxy_server.ToURI() + ";";
++    list += "socks=" + proxy_server.host_port_pair().ToString() + ";";
 +  }
 +  if (list.length() != 0 ) {
 +    // remove last semicolon

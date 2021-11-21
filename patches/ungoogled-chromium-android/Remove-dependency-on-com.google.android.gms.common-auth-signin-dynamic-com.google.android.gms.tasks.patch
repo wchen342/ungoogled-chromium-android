@@ -54,7 +54,7 @@ Subject: Remove dependency on
      "//base:base_java",
      "//cc:cc_java",
      "//chrome/android/features/keyboard_accessory:public_java",
-@@ -883,8 +880,6 @@ junit_binary("chrome_junit_tests") {
+@@ -887,8 +884,6 @@ junit_binary("chrome_junit_tests") {
      ":chrome_java",
      ":chrome_public_android_manifest",
      ":delegate_public_impl_java",
@@ -63,7 +63,7 @@ Subject: Remove dependency on
      "//base:base_java",
      "//base:base_java_test_support",
      "//base:base_junit_test_support",
-@@ -1242,9 +1237,6 @@ android_library("chrome_test_java") {
+@@ -1250,9 +1245,6 @@ android_library("chrome_test_java") {
      ":chrome_test_util_java",
      ":chrome_test_util_jni",
      ":delegate_public_impl_java",
@@ -366,7 +366,7 @@ Subject: Remove dependency on
          private long getSize(StatFs statFs) {
 --- a/chrome/test/android/BUILD.gn
 +++ b/chrome/test/android/BUILD.gn
-@@ -267,8 +267,6 @@ android_library("chrome_java_test_suppor
+@@ -268,8 +268,6 @@ android_library("chrome_java_test_suppor
    ]
  
    deps = [
@@ -450,7 +450,7 @@ Subject: Remove dependency on
      "//components/download/public/common:public_java",
 --- a/content/test/BUILD.gn
 +++ b/content/test/BUILD.gn
-@@ -2865,9 +2865,6 @@ if (is_android) {
+@@ -2869,9 +2869,6 @@ if (is_android) {
      testonly = true
      sources = content_java_sources_needing_jni
      deps = [
@@ -548,7 +548,7 @@ Subject: Remove dependency on
        "//components/background_task_scheduler:background_task_scheduler_task_ids_java",
 --- a/chrome/android/features/cablev2_authenticator/BUILD.gn
 +++ b/chrome/android/features/cablev2_authenticator/BUILD.gn
-@@ -17,8 +17,6 @@ android_library("java") {
+@@ -15,8 +15,6 @@ android_library("java") {
  
    deps = [
      ":java_resources",
@@ -570,7 +570,7 @@ Subject: Remove dependency on
  import org.chromium.base.annotations.NativeMethods;
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -92,7 +92,6 @@ if (!limit_android_deps) {
+@@ -93,7 +93,6 @@ if (!limit_android_deps) {
  
    android_library("chromium_play_services_availability_java") {
      sources = [ "util/org/chromium/gms/ChromiumPlayServicesAvailability.java" ]
@@ -578,7 +578,7 @@ Subject: Remove dependency on
    }
  
    android_library("chromium_play_services_availability_shadows_java") {
-@@ -1028,53 +1027,6 @@ if (!limit_android_deps) {
+@@ -1031,53 +1030,6 @@ if (!limit_android_deps) {
    }
  
    # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.

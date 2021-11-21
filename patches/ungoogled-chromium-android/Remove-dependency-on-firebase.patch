@@ -10,7 +10,7 @@ Subject: Remove dependency on com.google.android.gms.cast
 
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -1257,53 +1257,6 @@ if (!limit_android_deps) {
+@@ -1260,53 +1260,6 @@ if (!limit_android_deps) {
    }
  
    # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
@@ -62,9 +62,9 @@ Subject: Remove dependency on com.google.android.gms.cast
 -
 -  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
    java_prebuilt("com_google_guava_guava_android_java") {
-     jar_path = "libs/com_google_guava_guava_android/guava-30.1-android.jar"
+     jar_path = "libs/com_google_guava_guava_android/guava-31.0-android.jar"
      output_name = "com_google_guava_guava_android"
-@@ -1902,168 +1855,6 @@ if (!limit_android_deps) {
+@@ -1906,168 +1859,6 @@ if (!limit_android_deps) {
    }
  
    # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
@@ -326,7 +326,7 @@ Subject: Remove dependency on com.google.android.gms.cast
  }
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -2493,9 +2493,6 @@ android_library("base_module_java") {
+@@ -2509,9 +2509,6 @@ android_library("base_module_java") {
    ]
    deps = [
      ":chrome_base_module_resources",

@@ -1,6 +1,6 @@
 From: csagan5 <32685696+csagan5@users.noreply.github.com>
 Date: Sat, 26 Sep 2020 14:23:19 +0100
-Subject: DoH secure mode by default. Policy fix thanks to @uazo.
+Subject: DoH secure mode by default
 
 ---
  .../browser/net/stub_resolver_config_reader.cc  | 17 +----------------
@@ -53,5 +53,5 @@ diff --git a/chrome/browser/net/stub_resolver_config_reader.cc b/chrome/browser/
      /** A simple tuple to hold onto named fields about the state of ownership. */
      public static class OwnedState {
 -- 
-2.17.1
+2.20.1
 

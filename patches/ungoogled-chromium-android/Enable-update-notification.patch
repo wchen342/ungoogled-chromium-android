@@ -8,8 +8,7 @@
  chrome/browser/flag-metadata.json                                                                   |    2 
  chrome/browser/flag_descriptions.cc                                                                 |    5 
  chrome/browser/ui/android/strings/android_chrome_strings.grd                                        |    2 
- chrome/browser/updates/update_notification_config.cc                                                |    2 
- 10 files changed, 297 insertions(+), 13 deletions(-)
+ 9 files changed, 296 insertions(+), 12 deletions(-)
 
 --- /dev/null
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/UCInlineUpdateController.java
@@ -35,7 +34,6 @@
 +package org.chromium.chrome.browser.omaha.inline;
 +
 +import static org.chromium.chrome.browser.omaha.UpdateConfigs.getUpdateNotificationInterval;
-+import static org.chromium.chrome.browser.omaha.notification.UpdateNotificationControllerImpl.PREF_LAST_TIME_UPDATE_NOTIFICATION_KEY;
 +
 +import android.app.Activity;
 +import android.content.SharedPreferences;
@@ -72,6 +70,7 @@
 +class UCInlineUpdateController implements InlineUpdateController {
 +
 +    private static final String TAG = "UCInlineUpdateController";
++    private static final String PREF_LAST_TIME_UPDATE_NOTIFICATION_KEY = "LastTimeUpdateNotificationKey";
 +    private final URL UPDATE_VERSION_URL = makeURL("https://uc.droidware.info/release.txt");
 +
 +    private @Nullable URL makeURL(String url) {
@@ -260,7 +259,7 @@
 +}
 --- a/chrome/android/chrome_java_sources.gni
 +++ b/chrome/android/chrome_java_sources.gni
-@@ -889,6 +889,7 @@ chrome_java_sources = [
+@@ -895,6 +895,7 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateController.java",
    "java/src/org/chromium/chrome/browser/omaha/inline/InlineUpdateControllerFactory.java",
    "java/src/org/chromium/chrome/browser/omaha/inline/NoopInlineUpdateController.java",
@@ -446,17 +445,6 @@
              if (testStatus != null) return testStatus;
              return getRealStatus(mContext);
          }
---- a/chrome/browser/updates/update_notification_config.cc
-+++ b/chrome/browser/updates/update_notification_config.cc
-@@ -25,7 +25,7 @@ bool GetFinchConfigBool(const std::strin
- }  // namespace
- 
- // Default update notification schedule initial interval in days.
--constexpr int kDefaultUpdateNotificationInitInterval = 21;
-+constexpr int kDefaultUpdateNotificationInitInterval = 2;
- 
- // Default update notification schedule maximum interval in days.
- constexpr int kDefaultUpdateNotificationMaxInterval = 90;
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
 @@ -1129,7 +1129,7 @@ by a child template that "extends" this
@@ -470,7 +458,7 @@
          <meta-data android:name="org.chromium.content.browser.SMART_CLIP_PROVIDER"
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -2126,7 +2126,7 @@ To change this setting, <ph name="BEGIN_
+@@ -2118,7 +2118,7 @@ To change this setting, <ph name="BEGIN_
          Update Chrome
        </message>
        <message name="IDS_UPDATE_NOTIFICATION_TEXT_BODY_DEFAULT" desc="Default text showing in the update notification body, kindly telling user to update to the latest version of Chrome.">
@@ -481,7 +469,7 @@
          Update Chrome
 --- a/chrome/browser/flag-metadata.json
 +++ b/chrome/browser/flag-metadata.json
-@@ -2116,7 +2116,7 @@
+@@ -2074,7 +2074,7 @@
    {
      "name": "enable-inline-update-flow",
      "owners": [ "nyquist", "dtrainor" ],
@@ -492,7 +480,7 @@
      "name": "enable-input-event-logging",
 --- a/chrome/browser/flag_descriptions.cc
 +++ b/chrome/browser/flag_descriptions.cc
-@@ -3595,10 +3595,9 @@ const char kVoiceButtonInTopToolbarDescr
+@@ -3635,10 +3635,9 @@ const char kVoiceButtonInTopToolbarDescr
      "Enables showing the voice search button in the top toolbar. Enabling "
      "Adaptive Button overrides this.";
  

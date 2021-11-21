@@ -7,23 +7,28 @@ clicked links to launch as incognito.
 Make sure initial incognito status is correctly recognized.
 Enable incognito custom tabs and fix crashes for incognito/custom tab intents (credits to @uazo)
 ---
- chrome/android/chrome_java_sources.gni                                                                   |    1 
- chrome/android/java/src/org/chromium/chrome/browser/AlwaysIncognitoLinkInterceptor.java                  |   80 ++++++++++
- chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java                            |    6 
- chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java                              |    4 
- chrome/android/java/src/org/chromium/chrome/browser/app/appmenu/AppMenuPropertiesDelegateImpl.java       |    6 
- chrome/android/java/src/org/chromium/chrome/browser/contextmenu/ChromeContextMenuPopulator.java          |    8 -
- chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabActivityLifecycleUmaTracker.java |   25 ---
- chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabIntentDataProvider.java          |    5 
- chrome/android/java/src/org/chromium/chrome/browser/init/StartupTabPreloader.java                        |   14 +
- chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java                |    1 
- chrome/android/java/src/org/chromium/chrome/browser/tabmodel/ChromeTabCreator.java                       |   16 +-
- chrome/android/java/src/org/chromium/chrome/browser/tabmodel/TabPersistentStore.java                     |   10 +
- chrome/android/java/src/org/chromium/chrome/browser/webapps/WebappIntentDataProvider.java                |   14 +
- chrome/browser/flags/android/chrome_feature_list.cc                                                      |    2 
- chrome/browser/ui/android/strings/android_chrome_strings.grd                                             |    7 
- 15 files changed, 165 insertions(+), 34 deletions(-)
+ chrome/android/chrome_java_sources.gni                                                                                 |    1 
+ chrome/android/java/res/xml/privacy_preferences.xml                                                                    |    5 
+ chrome/android/java/src/org/chromium/chrome/browser/AlwaysIncognitoLinkInterceptor.java                                |   80 ++++++++++
+ chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java                                          |    6 
+ chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java                                            |    4 
+ chrome/android/java/src/org/chromium/chrome/browser/app/appmenu/AppMenuPropertiesDelegateImpl.java                     |    6 
+ chrome/android/java/src/org/chromium/chrome/browser/contextmenu/ChromeContextMenuPopulator.java                        |    8 -
+ chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabActivityLifecycleUmaTracker.java               |   25 ---
+ chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabIntentDataProvider.java                        |    5 
+ chrome/android/java/src/org/chromium/chrome/browser/init/StartupTabPreloader.java                                      |   14 +
+ chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java                              |   37 ++++
+ chrome/android/java/src/org/chromium/chrome/browser/settings/SettingsActivity.java                                     |    4 
+ chrome/android/java/src/org/chromium/chrome/browser/tabmodel/ChromeTabCreator.java                                     |   16 +-
+ chrome/android/java/src/org/chromium/chrome/browser/tabmodel/TabPersistentStore.java                                   |   10 +
+ chrome/android/java/src/org/chromium/chrome/browser/webapps/WebappIntentDataProvider.java                              |   14 +
+ chrome/browser/flags/android/chrome_feature_list.cc                                                                    |    2 
+ chrome/browser/ui/android/strings/android_chrome_strings.grd                                                           |   13 +
+ chrome/browser/ui/messages/android/BUILD.gn                                                                            |    1 
+ chrome/browser/ui/messages/android/java/src/org/chromium/chrome/browser/ui/messages/snackbar/INeedSnackbarManager.java |   27 +++
+ 19 files changed, 243 insertions(+), 35 deletions(-)
  create mode 100644 chrome/android/java/src/org/chromium/chrome/browser/AlwaysIncognitoLinkInterceptor.java
+ create mode 100644 chrome/browser/ui/messages/android/java/src/org/chromium/chrome/browser/ui/messages/snackbar/INeedSnackbarManager.java
 
 --- a/chrome/android/chrome_java_sources.gni
 +++ b/chrome/android/chrome_java_sources.gni
@@ -35,6 +40,20 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
    "java/src/com/google/android/apps/chrome/appwidget/bookmarks/BookmarkThumbnailWidgetProvider.java",
    "java/src/org/chromium/chrome/browser/ActivityTabProvider.java",
    "java/src/org/chromium/chrome/browser/ActivityUtils.java",
+--- a/chrome/android/java/res/xml/privacy_preferences.xml
++++ b/chrome/android/java/res/xml/privacy_preferences.xml
+@@ -50,6 +50,11 @@
+         android:title="@string/close_tabs_on_exit_title"
+         android:summary="@string/close_tabs_on_exit_summary"
+         android:defaultValue="false" />
++    <org.chromium.components.browser_ui.settings.ChromeSwitchPreference
++        android:key="always_incognito"
++        android:title="@string/always_incognito_title"
++        android:summary="@string/always_incognito_summary"
++        android:defaultValue="false" />
+     <Preference
+         android:fragment="org.chromium.chrome.browser.privacy.settings.DoNotTrackSettings"
+         android:key="do_not_track"
 --- /dev/null
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/AlwaysIncognitoLinkInterceptor.java
 @@ -0,0 +1,80 @@
@@ -128,7 +147,7 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
  import org.chromium.chrome.browser.IntentHandler.IntentHandlerDelegate;
  import org.chromium.chrome.browser.IntentHandler.TabOpenType;
  import org.chromium.chrome.browser.accessibility_tab_switcher.OverviewListLayout;
-@@ -1773,8 +1774,9 @@ public class ChromeTabbedActivity extend
+@@ -1779,8 +1780,9 @@ public class ChromeTabbedActivity extend
          Bundle savedInstanceState = getSavedInstanceState();
  
          // We determine the model as soon as possible so every systems get initialized coherently.
@@ -150,7 +169,7 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
  import org.chromium.chrome.browser.dependency_injection.ChromeActivityComponent;
  import org.chromium.chrome.browser.dependency_injection.ModuleFactoryOverrides;
  import org.chromium.chrome.browser.device.DeviceClassManager;
-@@ -1959,6 +1960,9 @@ public abstract class ChromeActivity<C e
+@@ -1966,6 +1967,9 @@ public abstract class ChromeActivity<C e
              throw new IllegalStateException(
                      "Attempting to access TabCreator before initialization");
          }
@@ -162,7 +181,7 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
  
 --- a/chrome/android/java/src/org/chromium/chrome/browser/app/appmenu/AppMenuPropertiesDelegateImpl.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/app/appmenu/AppMenuPropertiesDelegateImpl.java
-@@ -378,6 +378,12 @@ public class AppMenuPropertiesDelegateIm
+@@ -538,6 +538,12 @@ public class AppMenuPropertiesDelegateIm
      }
  
      private void prepareCommonMenuItems(Menu menu, @MenuGroup int menuGroup, boolean isIncognito) {
@@ -174,7 +193,7 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
 +
          // We have to iterate all menu items since same menu item ID may be associated with more
          // than one menu items.
-         boolean isMenuGroupTabsVisible = TabUiFeatureUtilities.isTabGroupsAndroidEnabled(mContext)
+         boolean isOverviewModeMenu = menuGroup == MenuGroup.OVERVIEW_MODE_MENU;
 --- a/chrome/android/java/src/org/chromium/chrome/browser/contextmenu/ChromeContextMenuPopulator.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/contextmenu/ChromeContextMenuPopulator.java
 @@ -31,6 +31,7 @@ import org.chromium.base.ContextUtils;
@@ -308,14 +327,96 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
                         .setWebContents(webContents)
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-@@ -47,6 +47,7 @@ import org.chromium.ui.text.SpanApplier;
+@@ -32,6 +32,10 @@ import org.chromium.chrome.browser.profi
+ import org.chromium.chrome.browser.settings.ChromeManagedPreferenceDelegate;
+ import org.chromium.chrome.browser.settings.SettingsLauncherImpl;
+ import org.chromium.chrome.browser.signin.services.IdentityServicesProvider;
++import org.chromium.chrome.browser.ui.messages.snackbar.SnackbarManager;
++import org.chromium.chrome.browser.ui.messages.snackbar.INeedSnackbarManager;
++import org.chromium.chrome.browser.ui.messages.snackbar.Snackbar;
++import org.chromium.chrome.browser.ApplicationLifetime;
+ import org.chromium.chrome.browser.sync.settings.GoogleServicesSettings;
+ import org.chromium.chrome.browser.sync.settings.ManageSyncSettings;
+ import org.chromium.chrome.browser.usage_stats.UsageStatsConsentDialog;
+@@ -49,7 +53,12 @@ import org.chromium.ui.text.SpanApplier;
+  * Fragment to keep track of the all the privacy related preferences.
   */
  public class PrivacySettings
-         extends PreferenceFragmentCompat implements Preference.OnPreferenceChangeListener {
+-        extends PreferenceFragmentCompat implements Preference.OnPreferenceChangeListener {
++        extends PreferenceFragmentCompat implements Preference.OnPreferenceChangeListener,
++                                                    INeedSnackbarManager {
++    private SnackbarManager mSnackbarManager;
++    private Snackbar mSnackbar;
++
 +    private static final String PREF_ALWAYS_INCOGNITO = "always_incognito";
      private static final String PREF_CAN_MAKE_PAYMENT = "can_make_payment";
      private static final String PREF_NETWORK_PREDICTIONS = "preload_pages";
      private static final String PREF_HTTPS_FIRST_MODE = "https_first_mode";
+@@ -94,6 +103,25 @@ public class PrivacySettings
+                 (ChromeSwitchPreference) findPreference(PREF_CAN_MAKE_PAYMENT);
+         canMakePaymentPref.setOnPreferenceChangeListener(this);
+ 
++        ChromeSwitchPreference alwaysIncognitoPref =
++                (ChromeSwitchPreference) findPreference(PREF_ALWAYS_INCOGNITO);
++        alwaysIncognitoPref.setOnPreferenceChangeListener(this);
++
++        mSnackbar = Snackbar.make(getActivity().getString(R.string.ui_relaunch_notice),
++                new SnackbarManager.SnackbarController() {
++                        @Override
++                        public void onDismissNoAction(Object actionData) { }
++
++                        @Override
++                        public void onAction(Object actionData) {
++                                ApplicationLifetime.terminate(true);
++                        }
++                }, Snackbar.TYPE_NOTIFICATION, Snackbar.UMA_UNKNOWN)
++                .setSingleLine(false)
++                .setAction(getActivity().getString(R.string.relaunch),
++                        /*actionData*/null)
++                .setDuration(/*durationMs*/70000);
++
+         ChromeSwitchPreference networkPredictionPref =
+                 (ChromeSwitchPreference) findPreference(PREF_NETWORK_PREDICTIONS);
+         networkPredictionPref.setChecked(
+@@ -182,6 +210,9 @@ public class PrivacySettings
+         } else if (PREF_NETWORK_PREDICTIONS.equals(key)) {
+             PrivacyPreferencesManagerImpl.getInstance().setNetworkPredictionEnabled(
+                     (boolean) newValue);
++        } else if (PREF_ALWAYS_INCOGNITO.equals(key)) {
++            if (!mSnackbarManager.isShowing())
++                mSnackbarManager.showSnackbar(mSnackbar);
+         } else if (PREF_HTTPS_FIRST_MODE.equals(key)) {
+             UserPrefs.get(Profile.getLastUsedRegularProfile())
+                     .setBoolean(Pref.HTTPS_ONLY_MODE_ENABLED, (boolean) newValue);
+@@ -285,4 +316,8 @@ public class PrivacySettings
+         }
+         return false;
+     }
++
++    public void setSnackbarManager(SnackbarManager manager) {
++        mSnackbarManager = manager;
++    }
+ }
+--- a/chrome/android/java/src/org/chromium/chrome/browser/settings/SettingsActivity.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/SettingsActivity.java
+@@ -52,6 +52,7 @@ import org.chromium.chrome.browser.safet
+ import org.chromium.chrome.browser.search_engines.settings.SearchEngineSettings;
+ import org.chromium.chrome.browser.signin.SyncConsentActivityLauncherImpl;
+ import org.chromium.chrome.browser.site_settings.ChromeSiteSettingsDelegate;
++import org.chromium.chrome.browser.ui.messages.snackbar.INeedSnackbarManager;
+ import org.chromium.chrome.browser.ui.messages.snackbar.SnackbarManager;
+ import org.chromium.chrome.browser.ui.messages.snackbar.SnackbarManager.SnackbarManageable;
+ import org.chromium.components.browser_ui.settings.FragmentSettingsLauncher;
+@@ -172,6 +173,9 @@ public class SettingsActivity extends Ch
+                                                           .getSiteSettingsDelegate());
+             delegate.setSnackbarManager(mSnackbarManager);
+         }
++        if (fragment instanceof INeedSnackbarManager) {
++            ((INeedSnackbarManager)fragment).setSnackbarManager(mSnackbarManager);
++        }
+     }
+ 
+     @Override
 --- a/chrome/android/java/src/org/chromium/chrome/browser/tabmodel/ChromeTabCreator.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/tabmodel/ChromeTabCreator.java
 @@ -44,6 +44,10 @@ import org.chromium.url.GURL;
@@ -393,7 +494,7 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
  import org.chromium.base.Log;
  import org.chromium.base.ObserverList;
  import org.chromium.base.StreamUtil;
-@@ -56,6 +57,8 @@ import org.chromium.content_public.brows
+@@ -55,6 +56,8 @@ import org.chromium.content_public.brows
  import org.chromium.content_public.browser.UiThreadTaskTraits;
  import org.chromium.url.GURL;
  
@@ -402,7 +503,7 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
  import java.io.BufferedInputStream;
  import java.io.ByteArrayInputStream;
  import java.io.ByteArrayOutputStream;
-@@ -654,6 +657,13 @@ public class TabPersistentStore {
+@@ -643,6 +646,13 @@ public class TabPersistentStore {
                  }
              }
          }
@@ -418,9 +519,9 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
          if (model.isIncognito() != isIncognito) {
 --- a/chrome/android/java/src/org/chromium/chrome/browser/webapps/WebappIntentDataProvider.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/webapps/WebappIntentDataProvider.java
-@@ -28,6 +28,9 @@ import org.chromium.chrome.browser.brows
- import org.chromium.chrome.browser.flags.ActivityType;
+@@ -29,6 +29,9 @@ import org.chromium.chrome.browser.flags
  import org.chromium.components.browser_ui.widget.TintedDrawable;
+ import org.chromium.device.mojom.ScreenOrientationLockType;
  
 +import org.chromium.base.ContextUtils;
 +import org.chromium.chrome.browser.AlwaysIncognitoLinkInterceptor;
@@ -428,7 +529,7 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
  /**
   * Stores info about a web app.
   */
-@@ -41,6 +44,8 @@ public class WebappIntentDataProvider ex
+@@ -42,6 +45,8 @@ public class WebappIntentDataProvider ex
      private final Intent mIntent;
      private final ColorProviderImpl mColorProvider;
  
@@ -437,7 +538,7 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
      /**
       * Returns the toolbar color to use if a custom color is not specified by the webapp.
       */
-@@ -62,6 +67,10 @@ public class WebappIntentDataProvider ex
+@@ -63,6 +68,10 @@ public class WebappIntentDataProvider ex
          mWebappExtras = webappExtras;
          mWebApkExtras = webApkExtras;
          mActivityType = (webApkExtras != null) ? ActivityType.WEB_APK : ActivityType.WEBAPP;
@@ -448,7 +549,7 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
      }
  
      @Override
-@@ -151,6 +160,11 @@ public class WebappIntentDataProvider ex
+@@ -152,6 +161,11 @@ public class WebappIntentDataProvider ex
      }
  
      @Override
@@ -457,12 +558,12 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
 +    }
 +
 +    @Override
-     public int getDefaultOrientation() {
+     public @ScreenOrientationLockType.EnumType int getDefaultOrientation() {
          return mWebappExtras.orientation;
      }
 --- a/chrome/browser/flags/android/chrome_feature_list.cc
 +++ b/chrome/browser/flags/android/chrome_feature_list.cc
-@@ -444,7 +444,7 @@ const base::Feature kCCTIncognito{"CCTIn
+@@ -455,7 +455,7 @@ const base::Feature kCCTIncognito{"CCTIn
                                    base::FEATURE_ENABLED_BY_DEFAULT};
  
  const base::Feature kCCTIncognitoAvailableToThirdParty{
@@ -473,7 +574,7 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
                                         base::FEATURE_ENABLED_BY_DEFAULT};
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -928,6 +928,13 @@ Your Google account may have other forms
+@@ -948,6 +948,19 @@ Your Google account may have other forms
        <message name="IDS_CLEAR_BROWSING_HISTORY_SUMMARY_SYNCED_NO_LINK" desc="A text for the basic tab explaining browsing history for users with history sync. This version is shown when the link to MyActivity is displayed separately.">
          Clears history from all synced devices.
        </message>
@@ -484,6 +585,52 @@ Enable incognito custom tabs and fix crashes for incognito/custom tab intents (c
 +      <message name="IDS_ALWAYS_INCOGNITO_SUMMARY" desc="Summary for always incognito mode">
 +        Opens links in incognito tabs when you click on new tab or on a link
 +      </message>
++      <message name="IDS_RELAUNCH" desc="Summary for always incognito mode">
++        Relaunch
++      </message>
++      <message name="IDS_UI_RELAUNCH_NOTICE" desc="Summary for always incognito mode">
++        Your changes will take effect the next time you relaunch Bromite.
++      </message>
        <message name="IDS_CLEAR_BROWSING_HISTORY_SUMMARY_SIGNED_IN" desc="A text explaining other forms of activity for signed in users.">
          Clears history and autocompletions in the address bar. Your Google Account may have other forms of browsing history at <ph name="BEGIN_LINK">&lt;link&gt;</ph>myactivity.9oo91e.qjz9zk<ph name="END_LINK">&lt;/link&gt;</ph>.
        </message>
+--- a/chrome/browser/ui/messages/android/BUILD.gn
++++ b/chrome/browser/ui/messages/android/BUILD.gn
+@@ -22,6 +22,7 @@ android_resources("java_resources") {
+ android_library("java") {
+   sources = [
+     "java/src/org/chromium/chrome/browser/ui/messages/infobar/SimpleConfirmInfoBarBuilder.java",
++    "java/src/org/chromium/chrome/browser/ui/messages/snackbar/INeedSnackbarManager.java",
+     "java/src/org/chromium/chrome/browser/ui/messages/snackbar/Snackbar.java",
+     "java/src/org/chromium/chrome/browser/ui/messages/snackbar/SnackbarCollection.java",
+     "java/src/org/chromium/chrome/browser/ui/messages/snackbar/SnackbarManager.java",
+--- /dev/null
++++ b/chrome/browser/ui/messages/android/java/src/org/chromium/chrome/browser/ui/messages/snackbar/INeedSnackbarManager.java
+@@ -0,0 +1,27 @@
++/*
++    This file is part of Bromite.
++
++    Bromite is free software: you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation, either version 3 of the License, or
++    (at your option) any later version.
++
++    Bromite is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with Bromite. If not, see <https://www.gnu.org/licenses/>.
++*/
++
++package org.chromium.chrome.browser.ui.messages.snackbar;
++
++import org.chromium.chrome.browser.ui.messages.snackbar.SnackbarManager;
++
++/**
++ * An interface that allows using snackbars in the settings
++ */
++public interface INeedSnackbarManager {
++    void setSnackbarManager(SnackbarManager manager);
++}

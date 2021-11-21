@@ -243,7 +243,7 @@ popd
 # Some of the support libraries can be grabbed from maven https://android.googlesource.com/platform/prebuilts/maven_repo/android/+/master/com/android/support/
 
 ## Prepare Android SDK/NDK
-SDK_NAME="android-sdk_eng.12.0.0_r2_linux-x86"
+SDK_NAME="android-sdk_user-12.0.0_r13_linux-x86"
 SDK_VERSION_CODE="12"
 
 # Create symbol links to sdk folders
@@ -276,7 +276,7 @@ popd
 mkdir android-sdk
 mkdir android-ndk
 pushd android-rebuilds
-unzip -qqo ${SDK_NAME}.zip -d ../android-sdk && mv ../android-sdk/android-sdk_eng.build_linux-x86 ../android-sdk/${SDK_NAME}  && rm -f ${SDK_NAME}.zip && s=0 || s=$? && (exit $s)
+unzip -qqo ${SDK_NAME}.zip -d ../android-sdk && rm -f ${SDK_NAME}.zip && s=0 || s=$? && (exit $s)
 unzip -qqo sdk-repo-linux-tools-26.1.1.zip -d ../android-sdk/${SDK_NAME} && rm -f sdk-repo-linux-tools-26.1.1.zip && s=0 || s=$? && (exit $s)
 unzip -qqo android-ndk-r23-linux-x86_64.zip -d ../android-ndk && rm -f android-ndk-r23-linux-x86_64.zip && s=0 || s=$? && (exit $s)
 popd

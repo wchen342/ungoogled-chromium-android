@@ -12,20 +12,20 @@ This reverts commit 4e598f38a0e6dd3dbede009c6a99b2a520a94e1f.
 
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -3453,6 +3453,10 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -3415,6 +3415,10 @@ const FeatureEntry kFeatureEntries[] = {
       SINGLE_DISABLE_VALUE_TYPE(switches::kDisableHostedAppShimCreation)},
  #endif  // OS_MAC
  #if defined(OS_ANDROID)
-+    {"disable-pull-to-refresh-effect",
-+     flag_descriptions::kPullToRefreshEffectName,
-+     flag_descriptions::kPullToRefreshEffectDescription, kOsAndroid,
++    {switches::kDisablePullToRefreshEffect,
++     flag_descriptions::kDisablePullToRefreshEffectName,
++     flag_descriptions::kDisablePullToRefreshEffectDescription, kOsAndroid,
 +     SINGLE_DISABLE_VALUE_TYPE(switches::kDisablePullToRefreshEffect)},
      {"translate-force-trigger-on-english",
       flag_descriptions::kTranslateForceTriggerOnEnglishName,
       flag_descriptions::kTranslateForceTriggerOnEnglishDescription, kOsAndroid,
 --- a/chrome/browser/flag-metadata.json
 +++ b/chrome/browser/flag-metadata.json
-@@ -1142,6 +1142,11 @@
+@@ -1161,6 +1161,11 @@
      "expiry_milestone": -1
    },
    {
@@ -39,12 +39,12 @@ This reverts commit 4e598f38a0e6dd3dbede009c6a99b2a520a94e1f.
      "expiry_milestone": 83
 --- a/chrome/browser/flag_descriptions.cc
 +++ b/chrome/browser/flag_descriptions.cc
-@@ -3370,6 +3370,10 @@ const char kReadLaterDescription[] =
+@@ -3404,6 +3404,10 @@ const char kReadLaterDescription[] =
      "Allow users to save tabs for later. Enables a new button and menu for "
      "accessing tabs saved for later.";
  
-+const char kPullToRefreshEffectName[] = "The pull-to-refresh effect";
-+const char kPullToRefreshEffectDescription[] =
++const char kDisablePullToRefreshEffectName[] = "The pull-to-refresh effect";
++const char kDisablePullToRefreshEffectDescription[] =
 +    "Page reloads triggered by vertically overscrolling content.";
 +
  const char kReaderModeHeuristicsName[] = "Reader Mode triggering";
@@ -52,12 +52,12 @@ This reverts commit 4e598f38a0e6dd3dbede009c6a99b2a520a94e1f.
      "Determines what pages the Reader Mode infobar is shown on.";
 --- a/chrome/browser/flag_descriptions.h
 +++ b/chrome/browser/flag_descriptions.h
-@@ -1933,6 +1933,9 @@ extern const char kQueryTilesSegmentatio
+@@ -1951,6 +1951,9 @@ extern const char kQueryTilesSegmentatio
  extern const char kQueryTilesSwapTrendingName[];
  extern const char kQueryTilesSwapTrendingDescription[];
  
-+extern const char kPullToRefreshEffectName[];
-+extern const char kPullToRefreshEffectDescription[];
++extern const char kDisablePullToRefreshEffectName[];
++extern const char kDisablePullToRefreshEffectDescription[];
 +
  extern const char kReaderModeHeuristicsName[];
  extern const char kReaderModeHeuristicsDescription[];

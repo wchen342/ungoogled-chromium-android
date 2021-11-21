@@ -37,7 +37,7 @@ Subject: Remove dependency on com.google.android.gms.cast
      "$google_play_services_package:google_play_services_fido_java",
      "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
-@@ -891,8 +889,6 @@ junit_binary("chrome_junit_tests") {
+@@ -895,8 +893,6 @@ junit_binary("chrome_junit_tests") {
      ":delegate_public_impl_java",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
@@ -46,7 +46,7 @@ Subject: Remove dependency on com.google.android.gms.cast
      "$google_play_services_package:google_play_services_fido_java",
      "//base:base_java",
      "//base:base_java_test_support",
-@@ -1253,8 +1249,6 @@ android_library("chrome_test_java") {
+@@ -1261,8 +1257,6 @@ android_library("chrome_test_java") {
      ":delegate_public_impl_java",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
@@ -55,7 +55,7 @@ Subject: Remove dependency on com.google.android.gms.cast
      "$google_play_services_package:google_play_services_fido_java",
      "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
-@@ -2526,7 +2520,6 @@ android_library("base_module_java") {
+@@ -2542,7 +2536,6 @@ android_library("base_module_java") {
      # Deps to pull services into base module.
      # TODO(crbug.com/1126301): Consider moving these to the chrome module to
      # reduce base dex size.
@@ -1442,7 +1442,7 @@ Subject: Remove dependency on com.google.android.gms.cast
      "//third_party/androidx:androidx_mediarouter_mediarouter_java",
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -1068,38 +1068,6 @@ if (!limit_android_deps) {
+@@ -1071,38 +1071,6 @@ if (!limit_android_deps) {
    }
  
    # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.

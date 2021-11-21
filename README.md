@@ -37,12 +37,13 @@ In descending order of significance (i.e. most important objective first):
 
 *These are the differences between a Linux build of ungoogled-chromium and ungoogled-chromium-android.*
 
-* Disable Android specific functionalities:
-   * lite mode
-   * contextual search
-   * prefetch
-   * remove home page links
-   * remove unnecessary account permissions
+* Disable/Remove Android specific functionalities:
+   * Contextual search
+   * Lite mode
+   * Offline indicator
+   * Prefetch
+   * Home page links
+   * Unnecessary account permissions
 * Android specific enhancements:
    * Add `Startpage.com` and `Qwant.com` as search engine options
    * Add new folder button in bookmark manager
@@ -51,13 +52,22 @@ In descending order of significance (i.e. most important objective first):
    * Add flags to always send `save-data` flag in header
    * Add flags to force tablet UI and desktop mode
 * Borrowed from Bromite:
-   * Exit menu item
-   * flag to disable device orientation API
-   * option to clear open tabs between sessions
-   * prevent WebRTC address leaking
-   * enable DNS-over-Https by default
-   * Add bookmark import/export options
+   * Always incognito mode
+   * Bookmark import/export options
+   * Clear open tabs between sessions
    * Disable DRM media preprovisioning which leaks connections
+   * DNS-over-https by default
+   * Exit menu item
+   * Prevent WebRTC address leaking
+   * Proxy configuration
+   * WebGL flag
+* Borrowed from Vanadium:
+  * Disable seed-based field trials
+  * Disable media router
+  * Disable metrics
+  * Enable user-agent freeze
+  * Enable split cache, partitioning connections, strict site isolation
+  * Various compiling time enhancements
 * All Google play and Google service related blobs are removed. This includes Firebase, GCM (Google Cloud Messaging), GMS (Google Mobile Services) and bridge to Google Play. 
 * Releases are built for `arm`, `arm64` and `x86`. There is no `x86_64` build.
 

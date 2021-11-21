@@ -31,7 +31,7 @@ Send a random key press to circumvent idle status detection
    "id_target_observer_registry.cc",
 --- a/third_party/blink/renderer/core/dom/document.cc
 +++ b/third_party/blink/renderer/core/dom/document.cc
-@@ -276,6 +276,7 @@
+@@ -275,6 +275,7 @@
  #include "third_party/blink/renderer/core/page/scrolling/root_scroller_controller.h"
  #include "third_party/blink/renderer/core/page/scrolling/scroll_state_callback.h"
  #include "third_party/blink/renderer/core/page/scrolling/scrolling_coordinator.h"
@@ -39,7 +39,7 @@ Send a random key press to circumvent idle status detection
  #include "third_party/blink/renderer/core/page/scrolling/snap_coordinator.h"
  #include "third_party/blink/renderer/core/page/scrolling/text_fragment_anchor.h"
  #include "third_party/blink/renderer/core/page/scrolling/text_fragment_handler.h"
-@@ -344,6 +345,8 @@
+@@ -343,6 +344,8 @@
  #include "third_party/blink/renderer/platform/wtf/text/string_buffer.h"
  #include "third_party/blink/renderer/platform/wtf/text/text_encoding_registry.h"
  
@@ -47,8 +47,8 @@ Send a random key press to circumvent idle status detection
 +
  #ifndef NDEBUG
  using WeakDocumentSet = blink::HeapHashSet<blink::WeakMember<blink::Document>>;
- static WeakDocumentSet& liveDocumentSet();
-@@ -6550,6 +6553,61 @@ void Document::setAllowDeclarativeShadow
+ static WeakDocumentSet& LiveDocumentSet();
+@@ -6539,6 +6542,61 @@ void Document::setAllowDeclarativeShadow
        val ? AllowState::kAllow : AllowState::kDeny;
  }
  
@@ -110,9 +110,9 @@ Send a random key press to circumvent idle status detection
  void Document::FinishedParsing() {
    DCHECK(!GetScriptableDocumentParser() || !parser_->IsParsing());
    DCHECK(!GetScriptableDocumentParser() || ready_state_ != kLoading);
-@@ -6605,6 +6663,10 @@ void Document::FinishedParsing() {
-     if (frame->GetFrameScheduler())
-       frame->GetFrameScheduler()->OnDomContentLoaded();
+@@ -6597,6 +6655,10 @@ void Document::FinishedParsing() {
+     if (frame->IsMainFrame() && ShouldMarkFontPerformance())
+       FontPerformance::MarkDomContentLoaded();
  
 +    if (!IsPrefetchOnly()) {
 +       injectScripts();
@@ -123,7 +123,7 @@ Send a random key press to circumvent idle status detection
      probe::DomContentLoadedEventFired(frame);
 --- a/third_party/blink/renderer/core/dom/document.h
 +++ b/third_party/blink/renderer/core/dom/document.h
-@@ -1776,6 +1776,9 @@ class CORE_EXPORT Document : public Cont
+@@ -1780,6 +1780,9 @@ class CORE_EXPORT Document : public Cont
    void AddAXContext(AXContext*);
    void RemoveAXContext(AXContext*);
  
