@@ -87,7 +87,7 @@ Pre-built apks are named as `{BUILD_TARGET}_{CPU_ARCH}.apk`, where:
 * The [Bromite Wiki](https://github.com/bromite/bromite/wiki/Installing-SystemWebView) can also be helpful.
 
 ## Building Instructions
-*This build is built from Sylvain Beucler's [libre Android rebuilds](https://android-rebuilds.beuc.net/) instead of SDK/NDK binaries from Google.*
+*This build is built using [Android rebuilds](https://github.com/wchen342/android-rebuilds) instead of SDK/NDK binaries from Google.*
 
 * Clone this repository
 * Make sure you have enough disk space and memory to build chromium
@@ -150,8 +150,6 @@ Build time dependencies (*package names as in Fedora 33. Other distributions may
   ```
 </details>
 
-In addition, scripts need to be run under python2. `virtualenv` or `conda` can be used to set up such an environment.
-
 For a more customized building process, see building instructions from [the original repo](https://github.com/Eloston/ungoogled-chromium/blob/master/docs/building.md).
 
 ## Reporting and Contributing
@@ -194,5 +192,3 @@ I have set up a F-Droid repository. You can use F-Droid client and add the follo
 ## License
 
 See [LICENSE](LICENSE.md).
-
-`ungoogled-chromium-android` is part of `ungoogled-chromium`. Everything published here, including (but not limited to) patches, scripts and other files are licensed under GPLv3+.
