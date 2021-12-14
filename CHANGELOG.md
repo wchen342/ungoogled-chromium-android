@@ -1,3 +1,9 @@
+# 96.0.4664.110-1
+* Upstream update
+
+# 96.0.4664.93-1
+* Upstream update
+
 # 96.0.4664.45-1
 * Re-enable bookmark import-export
 * Disable offline indicator
