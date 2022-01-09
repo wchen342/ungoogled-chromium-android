@@ -5,7 +5,7 @@ Subject: fix build error with prefs.h
 ---
  chrome/android/java/src/org/chromium/chrome/browser/signin/SyncConsentFragmentBase.java              |    3 +--
  chrome/browser/preferences/BUILD.gn                                                                  |    1 -
- chrome/browser/signin/ui/android/java/src/org/chromium/chrome/browser/signin/ui/SigninPromoUtil.java |    3 +--
+ chrome/browser/ui/android/signin/java/src/org/chromium/chrome/browser/ui/signin/SigninPromoUtil.java |    3 +--
  3 files changed, 2 insertions(+), 5 deletions(-)
  
 --- a/chrome/browser/preferences/BUILD.gn
@@ -18,8 +18,8 @@ Subject: fix build error with prefs.h
      "//components/translate/core/browser/translate_pref_names.cc",
    ]
  
---- a/chrome/browser/signin/ui/android/java/src/org/chromium/chrome/browser/signin/ui/SigninPromoUtil.java
-+++ b/chrome/browser/signin/ui/android/java/src/org/chromium/chrome/browser/signin/ui/SigninPromoUtil.java
+--- a/chrome/browser/ui/android/signin/java/src/org/chromium/chrome/browser/ui/signin/SigninPromoUtil.java
++++ b/chrome/browser/ui/android/signin/java/src/org/chromium/chrome/browser/ui/signin/SigninPromoUtil.java
 @@ -78,8 +78,7 @@ public final class SigninPromoUtil {
              return false;
          }

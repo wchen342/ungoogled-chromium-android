@@ -529,7 +529,7 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
  }
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -2498,7 +2498,6 @@ android_library("base_module_java") {
+@@ -2517,7 +2517,6 @@ android_library("base_module_java") {
      "//components/media_router/browser/android:cast_options_provider_java",
      "//components/minidump_uploader:minidump_uploader_java",
      "//components/module_installer/android:module_installer_java",
@@ -559,18 +559,18 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
 -import com.google.android.play.core.splitinstall.SplitInstallStateUpdatedListener;
 -import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus;
 -
+ import org.chromium.base.BundleUtils;
  import org.chromium.base.ContextUtils;
  import org.chromium.base.Log;
- import org.chromium.base.metrics.RecordHistogram;
-@@ -21,6 +15,7 @@ import java.lang.annotation.RetentionPol
- import java.util.Arrays;
+@@ -24,6 +18,7 @@ import java.util.Arrays;
+ import java.util.HashSet;
  import java.util.Locale;
  import java.util.Set;
 +import java.util.HashSet;
  
  /**
   * Singleton class to manage installing language splits. This is temporary to start testing Play
-@@ -58,15 +53,11 @@ public class LanguageSplitInstaller {
+@@ -61,15 +56,11 @@ public class LanguageSplitInstaller {
          void onComplete(boolean success);
      }
  
@@ -586,16 +586,16 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
      }
  
      /**
-@@ -74,7 +65,7 @@ public class LanguageSplitInstaller {
-      * @return Set<String> of installed languages code strings.
-      */
-     public Set<String> getInstalledLanguages() {
+@@ -81,7 +72,7 @@ public class LanguageSplitInstaller {
+         if (!BundleUtils.isBundle()) {
+             return new HashSet<String>(Arrays.asList(ResourceBundle.getAvailableLocales()));
+         }
 -        return mSplitInstallManager.getInstalledLanguages();
 +        return new HashSet<String>();
      }
  
      /**
-@@ -100,24 +91,13 @@ public class LanguageSplitInstaller {
+@@ -110,24 +101,13 @@ public class LanguageSplitInstaller {
          }
  
          mInstallListener = listener;
@@ -620,7 +620,7 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
      }
  
      /**
-@@ -126,7 +106,6 @@ public class LanguageSplitInstaller {
+@@ -136,7 +116,6 @@ public class LanguageSplitInstaller {
       */
      private void installFinished(boolean success) {
          mInstallListener.onComplete(success);
@@ -628,7 +628,7 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
          mInstallListener = null;
          mInstallSessionId = 0;
          mIsLanguageSplitInstalled = false;
-@@ -137,50 +116,18 @@ public class LanguageSplitInstaller {
+@@ -147,50 +126,18 @@ public class LanguageSplitInstaller {
       * @return True if status is a final state for the split install. |SplitInstallSessionStatus|
       * has values for intermediate states such as Pending and Installing which are not final states.
       */

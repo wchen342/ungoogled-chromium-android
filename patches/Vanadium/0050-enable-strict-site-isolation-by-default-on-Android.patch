@@ -10,7 +10,7 @@ Subject: [PATCH 50/78] enable strict site isolation by default on Android
 
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -3597,16 +3597,6 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -3660,16 +3660,6 @@ const FeatureEntry kFeatureEntries[] = {
       kOsCrOS | kOsLinux | kOsAndroid,
       FEATURE_VALUE_TYPE(mojo::core::kMojoLinuxChannelSharedMem)},
  #endif
@@ -29,7 +29,7 @@ Subject: [PATCH 50/78] enable strict site isolation by default on Android
       ORIGIN_LIST_VALUE_TYPE(switches::kIsolateOrigins, "")},
 --- a/chrome/common/chrome_features.cc
 +++ b/chrome/common/chrome_features.cc
-@@ -916,13 +916,7 @@ const base::Feature kShow10_10ObsoleteIn
+@@ -952,13 +952,7 @@ const base::Feature kShow10_10ObsoleteIn
  // TODO(alexmos): Move this and the other site isolation features below to
  // browser_features, as they are only used on the browser side.
  const base::Feature kSitePerProcess {

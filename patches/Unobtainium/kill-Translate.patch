@@ -8,7 +8,7 @@ Subject: kill Translate
 
 --- a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivity.java
-@@ -36,7 +36,11 @@ import org.chromium.chrome.browser.lifec
+@@ -35,7 +35,11 @@ import org.chromium.chrome.browser.fonts
  import org.chromium.chrome.browser.metrics.UmaUtils;
  import org.chromium.chrome.browser.net.spdyproxy.DataReductionProxySettings;
  import org.chromium.chrome.browser.search_engines.TemplateUrlServiceFactory;
@@ -20,16 +20,16 @@ Subject: kill Translate
  import org.chromium.chrome.browser.signin.services.FREMobileIdentityConsistencyFieldTrial;
  import org.chromium.components.browser_ui.modaldialog.AppModalPresenter;
  import org.chromium.ui.base.LocalizationUtils;
-@@ -209,6 +213,8 @@ public class FirstRunActivity extends Fi
+@@ -185,6 +189,8 @@ public class FirstRunActivity extends Fi
                  () -> mFreProperties.getBoolean(SHOW_SEARCH_ENGINE_PAGE);
          BooleanSupplier showSyncConsent = () -> mFreProperties.getBoolean(SHOW_SYNC_CONSENT_PAGE);
  
 +        getPrefService().setBoolean(Pref.OFFER_TRANSLATE_ENABLED, false);
 +
          boolean notifyAdapter = false;
-         // An optional sign-in page.
-         if (FREMobileIdentityConsistencyFieldTrial.isEnabled() && showSyncConsent.getAsBoolean()) {
-@@ -674,4 +680,9 @@ public class FirstRunActivity extends Fi
+         // An optional sign-in page, the visibility of this page will be decided on the fly
+         // according to the situation.
+@@ -663,4 +669,9 @@ public class FirstRunActivity extends Fi
          assert sObserver == null;
          sObserver = observer;
      }

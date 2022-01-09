@@ -13,7 +13,7 @@ Corrected Exit functionality
 
 --- a/chrome/android/java/res/menu/main_menu.xml
 +++ b/chrome/android/java/res/menu/main_menu.xml
-@@ -147,6 +147,9 @@
+@@ -144,6 +144,9 @@
              android:icon="@drawable/gm_filled_cardboard_24" />
          <item android:id="@+id/managed_by_menu_id"
              android:title="@string/managed" />
@@ -23,7 +23,7 @@ Corrected Exit functionality
      </group>
  
      <!-- Items shown only in the tab switcher -->
-@@ -173,6 +176,9 @@
+@@ -170,6 +173,9 @@
          <item android:id="@id/preferences_id"
              android:title="@string/menu_settings"
              android:icon="@drawable/settings_cog" />
@@ -44,7 +44,7 @@ Corrected Exit functionality
  /**
   * This is the main activity for ChromeMobile when not running in document mode.  All the tabs
   * are accessible via a chrome specific tab switching UI.
-@@ -2048,6 +2050,8 @@ public class ChromeTabbedActivity extend
+@@ -2038,6 +2040,8 @@ public class ChromeTabbedActivity extend
          } else if (id == R.id.close_tab) {
              getCurrentTabModel().closeTab(currentTab, true, false, true);
              RecordUserAction.record("MobileTabClosed");
@@ -63,7 +63,7 @@ Corrected Exit functionality
  import org.chromium.chrome.browser.ChromeActivitySessionTracker;
  import org.chromium.chrome.browser.ChromeApplicationImpl;
  import org.chromium.chrome.browser.ChromeKeyboardVisibilityDelegate;
-@@ -2391,6 +2392,11 @@ public abstract class ChromeActivity<C e
+@@ -2421,6 +2422,11 @@ public abstract class ChromeActivity<C e
              return true;
          }
  
@@ -92,7 +92,7 @@ Corrected Exit functionality
      @Override
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -3262,6 +3262,9 @@ To change this setting, <ph name="BEGIN_
+@@ -3261,6 +3261,9 @@ To change this setting, <ph name="BEGIN_
        <message name="IDS_MENU_AUTO_DARK_WEB_CONTENTS" desc="Menu item in Chrome's overflow/options menu. When Chrome's browser UI is set to dark theme and this option is checked, sites will have a dark theme automatically applied as well. [CHAR_LIMIT=24]">
          Dark theme
        </message>

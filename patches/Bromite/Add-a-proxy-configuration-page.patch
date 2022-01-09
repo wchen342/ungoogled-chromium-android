@@ -67,7 +67,7 @@ for SimpleURLLoaders as well.
          android:title="@string/clear_browsing_data_title"
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-@@ -60,6 +60,7 @@ public class PrivacySettings
+@@ -59,6 +59,7 @@ public class PrivacySettings
      private static final String PREF_PRIVACY_SANDBOX = "privacy_sandbox";
      private static final String PREF_PRIVACY_REVIEW = "privacy_review";
      private static final String PREF_INCOGNITO_LOCK = "incognito_lock";
@@ -77,7 +77,7 @@ for SimpleURLLoaders as well.
  
 --- a/chrome/browser/autocomplete/chrome_autocomplete_provider_client.cc
 +++ b/chrome/browser/autocomplete/chrome_autocomplete_provider_client.cc
-@@ -373,6 +373,8 @@ ChromeAutocompleteProviderClient::GetBui
+@@ -279,6 +279,8 @@ ChromeAutocompleteProviderClient::GetBui
        base::ASCIIToUTF16(chrome::kChromeUISettingsURL));
  #endif
    builtins_to_provide.push_back(
@@ -165,7 +165,7 @@ for SimpleURLLoaders as well.
  #endif  // CHROME_BROWSER_NET_PROXY_SERVICE_FACTORY_H_
 --- a/chrome/browser/prefs/browser_prefs.cc
 +++ b/chrome/browser/prefs/browser_prefs.cc
-@@ -163,6 +163,8 @@
+@@ -159,6 +159,8 @@
  #include "printing/buildflags/buildflags.h"
  #include "rlz/buildflags/buildflags.h"
  
@@ -174,7 +174,7 @@ for SimpleURLLoaders as well.
  #if BUILDFLAG(ENABLE_BACKGROUND_MODE)
  #include "chrome/browser/background/background_mode_manager.h"
  #endif
-@@ -957,6 +959,8 @@ void RegisterLocalState(PrefRegistrySimp
+@@ -978,6 +980,8 @@ void RegisterLocalState(PrefRegistrySimp
    PluginsResourceService::RegisterPrefs(registry);
  #endif
  
@@ -630,7 +630,7 @@ for SimpleURLLoaders as well.
  #include "chrome/browser/ui/webui/quota_internals/quota_internals_ui.h"
  #include "chrome/browser/ui/webui/signin_internals_ui.h"
  #include "chrome/browser/ui/webui/support_tool_ui.h"
-@@ -647,6 +648,8 @@ WebUIFactoryFunction GetWebUIFactoryFunc
+@@ -650,6 +651,8 @@ WebUIFactoryFunction GetWebUIFactoryFunc
      return &NewWebUI<MemoryInternalsUI>;
    if (url.host_piece() == chrome::kChromeUINetExportHost)
      return &NewWebUI<NetExportUI>;
@@ -1116,7 +1116,7 @@ for SimpleURLLoaders as well.
      kChromeUIOobeHost,
      kChromeUIOSCreditsHost,
      kChromeUIOSSettingsHost,
-@@ -584,6 +587,7 @@ const char* const kChromeHostURLs[] = {
+@@ -582,6 +585,7 @@ const char* const kChromeHostURLs[] = {
  #if !defined(OS_ANDROID)
  #if !BUILDFLAG(IS_CHROMEOS_ASH)
      kChromeUIAppLauncherPageHost,
@@ -1126,7 +1126,7 @@ for SimpleURLLoaders as well.
      kChromeUIDownloadsHost,
 --- a/chrome/common/webui_url_constants.h
 +++ b/chrome/common/webui_url_constants.h
-@@ -127,6 +127,8 @@ extern const char kChromeUIMemoryInterna
+@@ -125,6 +125,8 @@ extern const char kChromeUIMemoryInterna
  extern const char kChromeUINTPTilesInternalsHost[];
  extern const char kChromeUINaClHost[];
  extern const char kChromeUINetExportHost[];

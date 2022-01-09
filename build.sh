@@ -186,16 +186,16 @@ function prepare_repos {
   pushd src/buildtools/linux64
   ln -s /usr/bin/clang-format
   popd
-  mkdir -p src/third_party/llvm-build/Release+Asserts/bin
-  pushd src/third_party/llvm-build/Release+Asserts/bin
-  ln -s /usr/bin/llvm-symbolizer
-  popd
 
   ## Hooks
   python src/build/util/lastchange.py -o src/build/util/LASTCHANGE
   python src/tools/download_optimization_profile.py --newest_state=src/chrome/android/profiles/newest.txt --local_state=src/chrome/android/profiles/local.txt --output_name=src/chrome/android/profiles/afdo.prof --gs_url_base=chromeos-prebuilt/afdo-job/llvm || return $?
   python src/build/util/lastchange.py -m GPU_LISTS_VERSION --revision-id-only --header src/gpu/config/gpu_lists_version.h
   python src/build/util/lastchange.py -m SKIA_COMMIT_HASH -s src/third_party/skia --header src/skia/ext/skia_commit_hash.h
+  # Prebuilt toolchains. There are certain Android-specific files not included in common linux distributions.
+  python src/tools/clang/scripts/update.py
+  python src/build/linux/sysroot_scripts/install-sysroot.py --arch=i386
+  python src/build/linux/sysroot_scripts/install-sysroot.py --arch=amd64
   patch_applied=true
   # Needed for an ad-block list ised in webview
   # gsutils still needs python2. Avoid it.

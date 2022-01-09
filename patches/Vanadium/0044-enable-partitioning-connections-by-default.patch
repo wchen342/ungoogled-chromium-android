@@ -4,14 +4,12 @@ Date: Mon, 8 Mar 2021 16:53:47 -0500
 Subject: [PATCH 44/78] enable partitioning connections by default
 
 ---
- net/base/features.cc | 12 ++++++------
+ net/base/features.cc |   12 ++++++------
  1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/net/base/features.cc b/net/base/features.cc
-index 39240192c87ea..fb45fb3c7a040 100644
 --- a/net/base/features.cc
 +++ b/net/base/features.cc
-@@ -99,27 +99,27 @@ const base::Feature kSplitCacheByNetworkIsolationKey{
+@@ -102,27 +102,27 @@ const base::Feature kSplitCacheByNetwork
      "SplitCacheByNetworkIsolationKey", base::FEATURE_ENABLED_BY_DEFAULT};
  
  const base::Feature kSplitHostCacheByNetworkIsolationKey{
@@ -45,6 +43,3 @@ index 39240192c87ea..fb45fb3c7a040 100644
  
  const base::Feature kExpectCTPruning{"ExpectCTPruning",
                                       base::FEATURE_ENABLED_BY_DEFAULT};
--- 
-2.33.1
-

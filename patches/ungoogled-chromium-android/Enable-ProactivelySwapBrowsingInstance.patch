@@ -9,7 +9,7 @@ Subject: Enable experimental ProactivelySwapBrowsingInstance feature
 
 --- a/content/public/common/content_features.cc
 +++ b/content/public/common/content_features.cc
-@@ -582,7 +582,7 @@ const base::Feature kPrivateNetworkAcces
+@@ -593,7 +593,7 @@ const base::Feature kPrivateNetworkAcces
  // HTTP(S) navigations when the BrowsingInstance doesn't contain any other
  // windows.
  const base::Feature kProactivelySwapBrowsingInstance{

@@ -27,7 +27,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -306,8 +306,6 @@ android_library("chrome_java") {
+@@ -311,8 +311,6 @@ android_library("chrome_java") {
      ":usage_stats_proto_java",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
@@ -36,7 +36,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
      "$google_play_services_package:google_play_services_tasks_java",
      "$google_play_services_package:google_play_services_vision_common_java",
      "$google_play_services_package:google_play_services_vision_java",
-@@ -893,7 +891,6 @@ junit_binary("chrome_junit_tests") {
+@@ -903,7 +901,6 @@ junit_binary("chrome_junit_tests") {
      ":delegate_public_impl_java",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
@@ -44,7 +44,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
      "//base:base_java",
      "//base:base_java_test_support",
      "//base:base_junit_test_support",
-@@ -1257,8 +1254,6 @@ android_library("chrome_test_java") {
+@@ -1270,8 +1267,6 @@ android_library("chrome_test_java") {
      ":delegate_public_impl_java",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
@@ -249,7 +249,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
      /** Fake subclasses can set {@link #sFakeFactoryForTesting} to an implementation of this. */
 --- a/device/BUILD.gn
 +++ b/device/BUILD.gn
-@@ -448,7 +448,6 @@ if (is_android) {
+@@ -449,7 +449,6 @@ if (is_android) {
      deps = [
        "$google_play_services_package:google_play_services_base_java",
        "$google_play_services_package:google_play_services_basement_java",
@@ -494,9 +494,9 @@ Subject: Remove dependency on com.google.android.gms.fido,
      @Override
 --- a/chrome/android/features/cablev2_authenticator/BUILD.gn
 +++ b/chrome/android/features/cablev2_authenticator/BUILD.gn
-@@ -16,7 +16,6 @@ android_library("java") {
-   deps = [
+@@ -17,7 +17,6 @@ android_library("java") {
      ":java_resources",
+     ":logging_java",
      "$google_play_services_package:google_play_services_base_java",
 -    "$google_play_services_package:google_play_services_fido_java",
      "$google_play_services_package:google_play_services_tasks_java",
@@ -525,7 +525,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
          return false;
 --- a/services/BUILD.gn
 +++ b/services/BUILD.gn
-@@ -112,7 +112,6 @@ if (is_android) {
+@@ -116,7 +116,6 @@ if (is_android) {
      deps = [
        "$google_play_services_package:google_play_services_base_java",
        "$google_play_services_package:google_play_services_basement_java",
@@ -561,7 +561,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
  import com.google.android.gms.tasks.Task;
  
  import org.chromium.base.Log;
-@@ -140,130 +121,17 @@ class CableAuthenticator {
+@@ -146,130 +127,17 @@ class CableAuthenticator {
      public void makeCredential(String rpId, byte[] clientDataHash, byte[] userId, int[] algorithms,
              byte[][] excludedCredentialIds, boolean residentKeyRequired) {
          // TODO: handle concurrent requests
@@ -696,7 +696,7 @@ Subject: Remove dependency on com.google.android.gms.fido,
      }
  
      /**
-@@ -311,108 +179,15 @@ class CableAuthenticator {
+@@ -317,108 +185,15 @@ class CableAuthenticator {
      }
  
      private boolean onRegisterResponse(int resultCode, Intent data) {

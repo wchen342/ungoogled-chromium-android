@@ -20,7 +20,7 @@ Subject: Remove dependency on com.google.android.gms.auth
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -304,7 +304,6 @@ android_library("chrome_java") {
+@@ -309,7 +309,6 @@ android_library("chrome_java") {
      ":chrome_public_apk_template_resources",
      ":update_proto_java",
      ":usage_stats_proto_java",
@@ -391,7 +391,7 @@ Subject: Remove dependency on com.google.android.gms.auth
  
 --- a/content/test/BUILD.gn
 +++ b/content/test/BUILD.gn
-@@ -2869,7 +2869,6 @@ if (is_android) {
+@@ -2868,7 +2868,6 @@ if (is_android) {
      testonly = true
      sources = content_java_sources_needing_jni
      deps = [

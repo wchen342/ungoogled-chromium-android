@@ -16,7 +16,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -310,7 +310,6 @@ android_library("chrome_java") {
+@@ -315,7 +315,6 @@ android_library("chrome_java") {
      "$google_play_services_package:google_play_services_cast_framework_java",
      "$google_play_services_package:google_play_services_cast_java",
      "$google_play_services_package:google_play_services_fido_java",
@@ -24,7 +24,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
      "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
      "$google_play_services_package:google_play_services_vision_common_java",
-@@ -1266,7 +1265,6 @@ android_library("chrome_test_java") {
+@@ -1279,7 +1278,6 @@ android_library("chrome_test_java") {
      "$google_play_services_package:google_play_services_cast_framework_java",
      "$google_play_services_package:google_play_services_cast_java",
      "$google_play_services_package:google_play_services_fido_java",
@@ -32,7 +32,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
      "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
      "//base:base_java",
-@@ -2319,7 +2317,6 @@ android_library("browser_java_test_suppo
+@@ -2336,7 +2334,6 @@ android_library("browser_java_test_suppo
    ]
    deps = [
      ":chrome_java",
@@ -74,7 +74,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
    android_aar_prebuilt("google_play_services_iid_java") {
      aar_path = "libs/com_google_android_gms_play_services_iid/play-services-iid-17.0.0.aar"
      info_path = "libs/com_google_android_gms_play_services_iid/com_google_android_gms_play_services_iid.info"
-@@ -1834,20 +1819,6 @@ if (!limit_android_deps) {
+@@ -1847,20 +1832,6 @@ if (!limit_android_deps) {
    }
  
    # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
@@ -95,7 +95,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
    android_aar_prebuilt("google_play_services_clearcut_java") {
      aar_path = "libs/com_google_android_gms_play_services_clearcut/play-services-clearcut-17.0.0.aar"
      info_path = "libs/com_google_android_gms_play_services_clearcut/com_google_android_gms_play_services_clearcut.info"
-@@ -1867,23 +1838,6 @@ if (!limit_android_deps) {
+@@ -1880,23 +1851,6 @@ if (!limit_android_deps) {
      ]
    }
  

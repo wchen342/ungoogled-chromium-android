@@ -17,7 +17,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
 
 --- a/services/BUILD.gn
 +++ b/services/BUILD.gn
-@@ -112,8 +112,6 @@ if (is_android) {
+@@ -116,8 +116,6 @@ if (is_android) {
      deps = [
        "$google_play_services_package:google_play_services_base_java",
        "$google_play_services_package:google_play_services_basement_java",
@@ -26,7 +26,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
        "//base:base_java",
        "//base:base_java_test_support",
        "//base:base_junit_test_support",
-@@ -144,8 +142,6 @@ if (is_android) {
+@@ -148,8 +146,6 @@ if (is_android) {
      deps = [
        "$google_play_services_package:google_play_services_base_java",
        "$google_play_services_package:google_play_services_basement_java",
@@ -438,8 +438,8 @@ Subject: Remove dependency on com.google.android.gms.vision,
 -  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
    android_aar_prebuilt("com_google_android_material_material_java") {
      aar_path =
-         "libs/com_google_android_material_material/material-1.5.0-alpha02.aar"
-@@ -1654,26 +1630,6 @@ if (!limit_android_deps) {
+         "libs/com_google_android_material_material/material-1.5.0-alpha05.aar"
+@@ -1667,26 +1643,6 @@ if (!limit_android_deps) {
    }
  
    # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
@@ -466,7 +466,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
    android_aar_prebuilt("google_play_services_flags_java") {
      aar_path = "libs/com_google_android_gms_play_services_flags/play-services-flags-17.0.0.aar"
      info_path = "libs/com_google_android_gms_play_services_flags/com_google_android_gms_play_services_flags.info"
-@@ -1690,25 +1646,6 @@ if (!limit_android_deps) {
+@@ -1703,25 +1659,6 @@ if (!limit_android_deps) {
      ]
    }
  
@@ -585,7 +585,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
  }
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -307,8 +307,6 @@ android_library("chrome_java") {
+@@ -312,8 +312,6 @@ android_library("chrome_java") {
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
      "$google_play_services_package:google_play_services_tasks_java",
@@ -596,8 +596,8 @@ Subject: Remove dependency on com.google.android.gms.vision,
      "//chrome/android/features/keyboard_accessory:public_java",
 --- a/chrome/android/features/cablev2_authenticator/BUILD.gn
 +++ b/chrome/android/features/cablev2_authenticator/BUILD.gn
-@@ -17,8 +17,6 @@ android_library("java") {
-     ":java_resources",
+@@ -18,8 +18,6 @@ android_library("java") {
+     ":logging_java",
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_tasks_java",
 -    "$google_play_services_package:google_play_services_vision_common_java",

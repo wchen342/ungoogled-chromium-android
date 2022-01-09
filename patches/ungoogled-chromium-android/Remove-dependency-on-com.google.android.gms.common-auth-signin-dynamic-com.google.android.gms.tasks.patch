@@ -8,12 +8,12 @@ Subject: Remove dependency on
  chrome/android/BUILD.gn                                                                                                          |    8 
  chrome/android/features/cablev2_authenticator/BUILD.gn                                                                           |    2 
  chrome/android/features/cablev2_authenticator/java/src/org/chromium/chrome/browser/webauth/authenticator/CableAuthenticator.java |    2 
- chrome/android/java/AndroidManifest.xml                                                                                          |    9 -
+ chrome/android/java/AndroidManifest.xml                                                                                          |    7 
  chrome/android/java/src/org/chromium/chrome/browser/AppHooks.java                                                                |   14 -
  chrome/android/java/src/org/chromium/chrome/browser/PlayServicesVersionInfo.java                                                 |   12 -
  chrome/android/java/src/org/chromium/chrome/browser/gcore/ChromeGoogleApiClientImpl.java                                         |   25 ---
  chrome/android/java/src/org/chromium/chrome/browser/gcore/GoogleApiClientHelper.java                                             |   82 ----------
- chrome/android/java/src/org/chromium/chrome/browser/omaha/UpdateStatusProvider.java                                              |   10 -
+ chrome/android/java/src/org/chromium/chrome/browser/omaha/UpdateStatusProvider.java                                              |    9 -
  chrome/test/android/BUILD.gn                                                                                                     |    2 
  components/background_task_scheduler/BUILD.gn                                                                                    |    3 
  components/background_task_scheduler/internal/BUILD.gn                                                                           |    6 
@@ -40,11 +40,11 @@ Subject: Remove dependency on
  weblayer/browser/java/BUILD.gn                                                                                                   |    1 
  weblayer/browser/java/org/chromium/weblayer_private/ChildProcessServiceImpl.java                                                 |    2 
  weblayer/shell/android/BUILD.gn                                                                                                  |    1 
- 35 files changed, 18 insertions(+), 312 deletions(-)
+ 35 files changed, 18 insertions(+), 309 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -304,9 +304,6 @@ android_library("chrome_java") {
+@@ -309,9 +309,6 @@ android_library("chrome_java") {
      ":chrome_public_apk_template_resources",
      ":update_proto_java",
      ":usage_stats_proto_java",
@@ -54,7 +54,7 @@ Subject: Remove dependency on
      "//base:base_java",
      "//cc:cc_java",
      "//chrome/android/features/keyboard_accessory:public_java",
-@@ -887,8 +884,6 @@ junit_binary("chrome_junit_tests") {
+@@ -897,8 +894,6 @@ junit_binary("chrome_junit_tests") {
      ":chrome_java",
      ":chrome_public_android_manifest",
      ":delegate_public_impl_java",
@@ -63,7 +63,7 @@ Subject: Remove dependency on
      "//base:base_java",
      "//base:base_java_test_support",
      "//base:base_junit_test_support",
-@@ -1250,9 +1245,6 @@ android_library("chrome_test_java") {
+@@ -1263,9 +1258,6 @@ android_library("chrome_test_java") {
      ":chrome_test_util_java",
      ":chrome_test_util_jni",
      ":delegate_public_impl_java",
@@ -85,22 +85,20 @@ Subject: Remove dependency on
      "//content/public/android:content_java",
 --- a/chrome/android/java/AndroidManifest.xml
 +++ b/chrome/android/java/AndroidManifest.xml
-@@ -819,15 +819,6 @@ by a child template that "extends" this
-             </intent-filter>
+@@ -820,13 +820,6 @@ by a child template that "extends" this
          </activity>
  
--        <!-- Activity for dispatching intents to Instant Apps. -->
+         <!-- Activity for dispatching intents to Instant Apps. -->
 -        <activity
 -            android:name="org.chromium.chrome.browser.instantapps.AuthenticatedProxyActivity"
 -            android:exported="false"
--            android:theme="@android:style/Theme.NoDisplay"
+-            android:theme="@style/Theme.BrowserUI.NoDisplay"
 -            android:noHistory="true"
 -            android:excludeFromRecents="true">
 -        </activity>
--
+ 
          <activity
              android:name="org.chromium.chrome.browser.vr.VrCancelAnimationActivity"
-             android:exported="false"
 --- a/chrome/android/java/src/org/chromium/chrome/browser/AppHooks.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/AppHooks.java
 @@ -10,9 +10,6 @@ import android.content.pm.PackageManager
@@ -340,16 +338,15 @@ Subject: Remove dependency on
  }
 --- a/chrome/android/java/src/org/chromium/chrome/browser/omaha/UpdateStatusProvider.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/omaha/UpdateStatusProvider.java
-@@ -19,8 +19,6 @@ import androidx.annotation.NonNull;
+@@ -17,7 +17,6 @@ import androidx.annotation.IntDef;
+ import androidx.annotation.NonNull;
  import androidx.annotation.Nullable;
- import androidx.annotation.VisibleForTesting;
  
 -import com.google.android.gms.common.GooglePlayServicesUtil;
--
- import org.chromium.base.ActivityState;
- import org.chromium.base.ApplicationStatus;
- import org.chromium.base.ApplicationStatus.ActivityStateListener;
-@@ -456,13 +454,7 @@ public class UpdateStatusProvider implem
+ 
+ import org.chromium.base.BuildInfo;
+ import org.chromium.base.Callback;
+@@ -328,13 +327,7 @@ public class UpdateStatusProvider {
          }
  
          private boolean isGooglePlayStoreAvailable(Context context) {
@@ -366,7 +363,7 @@ Subject: Remove dependency on
          private long getSize(StatFs statFs) {
 --- a/chrome/test/android/BUILD.gn
 +++ b/chrome/test/android/BUILD.gn
-@@ -268,8 +268,6 @@ android_library("chrome_java_test_suppor
+@@ -307,8 +307,6 @@ android_library("chrome_java_test_suppor
    ]
  
    deps = [
@@ -450,7 +447,7 @@ Subject: Remove dependency on
      "//components/download/public/common:public_java",
 --- a/content/test/BUILD.gn
 +++ b/content/test/BUILD.gn
-@@ -2869,9 +2869,6 @@ if (is_android) {
+@@ -2868,9 +2868,6 @@ if (is_android) {
      testonly = true
      sources = content_java_sources_needing_jni
      deps = [
@@ -462,7 +459,7 @@ Subject: Remove dependency on
        "//ui/android:ui_full_java",
 --- a/device/BUILD.gn
 +++ b/device/BUILD.gn
-@@ -446,8 +446,6 @@ if (is_android) {
+@@ -447,8 +447,6 @@ if (is_android) {
        "gamepad/android/junit/src/org/chromium/device/gamepad/GamepadMappingsTest.java",
      ]
      deps = [
@@ -484,7 +481,7 @@ Subject: Remove dependency on
  
 --- a/services/BUILD.gn
 +++ b/services/BUILD.gn
-@@ -110,8 +110,6 @@ if (is_android) {
+@@ -114,8 +114,6 @@ if (is_android) {
        "shape_detection/android/junit/src/org/chromium/shape_detection/BitmapUtilsTest.java",
      ]
      deps = [
@@ -493,7 +490,7 @@ Subject: Remove dependency on
        "//base:base_java",
        "//base:base_java_test_support",
        "//base:base_junit_test_support",
-@@ -140,8 +138,6 @@ if (is_android) {
+@@ -144,8 +142,6 @@ if (is_android) {
        "shape_detection/android/javatests/src/org/chromium/shape_detection/TextDetectionImplTest.java",
      ]
      deps = [
@@ -548,10 +545,10 @@ Subject: Remove dependency on
        "//components/background_task_scheduler:background_task_scheduler_task_ids_java",
 --- a/chrome/android/features/cablev2_authenticator/BUILD.gn
 +++ b/chrome/android/features/cablev2_authenticator/BUILD.gn
-@@ -15,8 +15,6 @@ android_library("java") {
- 
+@@ -16,8 +16,6 @@ android_library("java") {
    deps = [
      ":java_resources",
+     ":logging_java",
 -    "$google_play_services_package:google_play_services_base_java",
 -    "$google_play_services_package:google_play_services_tasks_java",
      "//base:base_java",
@@ -631,7 +628,7 @@ Subject: Remove dependency on
 -  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
    android_aar_prebuilt("com_google_android_material_material_java") {
      aar_path =
-         "libs/com_google_android_material_material/material-1.5.0-alpha02.aar"
+         "libs/com_google_android_material_material/material-1.5.0-alpha05.aar"
 --- a/chrome/android/java/src/org/chromium/chrome/browser/PlayServicesVersionInfo.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/PlayServicesVersionInfo.java
 @@ -7,8 +7,6 @@ package org.chromium.chrome.browser;
@@ -840,7 +837,7 @@ Subject: Remove dependency on
      "//base:base_java",
      "//components/externalauth/android:java",
      "//net/android:net_java",
-@@ -135,7 +134,6 @@ java_library("junit") {
+@@ -136,7 +135,6 @@ java_library("junit") {
    deps = [
      ":java",
      ":signin_java_test_support",

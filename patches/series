@@ -1,5 +1,4 @@
 src-fix/android-rlz-fix-missing-variable.patch
-src-fix/clang-unknown-warnings.patch
 src-fix/fix-null-mInstanceID.patch
 src-fix/fix-safe-browsing.patch
 src-fix/fix-prefs.patch
@@ -45,7 +44,7 @@ ungoogled-chromium-android/Disable-lite-mode-prompt.patch
 ungoogled-chromium-android/Disable-prefetch.patch
 ungoogled-chromium-android/Add-more-search-engines.patch
 ungoogled-chromium-android/Add-folder-button-bookmark.patch
-ungoogled-chromium-android/Enable-update-notification.patch
+#ungoogled-chromium-android/Enable-update-notification.patch
 ungoogled-chromium-android/Enable-ProactivelySwapBrowsingInstance.patch
 ungoogled-chromium-android/Disable-homepage-by-default.patch
 ungoogled-chromium-android/Remove-UI-elements.patch

@@ -12,7 +12,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
 
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -4732,6 +4732,9 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -4821,6 +4821,9 @@ const FeatureEntry kFeatureEntries[] = {
       FEATURE_WITH_PARAMS_VALUE_TYPE(features::kMBIMode,
                                      kMBIModeVariations,
                                      "MBIMode")},
@@ -24,7 +24,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
       flag_descriptions::kIntensiveWakeUpThrottlingName,
 --- a/services/network/public/cpp/features.cc
 +++ b/services/network/public/cpp/features.cc
-@@ -137,6 +137,10 @@ const base::FeatureParam<std::string>
+@@ -130,6 +130,10 @@ const base::FeatureParam<std::string>
  const base::Feature kDisableKeepaliveFetch{"DisableKeepaliveFetch",
                                             base::FEATURE_DISABLED_BY_DEFAULT};
  
@@ -37,7 +37,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
  // (See https://github.com/WICG/trust-token-api.)
 --- a/services/network/public/cpp/features.h
 +++ b/services/network/public/cpp/features.h
-@@ -51,6 +51,8 @@ extern const base::FeatureParam<std::str
+@@ -49,6 +49,8 @@ extern const base::FeatureParam<std::str
      kDnsOverHttpsUpgradeDisabledProvidersParam;
  COMPONENT_EXPORT(NETWORK_CPP)
  extern const base::Feature kDisableKeepaliveFetch;
@@ -48,7 +48,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
  extern const base::Feature kTrustTokens;
 --- a/chrome/browser/flag_descriptions.cc
 +++ b/chrome/browser/flag_descriptions.cc
-@@ -1102,6 +1102,10 @@ const char kDisableKeepaliveFetchDescrip
+@@ -1087,6 +1087,10 @@ const char kDisableKeepaliveFetchDescrip
      "Disable fetch with keepalive set "
      "(https://fetch.spec.whatwg.org/#request-keepalive-flag).";
  
@@ -61,7 +61,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
  const char kExperimentalAccessibilityLanguageDetectionDescription[] =
 --- a/chrome/browser/flag_descriptions.h
 +++ b/chrome/browser/flag_descriptions.h
-@@ -599,6 +599,9 @@ extern const char kDiagnosticsAppNavigat
+@@ -590,6 +590,9 @@ extern const char kDiagnosticsAppNavigat
  extern const char kDisableKeepaliveFetchName[];
  extern const char kDisableKeepaliveFetchDescription[];
  
