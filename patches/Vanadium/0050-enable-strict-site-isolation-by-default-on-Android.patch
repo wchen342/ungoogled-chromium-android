@@ -1,7 +1,7 @@
-From 0f88c174fd9c56bf55088b05d16ba5d8aa75fbfa Mon Sep 17 00:00:00 2001
+From 722dd84d7576b91a62ba59ea2329e94070f9ccd4 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 2 May 2019 07:15:32 -0400
-Subject: [PATCH 50/78] enable strict site isolation by default on Android
+Subject: [PATCH] enable strict site isolation by default on Android
 
 ---
  chrome/browser/about_flags.cc    |   10 ----------
@@ -10,11 +10,11 @@ Subject: [PATCH 50/78] enable strict site isolation by default on Android
 
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -3660,16 +3660,6 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -3626,16 +3626,6 @@ const FeatureEntry kFeatureEntries[] = {
       kOsCrOS | kOsLinux | kOsAndroid,
       FEATURE_VALUE_TYPE(mojo::core::kMojoLinuxChannelSharedMem)},
  #endif
--#if defined(OS_ANDROID)
+-#if BUILDFLAG(IS_ANDROID)
 -    {"enable-site-isolation-for-password-sites",
 -     flag_descriptions::kSiteIsolationForPasswordSitesName,
 -     flag_descriptions::kSiteIsolationForPasswordSitesDescription, kOsAndroid,
@@ -29,12 +29,12 @@ Subject: [PATCH 50/78] enable strict site isolation by default on Android
       ORIGIN_LIST_VALUE_TYPE(switches::kIsolateOrigins, "")},
 --- a/chrome/common/chrome_features.cc
 +++ b/chrome/common/chrome_features.cc
-@@ -952,13 +952,7 @@ const base::Feature kShow10_10ObsoleteIn
+@@ -970,13 +970,7 @@ const base::Feature kShow10_10ObsoleteIn
  // TODO(alexmos): Move this and the other site isolation features below to
  // browser_features, as they are only used on the browser side.
  const base::Feature kSitePerProcess {
 -  "SitePerProcess",
--#if defined(OS_ANDROID)
+-#if BUILDFLAG(IS_ANDROID)
 -      base::FEATURE_DISABLED_BY_DEFAULT
 -#else
 -      base::FEATURE_ENABLED_BY_DEFAULT

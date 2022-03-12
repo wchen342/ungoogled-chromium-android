@@ -3,14 +3,14 @@ Date: Fri, 22 Jun 2018 17:16:43 +0200
 Subject: kill Translate
 
 ---
- chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivity.java |   11 ++++++++++
- 1 file changed, 11 insertions(+)
+ chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivity.java |   12 ++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
 --- a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivity.java
-@@ -35,7 +35,11 @@ import org.chromium.chrome.browser.fonts
+@@ -31,7 +31,11 @@ import org.chromium.chrome.browser.custo
+ import org.chromium.chrome.browser.fonts.FontPreloader;
  import org.chromium.chrome.browser.metrics.UmaUtils;
- import org.chromium.chrome.browser.net.spdyproxy.DataReductionProxySettings;
  import org.chromium.chrome.browser.search_engines.TemplateUrlServiceFactory;
 +import org.chromium.chrome.browser.preferences.Pref;
 +import org.chromium.chrome.browser.profiles.Profile;
@@ -20,16 +20,24 @@ Subject: kill Translate
  import org.chromium.chrome.browser.signin.services.FREMobileIdentityConsistencyFieldTrial;
  import org.chromium.components.browser_ui.modaldialog.AppModalPresenter;
  import org.chromium.ui.base.LocalizationUtils;
-@@ -185,6 +189,8 @@ public class FirstRunActivity extends Fi
-                 () -> mFreProperties.getBoolean(SHOW_SEARCH_ENGINE_PAGE);
+@@ -178,7 +182,7 @@ public class FirstRunActivity extends Fi
          BooleanSupplier showSyncConsent = () -> mFreProperties.getBoolean(SHOW_SYNC_CONSENT_PAGE);
  
-+        getPrefService().setBoolean(Pref.OFFER_TRANSLATE_ENABLED, false);
-+
-         boolean notifyAdapter = false;
-         // An optional sign-in page, the visibility of this page will be decided on the fly
+         // An optional page to select a default search engine.
+-        if (showSearchEnginePromo.getAsBoolean()) {
++        if (true) {
+             mPages.add(new FirstRunPage<>(
+                     DefaultSearchEngineFirstRunFragment.class, showSearchEnginePromo));
+             mFreProgressStates.add(MobileFreProgress.DEFAULT_SEARCH_ENGINE_SHOWN);
+@@ -186,7 +190,6 @@ public class FirstRunActivity extends Fi
+ 
+         // An optional sync consent page, the visibility of this page will be decided on the fly
          // according to the situation.
-@@ -663,4 +669,9 @@ public class FirstRunActivity extends Fi
+-        mPages.add(new FirstRunPage<>(SyncConsentFirstRunFragment.class, showSyncConsent));
+         mFreProgressStates.add(MobileFreProgress.SYNC_CONSENT_SHOWN);
+ 
+         if (mPagerAdapter != null) {
+@@ -626,4 +629,9 @@ public class FirstRunActivity extends Fi
          assert sObserver == null;
          sObserver = observer;
      }

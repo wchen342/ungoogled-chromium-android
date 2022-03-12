@@ -10,7 +10,7 @@ Subject: Remove dependency on com.google.android.play
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -569,7 +569,6 @@ android_library("chrome_java") {
+@@ -573,7 +573,6 @@ android_library("chrome_java") {
      "//third_party/android_data_chart:android_data_chart_java",
      "//third_party/android_deps:android_support_v7_appcompat_java",
      "//third_party/android_deps:chromium_play_services_availability_java",
@@ -31,10 +31,10 @@ Subject: Remove dependency on com.google.android.play
 -  }
  
    # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
-   java_prebuilt("com_google_guava_guava_android_java") {
+ 
 --- a/chrome/browser/password_manager/android/BUILD.gn
 +++ b/chrome/browser/password_manager/android/BUILD.gn
-@@ -50,7 +50,6 @@ android_library("java") {
+@@ -56,7 +56,6 @@ android_library("java") {
      ":android_backend_java_enums",
      ":java_resources",
      ":settings_interface_java",
@@ -42,10 +42,10 @@ Subject: Remove dependency on com.google.android.play
      "//base:base_java",
      "//chrome/browser/device_reauth/android:java",
      "//chrome/browser/flags:java",
-@@ -117,7 +116,6 @@ junit_binary("password_manager_junit_tes
-   deps = [
+@@ -129,7 +128,6 @@ junit_binary("password_manager_junit_tes
      ":android_backend_java_enums",
      ":java",
+     ":settings_interface_java",
 -    "$google_play_services_package:google_play_services_basement_java",
      "//base:base_java",
      "//base:base_java_test_support",

@@ -9,7 +9,6 @@ enable_iterator_debugging=false
 enable_mdns=false
 enable_mse_mpeg2ts_stream_parser=true
 enable_nacl=false
-enable_nacl_nonsfi=false
 enable_one_click_signin=false
 enable_reading_list=false
 enable_remoting=false

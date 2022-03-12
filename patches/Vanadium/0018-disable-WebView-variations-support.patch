@@ -10,7 +10,7 @@ Subject: [PATCH 18/78] disable WebView variations support
 
 --- a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java
 +++ b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java
-@@ -196,10 +196,6 @@ public class WebViewChromiumAwInit {
+@@ -221,10 +221,6 @@ public class WebViewChromiumAwInit {
  
              AwBrowserProcess.configureChildProcessLauncher();
  
@@ -23,7 +23,7 @@ Subject: [PATCH 18/78] disable WebView variations support
  
 --- a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
 +++ b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
-@@ -431,8 +431,6 @@ public class WebViewChromiumFactoryProvi
+@@ -492,8 +492,6 @@ public class WebViewChromiumFactoryProvi
                  }
              }
  

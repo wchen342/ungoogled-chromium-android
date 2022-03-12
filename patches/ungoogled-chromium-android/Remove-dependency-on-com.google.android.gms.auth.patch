@@ -3,24 +3,25 @@ Date: Sat, 2 Nov 2019 09:22:31 +0100
 Subject: Remove dependency on com.google.android.gms.auth
 
 ---
- chrome/android/BUILD.gn                                                                       |    1 
- components/background_task_scheduler/BUILD.gn                                                 |    1 
- components/signin/public/android/BUILD.gn                                                     |    1 
- content/public/android/BUILD.gn                                                               |    1 
- content/public/android/java/src/org/chromium/content/browser/sms/SmsProviderGms.java          |    6 
- content/public/android/java/src/org/chromium/content/browser/sms/SmsUserConsentReceiver.java  |   57 ------
- content/public/android/java/src/org/chromium/content/browser/sms/SmsVerificationReceiver.java |   94 ----------
- content/public/android/java/src/org/chromium/content/browser/sms/Wrappers.java                |   26 --
- content/test/BUILD.gn                                                                         |    1 
- remoting/android/client_java_tmpl.gni                                                         |    1 
- remoting/android/java/src/org/chromium/chromoting/OAuthTokenConsumer.java                     |    9 
- remoting/android/java/src/org/chromium/chromoting/base/OAuthTokenFetcher.java                 |   35 ---
- third_party/android_deps/BUILD.gn                                                             |   38 ----
- 13 files changed, 5 insertions(+), 266 deletions(-)
+ chrome/android/BUILD.gn                                                                                                                  |    1 
+ chrome/browser/password_manager/android/java/src/org/chromium/chrome/browser/password_manager/PasswordStoreAndroidBackendBridgeImpl.java |    6 
+ components/background_task_scheduler/BUILD.gn                                                                                            |    1 
+ components/signin/public/android/BUILD.gn                                                                                                |    1 
+ content/public/android/BUILD.gn                                                                                                          |    1 
+ content/public/android/java/src/org/chromium/content/browser/sms/SmsProviderGms.java                                                     |    6 
+ content/public/android/java/src/org/chromium/content/browser/sms/SmsUserConsentReceiver.java                                             |   57 ------
+ content/public/android/java/src/org/chromium/content/browser/sms/SmsVerificationReceiver.java                                            |   94 ----------
+ content/public/android/java/src/org/chromium/content/browser/sms/Wrappers.java                                                           |   26 --
+ content/test/BUILD.gn                                                                                                                    |    1 
+ remoting/android/client_java_tmpl.gni                                                                                                    |    1 
+ remoting/android/java/src/org/chromium/chromoting/OAuthTokenConsumer.java                                                                |    9 
+ remoting/android/java/src/org/chromium/chromoting/base/OAuthTokenFetcher.java                                                            |   35 ---
+ third_party/android_deps/BUILD.gn                                                                                                        |   38 ----
+ 14 files changed, 5 insertions(+), 272 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -309,7 +309,6 @@ android_library("chrome_java") {
+@@ -307,7 +307,6 @@ android_library("chrome_java") {
      ":chrome_public_apk_template_resources",
      ":update_proto_java",
      ":usage_stats_proto_java",
@@ -391,7 +392,7 @@ Subject: Remove dependency on com.google.android.gms.auth
  
 --- a/content/test/BUILD.gn
 +++ b/content/test/BUILD.gn
-@@ -2868,7 +2868,6 @@ if (is_android) {
+@@ -2922,7 +2922,6 @@ if (is_android) {
      testonly = true
      sources = content_java_sources_needing_jni
      deps = [
@@ -527,3 +528,25 @@ Subject: Remove dependency on com.google.android.gms.auth
          "${invoker.play_services_package}:google_play_services_base_java",
          "${invoker.play_services_package}:google_play_services_basement_java",
        ]
+--- a/chrome/browser/password_manager/android/java/src/org/chromium/chrome/browser/password_manager/PasswordStoreAndroidBackendBridgeImpl.java
++++ b/chrome/browser/password_manager/android/java/src/org/chromium/chrome/browser/password_manager/PasswordStoreAndroidBackendBridgeImpl.java
+@@ -4,7 +4,6 @@
+ 
+ package org.chromium.chrome.browser.password_manager;
+ 
+-import com.google.android.gms.common.api.ApiException;
+ 
+ import org.chromium.base.annotations.CalledByNative;
+ import org.chromium.base.annotations.NativeMethods;
+@@ -114,11 +113,6 @@ class PasswordStoreAndroidBackendBridgeI
+             error = ((PasswordStoreAndroidBackend.BackendException) exception).errorCode;
+         }
+ 
+-        if (exception instanceof ApiException) {
+-            error = AndroidBackendErrorType.EXTERNAL_ERROR;
+-            api_error_code = ((ApiException) exception).getStatusCode();
+-        }
+-
+         PasswordStoreAndroidBackendBridgeImplJni.get().onError(
+                 mNativeBackendBridge, jobId, error, api_error_code);
+     }

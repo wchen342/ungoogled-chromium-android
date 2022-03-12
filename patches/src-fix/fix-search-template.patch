@@ -7,7 +7,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
 
 --- a/components/search_engines/android/template_url_service_android.cc
 +++ b/components/search_engines/android/template_url_service_android.cc
-@@ -298,7 +298,7 @@ jboolean TemplateUrlServiceAndroid::SetP
+@@ -326,7 +326,7 @@ jboolean TemplateUrlServiceAndroid::SetP
        TemplateURLService::LogSearchTemplateURLEvent(
            TemplateURLService::MIGRATE_SAFE_FOR_AUTOREPLACE_PLAY_API_ENGINE);
        template_url_service_->ResetTemplateURL(turl, turl->short_name(),

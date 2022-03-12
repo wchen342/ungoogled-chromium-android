@@ -12,10 +12,10 @@ This reverts commit 4e598f38a0e6dd3dbede009c6a99b2a520a94e1f.
 
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -3464,6 +3464,10 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -3425,6 +3425,10 @@ const FeatureEntry kFeatureEntries[] = {
       flag_descriptions::kEnableVulkanDescription,
       kOsWin | kOsLinux | kOsAndroid, FEATURE_VALUE_TYPE(features::kVulkan)},
- #if defined(OS_ANDROID)
+ #if BUILDFLAG(IS_ANDROID)
 +    {switches::kDisablePullToRefreshEffect,
 +     flag_descriptions::kDisablePullToRefreshEffectName,
 +     flag_descriptions::kDisablePullToRefreshEffectDescription, kOsAndroid,
@@ -25,7 +25,7 @@ This reverts commit 4e598f38a0e6dd3dbede009c6a99b2a520a94e1f.
       flag_descriptions::kTranslateForceTriggerOnEnglishDescription, kOsAndroid,
 --- a/chrome/browser/flag-metadata.json
 +++ b/chrome/browser/flag-metadata.json
-@@ -1179,6 +1179,11 @@
+@@ -1230,6 +1230,11 @@
      "expiry_milestone": -1
    },
    {
@@ -39,7 +39,7 @@ This reverts commit 4e598f38a0e6dd3dbede009c6a99b2a520a94e1f.
      "expiry_milestone": 83
 --- a/chrome/browser/flag_descriptions.cc
 +++ b/chrome/browser/flag_descriptions.cc
-@@ -3374,6 +3374,10 @@ const char kReadLaterDescription[] =
+@@ -3333,6 +3333,10 @@ const char kReadLaterDescription[] =
      "Allow users to save tabs for later. Enables a new button and menu for "
      "accessing tabs saved for later.";
  
@@ -52,7 +52,7 @@ This reverts commit 4e598f38a0e6dd3dbede009c6a99b2a520a94e1f.
      "Determines what pages the Reader Mode infobar is shown on.";
 --- a/chrome/browser/flag_descriptions.h
 +++ b/chrome/browser/flag_descriptions.h
-@@ -1942,6 +1942,9 @@ extern const char kQueryTilesSegmentatio
+@@ -1913,6 +1913,9 @@ extern const char kQueryTilesSegmentatio
  extern const char kQueryTilesSwapTrendingName[];
  extern const char kQueryTilesSwapTrendingDescription[];
  

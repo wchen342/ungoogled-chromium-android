@@ -1,7 +1,7 @@
-From 2985542785e6fbd75b312cfa26a1c6b6505b76bb Mon Sep 17 00:00:00 2001
+From 95ae23e1aa98ffbfe2a384cf88742a135e0ac030 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 4 Jul 2019 19:08:52 -0400
-Subject: [PATCH 34/78] disable media router by default
+Subject: [PATCH] disable media router by default
 
 ---
  chrome/browser/media/router/media_router_feature.cc |    2 +-
@@ -10,7 +10,7 @@ Subject: [PATCH 34/78] disable media router by default
 
 --- a/chrome/browser/media/router/media_router_feature.cc
 +++ b/chrome/browser/media/router/media_router_feature.cc
-@@ -79,7 +79,7 @@ bool MediaRouterEnabled(content::Browser
+@@ -84,7 +84,7 @@ bool MediaRouterEnabled(content::Browser
      pref_values.insert(std::make_pair(context, allowed));
      return allowed;
    }
@@ -18,15 +18,15 @@ Subject: [PATCH 34/78] disable media router by default
 +  return false;
  }
  
- #if !defined(OS_ANDROID)
+ #if !BUILDFLAG(IS_ANDROID)
 --- a/chrome/browser/profiles/profile_impl.cc
 +++ b/chrome/browser/profiles/profile_impl.cc
-@@ -414,7 +414,7 @@ void ProfileImpl::RegisterProfilePrefs(
+@@ -415,7 +415,7 @@ void ProfileImpl::RegisterProfilePrefs(
  #endif
  
    registry->RegisterBooleanPref(prefs::kForceEphemeralProfiles, false);
 -  registry->RegisterBooleanPref(prefs::kEnableMediaRouter, true);
 +  registry->RegisterBooleanPref(prefs::kEnableMediaRouter, false);
- #if !defined(OS_ANDROID)
+ #if !BUILDFLAG(IS_ANDROID)
    registry->RegisterBooleanPref(prefs::kShowCastIconInToolbar, false);
- #endif  // !defined(OS_ANDROID)
+ #endif  // !BUILDFLAG(IS_ANDROID)

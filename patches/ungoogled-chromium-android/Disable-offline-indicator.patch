@@ -6,7 +6,7 @@ author: Wengling Chen <feiyu2817@gmail.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 --- a/chrome/browser/flags/android/chrome_feature_list.cc
 +++ b/chrome/browser/flags/android/chrome_feature_list.cc
-@@ -658,7 +658,7 @@ const base::Feature kInstanceSwitcher{"I
+@@ -689,7 +689,7 @@ const base::Feature kInstanceSwitcher{"I
                                        base::FEATURE_ENABLED_BY_DEFAULT};
  
  const base::Feature kOfflineIndicatorV2{"OfflineIndicatorV2",

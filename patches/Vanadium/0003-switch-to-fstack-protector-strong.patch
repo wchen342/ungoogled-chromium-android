@@ -4,14 +4,12 @@ Date: Wed, 26 Dec 2018 10:20:24 -0500
 Subject: [PATCH 03/78] switch to -fstack-protector-strong
 
 ---
- build/config/compiler/BUILD.gn | 8 +-------
+ build/config/compiler/BUILD.gn |    8 +-------
  1 file changed, 1 insertion(+), 7 deletions(-)
 
-diff --git a/build/config/compiler/BUILD.gn b/build/config/compiler/BUILD.gn
-index bd1fefeff6f60..2fb6e71f2d475 100644
 --- a/build/config/compiler/BUILD.gn
 +++ b/build/config/compiler/BUILD.gn
-@@ -338,18 +338,12 @@ config("compiler") {
+@@ -334,18 +334,12 @@ config("compiler") {
          cflags += [ "-fstack-protector" ]
        }
      } else if ((is_posix && !is_chromeos_ash && !is_nacl) || is_fuchsia) {
@@ -31,6 +29,3 @@ index bd1fefeff6f60..2fb6e71f2d475 100644
        }
      }
  
--- 
-2.34.1
-

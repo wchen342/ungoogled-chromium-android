@@ -1,0 +1,62 @@
+description: Add flag to disable creation of WebRTC RTCPeerConnection object
+author: Wengling Chen <feiyu2817@gmail.com>
+
+---
+ chrome/browser/ungoogled_flag_entries.h                                  |    4 ++++
+ third_party/blink/common/features.cc                                     |    4 ++++
+ third_party/blink/public/common/features.h                               |    1 +
+ third_party/blink/renderer/modules/peerconnection/rtc_peer_connection.cc |    8 ++++++++
+ 4 files changed, 17 insertions(+)
+
+--- a/chrome/browser/ungoogled_flag_entries.h
++++ b/chrome/browser/ungoogled_flag_entries.h
+@@ -20,6 +20,10 @@
+      "Disable beforeunload",
+      "Disables JavaScript dialog boxes triggered by beforeunload.  ungoogled-chromium flag.",
+      kOsAll, SINGLE_VALUE_TYPE("disable-beforeunload")},
++     {"disable-peerconnection",
++     "Disable WebRTC peerconnection",
++     "Prevent JavaScript from creating RTCPeerConnection object.  ungoogled-chromium-android flag.",
++     kOsAndroid, FEATURE_VALUE_TYPE(blink::features::kDisablePeerConnection)},
+     {"force-punycode-hostnames",
+      "Force punycode hostnames",
+      "Force punycode in hostnames instead of Unicode when displaying Internationalized Domain Names (IDNs).  ungoogled-chromium flag.",
+--- a/third_party/blink/renderer/modules/peerconnection/rtc_peer_connection.cc
++++ b/third_party/blink/renderer/modules/peerconnection/rtc_peer_connection.cc
+@@ -706,6 +706,14 @@ RTCPeerConnection* RTCPeerConnection::Cr
+     const RTCConfiguration* rtc_configuration,
+     const Dictionary& media_constraints,
+     ExceptionState& exception_state) {
++  // TODO: per-site UI
++  if (base::FeatureList::IsEnabled(features::kDisablePeerConnection)) {
++    exception_state.ThrowDOMException(
++          DOMExceptionCode::kNotSupportedError,
++          "RTCPeerConnection creations are prohibited in this browser.");
++    return nullptr;
++  }
++
+   if (context->IsContextDestroyed()) {
+     exception_state.ThrowDOMException(
+         DOMExceptionCode::kNotSupportedError,
+--- a/third_party/blink/public/common/features.h
++++ b/third_party/blink/public/common/features.h
+@@ -592,6 +592,7 @@ BLINK_COMMON_EXPORT extern const base::F
+ BLINK_COMMON_EXPORT extern const base::Feature kCompositedCaret;
+ 
+ BLINK_COMMON_EXPORT extern const base::Feature kDefaultStyleSheetsEarlyInit;
++BLINK_COMMON_EXPORT extern const base::Feature kDisablePeerConnection;
+ 
+ }  // namespace features
+ }  // namespace blink
+--- a/third_party/blink/common/features.cc
++++ b/third_party/blink/common/features.cc
+@@ -1202,5 +1202,9 @@ const base::Feature kCompositedCaret{"Co
+ const base::Feature kDefaultStyleSheetsEarlyInit{
+     "DefaultStyleSheetsEarlyInit", base::FEATURE_DISABLED_BY_DEFAULT};
+ 
++// Disable PeerConnection creations.
++const base::Feature kDisablePeerConnection{
++    "DisablePeerConnection", base::FEATURE_ENABLED_BY_DEFAULT};
++
+ }  // namespace features
+ }  // namespace blink

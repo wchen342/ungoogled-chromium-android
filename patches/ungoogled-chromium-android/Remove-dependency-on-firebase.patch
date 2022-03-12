@@ -4,13 +4,13 @@ Subject: Remove dependency on com.google.android.gms.cast
 
 ---
  chrome/android/BUILD.gn                                                                     |    3 
- chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatGcmListenerService.java |   75 ---
- third_party/android_deps/BUILD.gn                                                           |  209 ----------
- 3 files changed, 1 insertion(+), 286 deletions(-)
+ chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatGcmListenerService.java |   70 ---
+ third_party/android_deps/BUILD.gn                                                           |  205 ----------
+ 3 files changed, 1 insertion(+), 277 deletions(-)
 
 --- a/third_party/android_deps/BUILD.gn
 +++ b/third_party/android_deps/BUILD.gn
-@@ -1262,53 +1262,6 @@ if (!limit_android_deps) {
+@@ -1262,51 +1262,8 @@ if (!limit_android_deps) {
    }
  
    # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
@@ -32,8 +32,8 @@ Subject: Remove dependency on com.google.android.gms.cast
 -      "//third_party/androidx:androidx_legacy_legacy_support_core_utils_java",
 -    ]
 -  }
--
--  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+ 
+   # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
 -  android_aar_prebuilt("google_firebase_firebase_messaging_java") {
 -    aar_path = "libs/com_google_firebase_firebase_messaging/firebase-messaging-21.0.1.aar"
 -    info_path = "libs/com_google_firebase_firebase_messaging/com_google_firebase_firebase_messaging.info"
@@ -59,12 +59,10 @@ Subject: Remove dependency on com.google.android.gms.cast
 -    # The library works without it as it's only used for logging.
 -    enable_bytecode_checks = false
 -  }
--
--  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
-   java_prebuilt("com_google_guava_guava_android_java") {
-     jar_path = "libs/com_google_guava_guava_android/guava-31.0-android.jar"
-     output_name = "com_google_guava_guava_android"
-@@ -1919,168 +1872,6 @@ if (!limit_android_deps) {
+ 
+   # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
+   java_prebuilt("com_google_flatbuffers_flatbuffers_java_java") {
+@@ -1926,168 +1883,6 @@ if (!limit_android_deps) {
    }
  
    # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
@@ -235,13 +233,15 @@ Subject: Remove dependency on com.google.android.gms.cast
      output_name = "com_squareup_javawriter"
 --- a/chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatGcmListenerService.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatGcmListenerService.java
-@@ -7,87 +7,14 @@ package org.chromium.chrome.browser.base
+@@ -7,89 +7,21 @@ package org.chromium.chrome.browser.base
  import android.content.Context;
  import android.os.Bundle;
  
 -import com.google.firebase.messaging.FirebaseMessagingService;
 -import com.google.firebase.messaging.RemoteMessage;
 -
+ import org.chromium.base.BundleUtils;
+ 
  /**
   * GcmListenerService base class which will call through to the given {@link Impl}. This class must
   * be present in the base module, while the Impl can be in the chrome module.
@@ -254,11 +254,11 @@ Subject: Remove dependency on com.google.android.gms.cast
      public SplitCompatGcmListenerService(String serviceClassName) {
          mServiceClassName = serviceClassName;
      }
--
+ 
 -    @Override
 -    protected void attachBaseContext(Context context) {
--        context = SplitCompatUtils.createChromeContext(context);
--        mImpl = (Impl) SplitCompatUtils.newInstance(context, mServiceClassName);
+-        context = SplitCompatApplication.createChromeContext(context);
+-        mImpl = (Impl) BundleUtils.newInstance(context, mServiceClassName);
 -        mImpl.setService(this);
 -        super.attachBaseContext(context);
 -    }
@@ -296,10 +296,10 @@ Subject: Remove dependency on com.google.android.gms.cast
 -        mImpl.onNewToken(token);
 -    }
 -
--    /**
--     * Holds the implementation of service logic. Will be called by {@link
--     * SplitCompatGcmListenerService}.
--     */
+     /**
+      * Holds the implementation of service logic. Will be called by {@link
+      * SplitCompatGcmListenerService}.
+      */
 -    public abstract static class Impl {
 -        private SplitCompatGcmListenerService mService;
 -
@@ -326,7 +326,7 @@ Subject: Remove dependency on com.google.android.gms.cast
  }
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -2528,9 +2528,6 @@ android_library("base_module_java") {
+@@ -2551,9 +2551,6 @@ android_library("base_module_java") {
    ]
    deps = [
      ":chrome_base_module_resources",

@@ -10,7 +10,7 @@ Subject: Add flag to disable WebGL
 
 --- a/chrome/browser/about_flags.cc
 +++ b/chrome/browser/about_flags.cc
-@@ -2772,6 +2772,9 @@ const FeatureEntry kFeatureEntries[] = {
+@@ -2687,6 +2687,9 @@ const FeatureEntry kFeatureEntries[] = {
  #include "chrome/browser/bromite_flag_entries.h"
  #include "chrome/browser/ungoogled_platform_flag_entries.h"
  // Include generated flags for flag unexpiry; see //docs/flag_expiry.md and
@@ -22,7 +22,7 @@ Subject: Add flag to disable WebGL
  #include "chrome/browser/unexpire_flags_gen.inc"
 --- a/chrome/browser/flag_descriptions.cc
 +++ b/chrome/browser/flag_descriptions.cc
-@@ -678,6 +678,9 @@ const char kDocumentTransitionSlowdownFa
+@@ -680,6 +680,9 @@ const char kDocumentTransitionSlowdownFa
  const char kDocumentTransitionSlowdownFactorDescription[] =
      "Slows down animations triggered by documentTransition JavaScript API for "
      "debugging.";
@@ -30,11 +30,11 @@ Subject: Add flag to disable WebGL
 +
 +const char kDisableWebGLDescription[] = "Enable or disable all versions of WebGL";
  
- const char kEnableAutofillAccountWalletStorageName[] =
-     "Enable the account data storage for autofill";
+ const char kEnableAutofillAddressSavePromptName[] =
+     "Autofill Address Save Prompts";
 --- a/chrome/browser/flag_descriptions.h
 +++ b/chrome/browser/flag_descriptions.h
-@@ -377,6 +377,9 @@ extern const char kForceColorProfileSRGB
+@@ -375,6 +375,9 @@ extern const char kForceColorProfileSRGB
  extern const char kForceColorProfileP3[];
  extern const char kForceColorProfileColorSpin[];
  extern const char kForceColorProfileSCRGBLinear[];

@@ -11,9 +11,9 @@ Subject: Remove dependency on com.google.android.gms.vision,
  services/shape_detection/BUILD.gn                                                                               |    2 
  services/shape_detection/android/java/src/org/chromium/shape_detection/BarcodeDetectionImpl.java                |  114 ----------
  services/shape_detection/android/java/src/org/chromium/shape_detection/FaceDetectionImplGmsCore.java            |   93 --------
- services/shape_detection/android/java/src/org/chromium/shape_detection/TextDetectionImpl.java                   |   56 ----
+ services/shape_detection/android/java/src/org/chromium/shape_detection/TextDetectionImpl.java                   |   52 ----
  third_party/android_deps/BUILD.gn                                                                               |   63 -----
- 9 files changed, 8 insertions(+), 383 deletions(-)
+ 9 files changed, 8 insertions(+), 379 deletions(-)
 
 --- a/services/BUILD.gn
 +++ b/services/BUILD.gn
@@ -37,7 +37,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
        "//mojo/public/java:base_java",
 --- a/services/shape_detection/BUILD.gn
 +++ b/services/shape_detection/BUILD.gn
-@@ -109,8 +109,6 @@ if (is_android) {
+@@ -117,8 +117,6 @@ if (is_android) {
      deps = [
        "$google_play_services_package:google_play_services_base_java",
        "$google_play_services_package:google_play_services_basement_java",
@@ -332,7 +332,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
  import org.chromium.base.ContextUtils;
  import org.chromium.base.Log;
  import org.chromium.gfx.mojom.PointF;
-@@ -27,58 +23,16 @@ import org.chromium.shape_detection.mojo
+@@ -27,10 +23,7 @@ import org.chromium.shape_detection.mojo
  public class TextDetectionImpl implements TextDetection {
      private static final String TAG = "TextDetectionImpl";
  
@@ -343,11 +343,10 @@ Subject: Remove dependency on com.google.android.gms.vision,
      }
  
      @Override
-     public void detect(org.chromium.skia.mojom.BitmapN32 bitmapData, DetectResponse callback) {
--        // The vision library will be downloaded the first time the API is used
--        // on the device; this happens "fast", but it might have not completed,
--        // bail in this case. Also, the API was disabled between and v.9.0 and
--        // v.9.2, see https://developers.google.com/android/guides/releases.
+@@ -39,46 +32,11 @@ public class TextDetectionImpl implement
+         // on the device; this happens "fast", but it might have not completed,
+         // bail in this case. Also, the API was disabled between and v.9.0 and
+         // v.9.2, see https://developers.google.com/android/guides/releases.
 -        if (!mTextRecognizer.isOperational()) {
 -            Log.e(TAG, "TextDetector is not operational");
 -            callback.call(new TextDetectionResult[0]);
@@ -392,7 +391,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
      }
  
      @Override
-@@ -87,11 +41,7 @@ public class TextDetectionImpl implement
+@@ -87,11 +45,7 @@ public class TextDetectionImpl implement
      }
  
      public static TextDetection create() {
@@ -438,8 +437,8 @@ Subject: Remove dependency on com.google.android.gms.vision,
 -  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
    android_aar_prebuilt("com_google_android_material_material_java") {
      aar_path =
-         "libs/com_google_android_material_material/material-1.5.0-alpha05.aar"
-@@ -1667,26 +1643,6 @@ if (!limit_android_deps) {
+         "libs/com_google_android_material_material/material-1.6.0-alpha01.aar"
+@@ -1678,26 +1654,6 @@ if (!limit_android_deps) {
    }
  
    # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
@@ -466,7 +465,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
    android_aar_prebuilt("google_play_services_flags_java") {
      aar_path = "libs/com_google_android_gms_play_services_flags/play-services-flags-17.0.0.aar"
      info_path = "libs/com_google_android_gms_play_services_flags/com_google_android_gms_play_services_flags.info"
-@@ -1703,25 +1659,6 @@ if (!limit_android_deps) {
+@@ -1714,25 +1670,6 @@ if (!limit_android_deps) {
      ]
    }
  
@@ -585,7 +584,7 @@ Subject: Remove dependency on com.google.android.gms.vision,
  }
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -312,8 +312,6 @@ android_library("chrome_java") {
+@@ -310,8 +310,6 @@ android_library("chrome_java") {
      "$google_play_services_package:google_play_services_base_java",
      "$google_play_services_package:google_play_services_basement_java",
      "$google_play_services_package:google_play_services_tasks_java",

@@ -31,15 +31,15 @@ Send a random key press to circumvent idle status detection
    "id_target_observer_registry.cc",
 --- a/third_party/blink/renderer/core/dom/document.cc
 +++ b/third_party/blink/renderer/core/dom/document.cc
-@@ -275,6 +275,7 @@
+@@ -278,6 +278,7 @@
  #include "third_party/blink/renderer/core/page/scrolling/root_scroller_controller.h"
  #include "third_party/blink/renderer/core/page/scrolling/scroll_state_callback.h"
  #include "third_party/blink/renderer/core/page/scrolling/scrolling_coordinator.h"
 +#include "extensions/video_bg_play.h"
  #include "third_party/blink/renderer/core/page/scrolling/snap_coordinator.h"
- #include "third_party/blink/renderer/core/page/scrolling/text_fragment_handler.h"
  #include "third_party/blink/renderer/core/page/scrolling/top_document_root_scroller_controller.h"
-@@ -342,6 +343,8 @@
+ #include "third_party/blink/renderer/core/page/spatial_navigation_controller.h"
+@@ -346,6 +347,8 @@
  #include "third_party/blink/renderer/platform/wtf/text/string_buffer.h"
  #include "third_party/blink/renderer/platform/wtf/text/text_encoding_registry.h"
  
@@ -48,7 +48,7 @@ Send a random key press to circumvent idle status detection
  #ifndef NDEBUG
  using WeakDocumentSet = blink::HeapHashSet<blink::WeakMember<blink::Document>>;
  static WeakDocumentSet& LiveDocumentSet();
-@@ -6509,6 +6512,61 @@ void Document::setAllowDeclarativeShadow
+@@ -6586,6 +6589,61 @@ void Document::setAllowDeclarativeShadow
        val ? AllowState::kAllow : AllowState::kDeny;
  }
  
@@ -110,7 +110,7 @@ Send a random key press to circumvent idle status detection
  void Document::FinishedParsing() {
    DCHECK(!GetScriptableDocumentParser() || !parser_->IsParsing());
    DCHECK(!GetScriptableDocumentParser() || ready_state_ != kLoading);
-@@ -6567,6 +6625,10 @@ void Document::FinishedParsing() {
+@@ -6644,6 +6702,10 @@ void Document::FinishedParsing() {
      if (frame->IsMainFrame() && ShouldMarkFontPerformance())
        FontPerformance::MarkDomContentLoaded();
  
@@ -123,7 +123,7 @@ Send a random key press to circumvent idle status detection
      probe::DomContentLoadedEventFired(frame);
 --- a/third_party/blink/renderer/core/dom/document.h
 +++ b/third_party/blink/renderer/core/dom/document.h
-@@ -1771,6 +1771,9 @@ class CORE_EXPORT Document : public Cont
+@@ -1836,6 +1836,9 @@ class CORE_EXPORT Document : public Cont
    void AddAXContext(AXContext*);
    void RemoveAXContext(AXContext*);
  

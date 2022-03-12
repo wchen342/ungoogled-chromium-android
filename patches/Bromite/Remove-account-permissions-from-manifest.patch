@@ -45,12 +45,12 @@ Subject: Remove all sync and account permissions/features from manifest
  
 --- a/chrome/android/java/src/org/chromium/chrome/browser/sync/AndroidSyncSettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/sync/AndroidSyncSettings.java
-@@ -260,7 +260,7 @@ public class AndroidSyncSettings {
+@@ -251,7 +251,7 @@ public class AndroidSyncSettings {
              mIsSyncable = false;
              mChromeSyncEnabled = false;
          }
 -        mMasterSyncEnabled = mSyncContentResolverDelegate.getMasterSyncAutomatically();
 +        mMasterSyncEnabled = false;
  
-         if (mAccount != null && SyncService.get() != null
-                 && ChromeFeatureList.isEnabled(
+         if (mAccount != null && SyncService.get() != null && mMasterSyncEnabled
+                 && !mShouldDecoupleSyncFromMasterSync) {

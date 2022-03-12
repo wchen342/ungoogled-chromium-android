@@ -14,13 +14,13 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  components/signin/internal/identity_manager/primary_account_manager.cc              |   14 ----------
  components/signin/internal/identity_manager/profile_oauth2_token_service_builder.cc |    1 
  content/common/input/input_event_stream_validator.cc                                |    3 --
- services/network/network_context.cc                                                 |    1 
+ services/network/network_context.cc                                                 |    3 --
  url/gurl.cc                                                                         |    2 -
- 13 files changed, 7 insertions(+), 53 deletions(-)
+ 13 files changed, 8 insertions(+), 54 deletions(-)
 
 --- a/components/signin/internal/identity_manager/primary_account_manager.cc
 +++ b/components/signin/internal/identity_manager/primary_account_manager.cc
-@@ -130,18 +130,6 @@ void PrimaryAccountManager::SetSyncPrima
+@@ -146,18 +146,6 @@ void PrimaryAccountManager::SetSyncPrima
    DCHECK(!account_info.account_id.empty());
    DCHECK(!HasPrimaryAccount(signin::ConsentLevel::kSync));
  
@@ -39,7 +39,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  
    SetPrimaryAccountInternal(account_info, /*consented_to_sync=*/true);
  
-@@ -367,7 +355,5 @@ void PrimaryAccountManager::OnRefreshTok
+@@ -361,7 +349,5 @@ void PrimaryAccountManager::OnRefreshTok
      account_tracker_service_->SetMigrationDone();
      client_->GetPrefs()->CommitPendingWrite();
    }
@@ -49,7 +49,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  }
 --- a/build/config/compiler/BUILD.gn
 +++ b/build/config/compiler/BUILD.gn
-@@ -264,7 +264,7 @@ config("compiler") {
+@@ -259,7 +259,7 @@ config("compiler") {
    cflags_cc = []
    cflags_objc = []
    cflags_objcc = []
@@ -58,7 +58,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
    defines = []
    configs = []
  
-@@ -1741,7 +1741,7 @@ config("no_rtti") {
+@@ -1798,7 +1798,7 @@ config("no_rtti") {
  # to heap-allocated memory are passed over shared library boundaries.
  config("export_dynamic") {
    # TODO(crbug.com/1052397): Revisit after target_os flip is completed.
@@ -67,16 +67,16 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
      ldflags = [ "-rdynamic" ]
    }
  }
-@@ -1916,8 +1916,6 @@ if (is_win) {
+@@ -1973,8 +1973,6 @@ if (is_win) {
      common_optimize_on_cflags += [
        # Put data and code in their own sections, so that unused symbols
        # can be removed at link time with --gc-sections.
 -      "-fdata-sections",
 -      "-ffunction-sections",
      ]
-     if (!is_nacl && is_clang) {
+     if ((!is_nacl || is_nacl_saigo) && is_clang) {
        # We don't care about unique section names, this makes object files a bit
-@@ -1930,7 +1928,6 @@ if (is_win) {
+@@ -1987,7 +1985,6 @@ if (is_win) {
        # See http://lwn.net/Articles/192624/ .
        # -O2 enables string tail merge optimization in gold and lld.
        "-Wl,-O2",
@@ -84,7 +84,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
      ]
    }
  }
-@@ -2319,7 +2316,7 @@ config("symbols") {
+@@ -2373,7 +2370,7 @@ config("symbols") {
          # sections (llvm.org/PR34820).
          cflags += [ "-ggnu-pubnames" ]
        }
@@ -95,7 +95,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  
 --- a/components/policy/core/browser/configuration_policy_handler.cc
 +++ b/components/policy/core/browser/configuration_policy_handler.cc
-@@ -359,7 +359,6 @@ SchemaValidatingPolicyHandler::SchemaVal
+@@ -360,7 +360,6 @@ SchemaValidatingPolicyHandler::SchemaVal
      Schema schema,
      SchemaOnErrorStrategy strategy)
      : NamedPolicyHandler(policy_name), schema_(schema), strategy_(strategy) {
@@ -105,7 +105,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  SchemaValidatingPolicyHandler::~SchemaValidatingPolicyHandler() {}
 --- a/components/signin/internal/identity_manager/profile_oauth2_token_service_builder.cc
 +++ b/components/signin/internal/identity_manager/profile_oauth2_token_service_builder.cc
-@@ -197,7 +197,6 @@ std::unique_ptr<ProfileOAuth2TokenServic
+@@ -171,7 +171,6 @@ std::unique_ptr<ProfileOAuth2TokenServic
    // device ID is needed on the network thread, but can only be generated on the
    // main thread.
    std::string device_id = signin::GetSigninScopedDeviceId(pref_service);
@@ -115,7 +115,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
    return std::make_unique<ProfileOAuth2TokenService>(
 --- a/components/omnibox/browser/autocomplete_match.cc
 +++ b/components/omnibox/browser/autocomplete_match.cc
-@@ -1425,16 +1425,6 @@ void AutocompleteMatch::WriteIntoTrace(p
+@@ -1442,16 +1442,6 @@ void AutocompleteMatch::WriteIntoTrace(p
    dict.Add("keyword", keyword);
  }
  
@@ -134,7 +134,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
      const std::u16string& text,
 --- a/components/omnibox/browser/autocomplete_result.cc
 +++ b/components/omnibox/browser/autocomplete_result.cc
-@@ -722,13 +722,6 @@ void AutocompleteResult::CopyFrom(const
+@@ -730,13 +730,6 @@ void AutocompleteResult::CopyFrom(const
  #endif
  }
  
@@ -162,7 +162,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  
 --- a/components/omnibox/browser/autocomplete_controller.cc
 +++ b/components/omnibox/browser/autocomplete_controller.cc
-@@ -739,9 +739,6 @@ void AutocompleteController::UpdateResul
+@@ -754,9 +754,6 @@ void AutocompleteController::UpdateResul
  
    // Need to validate before invoking CopyOldMatches as the old matches are not
    // valid against the current input.
@@ -186,7 +186,16 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  bool InputEventStreamValidator::ValidateImpl(
 --- a/services/network/network_context.cc
 +++ b/services/network/network_context.cc
-@@ -1137,7 +1137,6 @@ void NetworkContext::QueueReport(
+@@ -1165,7 +1165,7 @@ void NetworkContext::SetDocumentReportin
+ 
+ void NetworkContext::SendReportsAndRemoveSource(
+     const base::UnguessableToken& reporting_source) {
+-  NOTREACHED();
++//   NOTREACHED();
+ }
+ 
+ void NetworkContext::QueueReport(
+@@ -1176,7 +1176,6 @@ void NetworkContext::QueueReport(
      const net::NetworkIsolationKey& network_isolation_key,
      const absl::optional<std::string>& user_agent,
      base::Value body) {
@@ -207,7 +216,7 @@ Subject: Remove DCHECK and other lines causing Debug builds to fail
  
 --- a/base/logging.cc
 +++ b/base/logging.cc
-@@ -882,7 +882,7 @@ LogMessage::~LogMessage() {
+@@ -908,7 +908,7 @@ LogMessage::~LogMessage() {
  #if defined(OFFICIAL_BUILD) && defined(NDEBUG)
        IMMEDIATE_CRASH();
  #else

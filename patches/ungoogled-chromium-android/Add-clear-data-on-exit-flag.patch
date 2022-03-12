@@ -1,0 +1,170 @@
+description: Add flag to clear data on exit on Android
+author: Wengling Chen <feiyu2817@gmail.com>
+
+---
+ chrome/android/java/src/org/chromium/chrome/browser/ApplicationLifetime.java                   |   12 +++++++
+ chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java                  |    4 +-
+ chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java                    |    5 ++
+ chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java |    1 
+ chrome/browser/lifetime/application_lifetime_android.cc                                        |   17 ++++++++++
+ chrome/browser/profiles/chrome_browser_main_extra_parts_profiles.cc                            |    4 --
+ chrome/browser/ungoogled_flag_entries.h                                                        |    2 -
+ components/browsing_data/core/features.cc                                                      |    2 -
+ 8 files changed, 41 insertions(+), 6 deletions(-)
+
+--- a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
++++ b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
+@@ -234,6 +234,7 @@ public abstract class ChromeFeatureList
+     public static final String CCT_RESOURCE_PREFETCH = "CCTResourcePrefetch";
+     public static final String CCT_REPORT_PARALLEL_REQUEST_STATUS =
+             "CCTReportParallelRequestStatus";
++    public static final String CLEAR_DATA_ON_EXIT = "ClearDataOnExit";
+     public static final String CLOSE_ALL_TABS_MODAL_DIALOG = "CloseAllTabsModalDialog";
+     public static final String CLOSE_TAB_SUGGESTIONS = "CloseTabSuggestions";
+     public static final String DONT_AUTO_HIDE_BROWSER_CONTROLS = "DontAutoHideBrowserControls";
+--- a/chrome/browser/profiles/chrome_browser_main_extra_parts_profiles.cc
++++ b/chrome/browser/profiles/chrome_browser_main_extra_parts_profiles.cc
+@@ -132,6 +132,7 @@
+ #include "chrome/browser/android/reading_list/reading_list_notification_service_factory.h"
+ #include "chrome/browser/android/search_permissions/search_permissions_service.h"
+ #include "chrome/browser/android/thin_webview/chrome_thin_webview_initializer.h"
++#include "chrome/browser/browsing_data/chrome_browsing_data_lifetime_manager_factory.h"
+ #include "chrome/browser/commerce/commerce_feature_list.h"
+ #include "chrome/browser/commerce/merchant_viewer/merchant_signal_db_content.pb.h"
+ #include "chrome/browser/commerce/merchant_viewer/merchant_viewer_data_manager_factory.h"
+@@ -139,7 +140,6 @@
+ #include "chrome/browser/media/android/cdm/media_drm_origin_id_manager_factory.h"
+ #else
+ #include "chrome/browser/apps/app_service/app_service_proxy_factory.h"
+-#include "chrome/browser/browsing_data/chrome_browsing_data_lifetime_manager_factory.h"
+ #include "chrome/browser/cart/cart_db_content.pb.h"
+ #include "chrome/browser/cart/cart_service_factory.h"
+ #include "chrome/browser/commerce/coupons/coupon_db_content.pb.h"
+@@ -311,9 +311,7 @@ void ChromeBrowserMainExtraPartsProfiles
+ #if BUILDFLAG(IS_CHROMEOS_LACROS)
+   CertDbInitializerFactory::GetInstance();
+ #endif
+-#if !BUILDFLAG(IS_ANDROID)
+   ChromeBrowsingDataLifetimeManagerFactory::GetInstance();
+-#endif
+   ChromeBrowsingDataRemoverDelegateFactory::GetInstance();
+   ChromeSigninClientFactory::GetInstance();
+   ClientHintsFactory::GetInstance();
+--- a/components/browsing_data/core/features.cc
++++ b/components/browsing_data/core/features.cc
+@@ -14,7 +14,7 @@ const base::Feature kEnableRemovingAllTh
+ 
+ #if BUILDFLAG(IS_ANDROID)
+ const base::Feature kEnableBrowsingDataLifetimeManager{
+-    "BrowsingDataLifetimeManager", base::FEATURE_DISABLED_BY_DEFAULT};
++    "BrowsingDataLifetimeManager", base::FEATURE_ENABLED_BY_DEFAULT};
+ #else
+ const base::Feature kEnableBrowsingDataLifetimeManager{
+     "BrowsingDataLifetimeManager", base::FEATURE_ENABLED_BY_DEFAULT};
+--- a/chrome/browser/ungoogled_flag_entries.h
++++ b/chrome/browser/ungoogled_flag_entries.h
+@@ -63,7 +63,7 @@
+     {"clear-data-on-exit",
+      "Clear data on exit",
+      "Clears all browsing data on exit.  ungoogled-chromium flag",
+-     kOsDesktop, FEATURE_VALUE_TYPE(browsing_data::features::kClearDataOnExit)},
++     kOsAll, FEATURE_VALUE_TYPE(browsing_data::features::kClearDataOnExit)},
+     {"remove-tabsearch-button",
+      "Remove Tabsearch Button",
+      "Removes the tabsearch button from the tabstrip.  ungoogled-chromium flag",
+--- a/chrome/browser/lifetime/application_lifetime_android.cc
++++ b/chrome/browser/lifetime/application_lifetime_android.cc
+@@ -9,8 +9,11 @@
+ #include "base/android/jni_android.h"
+ #include "chrome/android/chrome_jni_headers/ApplicationLifetime_jni.h"
+ #include "chrome/browser/browser_process.h"
++#include "chrome/browser/browsing_data/chrome_browsing_data_lifetime_manager.h"
++#include "chrome/browser/browsing_data/chrome_browsing_data_lifetime_manager_factory.h"
+ #include "chrome/browser/lifetime/application_lifetime.h"
+ #include "chrome/browser/profiles/profile.h"
++#include "chrome/browser/profiles/profile_manager.h"
+ #include "chrome/common/pref_names.h"
+ #include "components/prefs/pref_service.h"
+ #include "content/public/browser/browser_context.h"
+@@ -33,8 +36,22 @@ void TerminateAndroid() {
+     prefs->ClearPref(prefs::kRestartLastSessionOnShutdown);
+   }
+ 
++  auto* browsing_data_lifetime_manager =
++      ChromeBrowsingDataLifetimeManagerFactory::GetForProfile(
++          ProfileManager::GetActiveUserProfile());
++  if (browsing_data_lifetime_manager) {
++    // Delete browsing data set by the ClearBrowsingDataOnExitList policy.
++    browsing_data_lifetime_manager->ClearBrowsingDataForOnExitPolicy(
++        /*keep_browser_alive=*/true);
++  }
++
+   JNIEnv* env = base::android::AttachCurrentThread();
+   Java_ApplicationLifetime_terminate(env, restart);
+ }
+ 
++// static
++void JNI_ApplicationLifetime_TerminateAndroid(JNIEnv* env) {
++  AttemptExit();
++}
++
+ }  // namespace chrome
+--- a/chrome/android/java/src/org/chromium/chrome/browser/ApplicationLifetime.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/ApplicationLifetime.java
+@@ -4,12 +4,15 @@
+ 
+ package org.chromium.chrome.browser;
+ 
++import org.chromium.base.annotations.JNINamespace;
++import org.chromium.base.annotations.NativeMethods;
+ import org.chromium.base.ObserverList;
+ import org.chromium.base.annotations.CalledByNative;
+ 
+ /**
+  * Watches for when Chrome is told to restart itself.
+  */
++@JNINamespace("chrome")
+ public class ApplicationLifetime {
+     /**
+      * Interface to be implemented to be notified of application termination.
+@@ -46,4 +49,13 @@ public class ApplicationLifetime {
+             observer.onTerminate(restart);
+         }
+     }
++
++    public static void terminateAndroid() {
++        ApplicationLifetimeJni.get().terminateAndroid();
++    }
++
++    @NativeMethods
++    interface Natives {
++        void terminateAndroid();
++    }
+ }
+--- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
+@@ -2063,7 +2063,9 @@ public class ChromeTabbedActivity extend
+         } else if (id == R.id.close_tab) {
+             getCurrentTabModel().closeTab(currentTab, true, false, true);
+             RecordUserAction.record("MobileTabClosed");
+-        } else if (id == R.id.close_all_tabs_menu_id) {
++        } else if (id == R.id.exit_id) {
++            ApplicationLifetime.terminateAndroid();
++         } else if (id == R.id.close_all_tabs_menu_id) {
+             if (ChromeFeatureList.isEnabled(ChromeFeatureList.CLOSE_ALL_TABS_MODAL_DIALOG)) {
+                 CloseAllTabsDialog.show(this, getModalDialogManagerSupplier(),
+                         () -> getTabModelSelector().closeAllTabs(), /*isIncognito=*/false);
+--- a/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
+@@ -2463,6 +2463,11 @@ public abstract class ChromeActivity<C e
+             return true;
+         }
+ 
++        if (id == R.id.exit_id) {
++            ApplicationLifetime.terminateAndroid();
++             return true;
++         }
++
+         if (id == R.id.update_menu_id) {
+             UpdateMenuItemHelper.getInstance().onMenuItemClicked(this);
+             return true;

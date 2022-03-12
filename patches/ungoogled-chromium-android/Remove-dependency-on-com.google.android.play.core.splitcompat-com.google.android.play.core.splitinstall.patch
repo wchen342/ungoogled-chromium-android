@@ -7,7 +7,6 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
  chrome/browser/language/android/BUILD.gn                                                                                    |    1 
  chrome/browser/language/android/java/src/org/chromium/chrome/browser/language/LanguageSplitInstaller.java                   |   63 ----------
  components/module_installer/android/BUILD.gn                                                                                |    2 
- components/module_installer/android/java/src/org/chromium/components/module_installer/engine/FakeEngine.java                |   13 --
  components/module_installer/android/java/src/org/chromium/components/module_installer/engine/SplitCompatEngine.java         |   50 -------
  components/module_installer/android/java/src/org/chromium/components/module_installer/engine/SplitCompatEngineFacade.java   |   21 ---
  components/module_installer/android/java/src/org/chromium/components/module_installer/logger/Logger.java                    |    9 -
@@ -17,39 +16,8 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
  components/module_installer/android/java/src/org/chromium/components/module_installer/logger/SplitInstallStatusLogger.java  |   27 ----
  components/module_installer/android/java/src/org/chromium/components/module_installer/util/CrashKeyRecorder.java            |    6 
  components/module_installer/android/java/src/org/chromium/components/module_installer/util/SplitCompatInitializer.java      |    5 
- 14 files changed, 22 insertions(+), 267 deletions(-)
+ 13 files changed, 21 insertions(+), 255 deletions(-)
 
---- a/components/module_installer/android/java/src/org/chromium/components/module_installer/engine/FakeEngine.java
-+++ b/components/module_installer/android/java/src/org/chromium/components/module_installer/engine/FakeEngine.java
-@@ -7,9 +7,6 @@ package org.chromium.components.module_i
- import android.content.Context;
- import android.content.pm.PackageManager;
- 
--import com.google.android.play.core.splitcompat.SplitCompat;
--import com.google.android.play.core.splitcompat.ingestion.Verifier;
--
- import org.chromium.base.BuildInfo;
- import org.chromium.base.ContextUtils;
- import org.chromium.base.Log;
-@@ -130,17 +127,9 @@ class FakeEngine extends SplitCompatEngi
-         }
- 
-         // Check that the module's signature matches Chrome's.
--        try {
--            Verifier verifier = new Verifier(context);
--            if (!verifier.verifySplits()) {
--                return false;
--            }
--        } catch (IOException | PackageManager.NameNotFoundException e) {
--            return false;
--        }
- 
-         // Tell SplitCompat to do a full emulation of the module.
--        return SplitCompat.fullInstall(context);
-+        return false;
-     }
- 
-     private File joinPaths(String... paths) {
 --- a/components/module_installer/android/java/src/org/chromium/components/module_installer/engine/SplitCompatEngine.java
 +++ b/components/module_installer/android/java/src/org/chromium/components/module_installer/engine/SplitCompatEngine.java
 @@ -8,11 +8,6 @@ import android.app.Activity;
@@ -529,7 +497,7 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
  }
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -2517,7 +2517,6 @@ android_library("base_module_java") {
+@@ -2540,7 +2540,6 @@ android_library("base_module_java") {
      "//components/media_router/browser/android:cast_options_provider_java",
      "//components/minidump_uploader:minidump_uploader_java",
      "//components/module_installer/android:module_installer_java",
@@ -542,7 +510,7 @@ Subject: Remove dependency on com.google.android.play.core.splitcompat, com.goog
 @@ -15,7 +15,6 @@ android_library("base_module_java") {
      "//base:base_java",
      "//chrome/browser/preferences:java",
-     "//components/language/android:language_bridge_java",
+     "//components/language/android:java",
 -    "//third_party/android_deps:com_google_android_play_core_java",
      "//third_party/androidx:androidx_annotation_annotation_java",
      "//ui/android:ui_no_recycler_view_java",

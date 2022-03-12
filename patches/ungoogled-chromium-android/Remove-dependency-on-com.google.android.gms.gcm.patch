@@ -8,15 +8,15 @@ The snippets are already disabled in native codes, this will disable it on Java 
  chrome/android/BUILD.gn                                                                                   |    3 
  chrome/android/java/src/com/google/ipc/invalidation/ticl/android2/channel/GcmRegistrationTaskService.java |   10 --
  chrome/android/java/src/org/chromium/chrome/browser/ChromeBackgroundServiceImpl.java                      |   44 ---------
- chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatGcmTaskService.java                   |   40 --------
+ chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatGcmTaskService.java                   |   35 -------
  components/background_task_scheduler/BUILD.gn                                                             |    1 
  components/background_task_scheduler/internal/BUILD.gn                                                    |    2 
  third_party/android_deps/BUILD.gn                                                                         |   46 ----------
- 7 files changed, 3 insertions(+), 143 deletions(-)
+ 7 files changed, 3 insertions(+), 138 deletions(-)
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -315,7 +315,6 @@ android_library("chrome_java") {
+@@ -313,7 +313,6 @@ android_library("chrome_java") {
      "$google_play_services_package:google_play_services_cast_framework_java",
      "$google_play_services_package:google_play_services_cast_java",
      "$google_play_services_package:google_play_services_fido_java",
@@ -24,7 +24,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
      "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
      "$google_play_services_package:google_play_services_vision_common_java",
-@@ -1279,7 +1278,6 @@ android_library("chrome_test_java") {
+@@ -1290,7 +1289,6 @@ android_library("chrome_test_java") {
      "$google_play_services_package:google_play_services_cast_framework_java",
      "$google_play_services_package:google_play_services_cast_java",
      "$google_play_services_package:google_play_services_fido_java",
@@ -32,7 +32,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
      "$google_play_services_package:google_play_services_iid_java",
      "$google_play_services_package:google_play_services_tasks_java",
      "//base:base_java",
-@@ -2336,7 +2334,6 @@ android_library("browser_java_test_suppo
+@@ -2358,7 +2356,6 @@ android_library("browser_java_test_suppo
    ]
    deps = [
      ":chrome_java",
@@ -74,7 +74,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
    android_aar_prebuilt("google_play_services_iid_java") {
      aar_path = "libs/com_google_android_gms_play_services_iid/play-services-iid-17.0.0.aar"
      info_path = "libs/com_google_android_gms_play_services_iid/com_google_android_gms_play_services_iid.info"
-@@ -1847,20 +1832,6 @@ if (!limit_android_deps) {
+@@ -1854,20 +1839,6 @@ if (!limit_android_deps) {
    }
  
    # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
@@ -95,7 +95,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
    android_aar_prebuilt("google_play_services_clearcut_java") {
      aar_path = "libs/com_google_android_gms_play_services_clearcut/play-services-clearcut-17.0.0.aar"
      info_path = "libs/com_google_android_gms_play_services_clearcut/com_google_android_gms_play_services_clearcut.info"
-@@ -1880,23 +1851,6 @@ if (!limit_android_deps) {
+@@ -1887,23 +1858,6 @@ if (!limit_android_deps) {
      ]
    }
  
@@ -161,13 +161,15 @@ The snippets are already disabled in native codes, this will disable it on Java 
  }
 --- a/chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatGcmTaskService.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/base/SplitCompatGcmTaskService.java
-@@ -6,56 +6,18 @@ package org.chromium.chrome.browser.base
+@@ -6,58 +6,25 @@ package org.chromium.chrome.browser.base
  
  import android.content.Context;
  
 -import com.google.android.gms.gcm.GcmTaskService;
 -import com.google.android.gms.gcm.TaskParams;
 -
+ import org.chromium.base.BundleUtils;
+ 
  /**
   * GcmTaskService base class which will call through to the given {@link Impl}. This class must be
   * present in the base module, while the Impl can be in the chrome module.
@@ -183,8 +185,8 @@ The snippets are already disabled in native codes, this will disable it on Java 
  
 -    @Override
      protected void attachBaseContext(Context context) {
-         context = SplitCompatUtils.createChromeContext(context);
--        mImpl = (Impl) SplitCompatUtils.newInstance(context, mServiceClassName);
+         context = SplitCompatApplication.createChromeContext(context);
+-        mImpl = (Impl) BundleUtils.newInstance(context, mServiceClassName);
 -        mImpl.setService(this);
 -        super.attachBaseContext(context);
 -    }
@@ -197,12 +199,12 @@ The snippets are already disabled in native codes, this will disable it on Java 
 -    @Override
 -    public void onInitializeTasks() {
 -        mImpl.onInitializeTasks();
--    }
--
--    /**
--     * Holds the implementation of service logic. Will be called by {@link
--     * SplitCompatGcmTaskService}.
--     */
+     }
+ 
+     /**
+      * Holds the implementation of service logic. Will be called by {@link
+      * SplitCompatGcmTaskService}.
+      */
 -    public abstract static class Impl {
 -        private SplitCompatGcmTaskService mService;
 -
@@ -217,7 +219,7 @@ The snippets are already disabled in native codes, this will disable it on Java 
 -        public abstract int onRunTask(TaskParams params);
 -
 -        public void onInitializeTasks() {}
-     }
+-    }
  }
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeBackgroundServiceImpl.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeBackgroundServiceImpl.java

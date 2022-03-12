@@ -1,6 +1,11 @@
+# 99.0.4844.51-1
+* Add clear data on exit flag
+* Add flag to disable WebRTC until a UI can be implemented (See [discussion](https://github.com/ungoogled-software/ungoogled-chromium-android/discussions/116)). This flag is enabled by default
+* Add a fix for Note9 on Android 8 (Thanks to @uazo)
+
 # 97.0.4692.71-1
 * Upstream update
-* 
+
 # 96.0.4664.110-1
 * Upstream update
 

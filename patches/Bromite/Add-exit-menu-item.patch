@@ -5,15 +5,15 @@ Subject: Add exit menu item
 Corrected Exit functionality
 ---
  chrome/android/java/res/menu/main_menu.xml                                             |    6 ++++++
- chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java          |    4 ++++
- chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java            |    6 ++++++
+ chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java          |    2 ++
+ chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java            |    1 +
  chrome/android/java/src/org/chromium/chrome/browser/init/ChromeLifetimeController.java |    6 +++++-
  chrome/browser/ui/android/strings/android_chrome_strings.grd                           |    3 +++
- 5 files changed, 24 insertions(+), 1 deletion(-)
+ 5 files changed, 17 insertions(+), 1 deletion(-)
 
 --- a/chrome/android/java/res/menu/main_menu.xml
 +++ b/chrome/android/java/res/menu/main_menu.xml
-@@ -144,6 +144,9 @@
+@@ -150,6 +150,9 @@
              android:icon="@drawable/gm_filled_cardboard_24" />
          <item android:id="@+id/managed_by_menu_id"
              android:title="@string/managed" />
@@ -23,7 +23,7 @@ Corrected Exit functionality
      </group>
  
      <!-- Items shown only in the tab switcher -->
-@@ -170,6 +173,9 @@
+@@ -176,6 +179,9 @@
          <item android:id="@id/preferences_id"
              android:title="@string/menu_settings"
              android:icon="@drawable/settings_cog" />
@@ -35,7 +35,7 @@ Corrected Exit functionality
      <!-- Items shown only when the tablet has no visible tabs -->
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-@@ -212,6 +212,8 @@ import java.util.HashSet;
+@@ -213,6 +213,8 @@ import java.util.HashSet;
  import java.util.List;
  import java.util.Locale;
  
@@ -44,15 +44,6 @@ Corrected Exit functionality
  /**
   * This is the main activity for ChromeMobile when not running in document mode.  All the tabs
   * are accessible via a chrome specific tab switching UI.
-@@ -2038,6 +2040,8 @@ public class ChromeTabbedActivity extend
-         } else if (id == R.id.close_tab) {
-             getCurrentTabModel().closeTab(currentTab, true, false, true);
-             RecordUserAction.record("MobileTabClosed");
-+        } else if (id == R.id.exit_id) {
-+            ApplicationLifetime.terminate(false);
-         } else if (id == R.id.close_all_tabs_menu_id) {
-             // Close both incognito and normal tabs
-             getTabModelSelector().closeAllTabs();
 --- a/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
 @@ -65,6 +65,7 @@ import org.chromium.chrome.R;
@@ -63,18 +54,6 @@ Corrected Exit functionality
  import org.chromium.chrome.browser.ChromeActivitySessionTracker;
  import org.chromium.chrome.browser.ChromeApplicationImpl;
  import org.chromium.chrome.browser.ChromeKeyboardVisibilityDelegate;
-@@ -2421,6 +2422,11 @@ public abstract class ChromeActivity<C e
-             return true;
-         }
- 
-+        if (id == R.id.exit_id) {
-+            ApplicationLifetime.terminate(false);
-+            return true;
-+        }
-+
-         if (id == R.id.update_menu_id) {
-             UpdateMenuItemHelper.getInstance().onMenuItemClicked(this);
-             return true;
 --- a/chrome/android/java/src/org/chromium/chrome/browser/init/ChromeLifetimeController.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/init/ChromeLifetimeController.java
 @@ -82,7 +82,11 @@ class ChromeLifetimeController implement
@@ -92,7 +71,7 @@ Corrected Exit functionality
      @Override
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -3261,6 +3261,9 @@ To change this setting, <ph name="BEGIN_
+@@ -3404,6 +3404,9 @@ To change this setting, <ph name="BEGIN_
        <message name="IDS_MENU_AUTO_DARK_WEB_CONTENTS" desc="Menu item in Chrome's overflow/options menu. When Chrome's browser UI is set to dark theme and this option is checked, sites will have a dark theme automatically applied as well. [CHAR_LIMIT=24]">
          Dark theme
        </message>

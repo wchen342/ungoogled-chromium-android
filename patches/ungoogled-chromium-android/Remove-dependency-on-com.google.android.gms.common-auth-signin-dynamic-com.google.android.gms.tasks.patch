@@ -44,7 +44,7 @@ Subject: Remove dependency on
 
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -309,9 +309,6 @@ android_library("chrome_java") {
+@@ -307,9 +307,6 @@ android_library("chrome_java") {
      ":chrome_public_apk_template_resources",
      ":update_proto_java",
      ":usage_stats_proto_java",
@@ -54,8 +54,8 @@ Subject: Remove dependency on
      "//base:base_java",
      "//cc:cc_java",
      "//chrome/android/features/keyboard_accessory:public_java",
-@@ -897,8 +894,6 @@ junit_binary("chrome_junit_tests") {
-     ":chrome_java",
+@@ -903,8 +900,6 @@ junit_binary("chrome_junit_tests") {
+     ":chrome_jni_headers",
      ":chrome_public_android_manifest",
      ":delegate_public_impl_java",
 -    "$google_play_services_package:google_play_services_base_java",
@@ -63,7 +63,7 @@ Subject: Remove dependency on
      "//base:base_java",
      "//base:base_java_test_support",
      "//base:base_junit_test_support",
-@@ -1263,9 +1258,6 @@ android_library("chrome_test_java") {
+@@ -1274,9 +1269,6 @@ android_library("chrome_test_java") {
      ":chrome_test_util_java",
      ":chrome_test_util_jni",
      ":delegate_public_impl_java",
@@ -363,7 +363,7 @@ Subject: Remove dependency on
          private long getSize(StatFs statFs) {
 --- a/chrome/test/android/BUILD.gn
 +++ b/chrome/test/android/BUILD.gn
-@@ -307,8 +307,6 @@ android_library("chrome_java_test_suppor
+@@ -306,8 +306,6 @@ android_library("chrome_java_test_suppor
    ]
  
    deps = [
@@ -447,7 +447,7 @@ Subject: Remove dependency on
      "//components/download/public/common:public_java",
 --- a/content/test/BUILD.gn
 +++ b/content/test/BUILD.gn
-@@ -2868,9 +2868,6 @@ if (is_android) {
+@@ -2922,9 +2922,6 @@ if (is_android) {
      testonly = true
      sources = content_java_sources_needing_jni
      deps = [
@@ -459,7 +459,7 @@ Subject: Remove dependency on
        "//ui/android:ui_full_java",
 --- a/device/BUILD.gn
 +++ b/device/BUILD.gn
-@@ -447,8 +447,6 @@ if (is_android) {
+@@ -451,8 +451,6 @@ if (is_android) {
        "gamepad/android/junit/src/org/chromium/device/gamepad/GamepadMappingsTest.java",
      ]
      deps = [
@@ -512,7 +512,7 @@ Subject: Remove dependency on
        "//services/device/public/java:geolocation_java",
 --- a/services/shape_detection/BUILD.gn
 +++ b/services/shape_detection/BUILD.gn
-@@ -107,8 +107,6 @@ if (is_android) {
+@@ -115,8 +115,6 @@ if (is_android) {
      ]
  
      deps = [
@@ -628,7 +628,7 @@ Subject: Remove dependency on
 -  # This is generated, do not edit. Update BuildConfigGenerator.groovy instead.
    android_aar_prebuilt("com_google_android_material_material_java") {
      aar_path =
-         "libs/com_google_android_material_material/material-1.5.0-alpha05.aar"
+         "libs/com_google_android_material_material/material-1.6.0-alpha01.aar"
 --- a/chrome/android/java/src/org/chromium/chrome/browser/PlayServicesVersionInfo.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/PlayServicesVersionInfo.java
 @@ -7,8 +7,6 @@ package org.chromium.chrome.browser;
@@ -908,7 +908,7 @@ Subject: Remove dependency on
      }
 --- a/components/webauthn/android/BUILD.gn
 +++ b/components/webauthn/android/BUILD.gn
-@@ -26,7 +26,6 @@ android_library("java") {
+@@ -27,7 +27,6 @@ android_library("java") {
    ]
    annotation_processor_deps = [ "//base/android/jni_generator:jni_processor" ]
    deps = [

@@ -22,7 +22,7 @@ See discussions at:
  base/android/android_image_reader_compat.h  |    4 ++++
  chrome/browser/flag-metadata.json           |    2 +-
  gpu/config/gpu_driver_bug_list.json         |   16 ++++++++++++++++
- gpu/config/gpu_finch_features.cc            |    5 +++++
+ gpu/config/gpu_finch_features.cc            |    4 ++++
  gpu/config/gpu_finch_features.h             |    1 +
  gpu/config/gpu_util.cc                      |    8 ++++++++
  gpu/config/gpu_workaround_list.txt          |    1 +
@@ -30,7 +30,7 @@ See discussions at:
  gpu/ipc/service/stream_texture_android.cc   |   11 ++++++++++-
  media/base/media_switches.cc                |    4 ++++
  media/base/media_switches.h                 |    1 +
- 12 files changed, 63 insertions(+), 3 deletions(-)
+ 12 files changed, 62 insertions(+), 3 deletions(-)
 
 --- a/base/android/android_image_reader_compat.cc
 +++ b/base/android/android_image_reader_compat.cc
@@ -59,7 +59,7 @@ See discussions at:
  AndroidImageReader::AndroidImageReader() : is_supported_(LoadFunctions()) {}
 --- a/base/android/android_image_reader_compat.h
 +++ b/base/android/android_image_reader_compat.h
-@@ -25,6 +25,9 @@ class BASE_EXPORT AndroidImageReader {
+@@ -24,6 +24,9 @@ class BASE_EXPORT AndroidImageReader {
    AndroidImageReader(const AndroidImageReader&) = delete;
    AndroidImageReader& operator=(const AndroidImageReader&) = delete;
  
@@ -69,7 +69,7 @@ See discussions at:
    // Check if the image reader usage is supported. This function returns TRUE
    // if android version is >=OREO, image reader support is not disabled and all
    // the required functions are loaded.
-@@ -62,6 +65,7 @@ class BASE_EXPORT AndroidImageReader {
+@@ -61,6 +64,7 @@ class BASE_EXPORT AndroidImageReader {
    jobject ANativeWindow_toSurface(JNIEnv* env, ANativeWindow* window);
  
   private:
@@ -79,7 +79,7 @@ See discussions at:
    AndroidImageReader();
 --- a/chrome/browser/flag-metadata.json
 +++ b/chrome/browser/flag-metadata.json
-@@ -2097,7 +2097,7 @@
+@@ -2161,7 +2161,7 @@
    {
      "name": "enable-image-reader",
      "owners": [ "vikassoni", "liberato" ],
@@ -115,11 +115,10 @@ See discussions at:
        "description": "DXVA video decoder crashes on some AMD GPUs.",
 --- a/gpu/config/gpu_finch_features.cc
 +++ b/gpu/config/gpu_finch_features.cc
-@@ -52,6 +52,11 @@ bool IsDeviceBlocked(const char* field,
+@@ -53,6 +53,10 @@ bool IsDeviceBlocked(const char* field,
  }  // namespace
  
- #if defined(OS_ANDROID)
-+
+ #if BUILDFLAG(IS_ANDROID)
 +// Use android AImageReader when playing videos with MediaPlayer.
 +const base::Feature kAImageReaderMediaPlayer{"AImageReaderMediaPlayer",
 +                                  base::FEATURE_ENABLED_BY_DEFAULT};
@@ -132,15 +131,15 @@ See discussions at:
 @@ -17,6 +17,7 @@ namespace features {
  // All features in alphabetical order. The features should be documented
  // alongside the definition of their values in the .cc file.
- #if defined(OS_ANDROID)
+ #if BUILDFLAG(IS_ANDROID)
 +GPU_EXPORT extern const base::Feature kAImageReaderMediaPlayer;
  GPU_EXPORT extern const base::Feature kUseGles2ForOopR;
  GPU_EXPORT extern const base::Feature kAndroidSurfaceControl;
  GPU_EXPORT extern const base::Feature kWebViewSurfaceControl;
 --- a/gpu/config/gpu_util.cc
 +++ b/gpu/config/gpu_util.cc
-@@ -114,6 +114,9 @@ GpuFeatureStatus GetAndroidSurfaceContro
- #if !defined(OS_ANDROID)
+@@ -116,6 +116,9 @@ GpuFeatureStatus GetAndroidSurfaceContro
+ #if !BUILDFLAG(IS_ANDROID)
    return kGpuFeatureStatusDisabled;
  #else
 +  if (blocklisted_features.count(GPU_FEATURE_TYPE_ANDROID_SURFACE_CONTROL))
@@ -149,7 +148,7 @@ See discussions at:
    if (!gpu_preferences.enable_android_surface_control)
      return kGpuFeatureStatusDisabled;
  
-@@ -356,6 +359,11 @@ void AdjustGpuFeatureStatusToWorkarounds
+@@ -324,6 +327,11 @@ void AdjustGpuFeatureStatusToWorkarounds
      gpu_feature_info->status_values[GPU_FEATURE_TYPE_CANVAS_OOP_RASTERIZATION] =
          kGpuFeatureStatusBlocklisted;
    }
@@ -163,19 +162,19 @@ See discussions at:
  // Estimates roughly user total disk space by counting in the drives where
 --- a/gpu/config/gpu_workaround_list.txt
 +++ b/gpu/config/gpu_workaround_list.txt
-@@ -14,6 +14,7 @@ decode_encode_srgb_for_generatemipmap
+@@ -13,6 +13,7 @@ count_all_in_varyings_packing
+ decode_encode_srgb_for_generatemipmap
  depth_stencil_renderbuffer_resize_emulation
  disable_2d_canvas_auto_flush
- disable_accelerated_av1_decode
 +disable_aimagereader
- disable_accelerated_av1_decode_d3d11
+ disable_accelerated_av1_decode
  disable_accelerated_h264_encode
  disable_accelerated_vp8_decode
 --- a/gpu/ipc/service/gpu_init.cc
 +++ b/gpu/ipc/service/gpu_init.cc
-@@ -521,6 +521,11 @@ bool GpuInit::InitializeAndStartSandbox(
-     }
+@@ -519,6 +519,11 @@ bool GpuInit::InitializeAndStartSandbox(
    }
+ #endif  // defined(OS_MAC)
  
 +  // Disable AImageReader if the workaround is enabled.
 +  if (gpu_feature_info_.IsWorkaroundEnabled(DISABLE_AIMAGEREADER)) {
@@ -214,7 +213,7 @@ See discussions at:
  }
 --- a/media/base/media_switches.cc
 +++ b/media/base/media_switches.cc
-@@ -682,6 +682,10 @@ const base::Feature kMediaDrmPreprovisio
+@@ -667,6 +667,10 @@ const base::Feature kMediaDrmPreprovisio
  // Note: Has no effect if kMediaDrmPreprovisioning feature is disabled.
  const base::Feature kMediaDrmPreprovisioningAtStartup{
      "MediaDrmPreprovisioningAtStartup", base::FEATURE_ENABLED_BY_DEFAULT};
@@ -227,7 +226,7 @@ See discussions at:
  const base::Feature kPictureInPictureAPI{"PictureInPictureAPI",
 --- a/media/base/media_switches.h
 +++ b/media/base/media_switches.h
-@@ -216,6 +216,7 @@ MEDIA_EXPORT extern const base::Feature
+@@ -212,6 +212,7 @@ MEDIA_EXPORT extern const base::Feature
  MEDIA_EXPORT extern const base::Feature kAllowNonSecureOverlays;
  MEDIA_EXPORT extern const base::Feature kMediaControlsExpandGesture;
  MEDIA_EXPORT extern const base::Feature kMediaDrmPersistentLicense;
