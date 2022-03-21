@@ -51,6 +51,7 @@ In descending order of significance (i.e. most important objective first):
    * Add flag to enable update notifications (disabled by default and will only send a single `GET` request to my server periodically)
    * Add flags to always send `save-data` flag in header
    * Add flags to force tablet UI and desktop mode
+   * Add flag to disable WebRTC. This flag is enabled by default.
 * Borrowed from Bromite:
    * Always incognito mode
    * Bookmark import/export options
@@ -58,7 +59,6 @@ In descending order of significance (i.e. most important objective first):
    * Disable DRM media preprovisioning which leaks connections
    * DNS-over-https by default
    * Exit menu item
-   * Prevent WebRTC address leaking
    * Proxy configuration
    * WebGL flag
 * Borrowed from Vanadium:
